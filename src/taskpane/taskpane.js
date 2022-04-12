@@ -37,7 +37,11 @@
 
 // var lookup = new Object();
 var productIDData = {};
+var projectTypeIDData = {};
 var pickupData = {};
+var proofToClientData = {};
+var creativeProofData = {};
+var officeHoursData = {};
 
 
 Office.onReady((info) => {
@@ -49,12 +53,22 @@ Office.onReady((info) => {
             //load up the validation tables being referenced
             var sheet = context.workbook.worksheets.getItem("Validation");
             var productIDValTable = sheet.tables.getItem("ProductIDTable");
+            var projectTypeIDTable = sheet.tables.getItem("ProjectTypeIDTable")
             var pickedUpValTable = sheet.tables.getItem("PickupTurnaroundTime");
+            var proofToClientValTable = sheet.tables.getItem("ArtTurnaroundTime");
+            var creativeProofTable = sheet.tables.getItem("CreativeProofAdjust");
+            var officeHoursTable = sheet.tables.getItem("OfficeHours");
+
 
 
             //get data from the tables
             var productIDBodyRange = productIDValTable.getDataBodyRange().load("values");
+            var projectTypeIDBodyRange = projectTypeIDTable.getDataBodyRange().load("values");
             var pickedUpBodyRange = pickedUpValTable.getDataBodyRange().load("values");
+            var proofToClientBodyRange = proofToClientValTable.getDataBodyRange().load("values");
+            var creativeProofBodyRange = creativeProofTable.getDataBodyRange().load("values");
+            var officeHoursBodyRange = officeHoursTable.getDataBodyRange().load("values");
+
 
 
             await context.sync();
@@ -72,22 +86,23 @@ Office.onReady((info) => {
                     };
                 };
 
-                console.log(productIDData);
+                // console.log(productIDData);
 
             //#endregion -----------------------------------------------------------------------------
 
 
-            //#region PRODUCT ID DATA (LEGACY) ----------------------------------------------------------------
+            //#region PROJECT TYPE ID DATA ----------------------------------------------------------------
 
-                // var poop = productIDBodyRange.values;
+                var projectTypeIDArr = projectTypeIDBodyRange.values;
 
-                // for (var row of poop) {
+                for (var row of projectTypeIDArr) {
+                    projectTypeIDData[row[0].trim()] = {
+                        "projectType":row[0].trim(),
+                        "projectTypeCode":row[1].trim(),
+                    };
+                };
 
-                //     lookup[`"${row[0].trim()}"`] = row[1];
-
-                // };
-
-                // console.log(lookup);
+                // console.log(projectTypeIDData);
 
             //#endregion -----------------------------------------------------------------------------
 
@@ -95,7 +110,7 @@ Office.onReady((info) => {
             //#region PICKED UP TURN AROUND TIME DATA ------------------------------------------------
 
                 var pickupArr = pickedUpBodyRange.values;
-                console.log(pickupArr);
+                // console.log(pickupArr);
 
                 for (var row of pickupArr) {
                     pickupData[row[0].trim()] = {
@@ -110,9 +125,64 @@ Office.onReady((info) => {
                     }; 
                 };
 
-                console.log(pickupData);
+                // console.log(pickupData);
 
             //#endregion ------------------------------------------------------------------------------
+
+
+            //#region PROOF TO CLIENT TIME DATA ------------------------------------------------
+
+                var proofToClientArr = proofToClientBodyRange.values;
+                // console.log(proofToClientArr);
+
+                for (var row of proofToClientArr) {
+                    proofToClientData[row[0].trim()] = {
+                    "brandNewBuild":row[1],
+                    "brandNewBuildFromNatives":row[2],
+                    "brandNewBuildFromTemplate":row[3],
+                    "changesToExistingNatives":row[4],
+                    "specCheck":row[5],
+                    "weTransferUpload":row[6],
+                    "specialRequest":row[7],
+                    "other":row[8]
+                    }; 
+                };
+
+                // console.log(proofToClientData);
+
+            //#endregion ------------------------------------------------------------------------------
+
+
+            //#region CREATIVE PROOF DATA ----------------------------------------------------------------
+
+                var creativeProofArr = creativeProofBodyRange.values;
+
+                for (var row of creativeProofArr) {
+                    creativeProofData[row[0].trim()] = {
+                        "creativeReviewProcess":row[1]
+                    };
+                };
+
+                // console.log(creativeProofData);
+
+            //#endregion -----------------------------------------------------------------------------
+
+
+            //#region OFFICE HOURS DATA ----------------------------------------------------------------
+
+                var officeHoursArr = officeHoursBodyRange.values;
+
+                for (var row of officeHoursArr) {
+                    officeHoursData[row[0].trim()] = {
+                        "weekday":row[0],
+                        "startTime":row[1],
+                        "endTime":row[2]
+                    };
+                };
+
+                console.log(officeHoursData);
+
+            //#endregion -----------------------------------------------------------------------------
 
         });
         // console.log(info);
@@ -121,9 +191,7 @@ Office.onReady((info) => {
 });
 
 
-// $(function() {
-   
-// });
+
 
 
 
@@ -285,6 +353,19 @@ async function ugh() {
         var toSerial = JSDateToExcelDate(now);
 
         write[0][10] = toSerial;
+
+
+        //get the Pickup Turn Around Time Values based on product and project type returned from arrays
+        // var theProjectTypeCode = projectTypeIDData[projectTypeVal].projectTypeCode;
+
+        // var pickedUpTurnAroundTime = pickupData[productVal].theProjectTypeCode;
+
+
+        //add start override time to # of hours
+
+
+
+        //add new time to date added, then adjust for office hours
 
 
 
@@ -960,7 +1041,7 @@ async function productID(product, option) {
         try {
             await callback();
         } catch (error) {
-            console.error(error);
+            console.log(error);
         }
     }
     //#endregion ---------------------------------------------------------------------------------------------------
