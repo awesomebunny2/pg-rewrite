@@ -2,7 +2,7 @@
 <!-- This file shows how to design a first-run page that provides a welcome screen to the user about the features of the add-in. -->
 
 <!DOCTYPE html>
-<html>
+<html lang="en-US">
 
 <head>
     <meta charset="UTF-8" />
@@ -50,26 +50,26 @@
 
             <div class="input-group">
     
-                <input type="text" id="subject" required class="input-area single"/>
+                <input type="text" id="subject" required class="input-area single" />
     
-                <label for="subject" id="thelabel" class="label unselectable">Subject</label>
-                <p id="warning" class="warning1"></p>
+                <label for="subject" class="label unselectable">Subject</label>
+                <p class="warning" id="warning1"></p>
             </div>
   
             <div class="input-group">
     
               <input type="text" id="client" required class="input-area single"/>
   
-              <label for="client" id="thelabel" class="label unselectable">Client*</label>
-              <p id="warning" class="warning2"></p>
+              <label for="client" class="label unselectable">Client*</label>
+              <p class="warning" id="warning2"></p>
             </div>
 
             <div class="input-group">
     
               <input type="text" id="location" required class="input-area single"/>
   
-              <label for="location" id="thelabel" class="label unselectable">Location</label>
-              <p id="warning"></p>
+              <label for="location" class="label unselectable">Location</label>
+              <p class="warning"></p>
             </div>
   
           </div>
@@ -84,8 +84,8 @@
                   <option></option>
                 </select>
     
-                <label for="product" id="thelabel" class="label unselectable">Product*</label>
-                <p id="warning" class="warning3"></p>
+                <label for="product" class="label unselectable">Product*</label>
+                <p class="warning" id="warning3"></p>
 
               </div>
 
@@ -93,15 +93,14 @@
   
                 <input type="text" id="code" required class="input-area double"/>
     
-                <label for="code" id="thelabel" class="label unselectable">Code</label>
-                <!-- <p id="warning"></p> -->
+                <label for="code" class="label unselectable">Code</label>
+                <!-- <p class="warning"></p> -->
                 
               </div>
 
             </div>
 
           </div>
-          <!-- <p id="warning" class="warning3"></p> -->
 
 
           <div class="main dos">
@@ -114,8 +113,8 @@
                   <option></option>
                 </select>
     
-                <label for="project-type" id="thelabel" class="label unselectable">Project Type*</label>
-                <p id="warning" class="warning4"></p>
+                <label for="project-type" class="label unselectable">Project Type*</label>
+                <p class="warning" id="warning4"></p>
 
               </div>
 
@@ -123,8 +122,8 @@
     
                 <input type="text" id="csm" required class="input-area double"/>
     
-                <label for="csm" id="thelabel" class="label unselectable">CSM</label>
-                <p id="warning"></p>
+                <label for="csm" class="label unselectable">CSM</label>
+                <p class="warning"></p>
                 
               </div>
 
@@ -142,8 +141,8 @@
                   <option></option>
                 </select>
     
-                <label for="print-date" id="thelabel" class="label unselectable">Print Date</label>
-                <p id="warning"></p>
+                <label for="print-date" class="label unselectable">Print Date</label>
+                <p class="warning"></p>
 
               </div>
 
@@ -153,8 +152,8 @@
                   <option></option>
                 </select>
     
-                <label for="group" id="thelabel" class="label unselectable">Group</label>
-                <p id="warning"></p>
+                <label for="group" class="label unselectable">Group</label>
+                <p class="warning"></p>
                 
               </div>
 
@@ -172,8 +171,8 @@
                   <option></option>
                 </select>
     
-                <label for="artist-lead" id="thelabel" class="label unselectable">Artist Lead</label>
-                <p id="warning"></p>
+                <label for="artist-lead" class="label unselectable">Artist Lead</label>
+                <p class="warning"></p>
 
               </div>
 
@@ -183,8 +182,8 @@
                   <option></option>
                 </select>
     
-                <label for="queue" id="thelabel" class="label unselectable">Queue</label>
-                <p id="warning"></p>
+                <label for="queue" class="label unselectable">Queue</label>
+                <p class="warning"></p>
                 
               </div>
 
@@ -202,8 +201,8 @@
                   <option></option>
                 </select>
     
-                <label for="tier" id="thelabel" class="label unselectable">Tier</label>
-                <p id="warning"></p>
+                <label for="tier" class="label unselectable">Tier</label>
+                <p class="warning"></p>
 
               </div>
 
@@ -213,8 +212,8 @@
                   <option></option>
                 </select>
     
-                <label for="tags" id="thelabel" class="label unselectable">Tags</label>
-                <p id="warning"></p>
+                <label for="tags" class="label unselectable">Tags</label>
+                <p class="warning"></p>
                 
               </div>
 
@@ -230,8 +229,8 @@
     
                 <input type="text" id="start-override" required class="input-area double"/>
     
-                <label for="start-override" id="thelabel" class="label unselectable">Start Override</label>
-                <p id="warning"></p>
+                <label for="start-override" class="label unselectable">Start Override</label>
+                <p class="warning"></p>
 
               </div>
 
@@ -239,8 +238,8 @@
     
                 <input type="text" id="work-override" required class="input-area double"/>
     
-                <label for="work-override" id="thelabel" class="label unselectable">Work Override</label>
-                <p id="warning"></p>
+                <label for="work-override" class="label unselectable">Work Override</label>
+                <p class="warning"></p>
                 
               </div>
 
@@ -252,13 +251,13 @@
 
             <div class="mini">
 
-              <div id="buttons">
+              <div class="buttons">
                 <div class="bottom-buttons">
                   <button type="submit" id="submit" class="butt">SUBMIT</button>
                 </div>
               </div>
 
-              <div id="buttons">
+              <div class="buttons">
                 <div class="bottom-buttons">
                   <button type="reset" id="clear" class="butt">CLEAR</button>
                 </div>

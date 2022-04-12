@@ -209,16 +209,16 @@ $("#submit").on("click", function() {
     // var projectTypeWarningText = `Project Type required to submit request`;
 
     if ((($("#client").val()) == "") || (($("#product").val()) == null) || (($("#project-type").val()) == null)) {
-        addWarningClass("#client", ".warning2");
-        addWarningClass("#product", ".warning3");
-        addWarningClass("#project-type", ".warning4");
+        addWarningClass("#client", "#warning2");
+        addWarningClass("#product", "#warning3");
+        addWarningClass("#project-type", "#warning4");
         return;
     };
 
     if ((($("#client").val()) !== "") || (($("#product").val()) !== null) || (($("#project-type").val()) !== null)) {
-        removeWarningClass("#client", ".warning2");
-        removeWarningClass("#product", ".warning3");
-        removeWarningClass("#project-type", ".warning4");
+        removeWarningClass("#client", "#warning2");
+        removeWarningClass("#product", "#warning3");
+        removeWarningClass("#project-type", "#warning4");
         ugh();
     };
 });
@@ -227,19 +227,19 @@ $("#submit").on("click", function() {
 
 $("#client").on("focusout", function() {
 
-    removeWarningClass("#client", ".warning2");
+    removeWarningClass("#client", "#warning2");
 
 });
 
 $("#product").on("focusout", function() {
 
-    removeWarningClass("#product", ".warning3");
+    removeWarningClass("#product", "#warning3");
 
 });
 
 $("#project-type").on("focusout", function() {
 
-    removeWarningClass("#project-type", ".warning4");
+    removeWarningClass("#project-type", "#warning4");
 
 });
 
@@ -283,10 +283,10 @@ function addWarningClass(object, warning) {
 $("#clear").on("click", function() {
 
     $("#subject, #client, #location, #product, #code, #project-type, #csm, #print-date, #group, #artist-lead, #queue, #tier, #tags, #start-override, #work-override").val(""); // Empty all inputs
-    removeWarningClass("#subject", ".warning1");
-    removeWarningClass("#client", ".warning2");
-    removeWarningClass("#product", ".warning3");
-    removeWarningClass("#project-type", ".warning4");
+    removeWarningClass("#subject", "#warning1");
+    removeWarningClass("#client", "#warning2");
+    removeWarningClass("#product", "#warning3");
+    removeWarningClass("#project-type", "#warning4");
 
 });
 
@@ -387,14 +387,14 @@ async function subjectPasted() {
     var paste = $("#subject").val();
     if (paste.length == 0) { // If what's pasted is empty
                 
-        $(".warning1").hide(); // Don't show the error
+        $("#warning1").hide(); // Don't show the error
         $(this).removeClass("warning-box")
         $(this).removeClass("warning-box + .label")
         $("#client, #location, #product, #code").val(""); // Empty all inputs
     
     } else if (!paste.includes("~/*")) { // If what's pasted does not contain "~/*"
                 
-            $(".warning1").show().text(`This subject does not contain "~/*"`);
+            $("#warning1").show().text(`This subject does not contain "~/*"`);
 
         //    var warningCSS = {
         //        "border": "2px",
@@ -411,7 +411,7 @@ async function subjectPasted() {
                     
     } else { // Probably a valid subject (contains ~/*)
     
-        $(".warning1").hide() // Hide error
+        $("#warning1").hide() // Hide error
         $(this).removeClass("warning-box")
         $(this).removeClass("warning-box + .label")
         
@@ -513,7 +513,7 @@ async function subjectPasted() {
 
         } catch (e) {
             // Something was wrong with the subject
-            $(".warning1").show().text(`Something's wrong with this subject. Error: ` + e);
+            $("#warning1").show().text(`Something's wrong with this subject. Error: ` + e);
         };
        
     };

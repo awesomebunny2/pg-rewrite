@@ -229,6 +229,7 @@ transform: translate(-50%, -50%); */
 
 
 .sel {
+    -webkit-appearance: none;
     appearance: textField;
     width: 100%;
     padding-right: 50px;
@@ -256,7 +257,7 @@ select:hover {
 
 
 
-#warning {
+.warning {
     display:none;
     color:crimson;
     font-size: 8pt;
@@ -282,7 +283,7 @@ select:hover {
 
 
 
-#buttons {
+.buttons {
     text-align: center;
     min-height: 60px;
     width: 85%;
