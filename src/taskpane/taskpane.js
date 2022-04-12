@@ -1041,7 +1041,7 @@ async function productID(product, option) {
         try {
             await callback();
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     }
     //#endregion ---------------------------------------------------------------------------------------------------
