@@ -187,6 +187,7 @@ Office.onReady((info) => {
         });
         // console.log(info);
         tryCatch(updateDropDowns);
+        
     };
 });
 
@@ -355,17 +356,36 @@ async function ugh() {
         write[0][10] = toSerial;
 
 
-        //get the Pickup Turn Around Time Values based on product and project type returned from arrays
-        // var theProjectTypeCode = projectTypeIDData[projectTypeVal].projectTypeCode;
 
-        // var pickedUpTurnAroundTime = pickupData[productVal].theProjectTypeCode;
+        
+
+        //get the Pickup Turn Around Time Values based on product and project type returned from arrays
+
+        let theProjectTypeCode = projectTypeIDData[projectTypeVal].projectTypeCode;
+
+        //this is the code that doesn't work that I am trying to have return the value from the pickupturnaroundtime table
+        let pickedUpTurnAroundTime = pickupData[productVal].theProjectTypeCode;
+
+
+        //but this works, just not on the level I need it to
+        let newPickedUpTurnAroundTime = pickupData[productVal];
+        console.log(pickedUpTurnAroundTime);
+
+        //This is the value I want to get, but it only works when ".brandNewBuild" is not a string
+        var test = pickedUpTurnAroundTime.brandNewBuild;
+
+
+
 
 
         //add start override time to # of hours
+        var overrideTime = pickedUpTurnAroundTime + startOverrideVal;
+    
 
 
 
         //add new time to date added, then adjust for office hours
+        var adjustedPUTime = toSerial + overrideTime;
 
 
 
@@ -724,7 +744,7 @@ async function updateDropDowns() {
     await Excel.run(async (context) => {
         var sheet = context.workbook.worksheets.getItem("Validation");
         var productIDValTable = sheet.tables.getItem("ProductIDTable");
-        var projectTypeValTable = sheet.tables.getItem("ProjectTypeTable");
+        var projectTypeValTable = sheet.tables.getItem("ProjectTypeIDTable");
         var groupPrintValTable = sheet.tables.getItem("GroupPrintTable");
         var artistLeadValTable = sheet.tables.getItem("ArtistLeadTable");
         var queueValTable = sheet.tables.getItem("QueueTable");
