@@ -55,8 +55,15 @@ var proofToClientData = {};
 var creativeProofData = {};
 var officeHoursData = {};
 var loop = true;
+var changeEvent;
 
-
+/* Check if aevents are turned on
+Excel.run(async function(context) {
+    context.runtime.load("enableEvents");
+    await context.sync();
+    console.log(context.runtime.enableEvents)
+});
+*/
 
 //#region ON READY ------------------------------------------------------------------------------------------------------------
 
@@ -78,6 +85,10 @@ var loop = true;
                         var proofToClientValTable = sheet.tables.getItem("ArtTurnaroundTime");
                         var creativeProofTable = sheet.tables.getItem("CreativeProofAdjust");
                         var officeHoursTable = sheet.tables.getItem("OfficeHours");
+                        var activeSheet = context.workbook.worksheets.getActiveWorksheet();
+                        activeSheet.onChanged.add(handleChange);
+
+
 
 
 
@@ -90,6 +101,10 @@ var loop = true;
                         var officeHoursBodyRange = officeHoursTable.getDataBodyRange().load("values");
 
                     //#endregion ----------------------------------------------------------------------------------------------
+
+
+                    changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
+
 
                     await context.sync();
 
@@ -690,7 +705,7 @@ var loop = true;
                 removeWarningClass("#client", "#warning2");
                 removeWarningClass("#product", "#warning3");
                 removeWarningClass("#project-type", "#warning4");
-                addAProject();
+                addAProjectEvents();
             };
         });
 
@@ -717,6 +732,26 @@ var loop = true;
 //#region ADDING A PROJECT FROM TASKPANE ---------------------------------------------------------------------------------------------------
 
 
+    //#region TURN OFF EVENTS BEFORE EXECUTING ADD A PROJECT -------------------------------------------------------------------------------
+
+        /**
+         * Turns events off, then executes the addAProject function
+         */
+        async function addAProjectEvents() {
+            await Excel.run(async (context) => {
+                context.runtime.load("enableEvents");
+                await context.sync();
+
+                //turns events off
+                context.runtime.enableEvents = false;
+                console.log("Events are turned off");
+                addAProject();
+            });
+        };
+
+    //#endregion ---------------------------------------------------------------------------------------------------------------------------
+
+
     //#region ADD A PROJECT ----------------------------------------------------------------------------------------------------------------
 
         /**
@@ -724,12 +759,15 @@ var loop = true;
          */
         async function addAProject() {
 
+            console.log("Add A Project was fired!");
+
             await Excel.run(async (context) => {
 
                 //#region LOAD VALUES ------------------------------------------------------------------------------------------------------
 
                     var sheet = context.workbook.worksheets.getActiveWorksheet();
                     var sheetTable = sheet.tables.getItemAt(0);
+                    // context.runtime.load("enableEvents");
 
                 //#endregion ---------------------------------------------------------------------------------------------------------------
 
@@ -894,7 +932,10 @@ var loop = true;
                 //#endregion -------------------------------------------------------------------------------------------------------------
 
 
-                console.log("I randed!");
+                console.log("Add a project function has completed, but the sub-function for priority & sorting is still running asyncronously");
+
+                // context.runtime.enableEvents = true;
+                // console.log("Events are turned on");
 
             });
         };
@@ -1356,6 +1397,8 @@ var loop = true;
              */
             async function priorityGenerationAndSortation() {
 
+                console.log("Priority and sorting function has fired!");
+
                 await Excel.run(async (context) => {
 
                     var sheet = context.workbook.worksheets.getActiveWorksheet();
@@ -1363,6 +1406,8 @@ var loop = true;
                     var priorityColumnData = sheetTable.columns.getItem("Priority").getDataBodyRange().load("values");
                     var bodyRange = sheetTable.getDataBodyRange().load("values");
                     var headerRange = sheetTable.getHeaderRowRange().load("values");
+                    context.runtime.load("enableEvents");
+
 
                     await context.sync().then(function () {
 
@@ -1401,6 +1446,11 @@ var loop = true;
                                 ascending: true
                             }
                         ])
+
+                        console.log("Priority & Sorting function is now finished!");
+
+                        context.runtime.enableEvents = true;
+                        console.log("Events are turned on");
 
                     });
 
@@ -1464,6 +1514,155 @@ var loop = true;
 //#endregion -------------------------------------------------------------------------------------------------------------------------------
 
 
+
+//#region TURN OFF EVENTS BEFORE EXECUTING ON TABLE CHANGED -----------------------------------------------------------------------------
+
+/**
+ * Turns events off, then executes the onTableChanged function
+ */
+async function onTableChangedEvents(eventArgs) {
+
+    console.log("I have been TRIGGERED!");
+
+    await Excel.run(async (context) => {
+        context.runtime.load("enableEvents");
+        await context.sync();
+
+        //turns events off
+        // context.runtime.enableEvents = false;
+        // console.log("Events are turned off");
+        onTableChanged(eventArgs);
+    });
+};
+
+//#endregion ---------------------------------------------------------------------------------------------------------------------------
+
+
+async function onTableChanged(eventArgs) {
+
+    // console.log(eventArgs);
+
+    await Excel.run(async (context) => {
+
+        var details = eventArgs.details;
+        var address = eventArgs.address;
+        var changeType = eventArgs.changeType;
+
+        var changedWorksheet = context.workbook.worksheets.getItem(eventArgs.worksheetId).load("name");
+        var worksheetTables = changedWorksheet.tables.load("items/name");
+        var changedAddress = changedWorksheet.getRange(address);
+        changedAddress.load("columnIndex");
+        changedAddress.load("rowIndex");
+
+        var sheet = context.workbook.worksheets.getActiveWorksheet();
+        var sheetTable = sheet.tables.getItemAt(0);
+        // var priorityColumnData = sheetTable.columns.getItem("Priority").getDataBodyRange().load("values");
+        var bodyRange = sheetTable.getDataBodyRange().load("values");
+        var headerRange = sheetTable.getHeaderRowRange().load("values");
+        context.runtime.load("enableEvents");
+
+        await context.sync().then(function () {
+    
+            console.log("I passed");
+
+
+            var changedColumnIndex = changedAddress.columnIndex;
+            var changedRowIndex = changedAddress.rowIndex;
+
+            // priorityColumnData.values.push([]);
+
+            var head = headerRange.values;
+
+            //returns the index number of the column name based on it's position in the table header row
+            var pickedUpColumnIndex = findColumnIndex(head, "Picked Up / Started By"); 
+            var proofToClientColumnIndex = findColumnIndex(head, "Proof to Client"); 
+            var priorityColumnIndex = findColumnIndex(head, "Priority"); 
+            var productColumnIndex = findColumnIndex(head, "Product"); 
+            var projectTypeColumnIndex = findColumnIndex(head, "Project Type"); 
+            var addedColumnIndex = findColumnIndex(head, "Added"); 
+            var startOverrideColumnIndex = findColumnIndex(head, "Start Override"); 
+            var workOverrideColumnIndex = findColumnIndex(head, "Work Override"); 
+            var artistColumnIndex = findColumnIndex(head, "Artist");
+
+             //If Priority, Product, Project Type, Added, Picked Up / Started By, Proof to Client, Start Override, or Work Override are changed...
+                //Turn off events
+                //Recalculate turn around times, priority number, and sort
+                //Turn events back on
+
+            if (changedColumnIndex == pickedUpColumnIndex || changedColumnIndex == proofToClientColumnIndex || changedColumnIndex == priorityColumnIndex || changedColumnIndex == productColumnIndex || changedColumnIndex == projectTypeColumnIndex || changedColumnIndex == addedColumnIndex || changedColumnIndex == startOverrideColumnIndex || changedColumnIndex == workOverrideColumnIndex) {
+                console.log("I will update the turn around times, priority numbers, and sort the sheet before turning events back on!")
+            };
+
+
+            if (changedColumnIndex == artistColumnIndex) {
+                console.log("Here is where all the complex move functions will take place!")
+            };
+
+
+
+
+
+
+
+
+    //If Artist is changed...
+        //Move data between tables, based on the table/sheet it started from
+        //Turn events on and off??
+
+    //If in artist table & status changes...
+        //Move data between tables, based on the table/sheet it started from
+        //Turn events on and off??
+
+
+            // //need a function that will pull values from "pickedUpColumnIndex" position of the bodyRange.values for each row in sheet and put them in a new array
+
+            // var activeTableValues = bodyRange.values; //loads all values of the active table
+
+            // var pickedUpAllValuesArr = allColumnValues(activeTableValues, pickedUpColumnIndex); //makes an array of just the values from the Picked Up / Started By column
+            // // pickedUpAllValuesArr.push(excelPickupOfficeHours);
+
+            // var priorityNumbers = JSON.parse(JSON.stringify(pickedUpAllValuesArr)); //creates a duplicate of original array to be used for assigning the priority numbers, without having anything done to it affect oriignal array
+
+            // var pickedUpAllValuesSorted = JSON.parse(JSON.stringify(pickedUpAllValuesArr)); //creates a duplicate of original array to be used to sort the original arrays values, without having anything done to it affect oriignal array
+            // pickedUpAllValuesSorted.sort(); //sorts the array
+
+
+            // for (var n = 0; n < pickedUpAllValuesSorted.length; n++) {
+            //     var index = pickedUpAllValuesArr.indexOf(pickedUpAllValuesSorted[n]); //finds the value at n in the sorted array, then finds that index of that value in the unsorted array 
+            //     priorityNumbers[index] = [(n + 1)]; //in the new priority numbers array, inserts the n value (+1 to account for 0 index) at the index spot
+            // };
+
+            // priorityColumnData.values = priorityNumbers; //writes values to the priority column
+            // // priorityColumnValues = priorityNumbers;
+
+
+            // bodyRange.sort.apply([ //sorts entire table based on the priority column
+            //     {
+            //         key: priorityColumnIndex,
+            //         ascending: true
+            //     }
+            // ])
+
+            // console.log("Priority & Sorting function is now finished!");
+
+            context.runtime.enableEvents = true;
+            console.log("Events are turned on");
+
+        });
+
+    });
+
+};
+
+   
+
+
+//Need an onRowDeleted function that... (previously did this through eventArg change type, but see if I can get the onDeleted event to work instead so I can have this as it's own function)
+    //Turns off events
+    //Recalculates priority numbers and sorts
+
+
+//Need to figure out what to do with RowInserted... (do I want to limit inserting rows to only happen through taskpane? Is that even possible? If not, how will I get this to play nicely with current Add A Project function?)
 
 //#region ERROR HANDLING ------------------------------------------------------------------------------------------
 
@@ -1775,3 +1974,18 @@ var loop = true;
     // };
 
 //#endregion ----------------------------------------------------------------------------------------------------------------------------------
+
+
+async function handleChange(event) {
+    await Excel.run(async (context) => {
+        await context.sync();        
+        console.log("Address of event: " + event.address);
+        // console.log("The change direction state of the event: " + event.changeDirectionState);
+        console.log("Change type of event: " + event.changeType);
+        console.log("The details of the event: " + event.details);
+        // console.log("Source of event: " + event.source);
+        // console.log("The trigger source of the event: " + event.triggerSource);
+        // console.log("The worrksheet ID of the event: " + event.worksheetId);    
+        console.log("END OF ENTRY////////////////////////////////////////////////////////////////////////////////////");   
+    }).catch(errorHandlerFunction);
+}
