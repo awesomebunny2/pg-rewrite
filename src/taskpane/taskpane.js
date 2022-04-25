@@ -70,6 +70,9 @@ Excel.run(async function(context) {
     //#region LOADS VALIDATION VALUES AND UPDATES DROPDOWN VALUES IN TASKPANE ------------------------------------------------
 
         Office.onReady((info) => {
+
+            // eventsOn();
+
             if (info.host === Office.HostType.Excel) {
 
 
@@ -86,7 +89,8 @@ Excel.run(async function(context) {
                         var creativeProofTable = sheet.tables.getItem("CreativeProofAdjust");
                         var officeHoursTable = sheet.tables.getItem("OfficeHours");
                         var activeSheet = context.workbook.worksheets.getActiveWorksheet();
-                        activeSheet.onChanged.add(handleChange);
+                        //activeSheet.onChanged.add(handleChange);
+                        // context.runtime.load("enableEvents");
 
 
 
@@ -103,10 +107,14 @@ Excel.run(async function(context) {
                     //#endregion ----------------------------------------------------------------------------------------------
 
 
+                    eventsFunction();
                     changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
 
 
                     await context.sync();
+
+                    // context.runtime.enableEvents = true;
+                    // console.log("Events are turned on!");
 
                     //#region GRABBING DATA FROM VALIDATION AND WRITING TO CODE ----------------------------------------------
 
@@ -728,6 +736,31 @@ Excel.run(async function(context) {
 //#endregion ------------------------------------------------------------------------------------------------------------------
 
 
+async function eventsFunction() {
+
+    await Excel.run(async (context) => {
+        context.runtime.load("enableEvents");
+        await context.sync();
+        if (context.runtime.enableEvents == true) {
+            var eventsEnabled = "on";
+        } else {
+            var eventsEnabled = "off";
+        };
+        console.log("Events are turned " + eventsEnabled);
+    });
+};
+
+
+async function eventsOn() {
+    await Excel.run(async (context) => {
+        context.runtime.load("enableEvents");
+        await context.sync();
+        context.runtime.enableEvents = true;
+        console.log("Events are turned on!");
+    });
+};
+
+
 
 //#region ADDING A PROJECT FROM TASKPANE ---------------------------------------------------------------------------------------------------
 
@@ -767,7 +800,7 @@ Excel.run(async function(context) {
 
                     var sheet = context.workbook.worksheets.getActiveWorksheet();
                     var sheetTable = sheet.tables.getItemAt(0);
-                    // context.runtime.load("enableEvents");
+                    context.runtime.load("enableEvents");
 
                 //#endregion ---------------------------------------------------------------------------------------------------------------
 
@@ -849,7 +882,7 @@ Excel.run(async function(context) {
                 
                     //add new time to date added, then adjust for office hours
                     var addedDate = new Date(now);
-                    var pickupOfficeHours = officeHours(addedDate, pickedUpHours, officeHoursData);
+                    var pickupOfficeHours = officeHours(addedDate, pickedUpHours);
 
                     //converts to excel readable format
                     var excelPickupOfficeHours = Number(JSDateToExcelDate(pickupOfficeHours));
@@ -891,7 +924,7 @@ Excel.run(async function(context) {
                     var artTurnAround = proofWithReview + workOverrideVal;
                 
                     //add new time to the value previouskly found in the pickUpOfficeHours variable, then adjust for office hours
-                    var proofToClientOfficeHours = officeHours(pickupOfficeHours, artTurnAround, officeHoursData);
+                    var proofToClientOfficeHours = officeHours(pickupOfficeHours, artTurnAround);
 
                     //converts to excel readable format
                     var excelProofToClientOfficeHours = Number(JSDateToExcelDate(proofToClientOfficeHours));
@@ -938,6 +971,9 @@ Excel.run(async function(context) {
                 // console.log("Events are turned on");
 
             });
+
+            // eventsOn();
+
         };
 
     //#endregion ----------------------------------------------------------------------------------------------------------------------------
@@ -1424,10 +1460,25 @@ Excel.run(async function(context) {
                         var pickedUpAllValuesArr = allColumnValues(activeTableValues, pickedUpColumnIndex); //makes an array of just the values from the Picked Up / Started By column
                         // pickedUpAllValuesArr.push(excelPickupOfficeHours);
 
+                        //if the pickedUp array has duplicate values, this nested for statement will add 1 second to the times of each duplicate value to allow the priority number generation to work properly
+                        for (var i = 0; i < pickedUpAllValuesArr.length; i++) {
+                            for (var j = 0; j < pickedUpAllValuesArr.length; j++) {
+                                if (i !== j) { //makes sure that the values do not equal (so the first pass will fail, naturally)
+                                    if (pickedUpAllValuesArr[i] == pickedUpAllValuesArr[j]) {
+                                        console.log("A duplicate is present at index " + j + " of the array");
+                                        pickedUpAllValuesArr[j] = pickedUpAllValuesArr[j] + 0.0000115740; //adds one second to the duplicate entry
+                                    }
+                                }
+                            }
+                        }
+
                         var priorityNumbers = JSON.parse(JSON.stringify(pickedUpAllValuesArr)); //creates a duplicate of original array to be used for assigning the priority numbers, without having anything done to it affect oriignal array
 
                         var pickedUpAllValuesSorted = JSON.parse(JSON.stringify(pickedUpAllValuesArr)); //creates a duplicate of original array to be used to sort the original arrays values, without having anything done to it affect oriignal array
                         pickedUpAllValuesSorted.sort(); //sorts the array
+
+
+                    
 
 
                         for (var n = 0; n < pickedUpAllValuesSorted.length; n++) {
@@ -1449,12 +1500,15 @@ Excel.run(async function(context) {
 
                         console.log("Priority & Sorting function is now finished!");
 
-                        context.runtime.enableEvents = true;
-                        console.log("Events are turned on");
+                        // context.runtime.enableEvents = true;
+                        // console.log("Events are turned on");
 
+                    }).then(() => {
+                        eventsOn();
+                        return;
                     });
 
-                });
+                })
             };
 
         //#endregion ------------------------------------------------------------------------------------------------------------------
@@ -1529,10 +1583,13 @@ async function onTableChangedEvents(eventArgs) {
         await context.sync();
 
         //turns events off
-        // context.runtime.enableEvents = false;
-        // console.log("Events are turned off");
+        context.runtime.enableEvents = false;
+        console.log("Events are turned off");
         onTableChanged(eventArgs);
-    });
+    })//.then(() => {
+    //     eventsOn();
+    //     return;
+    // });
 };
 
 //#endregion ---------------------------------------------------------------------------------------------------------------------------
@@ -1548,30 +1605,60 @@ async function onTableChanged(eventArgs) {
         var address = eventArgs.address;
         var changeType = eventArgs.changeType;
 
+        var allWorksheets = context.workbook.worksheets;
+        allWorksheets.load("items/name");
         var changedWorksheet = context.workbook.worksheets.getItem(eventArgs.worksheetId).load("name");
         var worksheetTables = changedWorksheet.tables.load("items/name");
+
+        //Used to find the column and row index on a worksheet level
         var changedAddress = changedWorksheet.getRange(address);
         changedAddress.load("columnIndex");
         changedAddress.load("rowIndex");
 
-        var sheet = context.workbook.worksheets.getActiveWorksheet();
-        var sheetTable = sheet.tables.getItemAt(0);
+        //var sheet = context.workbook.worksheets.getActiveWorksheet();
+        //var sheetTable = sheet.tables.getItemAt(0);
         // var priorityColumnData = sheetTable.columns.getItem("Priority").getDataBodyRange().load("values");
-        var bodyRange = sheetTable.getDataBodyRange().load("values");
-        var headerRange = sheetTable.getHeaderRowRange().load("values");
+
+        //Used to load values of the changed row/table to be used in functions & to return updated values to the table
+        var allTables = context.workbook.tables;
+        allTables.load("items/name");
+        var changedTable = context.workbook.tables.getItem(eventArgs.tableId).load("name"); //Returns tableId of the table where the event occured
+        var changedTableColumns = changedTable.columns
+        changedTableColumns.load("items/name");
+        var changedTableRows = changedTable.rows;
+        changedTableRows.load("items");
+        var startOfTable = changedTable.getRange().load("columnIndex");
+
+
+
+        var bodyRange = changedTable.getDataBodyRange().load("values");
+        var headerRange = changedTable.getHeaderRowRange().load("values");
+
+
         context.runtime.load("enableEvents");
+
 
         await context.sync().then(function () {
     
             console.log("I passed");
 
 
-            var changedColumnIndex = changedAddress.columnIndex;
+            var changedColumnIndexOG = changedAddress.columnIndex;
             var changedRowIndex = changedAddress.rowIndex;
 
             // priorityColumnData.values.push([]);
 
+            var tableColumns = changedTableColumns.items;
+            var tableRows = changedTableRows.items;
+            var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
+            var rowValues = tableRows[changedRowTableIndex].values; //loads the values of the changed row in the changed table
+
+
             var head = headerRange.values;
+
+
+            var tableStart = startOfTable.columnIndex;
+            var changedColumnIndex = changedColumnIndexOG - tableStart;
 
             //returns the index number of the column name based on it's position in the table header row
             var pickedUpColumnIndex = findColumnIndex(head, "Picked Up / Started By"); 
@@ -1584,6 +1671,51 @@ async function onTableChanged(eventArgs) {
             var workOverrideColumnIndex = findColumnIndex(head, "Work Override"); 
             var artistColumnIndex = findColumnIndex(head, "Artist");
 
+            //returns the values of a specific cell from a specific columnnin the changed row
+            var productValue = rowValues[0][productColumnIndex];
+            var projectTypeValue = rowValues[0][projectTypeColumnIndex];
+            var addedValue = rowValues[0][addedColumnIndex];
+            var pickedUpValue = rowValues[0][pickedUpColumnIndex];
+            var proofToClientValue = rowValues[0][proofToClientColumnIndex];
+            var priorityValue = rowValues[0][priorityColumnIndex];
+            var startOverrideValue = rowValues[0][startOverrideColumnIndex];
+            var workOverrideValue = rowValues[0][workOverrideColumnIndex];
+            var artistValue = rowValues[0][artistColumnIndex];
+
+            //returns the address of a specific cell from the changedRow on a worksheet level (mainly used for writing updated variable sback to the sheet)
+            var productAddress = address(productColumnIndex, tableStart, changedWorksheet, changedRowIndex); 
+            var projectTypeAddress = address(projectTypeColumnIndex, tableStart, changedWorksheet, changedRowIndex); 
+            var addedAddress = address(addedColumnIndex, tableStart, changedWorksheet, changedRowIndex); 
+            var pickedUpAddress = address(pickedUpColumnIndex, tableStart, changedWorksheet, changedRowIndex); 
+            var proofToClientAddress = address(proofToClientColumnIndex, tableStart, changedWorksheet, changedRowIndex); 
+            var priorityAddress = address(priorityColumnIndex, tableStart, changedWorksheet, changedRowIndex); 
+            var startOverrideAddress = address(startOverrideColumnIndex, tableStart, changedWorksheet, changedRowIndex); 
+            var workOverrideAddress = address(workOverrideColumnIndex, tableStart, changedWorksheet, changedRowIndex); 
+            var artistAddress = address(artistColumnIndex, tableStart, changedWorksheet, changedRowIndex); 
+
+
+
+
+
+
+
+
+
+
+            function address(columnIndex, tableStart, worksheet, changedRowIndex) {
+                var theColumnPosition = columnIndex + tableStart; //takes into account multiple tables, adding the number of columns before the start of the table to the columnIndex for better accuracy
+                var theAddress = worksheet.getCell(changedRowIndex, theColumnPosition);
+                return theAddress;
+            };
+
+
+
+
+
+
+
+
+
              //If Priority, Product, Project Type, Added, Picked Up / Started By, Proof to Client, Start Override, or Work Override are changed...
                 //Turn off events
                 //Recalculate turn around times, priority number, and sort
@@ -1591,6 +1723,36 @@ async function onTableChanged(eventArgs) {
 
             if (changedColumnIndex == pickedUpColumnIndex || changedColumnIndex == proofToClientColumnIndex || changedColumnIndex == priorityColumnIndex || changedColumnIndex == productColumnIndex || changedColumnIndex == projectTypeColumnIndex || changedColumnIndex == addedColumnIndex || changedColumnIndex == startOverrideColumnIndex || changedColumnIndex == workOverrideColumnIndex) {
                 console.log("I will update the turn around times, priority numbers, and sort the sheet before turning events back on!")
+                var theProjectTypeCode = projectTypeIDData[projectTypeValue].projectTypeCode;
+
+                var pickedUpTurnAroundTime = pickupData[productValue][theProjectTypeCode];
+                var pickedUpHours = pickedUpTurnAroundTime + startOverrideValue;
+
+                var addedDate = convertToDate(addedValue);
+                var pickupOfficeHours = officeHours(addedDate, pickedUpHours);
+                var excelPickupOfficeHours = Number(JSDateToExcelDate(pickupOfficeHours));
+
+                pickedUpAddress.values = [[excelPickupOfficeHours]];
+
+
+                var proofToClient = proofToClientData[productValue][theProjectTypeCode];
+                var creativeReview = creativeProofData[productValue].creativeReviewProcess;
+                var proofWithReview = proofToClient + creativeReview;
+                var artTurnAround = proofWithReview + workOverrideValue;
+                var proofToClientOfficeHours = officeHours(pickupOfficeHours, artTurnAround);
+                var excelProofToClientOfficeHours = Number(JSDateToExcelDate(proofToClientOfficeHours));
+
+                proofToClientAddress.values = [[excelProofToClientOfficeHours]];
+
+                context.sync();
+
+                console.log("Turn around times were updated, now the priority sorting will commence")
+
+                priorityGenerationAndSortation();
+
+                // context.runtime.enableEvents = true;
+                // console.log("Events are turned on");
+
             };
 
 
@@ -1645,12 +1807,17 @@ async function onTableChanged(eventArgs) {
 
             // console.log("Priority & Sorting function is now finished!");
 
-            context.runtime.enableEvents = true;
-            console.log("Events are turned on");
+            // context.runtime.enableEvents = true;
+            // console.log("Events are turned on");
 
         });
 
     });
+
+    priorityGenerationAndSortation();
+    return;
+
+    // eventsOn();
 
 };
 
