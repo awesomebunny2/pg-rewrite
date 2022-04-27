@@ -46,6 +46,17 @@
 //#endregion -----------------------------------------------------------------------------------------------------------------------
 
 
+/*
+
+1. Makes a change
+    -- do stuff
+2. Turn the events off -- 1607
+    -- do stuff
+3. Write to table -- 1741
+
+*/
+
+
 
 // var lookup = new Object();
 var productIDData = {};
@@ -56,12 +67,21 @@ var creativeProofData = {};
 var officeHoursData = {};
 var loop = true;
 var changeEvent;
+var snailPoop = {};
 
 /* Check if aevents are turned on
 Excel.run(async function(context) {
     context.runtime.load("enableEvents");
     await context.sync();
     console.log(context.runtime.enableEvents)
+});
+
+
+Excel.run(async function(context) {
+    context.runtime.load("enableEvents");
+    await context.sync();
+    context.runtime.enableEvents = true;
+    console.log(context.runtime.enableEvents);
 });
 */
 
@@ -107,8 +127,9 @@ Excel.run(async function(context) {
                     //#endregion ----------------------------------------------------------------------------------------------
 
 
-                    eventsFunction();
+                    //eventsFunction();
                     changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
+                    //tryCatch(changeEvent);
 
 
                     await context.sync();
@@ -237,6 +258,7 @@ Excel.run(async function(context) {
                 });
                 // console.log(info);
                 tryCatch(updateDropDowns);
+                //updateDropDowns();
                 
             };
         });
@@ -544,6 +566,8 @@ Excel.run(async function(context) {
 
 
     $("#subject").keyup(() => tryCatch(subjectPasted));
+    //$("#subject").keyup(() => subjectPasted());
+
 
 
     //#region SUBJECT PASTED FUNCTION ----------------------------------------------------------------------------------------------
@@ -799,7 +823,8 @@ async function eventsOn() {
                 //#region LOAD VALUES ------------------------------------------------------------------------------------------------------
 
                     var sheet = context.workbook.worksheets.getActiveWorksheet();
-                    var sheetTable = sheet.tables.getItemAt(0);
+                    //updating this variable to work for the changedTable will not work since the taskpane doesn't trigger an onchanged event until afterward
+                    var sheetTable = sheet.tables.getItemAt(0); //this is fine since the user will only ever be adding new projects to the unassigned table or the artist tables, which are all the first tables in their documents. 
                     context.runtime.load("enableEvents");
 
                 //#endregion ---------------------------------------------------------------------------------------------------------------
@@ -1585,7 +1610,9 @@ async function onTableChangedEvents(eventArgs) {
         //turns events off
         context.runtime.enableEvents = false;
         console.log("Events are turned off");
-        onTableChanged(eventArgs);
+        tryCatch(onTableChanged(eventArgs));
+        // var result = await onTableChanged(eventArgs).then(tableChangedPriorityAndSort(poop.rowInfo, poop.bodyRange, poop.priorityColumnData));
+
     })//.then(() => {
     //     eventsOn();
     //     return;
@@ -1629,6 +1656,9 @@ async function onTableChanged(eventArgs) {
         changedTableRows.load("items");
         var startOfTable = changedTable.getRange().load("columnIndex");
 
+        var priorityColumnData = changedTable.columns.getItem("Priority").getDataBodyRange().load("values");
+
+
 
 
         var bodyRange = changedTable.getDataBodyRange().load("values");
@@ -1639,19 +1669,21 @@ async function onTableChanged(eventArgs) {
 
 
         await context.sync().then(function () {
+
+            // context.runtime.enableEvents = false;
+            // console.log("Events are turned off!!");
     
-            console.log("I passed");
+            //console.log("I passed");
 
 
             var changedColumnIndexOG = changedAddress.columnIndex;
             var changedRowIndex = changedAddress.rowIndex;
 
-            // priorityColumnData.values.push([]);
-
             var tableColumns = changedTableColumns.items;
             var tableRows = changedTableRows.items;
             var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
             var rowValues = tableRows[changedRowTableIndex].values; //loads the values of the changed row in the changed table
+            var theChangedRow = changedTableRows.getItemAt(changedRowTableIndex);
 
 
             var head = headerRange.values;
@@ -1660,167 +1692,327 @@ async function onTableChanged(eventArgs) {
             var tableStart = startOfTable.columnIndex;
             var changedColumnIndex = changedColumnIndexOG - tableStart;
 
-            //returns the index number of the column name based on it's position in the table header row
-            var pickedUpColumnIndex = findColumnIndex(head, "Picked Up / Started By"); 
-            var proofToClientColumnIndex = findColumnIndex(head, "Proof to Client"); 
-            var priorityColumnIndex = findColumnIndex(head, "Priority"); 
-            var productColumnIndex = findColumnIndex(head, "Product"); 
-            var projectTypeColumnIndex = findColumnIndex(head, "Project Type"); 
-            var addedColumnIndex = findColumnIndex(head, "Added"); 
-            var startOverrideColumnIndex = findColumnIndex(head, "Start Override"); 
-            var workOverrideColumnIndex = findColumnIndex(head, "Work Override"); 
-            var artistColumnIndex = findColumnIndex(head, "Artist");
 
-            //returns the values of a specific cell from a specific columnnin the changed row
-            var productValue = rowValues[0][productColumnIndex];
-            var projectTypeValue = rowValues[0][projectTypeColumnIndex];
-            var addedValue = rowValues[0][addedColumnIndex];
-            var pickedUpValue = rowValues[0][pickedUpColumnIndex];
-            var proofToClientValue = rowValues[0][proofToClientColumnIndex];
-            var priorityValue = rowValues[0][priorityColumnIndex];
-            var startOverrideValue = rowValues[0][startOverrideColumnIndex];
-            var workOverrideValue = rowValues[0][workOverrideColumnIndex];
-            var artistValue = rowValues[0][artistColumnIndex];
+            var leRow = JSON.parse(JSON.stringify(head)); //creates a duplicate of original array to be used for assigning the priority numbers, without having anything done to it affect oriignal array
 
-            //returns the address of a specific cell from the changedRow on a worksheet level (mainly used for writing updated variable sback to the sheet)
-            var productAddress = address(productColumnIndex, tableStart, changedWorksheet, changedRowIndex); 
-            var projectTypeAddress = address(projectTypeColumnIndex, tableStart, changedWorksheet, changedRowIndex); 
-            var addedAddress = address(addedColumnIndex, tableStart, changedWorksheet, changedRowIndex); 
-            var pickedUpAddress = address(pickedUpColumnIndex, tableStart, changedWorksheet, changedRowIndex); 
-            var proofToClientAddress = address(proofToClientColumnIndex, tableStart, changedWorksheet, changedRowIndex); 
-            var priorityAddress = address(priorityColumnIndex, tableStart, changedWorksheet, changedRowIndex); 
-            var startOverrideAddress = address(startOverrideColumnIndex, tableStart, changedWorksheet, changedRowIndex); 
-            var workOverrideAddress = address(workOverrideColumnIndex, tableStart, changedWorksheet, changedRowIndex); 
-            var artistAddress = address(artistColumnIndex, tableStart, changedWorksheet, changedRowIndex); 
+            var rowInfo = new Object();
+            
+            for (var name of head[0]) {
+                theGreatestFunctionEverWritten(head, name, rowValues, leRow, rowInfo);
+            }
+
+           
+
+            console.log("I am a fart"); //hehe
 
 
+           
 
 
-
-
-
-
-
-
-            function address(columnIndex, tableStart, worksheet, changedRowIndex) {
-                var theColumnPosition = columnIndex + tableStart; //takes into account multiple tables, adding the number of columns before the start of the table to the columnIndex for better accuracy
-                var theAddress = worksheet.getCell(changedRowIndex, theColumnPosition);
-                return theAddress;
-            };
-
-
-
-
-
-
-
-
-
-             //If Priority, Product, Project Type, Added, Picked Up / Started By, Proof to Client, Start Override, or Work Override are changed...
-                //Turn off events
-                //Recalculate turn around times, priority number, and sort
-                //Turn events back on
-
-            if (changedColumnIndex == pickedUpColumnIndex || changedColumnIndex == proofToClientColumnIndex || changedColumnIndex == priorityColumnIndex || changedColumnIndex == productColumnIndex || changedColumnIndex == projectTypeColumnIndex || changedColumnIndex == addedColumnIndex || changedColumnIndex == startOverrideColumnIndex || changedColumnIndex == workOverrideColumnIndex) {
+            if (changedColumnIndex == rowInfo.pickedUpStartedBy.columnIndex || changedColumnIndex == rowInfo.proofToClient.columnIndex || changedColumnIndex == rowInfo.priority.columnIndex || changedColumnIndex == rowInfo.product.columnIndex || changedColumnIndex == rowInfo.projectType.columnIndex || changedColumnIndex == rowInfo.added.columnIndex || changedColumnIndex == rowInfo.startOverride.columnIndex || changedColumnIndex == rowInfo.workOverride.columnIndex) {
                 console.log("I will update the turn around times, priority numbers, and sort the sheet before turning events back on!")
-                var theProjectTypeCode = projectTypeIDData[projectTypeValue].projectTypeCode;
+         
+                var theProjectTypeCode = projectTypeIDData[rowInfo.projectType.value].projectTypeCode;
 
-                var pickedUpTurnAroundTime = pickupData[productValue][theProjectTypeCode];
-                var pickedUpHours = pickedUpTurnAroundTime + startOverrideValue;
+                var pickedUpTurnAroundTime = pickupData[rowInfo.product.value][theProjectTypeCode];
+                var pickedUpHours = pickedUpTurnAroundTime + rowInfo.startOverride.value;
 
-                var addedDate = convertToDate(addedValue);
+                var addedDate = convertToDate(rowInfo.added.value);
                 var pickupOfficeHours = officeHours(addedDate, pickedUpHours);
                 var excelPickupOfficeHours = Number(JSDateToExcelDate(pickupOfficeHours));
 
-                pickedUpAddress.values = [[excelPickupOfficeHours]];
+                //pickedUpAddress.values = [[excelPickupOfficeHours]];
+                leRow[0][rowInfo.pickedUpStartedBy.columnIndex] = excelPickupOfficeHours;
+                // leRow[0][rowInfo.csm.columnIndex] = "A stinky fart";
 
 
-                var proofToClient = proofToClientData[productValue][theProjectTypeCode];
-                var creativeReview = creativeProofData[productValue].creativeReviewProcess;
+
+                var proofToClient = proofToClientData[rowInfo.product.value][theProjectTypeCode];
+                var creativeReview = creativeProofData[rowInfo.product.value].creativeReviewProcess;
                 var proofWithReview = proofToClient + creativeReview;
-                var artTurnAround = proofWithReview + workOverrideValue;
+                var artTurnAround = proofWithReview + rowInfo.workOverride.value;
                 var proofToClientOfficeHours = officeHours(pickupOfficeHours, artTurnAround);
                 var excelProofToClientOfficeHours = Number(JSDateToExcelDate(proofToClientOfficeHours));
 
-                proofToClientAddress.values = [[excelProofToClientOfficeHours]];
+                //proofToClientAddress.values = [[excelProofToClientOfficeHours]];
+                leRow[0][rowInfo.proofToClient.columnIndex] = excelProofToClientOfficeHours;
 
-                context.sync();
 
-                console.log("Turn around times were updated, now the priority sorting will commence")
 
-                priorityGenerationAndSortation();
 
-                // context.runtime.enableEvents = true;
-                // console.log("Events are turned on");
+                theChangedRow.values = leRow;
 
             };
 
 
-            if (changedColumnIndex == artistColumnIndex) {
+            if (changedColumnIndex == rowInfo.artist.columnIndex) {
                 console.log("Here is where all the complex move functions will take place!")
             };
 
 
+            //await context.sync();
+
+            console.log("Turn around times were updated, now the priority sorting will commence")
 
 
 
+            //priorityGenerationAndSortation();
 
+            //tableChangedPriorityAndSort(rowInfo, bodyRange, priorityColumnData);
+            // context.runtime.enableEvents = true;
+            // console.log("Events are turned on!!");
 
-
-    //If Artist is changed...
-        //Move data between tables, based on the table/sheet it started from
-        //Turn events on and off??
-
-    //If in artist table & status changes...
-        //Move data between tables, based on the table/sheet it started from
-        //Turn events on and off??
-
-
-            // //need a function that will pull values from "pickedUpColumnIndex" position of the bodyRange.values for each row in sheet and put them in a new array
-
-            // var activeTableValues = bodyRange.values; //loads all values of the active table
-
-            // var pickedUpAllValuesArr = allColumnValues(activeTableValues, pickedUpColumnIndex); //makes an array of just the values from the Picked Up / Started By column
-            // // pickedUpAllValuesArr.push(excelPickupOfficeHours);
-
-            // var priorityNumbers = JSON.parse(JSON.stringify(pickedUpAllValuesArr)); //creates a duplicate of original array to be used for assigning the priority numbers, without having anything done to it affect oriignal array
-
-            // var pickedUpAllValuesSorted = JSON.parse(JSON.stringify(pickedUpAllValuesArr)); //creates a duplicate of original array to be used to sort the original arrays values, without having anything done to it affect oriignal array
-            // pickedUpAllValuesSorted.sort(); //sorts the array
-
-
-            // for (var n = 0; n < pickedUpAllValuesSorted.length; n++) {
-            //     var index = pickedUpAllValuesArr.indexOf(pickedUpAllValuesSorted[n]); //finds the value at n in the sorted array, then finds that index of that value in the unsorted array 
-            //     priorityNumbers[index] = [(n + 1)]; //in the new priority numbers array, inserts the n value (+1 to account for 0 index) at the index spot
+            //console.log("Finished!");
+            // snailPoop = {
+            //     rowInfo,
+            //     bodyRange,
+            //     priorityColumnData
             // };
-
-            // priorityColumnData.values = priorityNumbers; //writes values to the priority column
-            // // priorityColumnValues = priorityNumbers;
-
-
-            // bodyRange.sort.apply([ //sorts entire table based on the priority column
-            //     {
-            //         key: priorityColumnIndex,
-            //         ascending: true
-            //     }
-            // ])
-
-            // console.log("Priority & Sorting function is now finished!");
 
             // context.runtime.enableEvents = true;
             // console.log("Events are turned on");
 
+            //return;
+
+
         });
+
+        await context.sync().then(function () {
+            console.log("Looks like you're onto something here!!");
+
+            var changedRowIndex = changedAddress.rowIndex;
+
+            var tableRows = changedTableRows.items;
+            var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
+            var rowValues = tableRows[changedRowTableIndex].values; //loads the values of the changed row in the changed table
+
+            var head = headerRange.values;
+
+            var leRow = JSON.parse(JSON.stringify(head)); //creates a duplicate of original array to be used for assigning the priority numbers, without having anything done to it affect oriignal array
+
+            var rowInfo = new Object();
+            
+            for (var name of head[0]) {
+                theGreatestFunctionEverWritten(head, name, rowValues, leRow, rowInfo);
+            };
+
+            // console.log(bodyRange);
+            // console.log(priorityColumnData);
+            // console.log(rowInfo);
+
+
+            //var kfcOnDvd = snailPoop.rowInfo;
+            tableChangedPriorityAndSort(rowInfo, bodyRange, priorityColumnData);
+            return;
+
+        });
+
 
     });
 
-    priorityGenerationAndSortation();
-    return;
+    // tableChangedPriorityAndSort(rowInfo, bodyRange);
+    // return;
 
     // eventsOn();
 
 };
 
+
+//#region PRIORITY GENERATION AND SORTATION ---------------------------------------------------------------------------------------
+
+            /**
+             * Generates a priority number for each row in the table based on the values in the Picked Up / Started By column. Also sorts the data by priority
+             */
+             async function tableChangedPriorityAndSort(rowInfo, bodyRange, priorityColumnData) {
+
+                console.log("Priority and sorting function has fired!");
+
+                await Excel.run(async (context) => {
+
+                    context.runtime.load("enableEvents");
+
+                    var pickedUpColumnIndex = rowInfo.pickedUpStartedBy.columnIndex; //returns the index number of the "Picked Up / Started By" column based on it's position in the table header row
+                    var activeTableValues = bodyRange.values; //loads all values of the active table
+                    var pickedUpAllValuesArr = allColumnValues(activeTableValues, pickedUpColumnIndex); //makes an array of just the values from the Picked Up / Started By column
+
+                    //if the pickedUp array has duplicate values, this nested for statement will add 1 second to the times of each duplicate value to allow the priority number generation to work properly
+                    for (var i = 0; i < pickedUpAllValuesArr.length; i++) {
+                        for (var j = 0; j < pickedUpAllValuesArr.length; j++) {
+                            if (i !== j) { //makes sure that the values do not equal (so the first pass will fail, naturally)
+                                if (pickedUpAllValuesArr[i] == pickedUpAllValuesArr[j]) {
+                                    console.log("A duplicate is present at index " + j + " of the array");
+                                    pickedUpAllValuesArr[j] = pickedUpAllValuesArr[j] + 0.0000115740; //adds one second to the duplicate entry
+                                };
+                            };
+                        };
+                    };
+
+                    var priorityNumbers = JSON.parse(JSON.stringify(pickedUpAllValuesArr)); //creates a duplicate of original array to be used for assigning the priority numbers, without having anything done to it affect oriignal array
+                    var pickedUpAllValuesSorted = JSON.parse(JSON.stringify(pickedUpAllValuesArr)); //creates a duplicate of original array to be used to sort the original arrays values, without having anything done to it affect oriignal array
+                    pickedUpAllValuesSorted.sort(); //sorts the array
+
+                    for (var n = 0; n < pickedUpAllValuesSorted.length; n++) {
+                        var index = pickedUpAllValuesArr.indexOf(pickedUpAllValuesSorted[n]); //finds the value at n in the sorted array, then finds that index of that value in the unsorted array 
+                        priorityNumbers[index] = [(n + 1)]; //in the new priority numbers array, inserts the n value (+1 to account for 0 index) at the index spot
+                    };
+
+                    priorityColumnData.values = priorityNumbers; //writes values to the priority column
+                    console.log("The priority numbers are " + priorityNumbers);
+
+
+                    var priorityColumnIndex = rowInfo.priority.columnIndex; //returns index number of the priority column
+
+
+                    sortFort(bodyRange, priorityColumnIndex);
+
+
+
+                    await context.sync().then(function () {
+
+
+                        // bodyRange.sort.apply([ //sorts entire table based on the priority column
+                        //     {
+                        //         key: priorityColumnIndex,
+                        //         ascending: true
+                        //     }
+                        // ])
+
+                        // console.log("Priority & Sorting function is now finished!");
+
+                        eventsOn();
+                        return;
+
+                        // priorityColumnData.values.push([]);
+
+                        // var head = headerRange.values;
+
+
+                        //need a function that will pull values from "pickedUpColumnIndex" position of the bodyRange.values for each row in sheet and put them in a new array
+
+
+                        // pickedUpAllValuesArr.push(excelPickupOfficeHours);
+
+                     
+
+
+
+
+                    
+
+
+                        
+                        // context.runtime.enableEvents = true;
+                        // console.log("Events are turned on");
+
+                    });
+
+                });
+            };
+
+            function sortFort(bodyRange, priorityColumnIndex) {
+
+                console.log(bodyRange.values);
+
+                bodyRange.sort.apply([ //sorts entire table based on the priority column
+                    {
+                        key: priorityColumnIndex,
+                        ascending: true
+                    }
+                ])
+
+                console.log("Priority & Sorting function is now finished!");
+
+                console.log(bodyRange.values);
+
+                // eventsOn();
+                return;
+
+            };
+
+        //#endregion ------------------------------------------------------------------------------------------------------------------
+
+
+         /**
+             * Using the column names, finds and writes the column index and value of each cell in the changed row to an object. Also updates a copy of the header array with the values of the changed row in the correct column indexed positions 
+             * @param {Array} head An array of all the header values in the table
+             * @param {String} columnName The name of the column to find the index for
+             * @param {Array} rowValues An array of arrays containing all the row data for the changed row
+             * @param {Array} leRow A copy array of the head array that will be used to write new values to the sheet for the row  
+             * @param {Object} obj An empty object that will be filled with column indexs and values for each cell in the changed row
+             */
+          function theGreatestFunctionEverWritten (head, columnName, rowValues, leRow, obj) {
+
+            //returns the index number of the column name based on it's position in the table header row
+            var columnIndex = findColumnIndex(head, columnName); 
+
+            //returns the values of a specific cell from a specific columnnin the changed row
+            var value = rowValues[0][columnIndex];
+
+            //writes value to appropriate columnIndex in leRow array
+            leRow[0][columnIndex] = value;
+
+            var headerColumn = headersToCode(columnName); //returns a properly coded variable based on the column name
+
+            obj[headerColumn] = { //adds a new key to the object, including it's column index and value properties 
+                columnIndex,
+                value
+            };
+
+        };
+
+        function headersToCode(name) {
+            var codedHeader;
+            if (name == "Priority") {
+                codedHeader = "priority";
+            } else if (name == "Artist Lead") {
+                codedHeader = "artistLead";
+            } else if (name == "Queue") {
+                codedHeader = "queue";
+            } else if (name == "Tier") {
+                codedHeader = "tier";
+            } else if (name == "Subject") {
+                codedHeader = "subject";
+            } else if (name == "Client") {
+                codedHeader = "client";
+            } else if (name == "Location") {
+                codedHeader = "location";
+            } else if (name == "Product") {
+                codedHeader = "product";
+            } else if (name == "Project Type") {
+                codedHeader = "projectType";
+            } else if (name == "CSM") {
+                codedHeader = "csm";
+            } else if (name == "Added") {
+                codedHeader = "added";
+            } else if (name == "Print Date") {
+                codedHeader = "printDate";
+            } else if (name == "Group") {
+                codedHeader = "group";
+            } else if (name == "Picked Up / Started By") {
+                codedHeader = "pickedUpStartedBy";
+            } else if (name == "Proof to Client") {
+                codedHeader = "proofToClient";
+            } else if (name == "Date of Last Edit") {
+                codedHeader = "dateOfLastEdit";
+            } else if (name == "Tags") {
+                codedHeader = "tags";
+            } else if (name == "Status") {
+                codedHeader = "status";
+            } else if (name == "Code") {
+                codedHeader = "code";
+            } else if (name == "Artist") {
+                codedHeader = "artist";
+            } else if (name == "Notes") {
+                codedHeader = "notes";
+            } else if (name == "Start Override") {
+                codedHeader = "startOverride";
+            } else if (name == "Work Override") {
+                codedHeader = "workOverride";
+            } else {
+                codedHeader = name;
+            };
+            return codedHeader;
+        }
    
 
 
@@ -1834,13 +2026,13 @@ async function onTableChanged(eventArgs) {
 //#region ERROR HANDLING ------------------------------------------------------------------------------------------
 
     //#region TRY CATCH ---------------------------------------------------------------------------------------------
-    async function tryCatch(callback) {
-        try {
-            await callback();
-        } catch (error) {
-            console.error(error);
+        async function tryCatch(callback) {
+            try {
+                await callback();
+            } catch (error) {
+                console.error(error);
+            }
         }
-    }
     //#endregion ---------------------------------------------------------------------------------------------------
 
 //#endregion -----------------------------------------------------------------------------------------------------
