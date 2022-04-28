@@ -128,7 +128,7 @@ Excel.run(async function(context) {
 
 
                     //eventsFunction();
-                    changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
+                    changeEvent = context.workbook.tables.onChanged.add(onTableChanged);
                     //tryCatch(changeEvent);
 
 
@@ -1670,8 +1670,8 @@ async function onTableChanged(eventArgs) {
 
         await context.sync().then(function () {
 
-            // context.runtime.enableEvents = false;
-            // console.log("Events are turned off!!");
+            context.runtime.enableEvents = false;
+            console.log("Events are turned off!!");
     
             //console.log("I passed");
 
@@ -1686,6 +1686,7 @@ async function onTableChanged(eventArgs) {
             var theChangedRow = changedTableRows.getItemAt(changedRowTableIndex);
 
 
+            var tableContent = bodyRange.values;
             var head = headerRange.values;
 
 
@@ -1693,12 +1694,12 @@ async function onTableChanged(eventArgs) {
             var changedColumnIndex = changedColumnIndexOG - tableStart;
 
 
-            var leRow = JSON.parse(JSON.stringify(head)); //creates a duplicate of original array to be used for assigning the priority numbers, without having anything done to it affect oriignal array
+            var leRow = JSON.parse(JSON.stringify(tableContent)); //creates a duplicate of original array to be used for assigning the priority numbers, without having anything done to it affect oriignal array
 
             var rowInfo = new Object();
             
             for (var name of head[0]) {
-                theGreatestFunctionEverWritten(head, name, rowValues, leRow, rowInfo);
+                theGreatestFunctionEverWritten(head, name, rowValues, leRow, rowInfo, changedRowTableIndex);
             }
 
            
@@ -1722,7 +1723,7 @@ async function onTableChanged(eventArgs) {
                 var excelPickupOfficeHours = Number(JSDateToExcelDate(pickupOfficeHours));
 
                 //pickedUpAddress.values = [[excelPickupOfficeHours]];
-                leRow[0][rowInfo.pickedUpStartedBy.columnIndex] = excelPickupOfficeHours;
+                leRow[changedRowTableIndex][rowInfo.pickedUpStartedBy.columnIndex] = excelPickupOfficeHours;
                 // leRow[0][rowInfo.csm.columnIndex] = "A stinky fart";
 
 
@@ -1735,24 +1736,78 @@ async function onTableChanged(eventArgs) {
                 var excelProofToClientOfficeHours = Number(JSDateToExcelDate(proofToClientOfficeHours));
 
                 //proofToClientAddress.values = [[excelProofToClientOfficeHours]];
-                leRow[0][rowInfo.proofToClient.columnIndex] = excelProofToClientOfficeHours;
+                leRow[changedRowTableIndex][rowInfo.proofToClient.columnIndex] = excelProofToClientOfficeHours;
 
 
+                var leRowSorted = JSON.parse(JSON.stringify(leRow)); //creates a duplicate of original array to be used for assigning the priority numbers, without having anything done to it affect oriignal array
+
+                //if the pickedUp array has duplicate values, this nested for statement will add 1 second to the times of each duplicate value to allow the priority number generation to work properly
+                for (var i = 0; i < leRowSorted.length; i++) {
+                    for (var j = 0; j < leRowSorted.length; j++) {
+                        if (i !== j) { //makes sure that the values do not equal (so the first pass will fail, naturally)
+                            if (leRowSorted[i] == leRowSorted[j]) {
+                                console.log("A duplicate is present at index " + j + " of the array");
+                                leRowSorted[j] = leRowSorted[j] + 0.0000115740; //adds one second to the duplicate entry
+                            };
+                        };
+                    };
+                };
 
 
-                theChangedRow.values = leRow;
+                leRowSorted.sort(function(a,b){return a[13] > b[13]});
+
+                for (var n = 0; n < leRowSorted.length; n++) {
+                    leRowSorted[n][0] = n + 1;
+                };
+
+
+                bodyRange.values = leRowSorted;
 
             };
+
+
+
+
+
+
+
+
+
+
+
+            //     //theChangedRow.values = leRow;
+
+            //     context.sync();
+
+            //     console.log("A new approach begins...");
+            //     sortingGiraffe(bodyRange, rowInfo);
+
+            //     context.runtime.enableEvents = true;
+            //     console.log("Events are turned on");
+
+
+            //     // await context.sync().then(function() {
+            //     //     console.log("A new approach begins...");
+            //     //     sortingGiraffe(bodyRange, rowInfo);
+            //     // })
+
+            // };
+
 
 
             if (changedColumnIndex == rowInfo.artist.columnIndex) {
                 console.log("Here is where all the complex move functions will take place!")
             };
 
+        });
+
+
+        eventsOn();
+
 
             //await context.sync();
 
-            console.log("Turn around times were updated, now the priority sorting will commence")
+            //console.log("Turn around times were updated, now the priority sorting will commence")
 
 
 
@@ -1775,37 +1830,37 @@ async function onTableChanged(eventArgs) {
             //return;
 
 
-        });
+       //});
 
-        await context.sync().then(function () {
-            console.log("Looks like you're onto something here!!");
+        // await context.sync().then(function () {
+        //     console.log("Looks like you're onto something here!!");
 
-            var changedRowIndex = changedAddress.rowIndex;
+        //     var changedRowIndex = changedAddress.rowIndex;
 
-            var tableRows = changedTableRows.items;
-            var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
-            var rowValues = tableRows[changedRowTableIndex].values; //loads the values of the changed row in the changed table
+        //     var tableRows = changedTableRows.items;
+        //     var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
+        //     var rowValues = tableRows[changedRowTableIndex].values; //loads the values of the changed row in the changed table
 
-            var head = headerRange.values;
+        //     var head = headerRange.values;
 
-            var leRow = JSON.parse(JSON.stringify(head)); //creates a duplicate of original array to be used for assigning the priority numbers, without having anything done to it affect oriignal array
+        //     var leRow = JSON.parse(JSON.stringify(head)); //creates a duplicate of original array to be used for assigning the priority numbers, without having anything done to it affect oriignal array
 
-            var rowInfo = new Object();
+        //     var rowInfo = new Object();
             
-            for (var name of head[0]) {
-                theGreatestFunctionEverWritten(head, name, rowValues, leRow, rowInfo);
-            };
+        //     for (var name of head[0]) {
+        //         theGreatestFunctionEverWritten(head, name, rowValues, leRow, rowInfo);
+        //     };
 
-            // console.log(bodyRange);
-            // console.log(priorityColumnData);
-            // console.log(rowInfo);
+        //     // console.log(bodyRange);
+        //     // console.log(priorityColumnData);
+        //     // console.log(rowInfo);
 
 
-            //var kfcOnDvd = snailPoop.rowInfo;
-            tableChangedPriorityAndSort(rowInfo, bodyRange, priorityColumnData);
-            return;
+        //     //var kfcOnDvd = snailPoop.rowInfo;
+        //     tableChangedPriorityAndSort(rowInfo, bodyRange, priorityColumnData);
+        //     return;
 
-        });
+        // });
 
 
     });
@@ -1816,6 +1871,19 @@ async function onTableChanged(eventArgs) {
     // eventsOn();
 
 };
+
+
+function sortingGiraffe(bodyRange, rowInfo) {
+    console.log(bodyRange.values);
+    console.log(rowInfo.pickedUpStartedBy.columnIndex);
+
+    bodyRange.sort.apply([
+        {
+            key: rowInfo.pickedUpStartedBy.columnIndex,
+            ascending: true
+        }
+    ]);
+}
 
 
 //#region PRIORITY GENERATION AND SORTATION ---------------------------------------------------------------------------------------
@@ -1940,16 +2008,16 @@ async function onTableChanged(eventArgs) {
              * @param {Array} leRow A copy array of the head array that will be used to write new values to the sheet for the row  
              * @param {Object} obj An empty object that will be filled with column indexs and values for each cell in the changed row
              */
-          function theGreatestFunctionEverWritten (head, columnName, rowValues, leRow, obj) {
+          function theGreatestFunctionEverWritten (head, columnName, rowValues, leRow, obj, changedRowTableIndex) {
 
             //returns the index number of the column name based on it's position in the table header row
             var columnIndex = findColumnIndex(head, columnName); 
 
-            //returns the values of a specific cell from a specific columnnin the changed row
+            //returns the values of a specific cell from a specific columnn in the changed row
             var value = rowValues[0][columnIndex];
 
             //writes value to appropriate columnIndex in leRow array
-            leRow[0][columnIndex] = value;
+            leRow[changedRowTableIndex][columnIndex] = value;
 
             var headerColumn = headersToCode(columnName); //returns a properly coded variable based on the column name
 
