@@ -59,6 +59,13 @@
     var changeEvent;
     var snailPoop = {};
 
+    var changedTable;
+
+    var destinationTable;
+    var destinationRows;
+    var destinationTableRange;
+    var destinationHeader;
+
     /* Check if aevents are turned on
     Excel.run(async function(context) {
         context.runtime.load("enableEvents");
@@ -1604,7 +1611,7 @@
                     var details = eventArgs.details;
                     var address = eventArgs.address;
                     var changeType = eventArgs.changeType;
-                    //console.log(changeType);
+                    console.log(changeType);
 
                     var allWorksheets = context.workbook.worksheets;
                     allWorksheets.load("items/name/tables/id");
@@ -1624,7 +1631,7 @@
                     //Used to load values of the changed row/table to be used in functions & to return updated values to the table
                     var allTables = context.workbook.tables;
                     allTables.load("items/name");
-                    var changedTable = context.workbook.tables.getItem(eventArgs.tableId).load("name"); //Returns tableId of the table where the event occured
+                    changedTable = context.workbook.tables.getItem(eventArgs.tableId).load("name"); //Returns tableId of the table where the event occured
                     var changedTableColumns = changedTable.columns
                     changedTableColumns.load("items/name");
                     var changedTableRows = changedTable.rows;
@@ -1880,11 +1887,6 @@
                     
                         if (changedColumnIndex == rowInfo.artist.columnIndex) {
                             console.log("Here is where all the complex move functions will take place!")
-
-                            var destinationTable;
-                            var destinationRows;
-                            var destinationTableRange;
-                            var destinationHeader;
 
                             //#region FINDS IF CHANGE WAS MADE TO THE UNASSIGNED PROJECTS TABLE OR NOT ----------------------------------------
 
@@ -2220,13 +2222,31 @@
 
                                                 };
 
+                                                myRow.delete();
+                                                //bodyRange.values = leTableSort;
+
+                                                destinationTable.rows.add(null);
+                                                //destinationTableRange.values = destTableSort;
+
+                                                await context.sync();
+
+                                                var newBodyRange = bodyRange.values;
+                                                var newDestinationTableRange = destinationTableRange.values;
+
                                                 bodyRange.values = leTableSort;
 
                                                 destinationTableRange.values = destTableSort;
 
-                                                console.log("I didn't fail!");
 
-                                                return;
+
+                                                // return {
+                                                //     leTableSort,
+                                                //     destTableSort
+                                                // };
+
+                                                //commitMoveData(bodyRange, leTableSort, destinationRange, destTableSort);
+
+                                                console.log("I didn't fail!");
 
 
                                                 //setStatus(destinationTable, unassignedTable, tableColumns, changedRowIndex, tableStart, changedWorksheet);
@@ -2235,6 +2255,7 @@
                                             console.log("No artist was assigned or updated, so no data was moved.")
                                             return;
                                         };
+
                                         //};
 
                                     //#endregion --------------------------------------------------------------------------------------------
@@ -2448,6 +2469,21 @@
     //#endregion ----------------------------------------------------------------------------------------------------------------------------------
 
 
+    // async function poopsicle(changeEvent) {
+
+    //     await Excel.run(async (context) => {
+
+    //         var smells = changedTable;
+    //         var kells = changedTable.name;
+    //     });
+
+
+    // };
+
+
+
+
+
     //#region MOVE DATA FUNCTION ------------------------------------------------------------------------------------------------------------------
 
         /**
@@ -2473,6 +2509,17 @@
         var leMovedTable = leTable.splice(changedRowTableIndex, 1);
 
     };
+
+    // async function commitMovedData(bodyRange, leTableSort, destinationRange, destTableSort) {
+    //     await Excel.run(async (context) => {
+
+    //         bodyRange.values = leTableSort;
+    //         destinationRange.values = destTableSort;
+
+    //         await context.sync();
+            
+    //     });
+    // };
 
 
 
