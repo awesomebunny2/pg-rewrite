@@ -1640,9 +1640,13 @@
                         //#region SPECIFIC TABLE VARIABLES --------------------------------------------------------------------------
 
                             var unassignedTable = context.workbook.tables.getItem("UnassignedProjects").load("worksheet");
+                            var unassignedTableRows = unassignedTable.rows.load("items");
+                            var unassignedRange = unassignedTable.getDataBodyRange().load("values");
                             var unassignedHeader = unassignedTable.getHeaderRowRange().load("values");
 
                             var mattTable = context.workbook.tables.getItem("MattProjects").load("worksheet");
+                            var mattTableRows = mattTable.rows.load("items");
+                            var mattRange = mattTable.getDataBodyRange().load("values");
                             var mattHeader = mattTable.getHeaderRowRange().load("values");
 
 
@@ -1818,19 +1822,24 @@
                                 var tableStart = startOfTable.columnIndex; //column index of the start of the table
                                 var changedColumnIndex = changedColumnIndexOG - tableStart; //adjusts columnIndex to reflect the actual position in the table, no matter where the table is on the sheet
 
+
                             //#endregion ----------------------------------------------------------------------------------------------------------------
 
 
                             //#region RECREATES CHANGED TABLE IN CODE AND ASSIGNS COLUMN INDEX AND VALUE PROPERTIES OF THE CHANGED ROW TO AN OBJECT
 
-                                var leRow = JSON.parse(JSON.stringify(tableContent)); //creates a duplicate array of the entire changed tables content to be used for making adjustments to the sheet, without having anything done to it affect oriignal array
+                                var leTable = JSON.parse(JSON.stringify(tableContent)); //creates a duplicate array of the entire changed tables content to be used for making adjustments to the sheet, without having anything done to it affect oriignal array
 
                                 var rowInfo = new Object(); //object that will contain the values and column indexs of every item in the changed row
                                 
                                 for (var name of head[0]) { //for each header item in the head array...
                                     //creates keys with the header names of each column in the changed table and assigns them to the rowInfo object. For each key, the column index and cell values are added for the cell in that column in the changed row
-                                    theGreatestFunctionEverWritten(head, name, rowValues, leRow, rowInfo, changedRowTableIndex);
+                                    theGreatestFunctionEverWritten(head, name, rowValues, leTable, rowInfo, changedRowTableIndex);
                                 };
+
+
+                                var pickedUpColumnIndex = rowInfo.pickedUpStartedBy.columnIndex; //index of picked up column
+                                var proofToClientColumnIndex = rowInfo.proofToClient.columnIndex; //index of proof to client cloumn
 
                                 //console.log("I am a fart"); //hehe
 
@@ -1847,105 +1856,20 @@
 
                         //if any of these columns are changed, turn around times will be adjusted and the table will be sorted
                         if (changedColumnIndex == rowInfo.pickedUpStartedBy.columnIndex || changedColumnIndex == rowInfo.proofToClient.columnIndex || changedColumnIndex == rowInfo.priority.columnIndex || changedColumnIndex == rowInfo.product.columnIndex || changedColumnIndex == rowInfo.projectType.columnIndex || changedColumnIndex == rowInfo.added.columnIndex || changedColumnIndex == rowInfo.startOverride.columnIndex || changedColumnIndex == rowInfo.workOverride.columnIndex) {
+                            
                             console.log("I will update the turn around times, priority numbers, and sort the sheet before turning events back on!")
-                    
-                            
-                            //#region ADJUST PICKED UP / STARTED BY TURN AROUND TIME ---------------------------------------------------------------
 
-                                //get the Project Type coded variable from the Project Type ID Data based on the value in the Project Type column of the changed row
-                                var theProjectTypeCode = projectTypeIDData[rowInfo.projectType.value].projectTypeCode;
+                            //adjusts picked up / started by turn around time
+                            var lePickUpTime = getPickUpTime(rowInfo, leTable, changedRowTableIndex);
 
-                                //returns turn around time value from the Pickup Turn Around Time table based on the Product column of the changed row and the projetc type codeed variable
-                                var pickedUpTurnAroundTime = pickupData[rowInfo.product.value][theProjectTypeCode];
+                            //adjusts proof to client turn around time
+                            var leProofToClientTime = getProofToClientTime(rowInfo, leTable, lePickUpTime, changedRowTableIndex);
 
-                                //finds the start override value of the changed row and adds it to the previous turn around time variable
-                                var pickedUpHours = pickedUpTurnAroundTime + rowInfo.startOverride.value;
+                            //sorts based on pickedUp column values and assigns priority numbers
+                            var sortAndPrioritize = leSorting(rowInfo, leTable, pickedUpColumnIndex);
 
-                                //finds the added date/time serial of the changed row and converts it to a date
-                                var addedDate = convertToDate(rowInfo.added.value);
-
-                                //adds the adjusted turn around time to the added date and adjusts to be within office hours
-                                var pickupOfficeHours = officeHours(addedDate, pickedUpHours);
-
-                                //converts date to excel date
-                                var excelPickupOfficeHours = Number(JSDateToExcelDate(pickupOfficeHours));
-
-                                //updates the pickedup turn around time value in the table array based on our calculations
-                                leRow[changedRowTableIndex][rowInfo.pickedUpStartedBy.columnIndex] = excelPickupOfficeHours;
-
-                            //#endregion ------------------------------------------------------------------------------------------------------------
-
-
-
-                            //#region ADJUST PROOF TO CLIENT TURN AROUND TIME ----------------------------------------------------------------------
-
-                                //returns turn around time value from the Proof to Client Turn Around Time table based on the Product column of the changed row and the projetc type codeed variable
-                                var proofToClient = proofToClientData[rowInfo.product.value][theProjectTypeCode];
-
-                                //returns creative review process hours adjustment number from thhe creative review table based on the Product column value of the changed row
-                                var creativeReview = creativeProofData[rowInfo.product.value].creativeReviewProcess;
-
-                                //adds the proof to client turn around time to the creative review time
-                                var proofWithReview = proofToClient + creativeReview;
-
-                                //finds the work override value of the changed row and adds it to the previous turn around time variable
-                                var artTurnAround = proofWithReview + rowInfo.workOverride.value;
-
-                                //adds the adjusted turn around time to the pickedUpStartedBy date and adjusts to be within office hours
-                                var proofToClientOfficeHours = officeHours(pickupOfficeHours, artTurnAround);
-
-                                //converts date to excel date
-                                var excelProofToClientOfficeHours = Number(JSDateToExcelDate(proofToClientOfficeHours));
-
-                                //updates the proof to client turn around time value in the table array based on our calculations
-                                leRow[changedRowTableIndex][rowInfo.proofToClient.columnIndex] = excelProofToClientOfficeHours;
-
-                            //#endregion -----------------------------------------------------------------------------------------------------------
-
-
-
-                            //#region SORTING THE TABLE BY PICKED UP TURN AROUND TIME ---------------------------------------------------------------
-
-                                //a copy of the array containing all the table data that will be used for sorting
-                                var leRowSorted = JSON.parse(JSON.stringify(leRow)); //creates a duplicate of original array to be used for assigning the priority numbers, without having anything done to it affect oriignal array
-
-                                //#region RESOLVE DUPLICATE DATE/TIMES ------------------------------------------------------------------------------
-
-                                    //if the pickedUp array has duplicate values, this nested for statement will add 1 second to the times of each duplicate value to allow the data sorting to work properly
-                                    for (var i = 0; i < leRowSorted.length; i++) {
-                                        for (var j = 0; j < leRowSorted.length; j++) {
-                                            if (i !== j) { //makes sure that the values do not equal (so the first pass will fail, naturally)
-                                                if (leRowSorted[i] == leRowSorted[j]) {
-                                                    console.log("A duplicate is present at index " + j + " of the array");
-                                                    leRowSorted[j] = leRowSorted[j] + 0.0000115740; //adds one second to the duplicate entry
-                                                };
-                                            };
-                                        };
-                                    };
-
-                                //#endregion -------------------------------------------------------------------------------------------------------
-
-                                var pickedUpColumnIndex = rowInfo.pickedUpStartedBy.columnIndex; //index of picked up column
-                                var priorityColumnIndex = rowInfo.priority.columnIndex; //index of priority column
-
-
-                                //sorts the parent array (a) by the number in the sub array (b) at index of the picked up column
-                                leRowSorted.sort(function(a,b){return a[pickedUpColumnIndex] > b[pickedUpColumnIndex]});
-
-                            //#endregion -------------------------------------------------------------------------------------------------------------
-
-                            
-                            //#region ASSIGN PRIORITY NUMBERS ---------------------------------------------------------------------------------------
-
-                                //for each item in the sorted array of table values, assign updated priority numbers to the priority column index
-                                for (var n = 0; n < leRowSorted.length; n++) {
-                                    leRowSorted[n][priorityColumnIndex] = n + 1;
-                                };
-
-                            //#endregion ------------------------------------------------------------------------------------------------------------
-
-
-                            bodyRange.values = leRowSorted; //overwrite changed table data with the new data from the sorted array 
+                            //writes updated values to the table
+                            bodyRange.values = sortAndPrioritize; //overwrite changed table data with the new data from the sorted array 
 
                         };
 
@@ -1958,6 +1882,8 @@
                             console.log("Here is where all the complex move functions will take place!")
 
                             var destinationTable;
+                            var destinationRows;
+                            var destinationTableRange;
                             var destinationHeader;
 
                             //#region FINDS IF CHANGE WAS MADE TO THE UNASSIGNED PROJECTS TABLE OR NOT ----------------------------------------
@@ -1995,9 +1921,13 @@
 
                                     if (rowInfo.artist.value == "Unassigned" && isUnassigned == false) {
                                         destinationTable = unassignedTable;
+                                        destinationRows = unassignedTableRows;
+                                        destinationTableRange = unassignedRange;
                                         destinationHeader = unassignedHeader;
                                     } else if (rowInfo.artist.value == "Matt") {
                                         destinationTable = mattTable;
+                                        destinationRows = mattTableRows;
+                                        destinationTableRange = mattRange;
                                         destinationHeader = mattHeader;
                                     // } else if (rowInfo.artist.value == "Alaina") {
                                     //     destinationTable = alainaTable;
@@ -2064,8 +1994,31 @@
                                     //     destinationHeader = toddHeader;
                                     } else {
                                         destinationTable = "null";
+                                        destinationTableRange = "null";
                                         destinationHeader = "null";
                                     };
+
+                                    //For the time being, I am recreating the variables from the changed table to work with the destination table.
+                                    //I am replacing the changed row index with 0 since, at this point, there is no changed row in the destination table. We just need these values to essentially return the index number of the columns we want from the destination table in future functions.
+                                    
+                                    var destinationRange = destinationTableRange.values;
+
+                                    var destTableRows = destinationRows.items;
+
+                                    var destRowValues = destTableRows[0].values;
+
+                                    //var destRow = destTableRows.getItemAt(0);
+
+                                    var destTable = JSON.parse(JSON.stringify(destinationRange));
+
+                                    var destHead = destinationHeader.values;
+
+                                    var destRowInfo = new Object();
+
+                                    for (var name of destHead[0]) {
+                                        theGreatestFunctionEverWritten(destHead, name, destRowValues, destTable, destRowInfo, 0)
+                                    }
+
 
                                 //#endregion ----------------------------------------------------------------------------------------------
                           
@@ -2247,7 +2200,35 @@
                                         //if (includesCompletedTables == false) {
                                         if (destinationTable !== "null") {
                                             if (destinationTable.worksheet.id !== changedWorksheet.id) { //if destination table is not in the same worksheet as the changedTable (prevents for unnecessary moving of data across tables in the same worksheet), do the following...
-                                                moveData(destinationTable, rowValues, myRow, rowInfo.artist.value);
+                                                //moveData(destinationTable, rowValues, myRow, rowInfo.artist.value);
+                                                moveDataTwo(destTable, rowValues, leTable, changedRowTableIndex);
+
+                                                if (changedTable.id == unassignedTable.id) { //if data is moving from the unassigned table to an artist table, sort this way...
+
+                                                    var leTableSort = leSorting(rowInfo, leTable, pickedUpColumnIndex); //sorts the changed unassigned table by picked up / started by
+                                                    var destTableSort = leSorting(destRowInfo, destTable, proofToClientColumnIndex); //sorts the destination artist table by proof to client
+
+                                                } else if (destinationTable.id == unassignedTable.id) { //if data is moving from an artist table to the unassigned table, sort this way...
+
+                                                    var leTableSort = leSorting(rowInfo, leTable, proofToClientColumnIndex); //sorts the changed artist table by proof to client
+                                                    var destTableSort = leSorting(destRowInfo, destTable, pickedUpColumnIndex); //sorts the destination Unassigned table by picked up / started by
+
+                                                } else if ((destinationTable.id !== unassignedTable.id) && (changedTable.id !== unassignedTable.id)) { //if data is moving between artist tables, both will be sorted by proof to client
+
+                                                    var leTableSort = leSorting(rowInfo, leTable, proofToClientColumnIndex); //sorts the changed artist table by proof to client
+                                                    var destTableSort = leSorting(destRowInfo, destTable, proofToClientColumnIndex); //sorts the destination arist table by proof to client
+
+                                                };
+
+                                                bodyRange.values = leTableSort;
+
+                                                destinationTableRange.values = destTableSort;
+
+                                                console.log("I didn't fail!");
+
+                                                return;
+
+
                                                 //setStatus(destinationTable, unassignedTable, tableColumns, changedRowIndex, tableStart, changedWorksheet);
                                             };
                                         } else {
@@ -2324,6 +2305,149 @@
     //#endregion -------------------------------------------------------------------------------------------------------------------------------
 
 
+    //#region TURN AROUND TIME FUNCTIONS -------------------------------------------------------------------------------------------------------
+
+
+        //#region ADJUST PICKED UP / STARTED BY TURN AROUND TIME ---------------------------------------------------------------
+
+            /**
+             * Adjusts the picked up / started by turn around time value
+             * @param {Object} rowInfo An object containing the values and column indexs of each cell in the changed row
+             * @param {Array} leTable An array of arrays containing all the info of the changed table
+             * @param {Number} rowIndex The index number of the changed row (table level)
+             * @returns Date
+             */
+                function getPickUpTime(rowInfo, leTable, rowIndex) {
+
+                //get the Project Type coded variable from the Project Type ID Data based on the value in the Project Type column of the changed row
+                var theProjectTypeCode = projectTypeIDData[rowInfo.projectType.value].projectTypeCode;
+
+                //returns turn around time value from the Pickup Turn Around Time table based on the Product column of the changed row and the projetc type codeed variable
+                var pickedUpTurnAroundTime = pickupData[rowInfo.product.value][theProjectTypeCode];
+
+                //finds the start override value of the changed row and adds it to the previous turn around time variable
+                var pickedUpHours = pickedUpTurnAroundTime + rowInfo.startOverride.value;
+
+                //finds the added date/time serial of the changed row and converts it to a date
+                var addedDate = convertToDate(rowInfo.added.value);
+
+                //adds the adjusted turn around time to the added date and adjusts to be within office hours
+                var pickupOfficeHours = officeHours(addedDate, pickedUpHours);
+
+                //converts date to excel date
+                var excelPickupOfficeHours = Number(JSDateToExcelDate(pickupOfficeHours));
+
+                //updates the pickedup turn around time value in the table array based on our calculations
+                leTable[rowIndex][rowInfo.pickedUpStartedBy.columnIndex] = excelPickupOfficeHours;
+
+                return pickupOfficeHours;
+
+            };
+            
+        //#endregion ------------------------------------------------------------------------------------------------------------
+
+
+        //#region ADJUST PROOF TO CLIENT TURN AROUND TIME ----------------------------------------------------------------------
+                
+            /**
+             * Adjusts the proof to client turn around time values
+             * @param {Object} rowInfo An object containing the values and column indexs of each cell in the changed row    
+             * @param {Array} leTable An array of arrays containing all the info of the changed table
+             * @param {Date} lePickUpTime The date returned from the previous getPickUpTime function
+             * @param {Number} rowIndex The index number of the changed row (table level)
+             * @returns Date
+             */
+                function getProofToClientTime(rowInfo, leTable, lePickUpTime, rowIndex) {
+
+                //get the Project Type coded variable from the Project Type ID Data based on the value in the Project Type column of the changed row
+                var theProjectTypeCode = projectTypeIDData[rowInfo.projectType.value].projectTypeCode;
+                
+                //returns turn around time value from the Proof to Client Turn Around Time table based on the Product column of the changed row and the projetc type codeed variable
+                var proofToClient = proofToClientData[rowInfo.product.value][theProjectTypeCode];
+
+                //returns creative review process hours adjustment number from thhe creative review table based on the Product column value of the changed row
+                var creativeReview = creativeProofData[rowInfo.product.value].creativeReviewProcess;
+
+                //adds the proof to client turn around time to the creative review time
+                var proofWithReview = proofToClient + creativeReview;
+
+                //finds the work override value of the changed row and adds it to the previous turn around time variable
+                var artTurnAround = proofWithReview + rowInfo.workOverride.value;
+
+                //adds the adjusted turn around time to the pickedUpStartedBy date and adjusts to be within office hours
+                var proofToClientOfficeHours = officeHours(lePickUpTime, artTurnAround);
+
+                //converts date to excel date
+                var excelProofToClientOfficeHours = Number(JSDateToExcelDate(proofToClientOfficeHours));
+
+                //updates the proof to client turn around time value in the table array based on our calculations
+                leTable[rowIndex][rowInfo.proofToClient.columnIndex] = excelProofToClientOfficeHours;
+
+                return proofToClientOfficeHours;
+
+            };
+            
+        //#endregion -----------------------------------------------------------------------------------------------------------
+
+
+
+        //#region SORTING THE TABLE BY PICKED UP TURN AROUND TIME ---------------------------------------------------------------
+
+            /**
+             * Sorts the table array by the values in leColumnIndex and then assigns updated priority numbers
+             * @param {Object} rowInfo An object containing the values and column indexs of each cell in the changed row
+             * @param {Array} leTable An array of arrays containing all the info of the changed table
+             * @param {Number} leColumnIndex The index number of the column that will be used for sorting the table
+             * @returns Array
+             */
+                function leSorting(rowInfo, leTable, leColumnIndex) {
+
+                //a copy of the array containing all the table data that will be used for sorting
+                var leRowSorted = JSON.parse(JSON.stringify(leTable)); //creates a duplicate of original array to be used for assigning the priority numbers, without having anything done to it affect oriignal array
+                
+                var priorityColumnIndex = rowInfo.priority.columnIndex; //index of priority column
+
+                //#region RESOLVE DUPLICATE DATE/TIMES ------------------------------------------------------------------------------
+
+                    //if the pickedUp array has duplicate values, this nested for statement will add 1 second to the times of each duplicate value to allow the data sorting to work properly
+                    for (var i = 0; i < leRowSorted.length; i++) {
+                        for (var j = 0; j < leRowSorted.length; j++) {
+                            if (i !== j) { //makes sure that the values do not equal (so the first pass will fail, naturally)
+                                if (leRowSorted[i][leColumnIndex] == leRowSorted[j][leColumnIndex]) {
+                                    console.log("A duplicate is present at index " + j + " of the array");
+                                    leRowSorted[j][leColumnIndex] = leRowSorted[j][leColumnIndex] + 0.0000115740; //adds one second to the duplicate entry
+                                };
+                            };
+                        };
+                    };
+
+                //#endregion -------------------------------------------------------------------------------------------------------
+
+
+                //sorts the parent array (a) by the number in the sub array (b) at index of the picked up column
+                leRowSorted.sort(function(a,b){return a[leColumnIndex] > b[leColumnIndex]});
+
+
+                                            
+                //#region ASSIGN PRIORITY NUMBERS ---------------------------------------------------------------------------------------
+
+                    //for each item in the sorted array of table values, assign updated priority numbers to the priority column index
+                    for (var n = 0; n < leRowSorted.length; n++) {
+                        leRowSorted[n][priorityColumnIndex] = n + 1;
+                    };
+
+                //#endregion ------------------------------------------------------------------------------------------------------------
+
+                return leRowSorted;
+
+            };
+        
+        //#endregion -------------------------------------------------------------------------------------------------------------
+
+
+    //#endregion ----------------------------------------------------------------------------------------------------------------------------------
+
+
     //#region MOVE DATA FUNCTION ------------------------------------------------------------------------------------------------------------------
 
         /**
@@ -2341,6 +2465,17 @@
     //#endregion -----------------------------------------------------------------------------------------------------------------------------------
 
 
+
+    
+    function moveDataTwo(destTable, rowValues, leTable, changedRowTableIndex) {
+
+        destTable.push(rowValues[0]);
+        var leMovedTable = leTable.splice(changedRowTableIndex, 1);
+
+    };
+
+
+
     //#region CHECK IF TWO ARRAYS ARE EQUAL --------------------------------------------------------------------------------------------------------
 
         /**
@@ -2351,12 +2486,12 @@
          */  
         function areArraysEqual(array1, array2) {
             if (array1.length == array2.length) {
-            return array1.every((element, index) => {
-                if (element == array2[index]) {
-                return true;
-                };
-                return false;
-            });
+                return array1.every((element, index) => {
+                    if (element == array2[index]) {
+                        return true;
+                    };
+                    return false;
+                });
             };
             return false;
         };
@@ -2371,10 +2506,10 @@
          * @param {Array} head An array of all the header values in the table
          * @param {String} columnName The name of the column to find the index for
          * @param {Array} rowValues An array of arrays containing all the row values for the changed row
-         * @param {Array} leRow A copy array of the head array that will be used to write new values to the sheet for the row  
+         * @param {Array} leTable A copy array of the head array that will be used to write new values to the sheet for the row  
          * @param {Object} obj An empty object that will be filled with column indexs and values for each cell in the changed row
          */
-        function theGreatestFunctionEverWritten (head, columnName, rowValues, leRow, obj, changedRowTableIndex) {
+        function theGreatestFunctionEverWritten (head, columnName, rowValues, leTable, obj, changedRowTableIndex) {
 
             //returns the index number of the column name based on it's position in the table header row
             var columnIndex = findColumnIndex(head, columnName); 
@@ -2382,8 +2517,8 @@
             //returns the values of a specific cell from a specific columnn in the changed row
             var value = rowValues[0][columnIndex];
 
-            //writes value to appropriate columnIndex in leRow array
-            leRow[changedRowTableIndex][columnIndex] = value;
+            //writes value to appropriate columnIndex in leTable array
+            leTable[changedRowTableIndex][columnIndex] = value;
 
             var headerColumn = headersToCode(columnName); //returns a properly coded variable based on the column name
 
