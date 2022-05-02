@@ -1604,7 +1604,7 @@
                     var details = eventArgs.details;
                     var address = eventArgs.address;
                     var changeType = eventArgs.changeType;
-                    console.log(changeType);
+                    //console.log(changeType);
 
                     var allWorksheets = context.workbook.worksheets;
                     allWorksheets.load("items/name/tables/id");
@@ -1786,8 +1786,8 @@
 
                             //#region TURN EVENTS OFF ----------------------------------------------------------------------------------------------
 
-                            context.runtime.enableEvents = false; //turns events off
-                            console.log("Events are turned off!!");
+                                context.runtime.enableEvents = false; //turns events off
+                                console.log("Events are turned off!!");
 
                             //#endregion -----------------------------------------------------------------------------------------------------------
                 
@@ -1832,7 +1832,7 @@
                                     theGreatestFunctionEverWritten(head, name, rowValues, leRow, rowInfo, changedRowTableIndex);
                                 };
 
-                                console.log("I am a fart"); //hehe
+                                //console.log("I am a fart"); //hehe
 
                             //#endregion ------------------------------------------------------------------------------------------------------------
 
@@ -2878,7 +2878,7 @@
 
             function sortFort(bodyRange, priorityColumnIndex) {
 
-                console.log(bodyRange.values);
+                //console.log(bodyRange.values);
 
                 bodyRange.sort.apply([ //sorts entire table based on the priority column
                     {
@@ -2889,7 +2889,7 @@
 
                 console.log("Priority & Sorting function is now finished!");
 
-                console.log(bodyRange.values);
+               //console.log(bodyRange.values);
 
                 // eventsOn();
                 return;
