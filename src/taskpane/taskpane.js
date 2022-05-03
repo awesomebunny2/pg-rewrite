@@ -1776,7 +1776,9 @@
                 //#endregion --------------------------------------------------------------------------------------------------------------
 
 
-                await context.sync().then(function () {
+                await context.sync()
+
+                    console.log("!!!!!!!");
 
 
                     //#region ASSIGNING VARIABLES -----------------------------------------------------------------------------------------------
@@ -1885,7 +1887,7 @@
 
                     //#region MOVE DATA BETWEEN TABLES -----------------------------------------------------------------------------------------
                     
-                        if (changedColumnIndex == rowInfo.artist.columnIndex) {
+                        if (changedColumnIndex == rowInfo.artist.columnIndex || changedColumnIndex == rowInfo.status.columnIndex) {
                             console.log("Here is where all the complex move functions will take place!")
 
                             //#region FINDS IF CHANGE WAS MADE TO THE UNASSIGNED PROJECTS TABLE OR NOT ----------------------------------------
@@ -1893,9 +1895,9 @@
                                 var isUnassigned;
 
                                 if (changedWorksheet.name == "Unassigned Projects") {
-                                isUnassigned = true;
+                                    isUnassigned = true;
                                 } else {
-                                isUnassigned = false;
+                                    isUnassigned = false;
                                 };
 
                             //#endregion ------------------------------------------------------------------------------------------------------
@@ -1906,9 +1908,9 @@
                                 var listOfCompletedTables = [];
 
                                 allTables.items.forEach(function (table) { //for each table in the workbook...
-                                if (table.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
-                                    listOfCompletedTables.push(table.name); //push the name of that table into an array
-                                };
+                                    if (table.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
+                                        listOfCompletedTables.push(table.name); //push the name of that table into an array
+                                    };
                                 });
 
                                 //returns true if the changedTable is a completed table from the array previously made, false if it is anything else
@@ -1923,12 +1925,12 @@
 
                                     if (rowInfo.artist.value == "Unassigned" && isUnassigned == false) {
                                         destinationTable = unassignedTable;
-                                        destinationRows = unassignedTableRows;
+                                        destinationRows = unassignedTableRows.items;
                                         destinationTableRange = unassignedRange;
                                         destinationHeader = unassignedHeader;
                                     } else if (rowInfo.artist.value == "Matt") {
                                         destinationTable = mattTable;
-                                        destinationRows = mattTableRows;
+                                        destinationRows = mattTableRows.items;
                                         destinationTableRange = mattRange;
                                         destinationHeader = mattHeader;
                                     // } else if (rowInfo.artist.value == "Alaina") {
@@ -2005,9 +2007,7 @@
                                     
                                     var destinationRange = destinationTableRange.values;
 
-                                    var destTableRows = destinationRows.items;
-
-                                    var destRowValues = destTableRows[0].values;
+                                    var destRowValues = destinationRows[0].values;
 
                                     //var destRow = destTableRows.getItemAt(0);
 
@@ -2228,25 +2228,42 @@
                                                 destinationTable.rows.add(null);
                                                 //destinationTableRange.values = destTableSort;
 
-                                                await context.sync();
+                                                var bodyPositivity = changedTable.getDataBodyRange().load("values");
 
-                                                var newBodyRange = bodyRange.values;
-                                                var newDestinationTableRange = destinationTableRange.values;
+                                                var unassignedRange = unassignedTable.getDataBodyRange().load("values");
+                                                var mattRange = mattTable.getDataBodyRange().load("values");
 
-                                                bodyRange.values = leTableSort;
+                                                if (rowInfo.artist.value == "Unassigned" && isUnassigned == false) {
+                                                    var destinationStation = unassignedRange;
+                                                } else if (rowInfo.artist.value == "Matt") {
+                                                    var destinationStation = mattRange;
+                                                } else {
+                                                    var destinationStation = "null";
+                                                };
 
-                                                destinationTableRange.values = destTableSort;
+                                                await context.sync()
 
+                                                    var newBodyRange = bodyPositivity.values;
+                                                    var newDestinationTableRange = destinationStation.values;
+    
+                                                    newBodyRange.values = leTableSort;
+    
+                                                    newDestinationTableRange.values = destTableSort;
+    
+    
+    
+                                                    // return {
+                                                    //     leTableSort,
+                                                    //     destTableSort
+                                                    // };
+    
+                                                    //commitMoveData(bodyRange, leTableSort, destinationRange, destTableSort);
+    
+                                                    console.log("I didn't fail!");
 
+                                                //});
 
-                                                // return {
-                                                //     leTableSort,
-                                                //     destTableSort
-                                                // };
-
-                                                //commitMoveData(bodyRange, leTableSort, destinationRange, destTableSort);
-
-                                                console.log("I didn't fail!");
+                                     
 
 
                                                 //setStatus(destinationTable, unassignedTable, tableColumns, changedRowIndex, tableStart, changedWorksheet);
@@ -2274,7 +2291,7 @@
 
                 eventsOn(); //turns events back on
 
-            });
+            //});
 
         };
 
