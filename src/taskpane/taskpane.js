@@ -800,7 +800,7 @@
 
                         var sheet = context.workbook.worksheets.getActiveWorksheet();
                         //updating this variable to work for the changedTable will not work since the taskpane doesn't trigger an onchanged event until afterward
-                        var sheetTable = sheet.tables.getItemAt(0); //this is fine since the user will only ever be adding new projects to the unassigned table or the artist tables, which are all the first tables in their documents. 
+                        var sheetTable = sheet.tables.getItemAt(0).load("name"); //this is fine since the user will only ever be adding new projects to the unassigned table or the artist tables, which are all the first tables in their documents. 
                         context.runtime.load("enableEvents");
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------
@@ -832,29 +832,29 @@
 
                         // Data to send to Table
                         var write = [[
-                            "", // 1 - Priority
-                            artistLeadVal, // 2 - Artist Lead
-                            queueVal, // 3 - Queue
-                            tierVal, // 4 - Tier
-                            subjectVal, // 5 - Subject
-                            clientVal, // 6 - Client
-                            locationVal, // 7 - Location
-                            productVal, // 8 - Product
-                            projectTypeVal, // 9 - Project Type
-                            csmVal, // 10 - CSM
-                            "", // 11 - Added
-                            printDateVal, // 12 - Print Data
-                            groupVal, // 13 - Group
-                            "", // 14 - Picked Up / Started By
-                            "", // 15 - Proof to Client
-                            "", // 16 - Date of Last Edit
-                            tagsVal, // 17 - Tags
-                            "", // 18 - Status
-                            codeVal, // 19 - Code
-                            "", // 20 - Artist
-                            "", // 21 - Notes
-                            startOverrideVal, // 22 - Start Override
-                            workOverrideVal // 23 - Work Override
+                            "", // 0 - Priority
+                            artistLeadVal, // 1 - Artist Lead
+                            queueVal, // 2 - Queue
+                            tierVal, // 3 - Tier
+                            subjectVal, // 4 - Subject
+                            clientVal, // 5 - Client
+                            locationVal, // 6 - Location
+                            productVal, // 7 - Product
+                            projectTypeVal, // 8 - Project Type
+                            csmVal, // 9 - CSM
+                            "", // 10 - Added
+                            printDateVal, // 11 - Print Data
+                            groupVal, // 12 - Group
+                            "", // 13 - Picked Up / Started By
+                            "", // 14 - Proof to Client
+                            "", // 15 - Date of Last Edit
+                            tagsVal, // 16 - Tags
+                            "", // 17 - Status
+                            codeVal, // 18 - Code
+                            "", // 19 - Artist
+                            "", // 20 - Notes
+                            startOverrideVal, // 21 - Start Override
+                            workOverrideVal // 22 - Work Override
                         ]];
 
                     //#endregion -----------------------------------------------------------------------------------------------------------
@@ -952,6 +952,17 @@
                     //#endregion --------------------------------------------------------------------------------------------------------
 
 
+                    if (startOverrideVal == "") {
+                        write[0][21] = 0;
+                    };
+
+                    if (workOverrideVal == "") {
+                        write[0][22] = 0;
+                    };
+
+
+
+
                     //writes the write array to the table
                     sheetTable.rows.add(null /*add rows to the end of the table*/, write);
 
@@ -967,6 +978,27 @@
 
 
                     console.log("Add a project function has completed, but the sub-function for priority & sorting is still running asyncronously");
+
+                    await context.sync();
+
+                    //#region AUTOFILL STATUS COLUMN --------------------------------------------------------------------
+
+                    function statusAutofill(table) {
+
+                        if (table.name == "UnassignedProjects") { //if the table the row was inserted into is "UnassignedProjects", set status column to "Awaiting Artist"
+                            var status = "Awaiting Artist";
+                        };
+                        
+                        if (table.name !== "UnassignedProjects" && includesCompletedTables == false) { //if the table the row was inserted into is not "UnassaignedProjects" & is not a Completed table, and...
+                            var status = "Not Working";
+                        };
+
+                    };
+                        
+                
+                    //#endregion ----------------------------------------------------------------------------------------
+
+
 
                     // context.runtime.enableEvents = true;
                     // console.log("Events are turned on");
@@ -1778,7 +1810,7 @@
 
                 await context.sync()
 
-                    console.log("!!!!!!!");
+                    //console.log("!!!!!!!");
 
 
                     //#region ASSIGNING VARIABLES -----------------------------------------------------------------------------------------------
@@ -2175,14 +2207,61 @@
 
                                     //#region MOVES DATA TO COMPLETED TABLE ---------------------------------------------------------------------
 
+                                        // if ((rowInfo.status.value == "Completed" || rowInfo.status.value == "Cancelled") && includesCompletedTables == false && isUnassigned == false) { //if status column = "Completed" or "Cancelled", the changedTable is not a Completed table, & the changedWorksheet is not UnassignedProjects, move data to changedWorksheet's completed table
+                                        //     completedTable.rows.add(0, rowValues); //Adds empty row to bottom of the completedTable, then inserts the changed values into this empty row
+                                        //     myRow.delete(); //Deletes the changed row from the original sheet
+                                        //     console.log("Data was moved to the artist's Completed Projects Table!");
+                                        //     return;
+                                        // } else if (rowInfo.status.value == "Editing" && includesCompletedTables == true) { //if status column = "Editing" & the changedTable is a Completed table, move data back to the artist's table
+                                        //     if (destinationTable !== "null") {
+                                        //     moveData(destinationTable, rowValues, myRow, rowInfo.artist.value);
+                                        //     };
+                                        // };
+
                                         if ((rowInfo.status.value == "Completed" || rowInfo.status.value == "Cancelled") && includesCompletedTables == false && isUnassigned == false) { //if status column = "Completed" or "Cancelled", the changedTable is not a Completed table, & the changedWorksheet is not UnassignedProjects, move data to changedWorksheet's completed table
                                             completedTable.rows.add(0, rowValues); //Adds empty row to bottom of the completedTable, then inserts the changed values into this empty row
                                             myRow.delete(); //Deletes the changed row from the original sheet
                                             console.log("Data was moved to the artist's Completed Projects Table!");
-                                            return;
+                                    
+                                            leTable.splice(changedRowTableIndex, 1); //removes changed row from table content array
+                                    
+                                            var leTableSort = leSorting(rowInfo, leTable, proofToClientColumnIndex) //sorts the artist table by proof to client
+                                            var bodyRangeReload = changedTable.getDataBodyRange().load("values"); //reload artist tables values after deleting a row
+                                    
+                                            await context.sync();
+                                    
+                                            bodyRangeReload.values = leTableSort; //writes sorted table content from the array to the artist table
+                                    
+                                            //return;
+                                    
                                         } else if (rowInfo.status.value == "Editing" && includesCompletedTables == true) { //if status column = "Editing" & the changedTable is a Completed table, move data back to the artist's table
                                             if (destinationTable !== "null") {
-                                            moveData(destinationTable, rowValues, myRow, rowInfo.artist.value);
+                                                //moveData(destinationTable, rowValues, myRow, rowInfo.artist.value);
+                                                myRow.delete(); //Deletes the changed row from the original sheet
+                                                destinationTable.rows.add(null);
+                                    
+                                                destTable.push(rowValues[0]);
+                                    
+                                                var destTableSort = leSorting(destRowInfo, destTable, proofToClientColumnIndex);
+                                    
+                                    
+                                                var unassignedRange = unassignedTable.getDataBodyRange().load("values");
+                                                var mattRange = mattTable.getDataBodyRange().load("values");
+                                    
+                                                
+                                                if (rowInfo.artist.value == "Unassigned" && isUnassigned == false) {
+                                                    var destinationStation = unassignedRange;
+                                                } else if (rowInfo.artist.value == "Matt") {
+                                                    var destinationStation = mattRange;
+                                                } else {
+                                                    var destinationStation = "null";
+                                                };
+                                    
+                                    
+                                                await context.sync();
+                                    
+                                                destinationStation.values = destTableSort;
+                                    
                                             };
                                         };
 
