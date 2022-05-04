@@ -253,6 +253,8 @@
                 });
                 // console.log(info);
                 tryCatch(updateDropDowns);
+
+                eventsOn();
                 //updateDropDowns();
             };
         });
@@ -798,10 +800,16 @@
 
                     //#region LOAD VALUES ------------------------------------------------------------------------------------------------------
 
-                        var sheet = context.workbook.worksheets.getActiveWorksheet();
+                        var sheet = context.workbook.worksheets.getActiveWorksheet().load("name");
                         //updating this variable to work for the changedTable will not work since the taskpane doesn't trigger an onchanged event until afterward
                         var sheetTable = sheet.tables.getItemAt(0).load("name"); //this is fine since the user will only ever be adding new projects to the unassigned table or the artist tables, which are all the first tables in their documents. 
+                        sheetTable.rows.add(null);
+
+                        var sheetTableRows = sheetTable.rows.load("items");
+                        var sheetTableRange = sheetTable.getDataBodyRange().load("values");
+                        var sheetTableHeader = sheetTable.getHeaderRowRange().load("values");
                         context.runtime.load("enableEvents");
+
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------
 
@@ -860,14 +868,54 @@
                     //#endregion -----------------------------------------------------------------------------------------------------------
 
 
+                    await context.sync(); // BOOM!
+
+                    var tableRowIndex = sheetTable.rows.count - 1;
+
+                    var tableRowItems = sheetTableRows.items
+
+                    var tableName = sheetTable.name;
+
+                    var leSheetName = sheet.name;
+
+
+
+
+                    var rangeOfTable = sheetTableRange.values;
+                    var rowValuesOfTable = tableRowItems[tableRowIndex].values;
+                    var headerOfTable = sheetTableHeader.values;
+
+                    var tableRowInfo = new Object();
+
+                    for (var name of headerOfTable[0]) {
+                        theGreatestFunctionEverWritten(headerOfTable, name, rowValuesOfTable, rangeOfTable, tableRowInfo, tableRowIndex);
+                    };
+
                     //#region GENERATE ADDED DATE -----------------------------------------------------------------------------------------
 
                         var now = new Date();
                         var toSerial = JSDateToExcelDate(now);
 
-                        write[0][10] = toSerial;
+                        write[0][tableRowInfo.added.columnIndex] = toSerial;
 
                     //#endregion ---------------------------------------------------------------------------------------------------------
+
+
+                    if (startOverrideVal == "") {
+                        write[0][tableRowInfo.startOverride.columnIndex] = 0;
+                    };
+
+                    if (workOverrideVal == "") {
+                        write[0][tableRowInfo.workOverride.columnIndex] = 0;
+                    };
+
+                    var leStatus = statusAutofill(tableName);
+
+                    write[0][tableRowInfo.status.columnIndex] = leStatus;
+
+                    var leArtist = artistAutofill(tableName, leSheetName);
+
+                    write[0][tableRowInfo.artist.columnIndex] = leArtist;
 
 
                     //#region GENERATE PICKED UP / TURN AROUND TIME VALUE -----------------------------------------------------------------
@@ -888,6 +936,8 @@
                         //converts to excel readable format
                         var excelPickupOfficeHours = Number(JSDateToExcelDate(pickupOfficeHours));
 
+
+
                         //#region OFFICE HOURS TESTING VARIABLES ----------------------------------------------------------------------------
 
                             //BEFORE DAY: 44670.31389 (4/19/22 7:32 AM)
@@ -905,7 +955,7 @@
                         
                         //#endregion --------------------------------------------------------------------------------------------------------
 
-                        write[0][13] = excelPickupOfficeHours;
+                        write[0][tableRowInfo.pickedUpStartedBy.columnIndex] = excelPickupOfficeHours;
 
                     //#endregion --------------------------------------------------------------------------------------------------------
 
@@ -947,56 +997,46 @@
                         
                         //#endregion --------------------------------------------------------------------------------------------------------
 
-                        write[0][14] = excelProofToClientOfficeHours;
+                        write[0][tableRowInfo.proofToClient.columnIndex] = excelProofToClientOfficeHours;
 
                     //#endregion --------------------------------------------------------------------------------------------------------
 
+                    var tablePickedUpColumnIndex = tableRowInfo.pickedUpStartedBy.columnIndex
 
-                    if (startOverrideVal == "") {
-                        write[0][21] = 0;
-                    };
+                    rangeOfTable[tableRowIndex] = write[0];
 
-                    if (workOverrideVal == "") {
-                        write[0][22] = 0;
-                    };
+                    var g = leSorting(tableRowInfo, rangeOfTable, tablePickedUpColumnIndex);
+
+                    sheetTableRange.values = g;
+
+                    console.log("Content has been added to the table through the taskpane successfully!")
+
+
+
+
 
 
 
 
                     //writes the write array to the table
-                    sheetTable.rows.add(null /*add rows to the end of the table*/, write);
+                    //sheetTable.rows.add(null /*add rows to the end of the table*/, write);
 
-                    await context.sync(); // BOOM!
+                   // await context.sync(); // BOOM!
 
 
                     //#region PRIORITY NUMBER GENERATION AND SORTING -------------------------------------------------------------------------
 
                         //assign priority numbers and sorts table
-                        priorityGenerationAndSortation();
+                        //priorityGenerationAndSortation();
 
                     //#endregion -------------------------------------------------------------------------------------------------------------
 
 
-                    console.log("Add a project function has completed, but the sub-function for priority & sorting is still running asyncronously");
+                    //console.log("Add a project function has completed, but the sub-function for priority & sorting is still running asyncronously");
 
-                    await context.sync();
+                    //await context.sync();
 
-                    //#region AUTOFILL STATUS COLUMN --------------------------------------------------------------------
 
-                    function statusAutofill(table) {
-
-                        if (table.name == "UnassignedProjects") { //if the table the row was inserted into is "UnassignedProjects", set status column to "Awaiting Artist"
-                            var status = "Awaiting Artist";
-                        };
-                        
-                        if (table.name !== "UnassignedProjects" && includesCompletedTables == false) { //if the table the row was inserted into is not "UnassaignedProjects" & is not a Completed table, and...
-                            var status = "Not Working";
-                        };
-
-                    };
-                        
-                
-                    //#endregion ----------------------------------------------------------------------------------------
 
 
 
@@ -1005,14 +1045,52 @@
 
                 });
 
-                // eventsOn();
+                eventsOn();
 
             };
 
         //#endregion ----------------------------------------------------------------------------------------------------------------------------
 
 
+
+
         //#region ADD A PROJECT SUB-FUNCTIONS -------------------------------------------------------------------------------------------------
+
+
+            //#region AUTOFILL STATUS COLUMN --------------------------------------------------------------------
+
+                function statusAutofill(tableName) {
+
+                    if (tableName == "UnassignedProjects") { //if the table the row was inserted into is "UnassignedProjects", set status column to "Awaiting Artist"
+                        var status = "Awaiting Artist";
+                    };
+                    
+                    if (tableName !== "UnassignedProjects") { //if the table the row was inserted into is not "UnassaignedProjects"...
+                        var status = "Not Working";
+                    };
+
+                    return status;
+
+                };
+
+            //#endregion ----------------------------------------------------------------------------------------
+
+
+            //#region AUTOFILL ARTIST COLUMN --------------------------------------------------------------------
+
+
+                function artistAutofill(tableName, leSheetName) {
+
+                    if (tableName == "UnassignedProjects") {
+                        var artist = "Unassigned";
+                    } else if (tableName !== "UnassignedProjects") {
+                        var artist = leSheetName;
+                    };
+                    return artist;
+                };
+                
+        
+            //#endregion ----------------------------------------------------------------------------------------
 
 
             //#region OFFICE HOURS ---------------------------------------------------------------------------------------
@@ -1679,11 +1757,13 @@
                         //#region SPECIFIC TABLE VARIABLES --------------------------------------------------------------------------
 
                             var unassignedTable = context.workbook.tables.getItem("UnassignedProjects").load("worksheet");
+                            var unassignedTableName = context.workbook.tables.getItem("UnassignedProjects").load("name");
                             var unassignedTableRows = unassignedTable.rows.load("items");
                             var unassignedRange = unassignedTable.getDataBodyRange().load("values");
                             var unassignedHeader = unassignedTable.getHeaderRowRange().load("values");
 
                             var mattTable = context.workbook.tables.getItem("MattProjects").load("worksheet");
+                            var mattTableName = context.workbook.tables.getItem("MattProjects").load("name");
                             var mattTableRows = mattTable.rows.load("items");
                             var mattRange = mattTable.getDataBodyRange().load("values");
                             var mattHeader = mattTable.getHeaderRowRange().load("values");
@@ -1741,8 +1821,11 @@
                             // var luisHeader = luisTable.getHeaderRowRange().load("values");
 
 
-                            // var peterTable = context.workbook.tables.getItem("PeterProjects").load("worksheet");
-                            // var peterHeader = peterTable.getHeaderRowRange().load("values");
+                            var peterTable = context.workbook.tables.getItem("PeterProjects").load("worksheet");
+                            var peterTableName = context.workbook.tables.getItem("PeterProjects").load("name");
+                            var peterTableRows = peterTable.rows.load("items");
+                            var peterRange = peterTable.getDataBodyRange().load("values");
+                            var peterHeader = peterTable.getHeaderRowRange().load("values");
 
 
                             // var ritaTable = context.workbook.tables.getItem("RitaProjects").load("worksheet");
@@ -1957,11 +2040,13 @@
 
                                     if (rowInfo.artist.value == "Unassigned" && isUnassigned == false) {
                                         destinationTable = unassignedTable;
+                                        destinationTableName = unassignedTableName.name;
                                         destinationRows = unassignedTableRows.items;
                                         destinationTableRange = unassignedRange;
                                         destinationHeader = unassignedHeader;
                                     } else if (rowInfo.artist.value == "Matt") {
                                         destinationTable = mattTable;
+                                        destinationTableName = mattTableName.name;
                                         destinationRows = mattTableRows.items;
                                         destinationTableRange = mattRange;
                                         destinationHeader = mattHeader;
@@ -2004,9 +2089,12 @@
                                     // } else if (rowInfo.artist.value == "Luis") {
                                     //     destinationTable = luisTable;
                                     //     destinationHeader = luisHeader;
-                                    // } else if (rowInfo.artist.value == "Peter") {
-                                    //     destinationTable = peterTable;
-                                    //     destinationHeader = peterHeader;
+                                    } else if (rowInfo.artist.value == "Peter") {
+                                        destinationTable = peterTable;
+                                        destinationTableName = peterTableName.name;
+                                        destinationRows = peterTableRows.items;
+                                        destinationTableRange = peterRange;
+                                        destinationHeader = peterHeader;
                                     // } else if (rowInfo.artist.value == "Rita") {
                                     //     destinationTable = ritaTable;
                                     //     destinationHeader = ritaHeader;
@@ -2040,6 +2128,8 @@
                                     var destinationRange = destinationTableRange.values;
 
                                     var destRowValues = destinationRows[0].values;
+
+                                    var destTableName = destinationTableName;
 
                                     //var destRow = destTableRows.getItemAt(0);
 
@@ -2247,12 +2337,15 @@
                                     
                                                 var unassignedRange = unassignedTable.getDataBodyRange().load("values");
                                                 var mattRange = mattTable.getDataBodyRange().load("values");
+                                                var peterRange = peterTable.getDataBodyRange().load("values");
                                     
                                                 
                                                 if (rowInfo.artist.value == "Unassigned" && isUnassigned == false) {
                                                     var destinationStation = unassignedRange;
                                                 } else if (rowInfo.artist.value == "Matt") {
                                                     var destinationStation = mattRange;
+                                                } else if (rowInfo.artist.value == "Peter") {
+                                                    var destinationStation = peterRange;
                                                 } else {
                                                     var destinationStation = "null";
                                                 };
@@ -2281,6 +2374,11 @@
                                         //if (includesCompletedTables == false) {
                                         if (destinationTable !== "null") {
                                             if (destinationTable.worksheet.id !== changedWorksheet.id) { //if destination table is not in the same worksheet as the changedTable (prevents for unnecessary moving of data across tables in the same worksheet), do the following...
+
+                                                var newStatus = statusAutofill(destTableName);
+
+                                                rowValues[0][rowInfo.status.columnIndex] = newStatus;
+
                                                 //moveData(destinationTable, rowValues, myRow, rowInfo.artist.value);
                                                 moveDataTwo(destTable, rowValues, leTable, changedRowTableIndex);
 
@@ -2311,11 +2409,14 @@
 
                                                 var unassignedRange = unassignedTable.getDataBodyRange().load("values");
                                                 var mattRange = mattTable.getDataBodyRange().load("values");
+                                                var peterRange = peterTable.getDataBodyRange().load("values");
 
                                                 if (rowInfo.artist.value == "Unassigned" && isUnassigned == false) {
                                                     var destinationStation = unassignedRange;
                                                 } else if (rowInfo.artist.value == "Matt") {
                                                     var destinationStation = mattRange;
+                                                } else if (rowInfo.artist.value == "Peter") {
+                                                    var destinationStation = peterRange;
                                                 } else {
                                                     var destinationStation = "null";
                                                 };
@@ -2325,9 +2426,9 @@
                                                     var newBodyRange = bodyPositivity.values;
                                                     var newDestinationTableRange = destinationStation.values;
     
-                                                    newBodyRange.values = leTableSort;
+                                                    bodyPositivity.values = leTableSort;
     
-                                                    newDestinationTableRange.values = destTableSort;
+                                                    destinationStation.values = destTableSort;
     
     
     
@@ -2436,30 +2537,30 @@
              */
                 function getPickUpTime(rowInfo, leTable, rowIndex) {
 
-                //get the Project Type coded variable from the Project Type ID Data based on the value in the Project Type column of the changed row
-                var theProjectTypeCode = projectTypeIDData[rowInfo.projectType.value].projectTypeCode;
+                    //get the Project Type coded variable from the Project Type ID Data based on the value in the Project Type column of the changed row
+                    var theProjectTypeCode = projectTypeIDData[rowInfo.projectType.value].projectTypeCode;
 
-                //returns turn around time value from the Pickup Turn Around Time table based on the Product column of the changed row and the projetc type codeed variable
-                var pickedUpTurnAroundTime = pickupData[rowInfo.product.value][theProjectTypeCode];
+                    //returns turn around time value from the Pickup Turn Around Time table based on the Product column of the changed row and the projetc type codeed variable
+                    var pickedUpTurnAroundTime = pickupData[rowInfo.product.value][theProjectTypeCode];
 
-                //finds the start override value of the changed row and adds it to the previous turn around time variable
-                var pickedUpHours = pickedUpTurnAroundTime + rowInfo.startOverride.value;
+                    //finds the start override value of the changed row and adds it to the previous turn around time variable
+                    var pickedUpHours = pickedUpTurnAroundTime + rowInfo.startOverride.value;
 
-                //finds the added date/time serial of the changed row and converts it to a date
-                var addedDate = convertToDate(rowInfo.added.value);
+                    //finds the added date/time serial of the changed row and converts it to a date
+                    var addedDate = convertToDate(rowInfo.added.value);
 
-                //adds the adjusted turn around time to the added date and adjusts to be within office hours
-                var pickupOfficeHours = officeHours(addedDate, pickedUpHours);
+                    //adds the adjusted turn around time to the added date and adjusts to be within office hours
+                    var pickupOfficeHours = officeHours(addedDate, pickedUpHours);
 
-                //converts date to excel date
-                var excelPickupOfficeHours = Number(JSDateToExcelDate(pickupOfficeHours));
+                    //converts date to excel date
+                    var excelPickupOfficeHours = Number(JSDateToExcelDate(pickupOfficeHours));
 
-                //updates the pickedup turn around time value in the table array based on our calculations
-                leTable[rowIndex][rowInfo.pickedUpStartedBy.columnIndex] = excelPickupOfficeHours;
+                    //updates the pickedup turn around time value in the table array based on our calculations
+                    leTable[rowIndex][rowInfo.pickedUpStartedBy.columnIndex] = excelPickupOfficeHours;
 
-                return pickupOfficeHours;
+                    return pickupOfficeHours;
 
-            };
+                };
             
         //#endregion ------------------------------------------------------------------------------------------------------------
 
@@ -2602,7 +2703,7 @@
     function moveDataTwo(destTable, rowValues, leTable, changedRowTableIndex) {
 
         destTable.push(rowValues[0]);
-        var leMovedTable = leTable.splice(changedRowTableIndex, 1);
+        leTable.splice(changedRowTableIndex, 1);
 
     };
 
