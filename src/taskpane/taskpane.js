@@ -1005,9 +1005,9 @@
 
                     rangeOfTable[tableRowIndex] = write[0];
 
-                    var g = leSorting(tableRowInfo, rangeOfTable, tablePickedUpColumnIndex);
+                    var gee = leSorting(tableRowInfo, rangeOfTable, tablePickedUpColumnIndex);
 
-                    sheetTableRange.values = g;
+                    sheetTableRange.values = gee;
 
                     console.log("Content has been added to the table through the taskpane successfully!")
 
@@ -1891,9 +1891,7 @@
                 //#endregion --------------------------------------------------------------------------------------------------------------
 
 
-                await context.sync()
-
-                    //console.log("!!!!!!!");
+                await context.sync();
 
 
                     //#region ASSIGNING VARIABLES -----------------------------------------------------------------------------------------------
@@ -1936,6 +1934,7 @@
                                 var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
                                 var rowValues = tableRows[changedRowTableIndex].values; //loads the values of the changed row in the changed table
                                 var myRow = changedTableRows.getItemAt(changedRowTableIndex); //loads the changed row in the changed table as an object
+                                var rowRange = changedTableRows.getItemAt(changedRowTableIndex).getRange();
 
 
 
@@ -1964,6 +1963,7 @@
 
                                 var pickedUpColumnIndex = rowInfo.pickedUpStartedBy.columnIndex; //index of picked up column
                                 var proofToClientColumnIndex = rowInfo.proofToClient.columnIndex; //index of proof to client cloumn
+                                var addedColumnIndex = rowInfo.added.columnIndex;
 
                                 //console.log("I am a fart"); //hehe
 
@@ -1990,7 +1990,7 @@
                             var leProofToClientTime = getProofToClientTime(rowInfo, leTable, lePickUpTime, changedRowTableIndex);
 
                             //sorts based on pickedUp column values and assigns priority numbers
-                            var sortAndPrioritize = leSorting(rowInfo, leTable, pickedUpColumnIndex);
+                            var sortAndPrioritize = leSorting(rowInfo, leTable, pickedUpColumnIndex /*leProofToClientTime, addedColumnIndex*/);
 
                             //writes updated values to the table
                             bodyRange.values = sortAndPrioritize; //overwrite changed table data with the new data from the sorted array 
@@ -2467,11 +2467,164 @@
                     //#endregion -----------------------------------------------------------------------------------------------------------------
 
 
-                });
+                    //#region CONDITIONAL FORMATTING -------------------------------------------------------------------------------------------
 
-                eventsOn(); //turns events back on
+                        var now = new Date();
+                        var justNowDate = now.getDate();
+                        var toSerial = Number(JSDateToExcelDate(now));
 
-            //});
+                        var pickedUpWorksheetColumn = rowInfo.pickedUpStartedBy.columnIndex + tableStart;
+                        var proofToClientWorksheetColumn = rowInfo.proofToClient.columnIndex + tableStart;
+                        var printDateWorksheetColumn = rowInfo.printDate.columnIndex + tableStart;
+                        var groupWorksheetColumn = rowInfo.group.columnIndex + tableStart;
+
+                        var pickedUpAddress = changedWorksheet.getCell(changedRowIndex, pickedUpWorksheetColumn);
+                        var proofToClientAddress = changedWorksheet.getCell(changedRowIndex, proofToClientWorksheetColumn);
+
+                        var printDate = Math.trunc(rowInfo.printDate.value);
+                        var currentDateAbsolute = Math.trunc(toSerial);
+
+                        var printDateAddress = changedWorksheet.getCell(changedRowIndex, printDateWorksheetColumn);
+                        var groupAddress = changedWorksheet.getCell(changedRowIndex, groupWorksheetColumn);
+
+
+                        if (includesCompletedTables == true) {
+
+                            rowRange.format.fill.clear();
+                            rowRange.format.font.color = "black";
+                            rowRange.format.font.bold = false;
+
+                        } else {
+        
+                            rowRange.format.font.name = "Calibri";
+                            rowRange.format.font.size = 12;
+                            rowRange.format.font.color = "#000000";
+
+                            if (rowInfo.pickedUpStartedBy.value == "NO PRODUCT / PROJECT TYPE" || rowInfo.proofToClient.value == "NO PRODUCT / PROJECT TYPE") {
+
+                                rowRange.format.fill.color = "FFC5BB";
+                                pickedUpAddress.format.font.bold = true;
+                                proofToClientAddress.format.font.bold = true;
+                                pickedUpAddress.format.fill.color = "FFC5BB";
+                                proofToClientAddress.format.fill.color = "FFC5BB";
+
+                            } else {
+
+                                rowRange.format.fill.clear();
+                                pickedUpAddress.format.font.bold = false;
+                                proofToClientAddress.format.font.bold = false;
+          
+                            };
+
+                            if (toSerial > rowInfo.pickedUpStartedBy.value) {
+                                pickedUpAddress.format.fill.color = "FFC000";
+                            } else {
+                                pickedUpAddress.format.fill.clear();
+                            };
+          
+          
+                            if (toSerial > rowInfo.proofToClient.value) {
+                                proofToClientAddress.format.fill.color = "FF0000";
+                                proofToClientAddress.format.font.color = "white";
+                            } else {
+                                proofToClientAddress.format.fill.clear();
+                                proofToClientAddress.format.font.color = "black";
+                            };
+          
+          
+                            if ((printDate < currentDateAbsolute) && (printDate !== 0)) { //if current date is after print date
+        
+                                printDateAddress.format.fill.color = "black";
+                                printDateAddress.format.font.color = "white";
+                                printDateAddress.format.font.bold = true;
+            
+                                groupAddress.format.fill.color = "black";
+                                groupAddress.format.font.color = "white";
+                                groupAddress.format.font.bold = true;
+            
+                                //groupAddress.values = [[appendGroup]];
+        
+                            } else if (printDate == currentDateAbsolute) { //if current date = print date
+        
+                                printDateAddress.format.fill.clear();
+                                printDateAddress.format.font.color = "FF0000";
+                                printDateAddress.format.font.bold = true;
+            
+                                groupAddress.format.fill.clear();
+                                groupAddress.format.font.color = "FF0000";
+                                groupAddress.format.font.bold = true;
+        
+                            } else if (((printDate - 1) == currentDateAbsolute)) { //if current date is the day before print date
+        
+                                printDateAddress.format.fill.clear();
+                                printDateAddress.format.font.color = "FF0000";
+                                printDateAddress.format.font.bold = true;
+            
+                                groupAddress.format.fill.clear();
+                                groupAddress.format.font.color = "FF0000";
+                                groupAddress.format.font.bold = true;
+        
+                            } else if (((printDate - 6) <= currentDateAbsolute) && ((printDate - 2) >= currentDateAbsolute)) { //if current date is in the same group lock week as print date (between 7-2 days before)
+        
+                                printDateAddress.format.fill.clear();
+                                printDateAddress.format.font.color = "FF0000";
+                                printDateAddress.format.font.bold = true;
+            
+                                groupAddress.format.fill.clear(); //FF8B82
+                                groupAddress.format.font.color = "FF0000";
+                                groupAddress.format.font.bold = true;
+            
+                            } else if (((printDate - 13) <= currentDateAbsolute) && ((printDate - 7) >= currentDateAbsolute)) { //if current date is in the week before group lock week (between 8-14 days before)
+        
+                                printDateAddress.format.fill.clear();
+                                printDateAddress.format.font.color = "70AD47";
+                                printDateAddress.format.font.bold = true;
+            
+                                groupAddress.format.fill.clear();
+                                groupAddress.format.font.color = "70AD47";
+                                groupAddress.format.font.bold = true;
+            
+                                // } else if (((printDate - 30) <= currentDateAbsolute) && ((printDate - 14) >= currentDateAbsolute)) { //if current date is within a month of print date (between 15-31 days before)
+            
+                                //   printDateAddress.format.fill.color = "C6E0B4";
+                                //   printDateAddress.format.font.color = "black";
+                                //   printDateAddress.format.font.bold = false;
+            
+                                //   groupAddress.format.fill.color = "C6E0B4";
+                                //   groupAddress.format.font.color = "black";
+                                //   groupAddress.format.font.bold = false;
+        
+                            } else if (printDate == 0) { //if there are no values in the print date cell, revert to normal formatting
+        
+                                printDateAddress.format.fill.clear();
+                                printDateAddress.format.font.color = "black";
+                                printDateAddress.format.font.bold = false;
+            
+                                groupAddress.format.fill.clear();
+                                groupAddress.format.font.color = "black";
+                                groupAddress.format.font.bold = false;
+        
+                            } else { //set cell formatting to normal
+        
+                                printDateAddress.format.fill.clear();
+                                printDateAddress.format.font.color = "black";
+                                printDateAddress.format.font.bold = false;
+            
+                                groupAddress.format.fill.clear();
+                                groupAddress.format.font.color = "black";
+                                groupAddress.format.font.bold = false;
+        
+                            };
+
+                        };
+
+
+                    //#endregion ---------------------------------------------------------------------------------------------------------------
+
+
+            });
+
+            eventsOn(); //turns events back on
 
         };
 
@@ -2537,6 +2690,11 @@
              */
                 function getPickUpTime(rowInfo, leTable, rowIndex) {
 
+                    if (rowInfo.product.value == "" || rowInfo.projectType.value == "") {
+                        leTable[rowIndex][rowInfo.pickedUpStartedBy.columnIndex] = "NO PRODUCT / PROJECT TYPE";
+                        return null;
+                    };
+
                     //get the Project Type coded variable from the Project Type ID Data based on the value in the Project Type column of the changed row
                     var theProjectTypeCode = projectTypeIDData[rowInfo.projectType.value].projectTypeCode;
 
@@ -2575,7 +2733,12 @@
              * @param {Number} rowIndex The index number of the changed row (table level)
              * @returns Date
              */
-                function getProofToClientTime(rowInfo, leTable, lePickUpTime, rowIndex) {
+            function getProofToClientTime(rowInfo, leTable, lePickUpTime, rowIndex) {
+
+                if (lePickUpTime == null) {
+                    leTable[rowIndex][rowInfo.proofToClient.columnIndex] = "NO PRODUCT / PROJECT TYPE";
+                    return null;
+                };
 
                 //get the Project Type coded variable from the Project Type ID Data based on the value in the Project Type column of the changed row
                 var theProjectTypeCode = projectTypeIDData[rowInfo.projectType.value].projectTypeCode;
@@ -2618,32 +2781,58 @@
              * @param {Number} leColumnIndex The index number of the column that will be used for sorting the table
              * @returns Array
              */
-                function leSorting(rowInfo, leTable, leColumnIndex) {
+            function leSorting(rowInfo, leTable, leColumnIndex) {
 
                 //a copy of the array containing all the table data that will be used for sorting
                 var leRowSorted = JSON.parse(JSON.stringify(leTable)); //creates a duplicate of original array to be used for assigning the priority numbers, without having anything done to it affect oriignal array
                 
                 var priorityColumnIndex = rowInfo.priority.columnIndex; //index of priority column
 
+                var pickedUpColumnIndex = rowInfo.pickedUpStartedBy.columnIndex;
+                var proofToClientColumnIndex = rowInfo.proofToClient.columnIndex;
+
+                var tempTable = [];
+
+                for (var i = 0; i < leRowSorted.length; i++) {
+
+                    if (leRowSorted[i][pickedUpColumnIndex] == "NO PRODUCT / PROJECT TYPE" || leRowSorted[i][proofToClientColumnIndex] == "NO PRODUCT / PROJECT TYPE") {
+                        tempTable.push(leRowSorted[i]);
+                        leRowSorted.splice(i, 1);
+                        i = i - 1;
+                    };
+
+                };
+
                 //#region RESOLVE DUPLICATE DATE/TIMES ------------------------------------------------------------------------------
 
                     //if the pickedUp array has duplicate values, this nested for statement will add 1 second to the times of each duplicate value to allow the data sorting to work properly
-                    for (var i = 0; i < leRowSorted.length; i++) {
-                        for (var j = 0; j < leRowSorted.length; j++) {
-                            if (i !== j) { //makes sure that the values do not equal (so the first pass will fail, naturally)
-                                if (leRowSorted[i][leColumnIndex] == leRowSorted[j][leColumnIndex]) {
-                                    console.log("A duplicate is present at index " + j + " of the array");
-                                    leRowSorted[j][leColumnIndex] = leRowSorted[j][leColumnIndex] + 0.0000115740; //adds one second to the duplicate entry
-                                };
-                            };
-                        };
-                    };
+                    // for (var i = 0; i < leRowSorted.length; i++) {
+                    //     for (var j = 0; j < leRowSorted.length; j++) {
+                    //         if (i !== j) { //makes sure that the values do not equal (so the first pass will fail, naturally)
+                    //             if (leRowSorted[i][leColumnIndex] == leRowSorted[j][leColumnIndex]) {
+                    //                 // if (leRowSorted[j][leColumnIndex] == "NO PRODUCT / PROJECT TYPE") {
+                    //                 //     leRowSorted[j][leColumnIndex] = j + i;
+                    //                 // };
+                    //                 console.log("A duplicate is present at index " + j + " of the array");
+                    //                 leRowSorted[j][leColumnIndex] = leRowSorted[j][leColumnIndex] + 0.0000115740; //adds one second to the duplicate entry
+                    //             };
+                    //         };
+                    //     };
+                    // };
 
                 //#endregion -------------------------------------------------------------------------------------------------------
 
 
                 //sorts the parent array (a) by the number in the sub array (b) at index of the picked up column
                 leRowSorted.sort(function(a,b){return a[leColumnIndex] > b[leColumnIndex]});
+
+                if (tempTable.length > 0) {
+                    for (var i = 0; i < tempTable.length; i++) {
+                        leRowSorted.push(tempTable[i]);
+                        tempTable.splice(i, 1);
+                        i = i - 1;
+                    };
+                };
 
 
                                             
