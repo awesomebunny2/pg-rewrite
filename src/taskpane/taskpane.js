@@ -59,9 +59,12 @@
     var changeEvent;
     var snailPoop = {};
 
+    var rowIndexPostSort;
+
     var changedTable;
 
     var destinationTable;
+    var destinationTableName;
     var destinationRows;
     var destinationTableRange;
     var destinationHeader;
@@ -1005,7 +1008,7 @@
 
                     rangeOfTable[tableRowIndex] = write[0];
 
-                    var gee = leSorting(tableRowInfo, rangeOfTable, tablePickedUpColumnIndex);
+                    var gee = leSorting(tableRowInfo, rangeOfTable, tablePickedUpColumnIndex, write);
 
                     sheetTableRange.values = gee;
 
@@ -1262,10 +1265,65 @@
                                         date = convertToDate(dateSerial);
                                         loop = true;
                                         var newAdjustmentNumber = convertToDate(adjustmentNumber);
+
+                                        if (adjustmentNumber > 1) {
+                                            var wheezy = newAdjustmentNumber.getDate();
+                                            var zeDays = wheezy*24 //converts days into hours
+                                        } else {
+                                            var zeDays = 0;
+                                        };
+                                        // var wheezy = newAdjustmentNumber.getTime();
+
+                                        // var sleezy = ((wheezy/1000)/60)/60;
+
+                                    
+
+                                        //Months....probably don't even go this far
+                                        // var meezy = newAdjustmentNumber.getMonth();
+                                        // var monthArr = [];
+
+                                        // if (wheezy !== 0) {
+
+                                        //     var jan = 31*24; //hours in janurary 1900
+                                        //     monthArr.push(jan);
+                                        //     var feb = (28*24) + jan;
+                                        //     monthArr.push(feb);
+                                        //     var mar = (31*24) + feb;
+                                        //     monthArr.push(mar);
+                                        //     var apr = (30*24) + mar;
+                                        //     monthArr.push(apr);
+                                        //     var may = (31*24) + apr;
+                                        //     monthArr.push(may);
+                                        //     var jun = (30*24) + may;
+                                        //     monthArr.push(jun);
+                                        //     var jul = (31*24) + jun;
+                                        //     monthArr.push(jul);
+                                        //     var aug = (31*24) + jul;
+                                        //     monthArr.push(aug);
+                                        //     var sep = (30*24) + aug;
+                                        //     monthArr.push(sep);
+                                        //     var oct = (31*24) + sep;
+                                        //     monthArr.push(oct);
+                                        //     var nov = (30*24) + oct;
+                                        //     monthArr.push(nov);
+                                        //     var dec = (31*24) + nov;
+                                        //     monthArr.push(dec);
+
+                                        //     if (meezy !== 0) {
+                                        //         meezy - 1; //adjusts so that the days are calculated from the month prior (and all other prior months)
+                                        //         var monthHours = monthArr[meezy];
+                                        //     } else {
+                                        //         var monthHours = 0;
+                                        //     };
+
+                                        // } else {
+                                        //     var monthHours = 0;
+                                        // };
+
                                         var cheesey = newAdjustmentNumber.getHours();
                                         var squeezy = newAdjustmentNumber.getMinutes();
                                         var truMinutes = squeezy/60;
-                                        adjustmentNumber = cheesey + truMinutes;
+                                        adjustmentNumber = cheesey + truMinutes + zeDays;
                                         return {
                                             date,
                                             adjustmentNumber,
@@ -1758,102 +1816,178 @@
 
                             var unassignedTable = context.workbook.tables.getItem("UnassignedProjects").load("worksheet");
                             var unassignedTableName = context.workbook.tables.getItem("UnassignedProjects").load("name");
-                            var unassignedTableRows = unassignedTable.rows.load("items");
+                            var unassignedTableRows = unassignedTable.rows;
+                            unassignedTableRows.load("items");
                             var unassignedRange = unassignedTable.getDataBodyRange().load("values");
                             var unassignedHeader = unassignedTable.getHeaderRowRange().load("values");
 
+                            
+                            var peterTable = context.workbook.tables.getItem("PeterProjects").load("worksheet");
+                            var peterTableName = context.workbook.tables.getItem("PeterProjects").load("name");
+                            var peterTableRows = peterTable.rows;
+                            peterTableRows.load("items");
+                            var peterRange = peterTable.getDataBodyRange().load("values");
+                            var peterHeader = peterTable.getHeaderRowRange().load("values");
+
+                            
                             var mattTable = context.workbook.tables.getItem("MattProjects").load("worksheet");
                             var mattTableName = context.workbook.tables.getItem("MattProjects").load("name");
-                            var mattTableRows = mattTable.rows.load("items");
+                            var mattTableRows = mattTable.rows;
+                            mattTableRows.load("items");
                             var mattRange = mattTable.getDataBodyRange().load("values");
                             var mattHeader = mattTable.getHeaderRowRange().load("values");
 
 
-                            // var alainaTable = context.workbook.tables.getItem("AlainaProjects").load("worksheet");
-                            // var alainaHeader = alainaTable.getHeaderRowRange().load("values");
+                            var alainaTable = context.workbook.tables.getItem("AlainaProjects").load("worksheet");
+                            var alainaTableName = context.workbook.tables.getItem("AlainaProjects").load("name");
+                            var alainaTableRows = alainaTable.rows;
+                            alainaTableRows.load("items");
+                            var alainaRange = alainaTable.getDataBodyRange().load("values");
+                            var alainaHeader = alainaTable.getHeaderRowRange().load("values");
 
 
-                            // var sarahTable = context.workbook.tables.getItem("SarahProjects").load("worksheet");
-                            // var sarahHeader = sarahTable.getHeaderRowRange().load("values");
+                            var joeTable = context.workbook.tables.getItem("JoeProjects").load("worksheet");
+                            var joeTableName = context.workbook.tables.getItem("JoeProjects").load("name");
+                            var joeTableRows = joeTable.rows;
+                            joeTableRows.load("items");
+                            var joeRange = joeTable.getDataBodyRange().load("values");
+                            var joeHeader = joeTable.getHeaderRowRange().load("values");
 
 
-                            // var breBTable = context.workbook.tables.getItem("BreBProjects").load("worksheet");
-                            // var breBHeader = breBTable.getHeaderRowRange().load("values");
+                            var sarahTable = context.workbook.tables.getItem("SarahProjects").load("worksheet");
+                            var sarahTableName = context.workbook.tables.getItem("SarahProjects").load("name");
+                            var sarahTableRows = sarahTable.rows;
+                            sarahTableRows.load("items");
+                            var sarahRange = sarahTable.getDataBodyRange().load("values");
+                            var sarahHeader = sarahTable.getHeaderRowRange().load("values");
 
 
-                            // var christianTable = context.workbook.tables.getItem("ChristianProjects").load("worksheet");
-                            // var christianHeader = christianTable.getHeaderRowRange().load("values");
+                            var michaelTable = context.workbook.tables.getItem("MichaelProjects").load("worksheet");
+                            var michaelTableName = context.workbook.tables.getItem("MichaelProjects").load("name");
+                            var michaelTableRows = michaelTable.rows;
+                            michaelTableRows.load("items");
+                            var michaelRange = michaelTable.getDataBodyRange().load("values");
+                            var michaelHeader = michaelTable.getHeaderRowRange().load("values");
 
 
-                            // var emilyTable = context.workbook.tables.getItem("EmilyProjects").load("worksheet");
-                            // var emilyHeader = emilyTable.getHeaderRowRange().load("values");
+                            var dannyTable = context.workbook.tables.getItem("DannyProjects").load("worksheet");
+                            var dannyTableName = context.workbook.tables.getItem("DannyProjects").load("name");
+                            var dannyTableRows = dannyTable.rows;
+                            dannyTableRows.load("items");
+                            var dannyRange = dannyTable.getDataBodyRange().load("values");
+                            var dannyHeader = dannyTable.getHeaderRowRange().load("values");
 
 
-                            // var ianTable = context.workbook.tables.getItem("IanProjects").load("worksheet");
-                            // var ianHeader = ianTable.getHeaderRowRange().load("values");
+                            var joshTable = context.workbook.tables.getItem("JoshProjects").load("worksheet");
+                            var joshTableName = context.workbook.tables.getItem("JoshProjects").load("name");
+                            var joshTableRows = joshTable.rows;
+                            joshTableRows.load("items");
+                            var joshRange = joshTable.getDataBodyRange().load("values");
+                            var joshHeader = joshTable.getHeaderRowRange().load("values");
 
 
-                            // var michaelTable = context.workbook.tables.getItem("MichaelProjects").load("worksheet");
-                            // var michaelHeader = michaelTable.getHeaderRowRange().load("values");
+                            var lukeTable = context.workbook.tables.getItem("LukeProjects").load("worksheet");
+                            var lukeTableName = context.workbook.tables.getItem("LukeProjects").load("name");
+                            var lukeTableRows = lukeTable.rows;
+                            lukeTableRows.load("items");
+                            var lukeRange = lukeTable.getDataBodyRange().load("values");
+                            var lukeHeader = lukeTable.getHeaderRowRange().load("values");
 
 
-                            // var joshTable = context.workbook.tables.getItem("JoshProjects").load("worksheet");
-                            // var joshHeader = joshTable.getHeaderRowRange().load("values");
+                            var breBTable = context.workbook.tables.getItem("BreBProjects").load("worksheet");
+                            var breBTableName = context.workbook.tables.getItem("BreBProjects").load("name");
+                            var breBTableRows = breBTable.rows;
+                            breBTableRows.load("items");
+                            var breBRange = breBTable.getDataBodyRange().load("values");
+                            var breBHeader = breBTable.getHeaderRowRange().load("values");
 
 
-                            // var kristenTable = context.workbook.tables.getItem("KristenProjects").load("worksheet");
-                            // var kristenHeader = kristenTable.getHeaderRowRange().load("values");
+                            var kristenTable = context.workbook.tables.getItem("KristenProjects").load("worksheet");
+                            var kristenTableName = context.workbook.tables.getItem("KristenProjects").load("name");
+                            var kristenTableRows = kristenTable.rows;
+                            kristenTableRows.load("items");
+                            var kristenRange = kristenTable.getDataBodyRange().load("values");
+                            var kristenHeader = kristenTable.getHeaderRowRange().load("values");
 
 
-                            // var robinTable = context.workbook.tables.getItem("RobinProjects").load("worksheet");
-                            // var robinHeader = robinTable.getHeaderRowRange().load("values");
+                            var ethanTable = context.workbook.tables.getItem("EthanProjects").load("worksheet");
+                            var ethanTableName = context.workbook.tables.getItem("EthanProjects").load("name");
+                            var ethanTableRows = ethanTable.rows;
+                            ethanTableRows.load("items");
+                            var ethanRange = ethanTable.getDataBodyRange().load("values");
+                            var ethanHeader = ethanTable.getHeaderRowRange().load("values");
 
 
-                            // var lukeTable = context.workbook.tables.getItem("LukeProjects").load("worksheet");
-                            // var lukeHeader = lukeTable.getHeaderRowRange().load("values");
+                            var christianTable = context.workbook.tables.getItem("ChristianProjects").load("worksheet");
+                            var christianTableName = context.workbook.tables.getItem("ChristianProjects").load("name");
+                            var christianTableRows = christianTable.rows;
+                            christianTableRows.load("items");
+                            var christianRange = christianTable.getDataBodyRange().load("values");
+                            var christianHeader = christianTable.getHeaderRowRange().load("values");
 
 
-                            // var lisaTable = context.workbook.tables.getItem("LisaProjects").load("worksheet");
-                            // var lisaHeader = lisaTable.getHeaderRowRange().load("values");
+                            var jessicaTable = context.workbook.tables.getItem("JessicaProjects").load("worksheet");
+                            var jessicaTableName = context.workbook.tables.getItem("JessicaProjects").load("name");
+                            var jessicaTableRows = jessicaTable.rows;
+                            jessicaTableRows.load("items");
+                            var jessicaRange = jessicaTable.getDataBodyRange().load("values");
+                            var jessicaHeader = jessicaTable.getHeaderRowRange().load("values");
 
 
-                            // var luisTable = context.workbook.tables.getItem("LuisProjects").load("worksheet");
-                            // var luisHeader = luisTable.getHeaderRowRange().load("values");
+                            var luisTable = context.workbook.tables.getItem("LuisProjects").load("worksheet");
+                            var luisTableName = context.workbook.tables.getItem("LuisProjects").load("name");
+                            var luisTableRows = luisTable.rows;
+                            luisTableRows.load("items");
+                            var luisRange = luisTable.getDataBodyRange().load("values");
+                            var luisHeader = luisTable.getHeaderRowRange().load("values");
 
 
-                            var peterTable = context.workbook.tables.getItem("PeterProjects").load("worksheet");
-                            var peterTableName = context.workbook.tables.getItem("PeterProjects").load("name");
-                            var peterTableRows = peterTable.rows.load("items");
-                            var peterRange = peterTable.getDataBodyRange().load("values");
-                            var peterHeader = peterTable.getHeaderRowRange().load("values");
+                            var emilyTable = context.workbook.tables.getItem("EmilyProjects").load("worksheet");
+                            var emilyTableName = context.workbook.tables.getItem("EmilyProjects").load("name");
+                            var emilyTableRows = emilyTable.rows;
+                            emilyTableRows.load("items");
+                            var emilyRange = emilyTable.getDataBodyRange().load("values");
+                            var emilyHeader = emilyTable.getHeaderRowRange().load("values");
 
 
-                            // var ritaTable = context.workbook.tables.getItem("RitaProjects").load("worksheet");
-                            // var ritaHeader = ritaTable.getHeaderRowRange().load("values");
+                            var lisaTable = context.workbook.tables.getItem("LisaProjects").load("worksheet");
+                            var lisaTableName = context.workbook.tables.getItem("LisaProjects").load("name");
+                            var lisaTableRows = lisaTable.rows;
+                            lisaTableRows.load("items");
+                            var lisaRange = lisaTable.getDataBodyRange().load("values");
+                            var lisaHeader = lisaTable.getHeaderRowRange().load("values");
 
 
-                            // var ethanTable = context.workbook.tables.getItem("EthanProjects").load("worksheet");
-                            // var ethanHeader = ethanTable.getHeaderRowRange().load("values");
+                            var ritaTable = context.workbook.tables.getItem("RitaProjects").load("worksheet");
+                            var ritaTableName = context.workbook.tables.getItem("RitaProjects").load("name");
+                            var ritaTableRows = ritaTable.rows;
+                            ritaTableRows.load("items");
+                            var ritaRange = ritaTable.getDataBodyRange().load("values");
+                            var ritaHeader = ritaTable.getHeaderRowRange().load("values");
 
 
-                            // var breZTable = context.workbook.tables.getItem("BreZProjects").load("worksheet");
-                            // var breZHeader = breZTable.getHeaderRowRange().load("values");
+                            var robinTable = context.workbook.tables.getItem("RobinProjects").load("worksheet");
+                            var robinTableName = context.workbook.tables.getItem("RobinProjects").load("name");
+                            var robinTableRows = robinTable.rows;
+                            robinTableRows.load("items");
+                            var robinRange = robinTable.getDataBodyRange().load("values");
+                            var robinHeader = robinTable.getHeaderRowRange().load("values");
 
 
-                            // var joeTable = context.workbook.tables.getItem("JoeProjects").load("worksheet");
-                            // var joeHeader = joeTable.getHeaderRowRange().load("values");
+                            var jordanTable = context.workbook.tables.getItem("JordanProjects").load("worksheet");
+                            var jordanTableName = context.workbook.tables.getItem("JordanProjects").load("name");
+                            var jordanTableRows = jordanTable.rows;
+                            jordanTableRows.load("items");
+                            var jordanRange = jordanTable.getDataBodyRange().load("values");
+                            var jordanHeader = jordanTable.getHeaderRowRange().load("values");
 
 
-                            // var jordanTable = context.workbook.tables.getItem("JordanProjects").load("worksheet");
-                            // var jordanHeader = jordanTable.getHeaderRowRange().load("values");
-
-
-                            // var hazelTable = context.workbook.tables.getItem("HazelProjects").load("worksheet");
-                            // var hazelHeader = hazelTable.getHeaderRowRange().load("values");
-
-
-                            // var toddTable = context.workbook.tables.getItem("ToddProjects").load("worksheet");
-                            // var toddHeader = toddTable.getHeaderRowRange().load("values");
+                            var toddTable = context.workbook.tables.getItem("ToddProjects").load("worksheet");
+                            var toddTableName = context.workbook.tables.getItem("ToddProjects").load("name");
+                            var toddTableRows = toddTable.rows;
+                            toddTableRows.load("items");
+                            var toddRange = toddTable.getDataBodyRange().load("values");
+                            var toddHeader = toddTable.getHeaderRowRange().load("values");
 
                         //#endregion ----------------------------------------------------------------------------------------------------
 
@@ -1935,7 +2069,8 @@
                                 var rowValues = tableRows[changedRowTableIndex].values; //loads the values of the changed row in the changed table
                                 var myRow = changedTableRows.getItemAt(changedRowTableIndex); //loads the changed row in the changed table as an object
                                 var rowRange = changedTableRows.getItemAt(changedRowTableIndex).getRange();
-
+                                var justToCheck = rowIndexPostSort;
+                                //var sortedRowInfo = new Object();
 
 
                                 var tableContent = bodyRange.values; //all of the changed table's content
@@ -1969,42 +2104,6 @@
 
                             //#endregion ------------------------------------------------------------------------------------------------------------
 
-
-                        //#endregion ----------------------------------------------------------------------------------------------------------------
-                    
-
-                    //#endregion ---------------------------------------------------------------------------------------------------------------
-
-
-                    //#region ADJUST TURN AROUND TIMES, SORTING, & PRIORITY NUMBERS ------------------------------------------------------------
-
-                        //if any of these columns are changed, turn around times will be adjusted and the table will be sorted
-                        if (changedColumnIndex == rowInfo.pickedUpStartedBy.columnIndex || changedColumnIndex == rowInfo.proofToClient.columnIndex || changedColumnIndex == rowInfo.priority.columnIndex || changedColumnIndex == rowInfo.product.columnIndex || changedColumnIndex == rowInfo.projectType.columnIndex || changedColumnIndex == rowInfo.added.columnIndex || changedColumnIndex == rowInfo.startOverride.columnIndex || changedColumnIndex == rowInfo.workOverride.columnIndex) {
-                            
-                            console.log("I will update the turn around times, priority numbers, and sort the sheet before turning events back on!")
-
-                            //adjusts picked up / started by turn around time
-                            var lePickUpTime = getPickUpTime(rowInfo, leTable, changedRowTableIndex);
-
-                            //adjusts proof to client turn around time
-                            var leProofToClientTime = getProofToClientTime(rowInfo, leTable, lePickUpTime, changedRowTableIndex);
-
-                            //sorts based on pickedUp column values and assigns priority numbers
-                            var sortAndPrioritize = leSorting(rowInfo, leTable, pickedUpColumnIndex /*leProofToClientTime, addedColumnIndex*/);
-
-                            //writes updated values to the table
-                            bodyRange.values = sortAndPrioritize; //overwrite changed table data with the new data from the sorted array 
-
-                        };
-
-                    //#endregion ----------------------------------------------------------------------------------------------------------------------
-
-
-                    //#region MOVE DATA BETWEEN TABLES -----------------------------------------------------------------------------------------
-                    
-                        if (changedColumnIndex == rowInfo.artist.columnIndex || changedColumnIndex == rowInfo.status.columnIndex) {
-                            console.log("Here is where all the complex move functions will take place!")
-
                             //#region FINDS IF CHANGE WAS MADE TO THE UNASSIGNED PROJECTS TABLE OR NOT ----------------------------------------
 
                                 var isUnassigned;
@@ -2033,6 +2132,45 @@
 
                             //#endregion ------------------------------------------------------------------------------------------------------
 
+                        //#endregion ----------------------------------------------------------------------------------------------------------------
+                    
+
+                    //#endregion ---------------------------------------------------------------------------------------------------------------
+
+
+                    //#region ADJUST TURN AROUND TIMES, SORTING, & PRIORITY NUMBERS ------------------------------------------------------------
+
+                        //if any of these columns are changed, turn around times will be adjusted and the table will be sorted
+                        if (changedColumnIndex == rowInfo.pickedUpStartedBy.columnIndex || changedColumnIndex == rowInfo.proofToClient.columnIndex || changedColumnIndex == rowInfo.priority.columnIndex || changedColumnIndex == rowInfo.product.columnIndex || changedColumnIndex == rowInfo.projectType.columnIndex || changedColumnIndex == rowInfo.added.columnIndex || changedColumnIndex == rowInfo.startOverride.columnIndex || changedColumnIndex == rowInfo.workOverride.columnIndex) {
+                            
+                            console.log("I will update the turn around times, priority numbers, and sort the sheet before turning events back on!")
+
+                            //adjusts picked up / started by turn around time
+                            var lePickUpTime = getPickUpTime(rowInfo, leTable, changedRowTableIndex);
+
+                            //adjusts proof to client turn around time
+                            var leProofToClientTime = getProofToClientTime(rowInfo, leTable, lePickUpTime, changedRowTableIndex);
+
+                            //sorts based on pickedUp column values and assigns priority numbers
+                            var sortAndPrioritize = leSorting(rowInfo, leTable, pickedUpColumnIndex, rowValues);
+
+                            var check = rowIndexPostSort;
+
+                            //writes updated values to the table
+                            bodyRange.values = sortAndPrioritize; //overwrite changed table data with the new data from the sorted array 
+
+                        };
+
+                    //#endregion ----------------------------------------------------------------------------------------------------------------------
+
+
+                    //#region MOVE DATA BETWEEN TABLES -----------------------------------------------------------------------------------------
+                    
+                        if (changedColumnIndex == rowInfo.artist.columnIndex || changedColumnIndex == rowInfo.status.columnIndex) {
+                            console.log("Here is where all the complex move functions will take place!")
+
+
+
                             //LEGACY CODE THAT WORKS BUT NEEDS TO BE UPDATED TO BE MORE FLEXIBLE =================================================
                             // ===================================================================================================================
 
@@ -2044,80 +2182,136 @@
                                         destinationRows = unassignedTableRows.items;
                                         destinationTableRange = unassignedRange;
                                         destinationHeader = unassignedHeader;
-                                    } else if (rowInfo.artist.value == "Matt") {
-                                        destinationTable = mattTable;
-                                        destinationTableName = mattTableName.name;
-                                        destinationRows = mattTableRows.items;
-                                        destinationTableRange = mattRange;
-                                        destinationHeader = mattHeader;
-                                    // } else if (rowInfo.artist.value == "Alaina") {
-                                    //     destinationTable = alainaTable;
-                                    //     destinationHeader = alainaHeader;
-                                    // } else if (rowInfo.artist.value == "Sarah") {
-                                    //     destinationTable = sarahTable;
-                                    //     destinationHeader = sarahHeader;
-                                    // } else if (rowInfo.artist.value == "Bre B.") {
-                                    //     destinationTable = breBTable;
-                                    //     destinationHeader = breBHeader;
-                                    // } else if (rowInfo.artist.value == "Christian") {
-                                    //     destinationTable = christianTable;
-                                    //     destinationHeader = christianHeader;
-                                    // } else if (rowInfo.artist.value == "Emily") {
-                                    //     destinationTable = emilyTable;
-                                    //     destinationHeader = emilyHeader;
-                                    // } else if (rowInfo.artist.value == "Ian") {
-                                    //     destinationTable = ianTable;
-                                    //     destinationHeader = ianHeader;
-                                    // } else if (rowInfo.artist.value == "Michael") {
-                                    //     destinationTable = michaelTable;
-                                    //     destinationHeader = michaelHeader;
-                                    // } else if (rowInfo.artist.value == "Josh") {
-                                    //     destinationTable = joshTable;
-                                    //     destinationHeader = joshHeader;
-                                    // } else if (rowInfo.artist.value == "Kristen") {
-                                    //     destinationTable = kristenTable;
-                                    //     destinationHeader = kristenHeader;
-                                    // } else if (rowInfo.artist.value == "Robin") {
-                                    //     destinationTable = robinTable;
-                                    //     destinationHeader = robinHeader;
-                                    // } else if (rowInfo.artist.value == "Luke") {
-                                    //     destinationTable = lukeTable;
-                                    //     destinationHeader = lukeHeader;
-                                    // } else if (rowInfo.artist.value == "Lisa") {
-                                    //     destinationTable = lisaTable;
-                                    //     destinationHeader = lisaHeader;
-                                    // } else if (rowInfo.artist.value == "Luis") {
-                                    //     destinationTable = luisTable;
-                                    //     destinationHeader = luisHeader;
                                     } else if (rowInfo.artist.value == "Peter") {
                                         destinationTable = peterTable;
                                         destinationTableName = peterTableName.name;
                                         destinationRows = peterTableRows.items;
                                         destinationTableRange = peterRange;
                                         destinationHeader = peterHeader;
-                                    // } else if (rowInfo.artist.value == "Rita") {
-                                    //     destinationTable = ritaTable;
-                                    //     destinationHeader = ritaHeader;
-                                    // } else if (rowInfo.artist.value == "Ethan") {
-                                    //     destinationTable = ethanTable;
-                                    //     destinationHeader = ethanHeader;
-                                    // } else if (rowInfo.artist.value == "Bre Z.") {
-                                    //     destinationTable = breZTable;
-                                    //     destinationHeader = breZHeader;
-                                    // } else if (rowInfo.artist.value == "Joe") {
-                                    //     destinationTable = joeTable;
-                                    //     destinationHeader = joeHeader;
-                                    // } else if (rowInfo.artist.value == "Jordan") {
-                                    //     destinationTable = jordanTable;
-                                    //     destinationHeader = jordanHeader;
-                                    // } else if (rowInfo.artist.value == "Hazel-Rah") {
-                                    //     destinationTable = hazelTable;
-                                    //     destinationHeader = hazelHeader;
-                                    // } else if (rowInfo.artist.value == "Todd") {
-                                    //     destinationTable = toddTable;
-                                    //     destinationHeader = toddHeader;
+                                    } else if (rowInfo.artist.value == "Matt") {
+                                        destinationTable = mattTable;
+                                        destinationTableName = mattTableName.name;
+                                        destinationRows = mattTableRows.items;
+                                        destinationTableRange = mattRange;
+                                        destinationHeader = mattHeader;
+                                    } else if (rowInfo.artist.value == "Alaina") {
+                                        destinationTable = alainaTable;
+                                        destinationTableName = alainaTableName.name;
+                                        destinationRows = alainaTableRows.items;
+                                        destinationTableRange = alainaRange;
+                                        destinationHeader = alainaHeader;
+                                    } else if (rowInfo.artist.value == "Joe") {
+                                        destinationTable = joeTable;
+                                        destinationTableName = joeTableName.name;
+                                        destinationRows = joeTableRows.items;
+                                        destinationTableRange = joeRange;
+                                        destinationHeader = joeHeader;
+                                    } else if (rowInfo.artist.value == "Sarah") {
+                                        destinationTable = sarahTable;
+                                        destinationTableName = sarahTableName.name;
+                                        destinationRows = sarahTableRows.items;
+                                        destinationTableRange = sarahRange;
+                                        destinationHeader = sarahHeader;
+                                    } else if (rowInfo.artist.value == "Michael") {
+                                        destinationTable = michaelTable;
+                                        destinationTableName = michaelTableName.name;
+                                        destinationRows = michaelTableRows.items;
+                                        destinationTableRange = michaelRange;
+                                        destinationHeader = michaelHeader;
+                                    } else if (rowInfo.artist.value == "Danny") {
+                                        destinationTable = dannyTable;
+                                        destinationTableName = dannyTableName.name;
+                                        destinationRows = dannyTableRows.items;
+                                        destinationTableRange = dannyRange;
+                                        destinationHeader = dannyHeader;
+                                    } else if (rowInfo.artist.value == "Josh") {
+                                        destinationTable = joshTable;
+                                        destinationTableName = joshTableName.name;
+                                        destinationRows = joshTableRows.items;
+                                        destinationTableRange = joshRange;
+                                        destinationHeader = joshHeader;
+                                    } else if (rowInfo.artist.value == "Luke") {
+                                        destinationTable = lukeTable;
+                                        destinationTableName = lukeTableName.name;
+                                        destinationRows = lukeTableRows.items;
+                                        destinationTableRange = lukeRange;
+                                        destinationHeader = lukeHeader;
+                                    } else if (rowInfo.artist.value == "Bre B.") {
+                                        destinationTable = breBTable;
+                                        destinationTableName = breBTableName.name;
+                                        destinationRows = breBTableRows.items;
+                                        destinationTableRange = breBRange;
+                                        destinationHeader = breBHeader;
+                                    } else if (rowInfo.artist.value == "Kristen") {
+                                        destinationTable = kristenTable;
+                                        destinationTableName = kristenTableName.name;
+                                        destinationRows = kristenTableRows.items;
+                                        destinationTableRange = kristenRange;
+                                        destinationHeader = kristenHeader;
+                                    } else if (rowInfo.artist.value == "Ethan") {
+                                        destinationTable = ethanTable;
+                                        destinationTableName = ethanTableName.name;
+                                        destinationRows = ethanTableRows.items;
+                                        destinationTableRange = ethanRange;
+                                        destinationHeader = ethanHeader;
+                                    } else if (rowInfo.artist.value == "Christian") {
+                                        destinationTable = christianTable;
+                                        destinationTableName = christianTableName.name;
+                                        destinationRows = christianTableRows.items;
+                                        destinationTableRange = christianRange;
+                                        destinationHeader = christianHeader;
+                                    } else if (rowInfo.artist.value == "Jessica") {
+                                        destinationTable = jessicaTable;
+                                        destinationTableName = jessicaTableName.name;
+                                        destinationRows = jessicaTableRows.items;
+                                        destinationTableRange = jessicaRange;
+                                        destinationHeader = jessicaHeader;
+                                    } else if (rowInfo.artist.value == "Luis") {
+                                        destinationTable = luisTable;
+                                        destinationTableName = luisTableName.name;
+                                        destinationRows = luisTableRows.items;
+                                        destinationTableRange = luisRange;
+                                        destinationHeader = luisHeader;
+                                    } else if (rowInfo.artist.value == "Emily") {
+                                        destinationTable = emilyTable;
+                                        destinationTableName = emilyTableName.name;
+                                        destinationRows = emilyTableRows.items;
+                                        destinationTableRange = emilyRange;
+                                        destinationHeader = emilyHeader;
+                                    } else if (rowInfo.artist.value == "Lisa") {
+                                        destinationTable = lisaTable;
+                                        destinationTableName = lisaTableName.name;
+                                        destinationRows = lisaTableRows.items;
+                                        destinationTableRange = lisaRange;
+                                        destinationHeader = lisaHeader;
+                                    } else if (rowInfo.artist.value == "Rita") {
+                                        destinationTable = ritaTable;
+                                        destinationTableName = ritaTableName.name;
+                                        destinationRows = ritaTableRows.items;
+                                        destinationTableRange = ritaRange;
+                                        destinationHeader = ritaHeader;
+                                    } else if (rowInfo.artist.value == "Robin") {
+                                        destinationTable = robinTable;
+                                        destinationTableName = robinTableName.name;
+                                        destinationRows = robinTableRows.items;
+                                        destinationTableRange = robinRange;
+                                        destinationHeader = robinHeader;
+                                    } else if (rowInfo.artist.value == "Jordan") {
+                                        destinationTable = jordanTable;
+                                        destinationTableName = jordanTableName.name;
+                                        destinationRows = jordanTableRows.items;
+                                        destinationTableRange = jordanRange;
+                                        destinationHeader = jordanHeader;
+                                    } else if (rowInfo.artist.value == "Todd") {
+                                        destinationTable = toddTable;
+                                        destinationTableName = toddTableName.name;
+                                        destinationRows = toddTableRows.items;
+                                        destinationTableRange = toddRange;
+                                        destinationHeader = toddHeader;
                                     } else {
                                         destinationTable = "null";
+                                        destinationTableName = "null";
+                                        destinationRows = "null";
                                         destinationTableRange = "null";
                                         destinationHeader = "null";
                                     };
@@ -2310,12 +2504,14 @@
 
                                         if ((rowInfo.status.value == "Completed" || rowInfo.status.value == "Cancelled") && includesCompletedTables == false && isUnassigned == false) { //if status column = "Completed" or "Cancelled", the changedTable is not a Completed table, & the changedWorksheet is not UnassignedProjects, move data to changedWorksheet's completed table
                                             completedTable.rows.add(0, rowValues); //Adds empty row to bottom of the completedTable, then inserts the changed values into this empty row
+                                            //completedTable.rows.add(0, null); //Adds empty row to bottom of the completedTable, then inserts the changed values into this empty row
+
                                             myRow.delete(); //Deletes the changed row from the original sheet
                                             console.log("Data was moved to the artist's Completed Projects Table!");
                                     
                                             leTable.splice(changedRowTableIndex, 1); //removes changed row from table content array
                                     
-                                            var leTableSort = leSorting(rowInfo, leTable, proofToClientColumnIndex) //sorts the artist table by proof to client
+                                            var leTableSort = leSorting(rowInfo, leTable, proofToClientColumnIndex, rowValues) //sorts the artist table by proof to client
                                             var bodyRangeReload = changedTable.getDataBodyRange().load("values"); //reload artist tables values after deleting a row
                                     
                                             await context.sync();
@@ -2332,20 +2528,78 @@
                                     
                                                 destTable.push(rowValues[0]);
                                     
-                                                var destTableSort = leSorting(destRowInfo, destTable, proofToClientColumnIndex);
+                                                var destTableSort = leSorting(destRowInfo, destTable, proofToClientColumnIndex, rowValues);
                                     
                                     
                                                 var unassignedRange = unassignedTable.getDataBodyRange().load("values");
-                                                var mattRange = mattTable.getDataBodyRange().load("values");
                                                 var peterRange = peterTable.getDataBodyRange().load("values");
-                                    
-                                                
+                                                var mattRange = mattTable.getDataBodyRange().load("values");
+                                                var alainaRange = alainaTable.getDataBodyRange().load("values");
+                                                var joeRange = joeTable.getDataBodyRange().load("values");
+                                                var sarahRange = sarahTable.getDataBodyRange().load("values");
+                                                var michaelRange = michaelTable.getDataBodyRange().load("values");
+                                                var dannyRange = dannyTable.getDataBodyRange().load("values");
+                                                var joshRange = joshTable.getDataBodyRange().load("values");
+                                                var lukeRange = lukeTable.getDataBodyRange().load("values");
+                                                var breBRange = breBTable.getDataBodyRange().load("values");
+                                                var kristenRange = kristenTable.getDataBodyRange().load("values");
+                                                var ethanRange = ethanTable.getDataBodyRange().load("values");
+                                                var christianRange = christianTable.getDataBodyRange().load("values");
+                                                var jessicaRange = jessicaTable.getDataBodyRange().load("values");
+                                                var luisRange = luisTable.getDataBodyRange().load("values");
+                                                var emilyRange = emilyTable.getDataBodyRange().load("values");
+                                                var lisaRange = lisaTable.getDataBodyRange().load("values");
+                                                var ritaRange = ritaTable.getDataBodyRange().load("values");
+                                                var robinRange = robinTable.getDataBodyRange().load("values");
+                                                var jordanRange = jordanTable.getDataBodyRange().load("values");
+                                                var toddRange = toddTable.getDataBodyRange().load("values");
+
+
+
                                                 if (rowInfo.artist.value == "Unassigned" && isUnassigned == false) {
                                                     var destinationStation = unassignedRange;
-                                                } else if (rowInfo.artist.value == "Matt") {
-                                                    var destinationStation = mattRange;
                                                 } else if (rowInfo.artist.value == "Peter") {
                                                     var destinationStation = peterRange;
+                                                } else if (rowInfo.artist.value == "Matt") {
+                                                    var destinationStation = mattRange;
+                                                } else if (rowInfo.artist.value == "Alaina") {
+                                                    var destinationStation = alainaRange;
+                                                } else if (rowInfo.artist.value == "Joe") {
+                                                    var destinationStation = joeRange;
+                                                } else if (rowInfo.artist.value == "Sarah") {
+                                                    var destinationStation = peterRange;
+                                                } else if (rowInfo.artist.value == "Michael") {
+                                                    var destinationStation = peterRange;
+                                                } else if (rowInfo.artist.value == "Danny") {
+                                                    var destinationStation = dannyRange;
+                                                } else if (rowInfo.artist.value == "Josh") {
+                                                    var destinationStation = joshRange;
+                                                } else if (rowInfo.artist.value == "Luke") {
+                                                    var destinationStation = lukeRange;
+                                                } else if (rowInfo.artist.value == "Bre B.") {
+                                                    var destinationStation = breBRange;
+                                                } else if (rowInfo.artist.value == "Kristen") {
+                                                    var destinationStation = kristenRange;
+                                                } else if (rowInfo.artist.value == "Ethan") {
+                                                    var destinationStation = ethanRange;
+                                                } else if (rowInfo.artist.value == "Christian") {
+                                                    var destinationStation = christianRange;
+                                                } else if (rowInfo.artist.value == "Jessica") {
+                                                    var destinationStation = jessicaRange;
+                                                } else if (rowInfo.artist.value == "Luis") {
+                                                    var destinationStation = luisRange;
+                                                } else if (rowInfo.artist.value == "Emily") {
+                                                    var destinationStation = emilyRange;
+                                                } else if (rowInfo.artist.value == "Lisa") {
+                                                    var destinationStation = lisaRange;
+                                                } else if (rowInfo.artist.value == "Rita") {
+                                                    var destinationStation = ritaRange;
+                                                } else if (rowInfo.artist.value == "Robin") {
+                                                    var destinationStation = robinRange;
+                                                } else if (rowInfo.artist.value == "Jordan") {
+                                                    var destinationStation = jordanRange;
+                                                } else if (rowInfo.artist.value == "Todd") {
+                                                    var destinationStation = toddRange;
                                                 } else {
                                                     var destinationStation = "null";
                                                 };
@@ -2379,23 +2633,26 @@
 
                                                 rowValues[0][rowInfo.status.columnIndex] = newStatus;
 
+                                                //var changedRowValues = leTable[changedRowTableIndex];
+
+
                                                 //moveData(destinationTable, rowValues, myRow, rowInfo.artist.value);
                                                 moveDataTwo(destTable, rowValues, leTable, changedRowTableIndex);
 
                                                 if (changedTable.id == unassignedTable.id) { //if data is moving from the unassigned table to an artist table, sort this way...
 
-                                                    var leTableSort = leSorting(rowInfo, leTable, pickedUpColumnIndex); //sorts the changed unassigned table by picked up / started by
-                                                    var destTableSort = leSorting(destRowInfo, destTable, proofToClientColumnIndex); //sorts the destination artist table by proof to client
+                                                    var leTableSort = leSorting(rowInfo, leTable, pickedUpColumnIndex, rowValues); //sorts the changed unassigned table by picked up / started by
+                                                    var destTableSort = leSorting(destRowInfo, destTable, proofToClientColumnIndex, rowValues); //sorts the destination artist table by proof to client
 
                                                 } else if (destinationTable.id == unassignedTable.id) { //if data is moving from an artist table to the unassigned table, sort this way...
 
-                                                    var leTableSort = leSorting(rowInfo, leTable, proofToClientColumnIndex); //sorts the changed artist table by proof to client
-                                                    var destTableSort = leSorting(destRowInfo, destTable, pickedUpColumnIndex); //sorts the destination Unassigned table by picked up / started by
+                                                    var leTableSort = leSorting(rowInfo, leTable, proofToClientColumnIndex, rowValues); //sorts the changed artist table by proof to client
+                                                    var destTableSort = leSorting(destRowInfo, destTable, pickedUpColumnIndex, rowValues); //sorts the destination Unassigned table by picked up / started by
 
                                                 } else if ((destinationTable.id !== unassignedTable.id) && (changedTable.id !== unassignedTable.id)) { //if data is moving between artist tables, both will be sorted by proof to client
 
-                                                    var leTableSort = leSorting(rowInfo, leTable, proofToClientColumnIndex); //sorts the changed artist table by proof to client
-                                                    var destTableSort = leSorting(destRowInfo, destTable, proofToClientColumnIndex); //sorts the destination arist table by proof to client
+                                                    var leTableSort = leSorting(rowInfo, leTable, proofToClientColumnIndex, rowValues); //sorts the changed artist table by proof to client
+                                                    var destTableSort = leSorting(destRowInfo, destTable, proofToClientColumnIndex, rowValues); //sorts the destination arist table by proof to client
 
                                                 };
 
@@ -2408,15 +2665,74 @@
                                                 var bodyPositivity = changedTable.getDataBodyRange().load("values");
 
                                                 var unassignedRange = unassignedTable.getDataBodyRange().load("values");
-                                                var mattRange = mattTable.getDataBodyRange().load("values");
                                                 var peterRange = peterTable.getDataBodyRange().load("values");
+                                                var mattRange = mattTable.getDataBodyRange().load("values");
+                                                var alainaRange = alainaTable.getDataBodyRange().load("values");
+                                                var joeRange = joeTable.getDataBodyRange().load("values");
+                                                var sarahRange = sarahTable.getDataBodyRange().load("values");
+                                                var michaelRange = michaelTable.getDataBodyRange().load("values");
+                                                var dannyRange = dannyTable.getDataBodyRange().load("values");
+                                                var joshRange = joshTable.getDataBodyRange().load("values");
+                                                var lukeRange = lukeTable.getDataBodyRange().load("values");
+                                                var breBRange = breBTable.getDataBodyRange().load("values");
+                                                var kristenRange = kristenTable.getDataBodyRange().load("values");
+                                                var ethanRange = ethanTable.getDataBodyRange().load("values");
+                                                var christianRange = christianTable.getDataBodyRange().load("values");
+                                                var jessicaRange = jessicaTable.getDataBodyRange().load("values");
+                                                var luisRange = luisTable.getDataBodyRange().load("values");
+                                                var emilyRange = emilyTable.getDataBodyRange().load("values");
+                                                var lisaRange = lisaTable.getDataBodyRange().load("values");
+                                                var ritaRange = ritaTable.getDataBodyRange().load("values");
+                                                var robinRange = robinTable.getDataBodyRange().load("values");
+                                                var jordanRange = jordanTable.getDataBodyRange().load("values");
+                                                var toddRange = toddTable.getDataBodyRange().load("values");
+
+
 
                                                 if (rowInfo.artist.value == "Unassigned" && isUnassigned == false) {
                                                     var destinationStation = unassignedRange;
-                                                } else if (rowInfo.artist.value == "Matt") {
-                                                    var destinationStation = mattRange;
                                                 } else if (rowInfo.artist.value == "Peter") {
                                                     var destinationStation = peterRange;
+                                                } else if (rowInfo.artist.value == "Matt") {
+                                                    var destinationStation = mattRange;
+                                                } else if (rowInfo.artist.value == "Alaina") {
+                                                    var destinationStation = alainaRange;
+                                                } else if (rowInfo.artist.value == "Joe") {
+                                                    var destinationStation = joeRange;
+                                                } else if (rowInfo.artist.value == "Sarah") {
+                                                    var destinationStation = peterRange;
+                                                } else if (rowInfo.artist.value == "Michael") {
+                                                    var destinationStation = peterRange;
+                                                } else if (rowInfo.artist.value == "Danny") {
+                                                    var destinationStation = dannyRange;
+                                                } else if (rowInfo.artist.value == "Josh") {
+                                                    var destinationStation = joshRange;
+                                                } else if (rowInfo.artist.value == "Luke") {
+                                                    var destinationStation = lukeRange;
+                                                } else if (rowInfo.artist.value == "Bre B.") {
+                                                    var destinationStation = breBRange;
+                                                } else if (rowInfo.artist.value == "Kristen") {
+                                                    var destinationStation = kristenRange;
+                                                } else if (rowInfo.artist.value == "Ethan") {
+                                                    var destinationStation = ethanRange;
+                                                } else if (rowInfo.artist.value == "Christian") {
+                                                    var destinationStation = christianRange;
+                                                } else if (rowInfo.artist.value == "Jessica") {
+                                                    var destinationStation = jessicaRange;
+                                                } else if (rowInfo.artist.value == "Luis") {
+                                                    var destinationStation = luisRange;
+                                                } else if (rowInfo.artist.value == "Emily") {
+                                                    var destinationStation = emilyRange;
+                                                } else if (rowInfo.artist.value == "Lisa") {
+                                                    var destinationStation = lisaRange;
+                                                } else if (rowInfo.artist.value == "Rita") {
+                                                    var destinationStation = ritaRange;
+                                                } else if (rowInfo.artist.value == "Robin") {
+                                                    var destinationStation = robinRange;
+                                                } else if (rowInfo.artist.value == "Jordan") {
+                                                    var destinationStation = jordanRange;
+                                                } else if (rowInfo.artist.value == "Todd") {
+                                                    var destinationStation = toddRange;
                                                 } else {
                                                     var destinationStation = "null";
                                                 };
@@ -2466,160 +2782,33 @@
 
                     //#endregion -----------------------------------------------------------------------------------------------------------------
 
+                    // var newChangedTableRows = changedTable.rows;
 
-                    //#region CONDITIONAL FORMATTING -------------------------------------------------------------------------------------------
+                    // var newBodyValues = changedTable.getDataBodyRange().load("values");
 
-                        var now = new Date();
-                        var justNowDate = now.getDate();
-                        var toSerial = Number(JSDateToExcelDate(now));
-
-                        var pickedUpWorksheetColumn = rowInfo.pickedUpStartedBy.columnIndex + tableStart;
-                        var proofToClientWorksheetColumn = rowInfo.proofToClient.columnIndex + tableStart;
-                        var printDateWorksheetColumn = rowInfo.printDate.columnIndex + tableStart;
-                        var groupWorksheetColumn = rowInfo.group.columnIndex + tableStart;
-
-                        var pickedUpAddress = changedWorksheet.getCell(changedRowIndex, pickedUpWorksheetColumn);
-                        var proofToClientAddress = changedWorksheet.getCell(changedRowIndex, proofToClientWorksheetColumn);
-
-                        var printDate = Math.trunc(rowInfo.printDate.value);
-                        var currentDateAbsolute = Math.trunc(toSerial);
-
-                        var printDateAddress = changedWorksheet.getCell(changedRowIndex, printDateWorksheetColumn);
-                        var groupAddress = changedWorksheet.getCell(changedRowIndex, groupWorksheetColumn);
+                    
+                    // await context.sync();
 
 
-                        if (includesCompletedTables == true) {
+                    // var leTableSorted = newBodyValues.values
 
-                            rowRange.format.fill.clear();
-                            rowRange.format.font.color = "black";
-                            rowRange.format.font.bold = false;
+                    // var rowRangeSorted = newChangedTableRows.getItemAt(rowIndexPostSort).getRange();
 
-                        } else {
-        
-                            rowRange.format.font.name = "Calibri";
-                            rowRange.format.font.size = 12;
-                            rowRange.format.font.color = "#000000";
+                    // var tableRowsSorted = newChangedTableRows.items;
 
-                            if (rowInfo.pickedUpStartedBy.value == "NO PRODUCT / PROJECT TYPE" || rowInfo.proofToClient.value == "NO PRODUCT / PROJECT TYPE") {
+                    // var rowValuesSorted = tableRowsSorted[rowIndexPostSort].values;
 
-                                rowRange.format.fill.color = "FFC5BB";
-                                pickedUpAddress.format.font.bold = true;
-                                proofToClientAddress.format.font.bold = true;
-                                pickedUpAddress.format.fill.color = "FFC5BB";
-                                proofToClientAddress.format.fill.color = "FFC5BB";
+                    // var rowInfoSorted = new Object();
 
-                            } else {
+                    // for (var name of head[0]) {
+                    //     theGreatestFunctionEverWritten(head, name, rowValuesSorted, leTableSorted, rowInfoSorted, rowIndexPostSort);
+                    // };
 
-                                rowRange.format.fill.clear();
-                                pickedUpAddress.format.font.bold = false;
-                                proofToClientAddress.format.font.bold = false;
-          
-                            };
-
-                            if (toSerial > rowInfo.pickedUpStartedBy.value) {
-                                pickedUpAddress.format.fill.color = "FFC000";
-                            } else {
-                                pickedUpAddress.format.fill.clear();
-                            };
-          
-          
-                            if (toSerial > rowInfo.proofToClient.value) {
-                                proofToClientAddress.format.fill.color = "FF0000";
-                                proofToClientAddress.format.font.color = "white";
-                            } else {
-                                proofToClientAddress.format.fill.clear();
-                                proofToClientAddress.format.font.color = "black";
-                            };
-          
-          
-                            if ((printDate < currentDateAbsolute) && (printDate !== 0)) { //if current date is after print date
-        
-                                printDateAddress.format.fill.color = "black";
-                                printDateAddress.format.font.color = "white";
-                                printDateAddress.format.font.bold = true;
-            
-                                groupAddress.format.fill.color = "black";
-                                groupAddress.format.font.color = "white";
-                                groupAddress.format.font.bold = true;
-            
-                                //groupAddress.values = [[appendGroup]];
-        
-                            } else if (printDate == currentDateAbsolute) { //if current date = print date
-        
-                                printDateAddress.format.fill.clear();
-                                printDateAddress.format.font.color = "FF0000";
-                                printDateAddress.format.font.bold = true;
-            
-                                groupAddress.format.fill.clear();
-                                groupAddress.format.font.color = "FF0000";
-                                groupAddress.format.font.bold = true;
-        
-                            } else if (((printDate - 1) == currentDateAbsolute)) { //if current date is the day before print date
-        
-                                printDateAddress.format.fill.clear();
-                                printDateAddress.format.font.color = "FF0000";
-                                printDateAddress.format.font.bold = true;
-            
-                                groupAddress.format.fill.clear();
-                                groupAddress.format.font.color = "FF0000";
-                                groupAddress.format.font.bold = true;
-        
-                            } else if (((printDate - 6) <= currentDateAbsolute) && ((printDate - 2) >= currentDateAbsolute)) { //if current date is in the same group lock week as print date (between 7-2 days before)
-        
-                                printDateAddress.format.fill.clear();
-                                printDateAddress.format.font.color = "FF0000";
-                                printDateAddress.format.font.bold = true;
-            
-                                groupAddress.format.fill.clear(); //FF8B82
-                                groupAddress.format.font.color = "FF0000";
-                                groupAddress.format.font.bold = true;
-            
-                            } else if (((printDate - 13) <= currentDateAbsolute) && ((printDate - 7) >= currentDateAbsolute)) { //if current date is in the week before group lock week (between 8-14 days before)
-        
-                                printDateAddress.format.fill.clear();
-                                printDateAddress.format.font.color = "70AD47";
-                                printDateAddress.format.font.bold = true;
-            
-                                groupAddress.format.fill.clear();
-                                groupAddress.format.font.color = "70AD47";
-                                groupAddress.format.font.bold = true;
-            
-                                // } else if (((printDate - 30) <= currentDateAbsolute) && ((printDate - 14) >= currentDateAbsolute)) { //if current date is within a month of print date (between 15-31 days before)
-            
-                                //   printDateAddress.format.fill.color = "C6E0B4";
-                                //   printDateAddress.format.font.color = "black";
-                                //   printDateAddress.format.font.bold = false;
-            
-                                //   groupAddress.format.fill.color = "C6E0B4";
-                                //   groupAddress.format.font.color = "black";
-                                //   groupAddress.format.font.bold = false;
-        
-                            } else if (printDate == 0) { //if there are no values in the print date cell, revert to normal formatting
-        
-                                printDateAddress.format.fill.clear();
-                                printDateAddress.format.font.color = "black";
-                                printDateAddress.format.font.bold = false;
-            
-                                groupAddress.format.fill.clear();
-                                groupAddress.format.font.color = "black";
-                                groupAddress.format.font.bold = false;
-        
-                            } else { //set cell formatting to normal
-        
-                                printDateAddress.format.fill.clear();
-                                printDateAddress.format.font.color = "black";
-                                printDateAddress.format.font.bold = false;
-            
-                                groupAddress.format.fill.clear();
-                                groupAddress.format.font.color = "black";
-                                groupAddress.format.font.bold = false;
-        
-                            };
-
-                        };
+                    // conditionalFormatting(rowInfoSorted, tableStart, changedWorksheet, rowIndexPostSort, includesCompletedTables, rowRangeSorted);
 
 
-                    //#endregion ---------------------------------------------------------------------------------------------------------------
+
+
 
 
             });
@@ -2635,6 +2824,168 @@
 
 
 //#region FUNCTIONS ---------------------------------------------------------------------------------------------------------------------------
+
+
+    //#region CONDITIONAL FORMATTING -------------------------------------------------------------------------------------------
+
+        function conditionalFormatting(rowInfoSorted, tableStart, changedWorksheet, rowIndexPostSort, includesCompletedTables, rowRangeSorted) {
+
+            var now = new Date();
+            var justNowDate = now.getDate();
+            var toSerial = Number(JSDateToExcelDate(now));
+
+            var worksheetRowIndex = rowIndexPostSort + 1; //adjusts index post table sort to work on worksheet level
+
+            var pickedUpWorksheetColumn = rowInfoSorted.pickedUpStartedBy.columnIndex + tableStart;
+            var proofToClientWorksheetColumn = rowInfoSorted.proofToClient.columnIndex + tableStart;
+            var printDateWorksheetColumn = rowInfoSorted.printDate.columnIndex + tableStart;
+            var groupWorksheetColumn = rowInfoSorted.group.columnIndex + tableStart;
+
+            var pickedUpAddress = changedWorksheet.getCell(worksheetRowIndex, pickedUpWorksheetColumn);
+            var proofToClientAddress = changedWorksheet.getCell(worksheetRowIndex, proofToClientWorksheetColumn);
+
+            var printDate = Math.trunc(rowInfoSorted.printDate.value);
+            var currentDateAbsolute = Math.trunc(toSerial);
+
+            var printDateAddress = changedWorksheet.getCell(worksheetRowIndex, printDateWorksheetColumn);
+            var groupAddress = changedWorksheet.getCell(worksheetRowIndex, groupWorksheetColumn);
+
+
+            if (includesCompletedTables == true) {
+
+                rowRangeSorted.format.fill.clear();
+                rowRangeSorted.format.font.color = "black";
+                rowRangeSorted.format.font.bold = false;
+
+            } else {
+
+                rowRangeSorted.format.font.name = "Calibri";
+                rowRangeSorted.format.font.size = 12;
+                rowRangeSorted.format.font.color = "#000000";
+
+                if (rowInfoSorted.pickedUpStartedBy.value == "NO PRODUCT / PROJECT TYPE" || rowInfoSorted.proofToClient.value == "NO PRODUCT / PROJECT TYPE") {
+
+                    rowRangeSorted.format.fill.color = "FFC5BB";
+                    pickedUpAddress.format.font.bold = true;
+                    proofToClientAddress.format.font.bold = true;
+                    pickedUpAddress.format.fill.color = "FFC5BB";
+                    proofToClientAddress.format.fill.color = "FFC5BB";
+
+                } else {
+
+                    rowRangeSorted.format.fill.clear();
+                    pickedUpAddress.format.font.bold = false;
+                    proofToClientAddress.format.font.bold = false;
+
+                };
+
+                if (toSerial > rowInfoSorted.pickedUpStartedBy.value) {
+                    pickedUpAddress.format.fill.color = "FFC000";
+                } else {
+                    pickedUpAddress.format.fill.clear();
+                };
+
+
+                if (toSerial > rowInfoSorted.proofToClient.value) {
+                    proofToClientAddress.format.fill.color = "FF0000";
+                    proofToClientAddress.format.font.color = "white";
+                } else {
+                    proofToClientAddress.format.fill.clear();
+                    proofToClientAddress.format.font.color = "black";
+                };
+
+
+                if ((printDate < currentDateAbsolute) && (printDate !== 0)) { //if current date is after print date
+
+                    printDateAddress.format.fill.color = "black";
+                    printDateAddress.format.font.color = "white";
+                    printDateAddress.format.font.bold = true;
+
+                    groupAddress.format.fill.color = "black";
+                    groupAddress.format.font.color = "white";
+                    groupAddress.format.font.bold = true;
+
+                    //groupAddress.values = [[appendGroup]];
+
+                } else if (printDate == currentDateAbsolute) { //if current date = print date
+
+                    printDateAddress.format.fill.clear();
+                    printDateAddress.format.font.color = "FF0000";
+                    printDateAddress.format.font.bold = true;
+
+                    groupAddress.format.fill.clear();
+                    groupAddress.format.font.color = "FF0000";
+                    groupAddress.format.font.bold = true;
+
+                } else if (((printDate - 1) == currentDateAbsolute)) { //if current date is the day before print date
+
+                    printDateAddress.format.fill.clear();
+                    printDateAddress.format.font.color = "FF0000";
+                    printDateAddress.format.font.bold = true;
+
+                    groupAddress.format.fill.clear();
+                    groupAddress.format.font.color = "FF0000";
+                    groupAddress.format.font.bold = true;
+
+                } else if (((printDate - 6) <= currentDateAbsolute) && ((printDate - 2) >= currentDateAbsolute)) { //if current date is in the same group lock week as print date (between 7-2 days before)
+
+                    printDateAddress.format.fill.clear();
+                    printDateAddress.format.font.color = "FF0000";
+                    printDateAddress.format.font.bold = true;
+
+                    groupAddress.format.fill.clear(); //FF8B82
+                    groupAddress.format.font.color = "FF0000";
+                    groupAddress.format.font.bold = true;
+
+                } else if (((printDate - 13) <= currentDateAbsolute) && ((printDate - 7) >= currentDateAbsolute)) { //if current date is in the week before group lock week (between 8-14 days before)
+
+                    printDateAddress.format.fill.clear();
+                    printDateAddress.format.font.color = "70AD47";
+                    printDateAddress.format.font.bold = true;
+
+                    groupAddress.format.fill.clear();
+                    groupAddress.format.font.color = "70AD47";
+                    groupAddress.format.font.bold = true;
+
+                    // } else if (((printDate - 30) <= currentDateAbsolute) && ((printDate - 14) >= currentDateAbsolute)) { //if current date is within a month of print date (between 15-31 days before)
+
+                    //   printDateAddress.format.fill.color = "C6E0B4";
+                    //   printDateAddress.format.font.color = "black";
+                    //   printDateAddress.format.font.bold = false;
+
+                    //   groupAddress.format.fill.color = "C6E0B4";
+                    //   groupAddress.format.font.color = "black";
+                    //   groupAddress.format.font.bold = false;
+
+                } else if (printDate == 0) { //if there are no values in the print date cell, revert to normal formatting
+
+                    printDateAddress.format.fill.clear();
+                    printDateAddress.format.font.color = "black";
+                    printDateAddress.format.font.bold = false;
+
+                    groupAddress.format.fill.clear();
+                    groupAddress.format.font.color = "black";
+                    groupAddress.format.font.bold = false;
+
+                } else { //set cell formatting to normal
+
+                    printDateAddress.format.fill.clear();
+                    printDateAddress.format.font.color = "black";
+                    printDateAddress.format.font.bold = false;
+
+                    groupAddress.format.fill.clear();
+                    groupAddress.format.font.color = "black";
+                    groupAddress.format.font.bold = false;
+
+                };
+
+
+            };
+        
+        };
+
+
+    //#endregion ---------------------------------------------------------------------------------------------------------------
 
 
     //#region CHECK EVENTS -----------------------------------------------------------------------------------------------------------------------
@@ -2781,7 +3132,7 @@
              * @param {Number} leColumnIndex The index number of the column that will be used for sorting the table
              * @returns Array
              */
-            function leSorting(rowInfo, leTable, leColumnIndex) {
+            function leSorting(rowInfo, leTable, leColumnIndex, rowValues) {
 
                 //a copy of the array containing all the table data that will be used for sorting
                 var leRowSorted = JSON.parse(JSON.stringify(leTable)); //creates a duplicate of original array to be used for assigning the priority numbers, without having anything done to it affect oriignal array
@@ -2792,6 +3143,7 @@
                 var proofToClientColumnIndex = rowInfo.proofToClient.columnIndex;
 
                 var tempTable = [];
+
 
                 for (var i = 0; i < leRowSorted.length; i++) {
 
@@ -2823,6 +3175,7 @@
                 //#endregion -------------------------------------------------------------------------------------------------------
 
 
+
                 //sorts the parent array (a) by the number in the sub array (b) at index of the picked up column
                 leRowSorted.sort(function(a,b){return a[leColumnIndex] > b[leColumnIndex]});
 
@@ -2833,6 +3186,29 @@
                         i = i - 1;
                     };
                 };
+
+                for (var j = 0; j < leRowSorted.length; j++) {
+                    for (var k = 0; k < leRowSorted[j].length; k++) {
+                        if (rowValues[0][k] !== leRowSorted[j][k]) {
+                            break;
+                        } else {
+                            var l = leRowSorted[j].length - 1;
+                            if (k == l) {
+                                rowIndexPostSort = j;
+                                //break;
+                            };
+                        };
+                    };
+                };
+
+                
+
+                // for (var name of head[0]) {
+                //     theGreatestFunctionEverWritten(head, name, changedRowValues, leRowSorted, sortedRowInfo, rowIndexPostSort);
+                // };
+
+
+
 
 
                                             
