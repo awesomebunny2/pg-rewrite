@@ -1008,11 +1008,72 @@
 
                     rangeOfTable[tableRowIndex] = write[0];
 
-                    var gee = leSorting(tableRowInfo, rangeOfTable, tablePickedUpColumnIndex, write);
+                    var gee = leSorting(tableRowInfo, rangeOfTable, tablePickedUpColumnIndex, write[0]);
+
+                    var kale = rowIndexPostSort;
 
                     sheetTableRange.values = gee;
 
                     console.log("Content has been added to the table through the taskpane successfully!")
+
+
+
+
+
+                    // if (changedColumnIndex == rowInfo.artist.columnIndex || changedColumnIndex == rowInfo.status.columnIndex) {
+
+                    //     var newChangedTableRows = destinationTable.rows.load("items");
+
+                    //     var newBodyValues = destinationTable.getDataBodyRange().load("values");
+
+                    // } else {
+
+                    //     var newChangedTableRows = changedTable.rows.load("items");
+
+                    //     var newBodyValues = changedTable.getDataBodyRange().load("values");
+
+                    // };
+
+                    var newSheetTableRows = sheetTable.rows.load("items");
+                    var newSheetTableRange = sheetTable.getDataBodyRange().load("values");
+
+
+                    
+                    await context.sync();
+
+                    var newTableRowItems = newSheetTableRows.items;
+
+                    var newRangeOfTable = newSheetTableRange.values;
+
+                    var newRowValuesOfTable = newTableRowItems[rowIndexPostSort].values;
+
+                    var newRowRange = newSheetTableRows.getItemAt(rowIndexPostSort).getRange();
+
+                    var newTableRowInfo = new Object();
+
+                    for (var name of headerOfTable[0]) {
+                        theGreatestFunctionEverWritten(headerOfTable, name, newRowValuesOfTable, newRangeOfTable, newTableRowInfo, rowIndexPostSort);
+                    };
+
+
+
+
+                    // var leTableSorted = newBodyValues.values
+
+                    // var rowRangeSorted = newChangedTableRows.getItemAt(rowIndexPostSort).getRange();
+
+                    // var tableRowsSorted = newChangedTableRows.items;
+
+                    // var rowValuesSorted = tableRowsSorted[rowIndexPostSort].values;
+
+                    // var rowInfoSorted = new Object();
+
+                    // for (var name of head[0]) {
+                    //     theGreatestFunctionEverWritten(head, name, rowValuesSorted, leTableSorted, rowInfoSorted, rowIndexPostSort);
+                    // };
+
+                    conditionalFormatting(newTableRowInfo, 0, sheet, rowIndexPostSort, false, newRowRange);
+
 
 
 
@@ -1411,7 +1472,12 @@
                                 var theDateBlankSerial = Number(JSDateToExcelDate(theDateBlank));
                                 //   var theDateBlankMilli = theDateBlank.getTime();
 
-                                var startOfWorkDay = theDateBlankSerial + theWeekdayVar.startTime;
+                                if (theWeekdayVar.startTime == "--") {
+                                    var startOfWorkDay = theDateBlankSerial //+ 8:30 as a serial number
+                                } else {
+                                    var startOfWorkDay = theDateBlankSerial + theWeekdayVar.startTime;
+                                };
+
 
                                 var startWorkDayReadable = convertToDate(startOfWorkDay);
 
@@ -2151,8 +2217,10 @@
                             //adjusts proof to client turn around time
                             var leProofToClientTime = getProofToClientTime(rowInfo, leTable, lePickUpTime, changedRowTableIndex);
 
+                            var changedRowValues = leTable[changedRowTableIndex];
+
                             //sorts based on pickedUp column values and assigns priority numbers
-                            var sortAndPrioritize = leSorting(rowInfo, leTable, pickedUpColumnIndex, rowValues);
+                            var sortAndPrioritize = leSorting(rowInfo, leTable, pickedUpColumnIndex, changedRowValues);
 
                             var check = rowIndexPostSort;
 
@@ -2511,7 +2579,7 @@
                                     
                                             leTable.splice(changedRowTableIndex, 1); //removes changed row from table content array
                                     
-                                            var leTableSort = leSorting(rowInfo, leTable, proofToClientColumnIndex, rowValues) //sorts the artist table by proof to client
+                                            var leTableSort = leSorting(rowInfo, leTable, proofToClientColumnIndex, rowValues[0]) //sorts the artist table by proof to client
                                             var bodyRangeReload = changedTable.getDataBodyRange().load("values"); //reload artist tables values after deleting a row
                                     
                                             await context.sync();
@@ -2528,7 +2596,7 @@
                                     
                                                 destTable.push(rowValues[0]);
                                     
-                                                var destTableSort = leSorting(destRowInfo, destTable, proofToClientColumnIndex, rowValues);
+                                                var destTableSort = leSorting(destRowInfo, destTable, proofToClientColumnIndex, rowValues[0]);
                                     
                                     
                                                 var unassignedRange = unassignedTable.getDataBodyRange().load("values");
@@ -2641,18 +2709,18 @@
 
                                                 if (changedTable.id == unassignedTable.id) { //if data is moving from the unassigned table to an artist table, sort this way...
 
-                                                    var leTableSort = leSorting(rowInfo, leTable, pickedUpColumnIndex, rowValues); //sorts the changed unassigned table by picked up / started by
-                                                    var destTableSort = leSorting(destRowInfo, destTable, proofToClientColumnIndex, rowValues); //sorts the destination artist table by proof to client
+                                                    var leTableSort = leSorting(rowInfo, leTable, pickedUpColumnIndex, rowValues[0]); //sorts the changed unassigned table by picked up / started by
+                                                    var destTableSort = leSorting(destRowInfo, destTable, proofToClientColumnIndex, rowValues[0]); //sorts the destination artist table by proof to client
 
                                                 } else if (destinationTable.id == unassignedTable.id) { //if data is moving from an artist table to the unassigned table, sort this way...
 
-                                                    var leTableSort = leSorting(rowInfo, leTable, proofToClientColumnIndex, rowValues); //sorts the changed artist table by proof to client
-                                                    var destTableSort = leSorting(destRowInfo, destTable, pickedUpColumnIndex, rowValues); //sorts the destination Unassigned table by picked up / started by
+                                                    var leTableSort = leSorting(rowInfo, leTable, proofToClientColumnIndex, rowValues[0]); //sorts the changed artist table by proof to client
+                                                    var destTableSort = leSorting(destRowInfo, destTable, pickedUpColumnIndex, rowValues[0]); //sorts the destination Unassigned table by picked up / started by
 
                                                 } else if ((destinationTable.id !== unassignedTable.id) && (changedTable.id !== unassignedTable.id)) { //if data is moving between artist tables, both will be sorted by proof to client
 
-                                                    var leTableSort = leSorting(rowInfo, leTable, proofToClientColumnIndex, rowValues); //sorts the changed artist table by proof to client
-                                                    var destTableSort = leSorting(destRowInfo, destTable, proofToClientColumnIndex, rowValues); //sorts the destination arist table by proof to client
+                                                    var leTableSort = leSorting(rowInfo, leTable, proofToClientColumnIndex, rowValues[0]); //sorts the changed artist table by proof to client
+                                                    var destTableSort = leSorting(destRowInfo, destTable, proofToClientColumnIndex, rowValues[0]); //sorts the destination arist table by proof to client
 
                                                 };
 
@@ -2782,29 +2850,41 @@
 
                     //#endregion -----------------------------------------------------------------------------------------------------------------
 
-                    // var newChangedTableRows = changedTable.rows;
 
-                    // var newBodyValues = changedTable.getDataBodyRange().load("values");
+                    if (changedColumnIndex == rowInfo.artist.columnIndex || changedColumnIndex == rowInfo.status.columnIndex) {
+
+                        var newChangedTableRows = destinationTable.rows.load("items");
+
+                        var newBodyValues = destinationTable.getDataBodyRange().load("values");
+
+                    } else {
+
+                        var newChangedTableRows = changedTable.rows.load("items");
+
+                        var newBodyValues = changedTable.getDataBodyRange().load("values");
+
+                    };
+
 
                     
-                    // await context.sync();
+                    await context.sync();
 
 
-                    // var leTableSorted = newBodyValues.values
+                    var leTableSorted = newBodyValues.values
 
-                    // var rowRangeSorted = newChangedTableRows.getItemAt(rowIndexPostSort).getRange();
+                    var rowRangeSorted = newChangedTableRows.getItemAt(rowIndexPostSort).getRange();
 
-                    // var tableRowsSorted = newChangedTableRows.items;
+                    var tableRowsSorted = newChangedTableRows.items;
 
-                    // var rowValuesSorted = tableRowsSorted[rowIndexPostSort].values;
+                    var rowValuesSorted = tableRowsSorted[rowIndexPostSort].values;
 
-                    // var rowInfoSorted = new Object();
+                    var rowInfoSorted = new Object();
 
-                    // for (var name of head[0]) {
-                    //     theGreatestFunctionEverWritten(head, name, rowValuesSorted, leTableSorted, rowInfoSorted, rowIndexPostSort);
-                    // };
+                    for (var name of head[0]) {
+                        theGreatestFunctionEverWritten(head, name, rowValuesSorted, leTableSorted, rowInfoSorted, rowIndexPostSort);
+                    };
 
-                    // conditionalFormatting(rowInfoSorted, tableStart, changedWorksheet, rowIndexPostSort, includesCompletedTables, rowRangeSorted);
+                    conditionalFormatting(rowInfoSorted, tableStart, changedWorksheet, rowIndexPostSort, includesCompletedTables, rowRangeSorted);
 
 
 
@@ -2863,15 +2943,7 @@
                 rowRangeSorted.format.font.size = 12;
                 rowRangeSorted.format.font.color = "#000000";
 
-                if (rowInfoSorted.pickedUpStartedBy.value == "NO PRODUCT / PROJECT TYPE" || rowInfoSorted.proofToClient.value == "NO PRODUCT / PROJECT TYPE") {
-
-                    rowRangeSorted.format.fill.color = "FFC5BB";
-                    pickedUpAddress.format.font.bold = true;
-                    proofToClientAddress.format.font.bold = true;
-                    pickedUpAddress.format.fill.color = "FFC5BB";
-                    proofToClientAddress.format.fill.color = "FFC5BB";
-
-                } else {
+                if (rowInfoSorted.pickedUpStartedBy.value !== "NO PRODUCT / PROJECT TYPE" || rowInfoSorted.proofToClient.value !== "NO PRODUCT / PROJECT TYPE") {
 
                     rowRangeSorted.format.fill.clear();
                     pickedUpAddress.format.font.bold = false;
@@ -2976,6 +3048,16 @@
                     groupAddress.format.fill.clear();
                     groupAddress.format.font.color = "black";
                     groupAddress.format.font.bold = false;
+
+                };
+
+                if (rowInfoSorted.pickedUpStartedBy.value == "NO PRODUCT / PROJECT TYPE" || rowInfoSorted.proofToClient.value == "NO PRODUCT / PROJECT TYPE") {
+
+                    rowRangeSorted.format.fill.color = "FFC5BB";
+                    pickedUpAddress.format.font.bold = true;
+                    proofToClientAddress.format.font.bold = true;
+                    // pickedUpAddress.format.fill.color = "FFC5BB";
+                    // proofToClientAddress.format.fill.color = "FFC5BB";
 
                 };
 
@@ -3132,7 +3214,7 @@
              * @param {Number} leColumnIndex The index number of the column that will be used for sorting the table
              * @returns Array
              */
-            function leSorting(rowInfo, leTable, leColumnIndex, rowValues) {
+            function leSorting(rowInfo, leTable, leColumnIndex, changedRowValues) {
 
                 //a copy of the array containing all the table data that will be used for sorting
                 var leRowSorted = JSON.parse(JSON.stringify(leTable)); //creates a duplicate of original array to be used for assigning the priority numbers, without having anything done to it affect oriignal array
@@ -3189,7 +3271,7 @@
 
                 for (var j = 0; j < leRowSorted.length; j++) {
                     for (var k = 0; k < leRowSorted[j].length; k++) {
-                        if (rowValues[0][k] !== leRowSorted[j][k]) {
+                        if (changedRowValues[k] !== leRowSorted[j][k]) {
                             break;
                         } else {
                             var l = leRowSorted[j].length - 1;
