@@ -1157,529 +1157,676 @@
             //#endregion ----------------------------------------------------------------------------------------
 
 
-
-
-
-            function officeHours(startDate, endDate) {
-
-                var minutesWorked = 0;
-
-                if(endDate < startDate) {
-                    return 0;
-                };
-
-                var current = startDate;
-
-                var workHoursStart = 0;
-            }
-
-
-
-
-
-
-            //#region OFFICE HOURS ---------------------------------------------------------------------------------------
+            //#region OFFICE HOURS FUNCTION ---------------------------------------------------------------------------------------------------
 
                 /**
-                 * Sets weekday variables and loops through the withinOfficeHours function, which adjusts the date to be within office hours
-                 * @param {Date} date Date to be adjusted to be within office hours
-                 * @param {Number} number Number of adjustment hours to add to date
+                 * Adds adjustment hours to the date and adjusts to fit within office hours
+                 * @param {Date} date the added date
+                 * @param {Number} hoursToAdd The humber of adjustment hours to add to the added date
                  * @returns Date
                  */
-                function oldOfficeHours(day, number) { 
+                function officeHours(date, hoursToAdd) {
 
-                    while (loop == true) { //loops through the office hours function until the value returns within office hours
-                        var officeHours = withinOfficeHours(day, number);
-                        day = officeHours.date;
-                        number = officeHours.adjustmentNumber;
-                        loop = officeHours.loop;
-                    };
-                    //console.log("The correct date & time is: " + day);
-                    loop = true;
-                    // console.log(day);
-                    return day;
+                    //#region FUNCTION VARIABLES ---------------------------------------------------------------------------------------------------
+
+                        //date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+                        //gets the day of the week
+                        var theDay = date.getDay();
+                        if (theDay == 0) {theDay = "Sunday"} else if (theDay == 1) {theDay = "Monday"} else if (theDay == 2) {theDay = "Tuesday"} else if (theDay == 3) {theDay = "Wednesday"} else if (theDay == 4) {theDay = "Thursday"} else if (theDay == 5) {theDay = "Friday"} else if (theDay == 6) {theDay = "Saturday"};
+                        
+                        var adjustmentMinutes = hoursToAdd * 60; // 12.5 hours = 750 minutes
+                        var includesWeekends = false;
+
+                        var current = new Date(date); //clone of the date variable that calculations will be made to
+                        //current.setMinutes(current.getMinutes() - current.getTimezoneOffset()); //removes time zone offset to bring all dates to the same level
+
+                        //#region SET DATES WITH 0 TIME -----------------------------------------------------------------------------------------------
+
+                            //set workDayStart date to = date, but have the time be 0 (will assign times to later)
+                            var workDayStart = new Date(date);
+                            workDayStart.setHours(0);
+                            workDayStart.setMinutes(0);
+                            workDayStart.setSeconds(0);
+                            workDayStart.setMilliseconds(0);
+
+                            //set workDayEnd date to = date, but have the time be 0 (will assign times to later)
+                            var workDayEnd = new Date(date);
+                            workDayEnd.setHours(0);
+                            workDayEnd.setMinutes(0);
+                            workDayEnd.setSeconds(0);
+                            workDayEnd.setMilliseconds(0);
+
+                        //#endregion --------------------------------------------------------------------------------------------------------------
+
+                        //#region CREATE START TIME AND END TIME VARIABLES FOR THE DATE ---------------------------------------------------------------
+
+                            var weekdayVars = officeHoursData[theDay] //returns all the info for the weekday that date lands on
+
+                            //#region CREATE START TIME DATE --------------------------------------------------------------------------------------
+
+                                //this varibale will have the correct start time but will still be using the ground 0 date for serial numbers. Will be adjusted up next
+                                var theStart = convertToDate(weekdayVars.startTime); //converts serial number to JSDate for start of work day
+                                //sets that date of theStart to be at ground 0 for JSDates
+                                theStart.setFullYear(1970);
+                                theStart.setMonth(0);
+                                theStart.setDate(1);
+                                theStart.setMinutes(theStart.getMinutes() - theStart.getTimezoneOffset()); //removes time zone offset to bring all dates to the same level
+                                //gives us the milliseconds between 0 and this time
+                                var fartTime = theStart.getTime();
+                                workDayStart.setMilliseconds(fartTime); //adds the startTime to the correct date variable from eariler
+
+                            //#endregion ---------------------------------------------------------------------------------------------------------
+
+                            //#region CREATE END TIME DATE ---------------------------------------------------------------------------------------
+
+                                //this varibale will have the correct end time but will still be using the ground 0 date for serial numbers. Will be adjusted up next
+                                var theEnd = convertToDate(weekdayVars.endTime); //converts serial number to JSDate for end of work day
+                                //sets that date of theEnd to be at ground 0 for JSDates
+                                theEnd.setFullYear(1970);
+                                theEnd.setMonth(0);
+                                theEnd.setDate(1);
+                                theEnd.setMinutes(theEnd.getMinutes() - theEnd.getTimezoneOffset()); //removes time zone offset to bring all dates to the same level
+                                //gives us the milliseconds between 0 and this time
+                                var shartTime = theEnd.getTime();
+                                workDayEnd.setMilliseconds(shartTime); //adds the endTime to the correct date variable from eariler
+
+                            //#endregion -----------------------------------------------------------------------------------------------------------
+
+                        //#endregion ---------------------------------------------------------------------------------------------------------------
+
+                    //#endregion -------------------------------------------------------------------------------------------------------------------
+
+                    //#region WHILE ADJUSTMENT NUMBER REMAINS POSITIVE ----------------------------------------------------------------------------
+                    
+                        while(adjustmentMinutes > 0) {
+
+                            //#region RECALCULATE START AND END TIMES IF DATE ADVANCES -----------------------------------------------------------
+
+                                if (current.getDay() !== date.getDay()) { //if we go on into another day, recalculate start and end time dates
+
+                                    //gets the day of the week
+                                    var theDay = current.getDay();
+                                    if (theDay == 0) {theDay = "Sunday"} else if (theDay == 1) {theDay = "Monday"} else if (theDay == 2) {theDay = "Tuesday"} else if (theDay == 3) {theDay = "Wednesday"} else if (theDay == 4) {theDay = "Thursday"} else if (theDay == 5) {theDay = "Friday"} else if (theDay == 6) {theDay = "Saturday"};
+
+                                    //#region SET DATES WITH 0 TIME (CURRENT) ----------------------------------------------------------------------
+
+                                        //set workDayStart date to = current date, but have the time be 0 (will assign times to later)
+                                        var workDayStart = new Date(current);
+                                        workDayStart.setHours(0);
+                                        workDayStart.setMinutes(0);
+                                        workDayStart.setSeconds(0);
+                                        workDayStart.setMilliseconds(0);
+                                    
+                                        //set workDayEnd date to = current date, but have the time be 0 (will assign times to later)
+                                        var workDayEnd = new Date(current);
+                                        workDayEnd.setHours(0);
+                                        workDayEnd.setMinutes(0);
+                                        workDayEnd.setSeconds(0);
+                                        workDayEnd.setMilliseconds(0);
+
+                                    //#endregion ---------------------------------------------------------------------------------------------------
+
+                                    //#region CREATE START TIME AND END TIME VARIABLES FOR THE DATE (CURRENT) --------------------------------------
+
+                                        //gets start and end times of date's work day
+                                        weekdayVars = officeHoursData[theDay] //returns all the info for the weekday that date lands on
+
+                                        //#region CREATE START TIME DATE (CURRENT) -----------------------------------------------------------------
+
+                                            theStart = convertToDate(weekdayVars.startTime); //converts serial number to JSDate for start of work day
+                                            theStart.setFullYear(1970);
+                                            theStart.setMonth(0);
+                                            theStart.setDate(1);
+                                            theStart.setMinutes(theStart.getMinutes() - theStart.getTimezoneOffset()); //removes time zone offset to bring all dates to the same level
+                                            fartTime = theStart.getTime();
+                                            workDayStart.setMilliseconds(fartTime);
+
+                                        //#endregion ------------------------------------------------------------------------------------------------
+
+                                        //#region CREATE END TIME DATE (CURRENT) --------------------------------------------------------------------
+
+                                            theEnd = convertToDate(weekdayVars.endTime); //converts serial number to JSDate for end of work day
+                                            theEnd.setFullYear(1970);
+                                            theEnd.setMonth(0);
+                                            theEnd.setDate(1);
+                                            theEnd.setMinutes(theEnd.getMinutes() - theEnd.getTimezoneOffset()); //removes time zone offset to bring all dates to the same level
+                                        
+                                            shartTime = theEnd.getTime();
+                                            workDayEnd.setMilliseconds(shartTime);
+
+                                        //#endregion ------------------------------------------------------------------------------------------------
+
+                                    //#endregion ----------------------------------------------------------------------------------------------------
+
+                                };
+
+                            //#endregion -----------------------------------------------------------------------------------------------------------
+
+                            //#region INCREMENT --------------------------------------------------------------------------------------------------
+
+                                //if current is still within the workday and not on a weekend, subtract 1 minute from the adjustment number
+                                if(current > workDayStart && current < workDayEnd && (includesWeekends ? current.getDay() !== 0 && current.getDay() !== 6 : true)) {
+                                    adjustmentMinutes--;
+                                };
+                                current.setTime(current.getTime() + 1000 * 60); //adds 1 minute to current time
+
+                            //#endregion ----------------------------------------------------------------------------------------------------------
+                        
+                        };
+
+                    //#endregion -------------------------------------------------------------------------------------------------------------------
+
+                    return current;
 
                 };
 
+            //#endregion ----------------------------------------------------------------------------------------------------------------------
 
-                //#region OFFICE HOURS FUNCTIONS -----------------------------------------------------------------------------------------------------------
 
 
-                    //#region WITHIN OFFICE HOURS FUNCTION -------------------------------------------------------------------------------------------------
+    
 
-                        /**
-                         * Adjusts date to be within office hours while maintaining an accurate turn around time variable for the adjustment number
-                         * @param {Date} date Date to be adjusted to be within office hours 
-                         * @param {Number} adjustmentNumber Number of adjustment hours to add to date
-                         * @returns An object with properties (date, adjustment number, and loop)
-                         */
-                        function withinOfficeHours(date, adjustmentNumber) {
+            //#region OLD OFFICE HOURS CODE ---------------------------------------------------------------------------------
 
-                            //#region VARIABLES ------------------------------------------------------------------------------------------------------------
 
-                                //#region SETS DATE VARIABLES ----------------------------------------------------------------------------------------------
+                // //#region OFFICE HOURS ---------------------------------------------------------------------------------------
 
-                                    var dateSerial = Number(JSDateToExcelDate(date)); //converts date to excel serial for calculations
-                                    var adjusted = parseFloat(adjustmentNumber); //converts adjustment number from String to Number for calculations
-                                    var numberMinutes = adjusted * 60;
-                                    var adjustmentNumberSerial = minutesToSerial(numberMinutes);
+                //     /**
+                //      * Sets weekday variables and loops through the withinOfficeHours function, which adjusts the date to be within office hours
+                //      * @param {Date} date Date to be adjusted to be within office hours
+                //      * @param {Number} number Number of adjustment hours to add to date
+                //      * @returns Date
+                //      */
+                //     function oldOfficeHours(day, number) { 
 
-                                    //gets day of the week attributes for the date variable
-                                    var dateDayOfWeek = date.getDay(); //returns a dayID (0-6) for the day of the week of the date object
-                                    var dayTitle = titleDOW(dateDayOfWeek); //returns a day title based on the dayID of the dateDayOfWeek variable
-                                    var theWeekdayVar = officeHoursData[dayTitle];
+                //         while (loop == true) { //loops through the office hours function until the value returns within office hours
+                //             var officeHours = withinOfficeHours(day, number);
+                //             day = officeHours.date;
+                //             number = officeHours.adjustmentNumber;
+                //             loop = officeHours.loop;
+                //         };
+                //         //console.log("The correct date & time is: " + day);
+                //         loop = true;
+                //         // console.log(day);
+                //         return day;
 
-                                    var startOfWorkDay = setToStartOfDay(date, theWeekdayVar);
+                //     };
 
-                                    var endOfWorkDay = setToEndOfDay(date, theWeekdayVar);
 
-                                //#endregion -------------------------------------------------------------------------------------------------------------
+                //     //#region OFFICE HOURS FUNCTIONS -----------------------------------------------------------------------------------------------------------
 
-                                //#region ADJUSTS DATES IN CASE REQUEST WAS SUBMITTED OUTSIDE OF OFFICE HOURS ---------------------------------------
 
-                                    if (dateSerial < startOfWorkDay) { //if date is between 12AM and start time, adjust hours to be the start time
-                                        dateSerial = startOfWorkDay;
-                                        date = convertToDate(dateSerial);
-                                        //   dateSerial = Number(JSDateToExcelDate(date)); //converts date to excel serial for calculations
+                //         //#region WITHIN OFFICE HOURS FUNCTION -------------------------------------------------------------------------------------------------
 
-                                        //   dateMilli = date.getTime();
-                                        //   bookendVars = startEndMidnight(date, theWeekdayVar);
-                                    };
+                //             /**
+                //              * Adjusts date to be within office hours while maintaining an accurate turn around time variable for the adjustment number
+                //              * @param {Date} date Date to be adjusted to be within office hours 
+                //              * @param {Number} adjustmentNumber Number of adjustment hours to add to date
+                //              * @returns An object with properties (date, adjustment number, and loop)
+                //              */
+                //             function withinOfficeHours(date, adjustmentNumber) {
 
-                                    if (dateSerial > endOfWorkDay) { //if date is after end time and before 12AM, go to next day and adjust hours to be the start time of that next day
-                                        date.setDate(date.getDate() + 1);
-                                        dateDayOfWeek = date.getDay();
-                                        dayTitle = titleDOW(dateDayOfWeek);
-                                        theWeekdayVar = officeHoursData[dayTitle];
-                                        startOfWorkDay = setToStartOfDay(date, theWeekdayVar);
-                                        endOfWorkDay = setToEndOfDay(date, theWeekdayVar);
-                                        dateSerial = startOfWorkDay;
-                                        date = convertToDate(dateSerial); //converts date to excel serial for calculations
+                //                 //#region VARIABLES ------------------------------------------------------------------------------------------------------------
 
-                                        //   dateMilli = date.getTime();
-                                        //   bookendVars = startEndMidnight(date, theWeekdayVar);
-                                    };
-                                
-                                //#endregion ------------------------------------------------------------------------------------------------------------
+                //                     //#region SETS DATE VARIABLES ----------------------------------------------------------------------------------------------
 
-                                //#region ADJUSTS DATES IN CASE REQUEST WAS SUBMITTED ON WEEKEND ----------------------------------------------------
+                //                         var dateSerial = Number(JSDateToExcelDate(date)); //converts date to excel serial for calculations
+                //                         var adjusted = parseFloat(adjustmentNumber); //converts adjustment number from String to Number for calculations
+                //                         var numberMinutes = adjusted * 60;
+                //                         var adjustmentNumberSerial = minutesToSerial(numberMinutes);
 
-                                if ((dateDayOfWeek == 6) || (dateDayOfWeek == 0)) { //if date was submitted on a weekend...
-                                    date = weekendAdjust(date, dateDayOfWeek);
-                                    dateDayOfWeek = date.getDay();
-                                    dayTitle = titleDOW(dateDayOfWeek);
-                                    theWeekdayVar = officeHoursData[dayTitle];
-                                    startOfWorkDay = setToStartOfDay(date, theWeekdayVar);
-                                    endOfWorkDay = setToEndOfDay(date, theWeekdayVar);
-                                    dateSerial = startOfWorkDay;
-                                    date = convertToDate(dateSerial); //converts date to excel serial for calculations
+                //                         //gets day of the week attributes for the date variable
+                //                         var dateDayOfWeek = date.getDay(); //returns a dayID (0-6) for the day of the week of the date object
+                //                         var dayTitle = titleDOW(dateDayOfWeek); //returns a day title based on the dayID of the dateDayOfWeek variable
+                //                         var theWeekdayVar = officeHoursData[dayTitle];
 
-                                    // dateMilli = date.getTime();
-                                    // bookendVars = startEndMidnight(date, theWeekdayVar);
-                                };
-                        
-                            //#endregion ------------------------------------------------------------------------------------------------------------
+                //                         var startOfWorkDay = setToStartOfDay(date, theWeekdayVar);
 
-                                //#region SETS ADJUSTMENT DATE VARIABLES -----------------------------------------------------------------------------------
+                //                         var endOfWorkDay = setToEndOfDay(date, theWeekdayVar);
 
-                                    //adds adjustmentNumber to date to get an adjustedDate value that will be used in later checks and calculations
-                                    var adjustedDate = new Date(date);
-                                    var adjustedDateSerial = Number(JSDateToExcelDate(adjustedDate));
-                                    adjustedDateSerial = adjustedDateSerial + adjustmentNumberSerial;
-                                    adjustedDate = convertToDate(adjustedDateSerial);
+                //                     //#endregion -------------------------------------------------------------------------------------------------------------
 
-                                //#endregion ---------------------------------------------------------------------------------------------------------------
-                            
-                                //#region SETS ADD A DAY VARIABLES -----------------------------------------------------------------------------------------
+                //                     //#region ADJUSTS DATES IN CASE REQUEST WAS SUBMITTED OUTSIDE OF OFFICE HOURS ---------------------------------------
 
-                                    //gets day of the week attributes for the day after the date variable
-                                    var nextDay = new Date(date);
+                //                         if (dateSerial < startOfWorkDay) { //if date is between 12AM and start time, adjust hours to be the start time
+                //                             dateSerial = startOfWorkDay;
+                //                             date = convertToDate(dateSerial);
+                //                             //   dateSerial = Number(JSDateToExcelDate(date)); //converts date to excel serial for calculations
 
-                                    var newNextDay = getNextDay(nextDay); //also sets this variable to the start time of the next day
-                                    var addADaySerial = newNextDay.nextDay;
-                                    var addADay = convertToDate(addADaySerial);
-                                    var addADayTitle = newNextDay.nextDayTitle;
-                                    var addADayWeekdayVar = officeHoursData[addADayTitle];
-                                    var addADayEnd = setToEndOfDay(addADay, addADayWeekdayVar);
+                //                             //   dateMilli = date.getTime();
+                //                             //   bookendVars = startEndMidnight(date, theWeekdayVar);
+                //                         };
 
-                                //#endregion ----------------------------------------------------------------------------------------------------------------
+                //                         if (dateSerial > endOfWorkDay) { //if date is after end time and before 12AM, go to next day and adjust hours to be the start time of that next day
+                //                             date.setDate(date.getDate() + 1);
+                //                             dateDayOfWeek = date.getDay();
+                //                             dayTitle = titleDOW(dateDayOfWeek);
+                //                             theWeekdayVar = officeHoursData[dayTitle];
+                //                             startOfWorkDay = setToStartOfDay(date, theWeekdayVar);
+                //                             endOfWorkDay = setToEndOfDay(date, theWeekdayVar);
+                //                             dateSerial = startOfWorkDay;
+                //                             date = convertToDate(dateSerial); //converts date to excel serial for calculations
 
-                            //#endregion ----------------------------------------------------------------------------------------------------------------
-
-                            //#region ACTION: SETS ADJUSTED DATE TO BE WITHIN OFFICE HOURS ------------------------------------------------------------------
-
-                                //if adjustedDate falls outside of office hours, do this...
-                                if (adjustedDateSerial < startOfWorkDay || adjustedDateSerial > endOfWorkDay) { //since the bookendVars is in reference to the date variable, this function will still trigger if adjustedDate is technically within office hours, but on a different day
-
-                                    //#region SETS ADJUSTMENT NUMBER VALUES ---------------------------------------------------------------------------------
-
-                                        var dayRemainder = (endOfWorkDay - dateSerial) // / 1000) / 60) / 60; //time between end of work day and the original date time
-                                        var remainingAdjust = adjustmentNumberSerial - dayRemainder; //gives us the remaining adjustment hours based off of what was already used to get to the end of the work day
-                                        // var remainingAdjustMilli = remainingAdjust * 3600000;
-
-                                    //#endregion ------------------------------------------------------------------------------------------------------------
-
-                                    //#region NEW DAY CALCULATIONS ------------------------------------------------------------------------------------------
-
-                                        var newDay = new Date(addADay);
-                                        var newDaySerial = Number(JSDateToExcelDate(newDay));
-
-                                        //adds remaining adjustment hours to the beginning of the work day the next day after date (addADay)
-                                        var dateTimeAdjusted = newDaySerial + remainingAdjust;
-
-                                        var dateTimeAdjustedConvert = convertToDate(dateTimeAdjusted); //convert serial number to date object
-
-                                        date = dateTimeAdjustedConvert; //not sure if it should be date or something else yet. Need to make sure that the function works with this
-
-                                    //#endregion ------------------------------------------------------------------------------------------------------------
-
-                                    //#region SET LOOP VARIABLES IF STILL NOT WITHIN OFFICE HOURS OR EXCEEDS OFFICE HOURS OF NEXT DAY -----------------------
-
-                                        //if the new date exceeds the office hours of addADay, then do this...
-                                        if (dateTimeAdjusted > addADayEnd) {
-                                        var addADayWorkDayLength = parseFloat(addADayWeekdayVar.workDay); //converts adjustment number from String to Number for calculations
-                                        var addADayLengthMinutes = addADayWorkDayLength * 60;
-                                        var addADayLengthSerial = minutesToSerial(addADayLengthMinutes);
-                                        adjustmentNumber = (remainingAdjust - addADayLengthSerial) //subtracts remainingAdjust hours from the total workDay hours in the addADay variable
-                                        var dayAfterTomorrow = new Date(addADay);
-                                        var newDayAfterTomorrow = getNextDay(dayAfterTomorrow);
-                                        dateSerial = newDayAfterTomorrow.nextDay;
-                                        date = convertToDate(dateSerial);
-                                        loop = true;
-                                        var newAdjustmentNumber = convertToDate(adjustmentNumber);
-
-                                        if (adjustmentNumber > 1) {
-                                            var wheezy = newAdjustmentNumber.getDate();
-                                            var zeDays = wheezy*24 //converts days into hours
-                                        } else {
-                                            var zeDays = 0;
-                                        };
-                                        // var wheezy = newAdjustmentNumber.getTime();
-
-                                        // var sleezy = ((wheezy/1000)/60)/60;
-
+                //                             //   dateMilli = date.getTime();
+                //                             //   bookendVars = startEndMidnight(date, theWeekdayVar);
+                //                         };
                                     
+                //                     //#endregion ------------------------------------------------------------------------------------------------------------
 
-                                        //Months....probably don't even go this far
-                                        // var meezy = newAdjustmentNumber.getMonth();
-                                        // var monthArr = [];
+                //                     //#region ADJUSTS DATES IN CASE REQUEST WAS SUBMITTED ON WEEKEND ----------------------------------------------------
 
-                                        // if (wheezy !== 0) {
+                //                     if ((dateDayOfWeek == 6) || (dateDayOfWeek == 0)) { //if date was submitted on a weekend...
+                //                         date = weekendAdjust(date, dateDayOfWeek);
+                //                         dateDayOfWeek = date.getDay();
+                //                         dayTitle = titleDOW(dateDayOfWeek);
+                //                         theWeekdayVar = officeHoursData[dayTitle];
+                //                         startOfWorkDay = setToStartOfDay(date, theWeekdayVar);
+                //                         endOfWorkDay = setToEndOfDay(date, theWeekdayVar);
+                //                         dateSerial = startOfWorkDay;
+                //                         date = convertToDate(dateSerial); //converts date to excel serial for calculations
 
-                                        //     var jan = 31*24; //hours in janurary 1900
-                                        //     monthArr.push(jan);
-                                        //     var feb = (28*24) + jan;
-                                        //     monthArr.push(feb);
-                                        //     var mar = (31*24) + feb;
-                                        //     monthArr.push(mar);
-                                        //     var apr = (30*24) + mar;
-                                        //     monthArr.push(apr);
-                                        //     var may = (31*24) + apr;
-                                        //     monthArr.push(may);
-                                        //     var jun = (30*24) + may;
-                                        //     monthArr.push(jun);
-                                        //     var jul = (31*24) + jun;
-                                        //     monthArr.push(jul);
-                                        //     var aug = (31*24) + jul;
-                                        //     monthArr.push(aug);
-                                        //     var sep = (30*24) + aug;
-                                        //     monthArr.push(sep);
-                                        //     var oct = (31*24) + sep;
-                                        //     monthArr.push(oct);
-                                        //     var nov = (30*24) + oct;
-                                        //     monthArr.push(nov);
-                                        //     var dec = (31*24) + nov;
-                                        //     monthArr.push(dec);
-
-                                        //     if (meezy !== 0) {
-                                        //         meezy - 1; //adjusts so that the days are calculated from the month prior (and all other prior months)
-                                        //         var monthHours = monthArr[meezy];
-                                        //     } else {
-                                        //         var monthHours = 0;
-                                        //     };
-
-                                        // } else {
-                                        //     var monthHours = 0;
-                                        // };
-
-                                        var cheesey = newAdjustmentNumber.getHours();
-                                        var squeezy = newAdjustmentNumber.getMinutes();
-                                        var truMinutes = squeezy/60;
-                                        adjustmentNumber = cheesey + truMinutes + zeDays;
-                                        return {
-                                            date,
-                                            adjustmentNumber,
-                                            loop
-                                        };
-                                        } else {
-                                        loop = false;
-                                        return {
-                                            date,
-                                            adjustmentNumber,
-                                            loop
-                                        };
-                                        };
-
-                                    //#endregion -------------------------------------------------------------------------------------------------------------
-                                
-                                } else {
-                                    date = adjustedDate;
-                                    loop = false;
-                                    return {
-                                    date,
-                                    adjustmentNumber,
-                                    loop
-                                    };
-                                };
+                //                         // dateMilli = date.getTime();
+                //                         // bookendVars = startEndMidnight(date, theWeekdayVar);
+                //                     };
                             
-                            //#endregion --------------------------------------------------------------------------------------------------------------------
+                //                 //#endregion ------------------------------------------------------------------------------------------------------------
 
-                        };
+                //                     //#region SETS ADJUSTMENT DATE VARIABLES -----------------------------------------------------------------------------------
 
-                    //#endregion ---------------------------------------------------------------------------------------------------------------------------
+                //                         //adds adjustmentNumber to date to get an adjustedDate value that will be used in later checks and calculations
+                //                         var adjustedDate = new Date(date);
+                //                         var adjustedDateSerial = Number(JSDateToExcelDate(adjustedDate));
+                //                         adjustedDateSerial = adjustedDateSerial + adjustmentNumberSerial;
+                //                         adjustedDate = convertToDate(adjustedDateSerial);
+
+                //                     //#endregion ---------------------------------------------------------------------------------------------------------------
+                                
+                //                     //#region SETS ADD A DAY VARIABLES -----------------------------------------------------------------------------------------
+
+                //                         //gets day of the week attributes for the day after the date variable
+                //                         var nextDay = new Date(date);
+
+                //                         var newNextDay = getNextDay(nextDay); //also sets this variable to the start time of the next day
+                //                         var addADaySerial = newNextDay.nextDay;
+                //                         var addADay = convertToDate(addADaySerial);
+                //                         var addADayTitle = newNextDay.nextDayTitle;
+                //                         var addADayWeekdayVar = officeHoursData[addADayTitle];
+                //                         var addADayEnd = setToEndOfDay(addADay, addADayWeekdayVar);
+
+                //                     //#endregion ----------------------------------------------------------------------------------------------------------------
+
+                //                 //#endregion ----------------------------------------------------------------------------------------------------------------
+
+                //                 //#region ACTION: SETS ADJUSTED DATE TO BE WITHIN OFFICE HOURS ------------------------------------------------------------------
+
+                //                     //if adjustedDate falls outside of office hours, do this...
+                //                     if (adjustedDateSerial < startOfWorkDay || adjustedDateSerial > endOfWorkDay) { //since the bookendVars is in reference to the date variable, this function will still trigger if adjustedDate is technically within office hours, but on a different day
+
+                //                         //#region SETS ADJUSTMENT NUMBER VALUES ---------------------------------------------------------------------------------
+
+                //                             var dayRemainder = (endOfWorkDay - dateSerial) // / 1000) / 60) / 60; //time between end of work day and the original date time
+                //                             var remainingAdjust = adjustmentNumberSerial - dayRemainder; //gives us the remaining adjustment hours based off of what was already used to get to the end of the work day
+                //                             // var remainingAdjustMilli = remainingAdjust * 3600000;
+
+                //                         //#endregion ------------------------------------------------------------------------------------------------------------
+
+                //                         //#region NEW DAY CALCULATIONS ------------------------------------------------------------------------------------------
+
+                //                             var newDay = new Date(addADay);
+                //                             var newDaySerial = Number(JSDateToExcelDate(newDay));
+
+                //                             //adds remaining adjustment hours to the beginning of the work day the next day after date (addADay)
+                //                             var dateTimeAdjusted = newDaySerial + remainingAdjust;
+
+                //                             var dateTimeAdjustedConvert = convertToDate(dateTimeAdjusted); //convert serial number to date object
+
+                //                             date = dateTimeAdjustedConvert; //not sure if it should be date or something else yet. Need to make sure that the function works with this
+
+                //                         //#endregion ------------------------------------------------------------------------------------------------------------
+
+                //                         //#region SET LOOP VARIABLES IF STILL NOT WITHIN OFFICE HOURS OR EXCEEDS OFFICE HOURS OF NEXT DAY -----------------------
+
+                //                             //if the new date exceeds the office hours of addADay, then do this...
+                //                             if (dateTimeAdjusted > addADayEnd) {
+                //                             var addADayWorkDayLength = parseFloat(addADayWeekdayVar.workDay); //converts adjustment number from String to Number for calculations
+                //                             var addADayLengthMinutes = addADayWorkDayLength * 60;
+                //                             var addADayLengthSerial = minutesToSerial(addADayLengthMinutes);
+                //                             adjustmentNumber = (remainingAdjust - addADayLengthSerial) //subtracts remainingAdjust hours from the total workDay hours in the addADay variable
+                //                             var dayAfterTomorrow = new Date(addADay);
+                //                             var newDayAfterTomorrow = getNextDay(dayAfterTomorrow);
+                //                             dateSerial = newDayAfterTomorrow.nextDay;
+                //                             date = convertToDate(dateSerial);
+                //                             loop = true;
+                //                             var newAdjustmentNumber = convertToDate(adjustmentNumber);
+
+                //                             if (adjustmentNumber > 1) {
+                //                                 var wheezy = newAdjustmentNumber.getDate();
+                //                                 var zeDays = wheezy*24 //converts days into hours
+                //                             } else {
+                //                                 var zeDays = 0;
+                //                             };
+                //                             // var wheezy = newAdjustmentNumber.getTime();
+
+                //                             // var sleezy = ((wheezy/1000)/60)/60;
+
+                                        
+
+                //                             //Months....probably don't even go this far
+                //                             // var meezy = newAdjustmentNumber.getMonth();
+                //                             // var monthArr = [];
+
+                //                             // if (wheezy !== 0) {
+
+                //                             //     var jan = 31*24; //hours in janurary 1900
+                //                             //     monthArr.push(jan);
+                //                             //     var feb = (28*24) + jan;
+                //                             //     monthArr.push(feb);
+                //                             //     var mar = (31*24) + feb;
+                //                             //     monthArr.push(mar);
+                //                             //     var apr = (30*24) + mar;
+                //                             //     monthArr.push(apr);
+                //                             //     var may = (31*24) + apr;
+                //                             //     monthArr.push(may);
+                //                             //     var jun = (30*24) + may;
+                //                             //     monthArr.push(jun);
+                //                             //     var jul = (31*24) + jun;
+                //                             //     monthArr.push(jul);
+                //                             //     var aug = (31*24) + jul;
+                //                             //     monthArr.push(aug);
+                //                             //     var sep = (30*24) + aug;
+                //                             //     monthArr.push(sep);
+                //                             //     var oct = (31*24) + sep;
+                //                             //     monthArr.push(oct);
+                //                             //     var nov = (30*24) + oct;
+                //                             //     monthArr.push(nov);
+                //                             //     var dec = (31*24) + nov;
+                //                             //     monthArr.push(dec);
+
+                //                             //     if (meezy !== 0) {
+                //                             //         meezy - 1; //adjusts so that the days are calculated from the month prior (and all other prior months)
+                //                             //         var monthHours = monthArr[meezy];
+                //                             //     } else {
+                //                             //         var monthHours = 0;
+                //                             //     };
+
+                //                             // } else {
+                //                             //     var monthHours = 0;
+                //                             // };
+
+                //                             var cheesey = newAdjustmentNumber.getHours();
+                //                             var squeezy = newAdjustmentNumber.getMinutes();
+                //                             var truMinutes = squeezy/60;
+                //                             adjustmentNumber = cheesey + truMinutes + zeDays;
+                //                             return {
+                //                                 date,
+                //                                 adjustmentNumber,
+                //                                 loop
+                //                             };
+                //                             } else {
+                //                             loop = false;
+                //                             return {
+                //                                 date,
+                //                                 adjustmentNumber,
+                //                                 loop
+                //                             };
+                //                             };
+
+                //                         //#endregion -------------------------------------------------------------------------------------------------------------
+                                    
+                //                     } else {
+                //                         date = adjustedDate;
+                //                         loop = false;
+                //                         return {
+                //                         date,
+                //                         adjustmentNumber,
+                //                         loop
+                //                         };
+                //                     };
+                                
+                //                 //#endregion --------------------------------------------------------------------------------------------------------------------
+
+                //             };
+
+                //         //#endregion ---------------------------------------------------------------------------------------------------------------------------
 
 
-                    //#region TITLE DAY OF WEEK FUNCTION ---------------------------------------------------------------------------------------------------
+                //         //#region TITLE DAY OF WEEK FUNCTION ---------------------------------------------------------------------------------------------------
 
-                        /**
-                         * Returns the weekday variable, with all it's associated properties, from the weekday index input value
-                         * @param {Number} d The indexed number (0-6) of the weekday
-                         * @returns An object with properties
-                         */
-                        function titleDOW(d) { //returns the day of the week (refered to directly in another variable) based on the dayID index number
-                            if (d == 0) {
-                            return "Sunday";
-                            } else if (d == 1) {
-                            return "Monday";
-                            } else if (d == 2) {
-                            return "Tuesday";
-                            } else if (d == 3) {
-                            return "Wednesday";
-                            } else if (d == 4) {
-                            return "Thursday";
-                            } else if (d == 5) {
-                            return "Friday";
-                            } else if (d == 6) {
-                            return "Saturday";
-                            };
-                        };
+                //             /**
+                //              * Returns the weekday variable, with all it's associated properties, from the weekday index input value
+                //              * @param {Number} d The indexed number (0-6) of the weekday
+                //              * @returns An object with properties
+                //              */
+                //             function titleDOW(d) { //returns the day of the week (refered to directly in another variable) based on the dayID index number
+                //                 if (d == 0) {
+                //                 return "Sunday";
+                //                 } else if (d == 1) {
+                //                 return "Monday";
+                //                 } else if (d == 2) {
+                //                 return "Tuesday";
+                //                 } else if (d == 3) {
+                //                 return "Wednesday";
+                //                 } else if (d == 4) {
+                //                 return "Thursday";
+                //                 } else if (d == 5) {
+                //                 return "Friday";
+                //                 } else if (d == 6) {
+                //                 return "Saturday";
+                //                 };
+                //             };
 
-                    //#endregion ----------------------------------------------------------------------------------------------------------------------------------
+                //         //#endregion ----------------------------------------------------------------------------------------------------------------------------------
 
 
-                    //#region START/END/MIDNIGHT FUNCTIONS --------------------------------------------------------------------------------------------------
+                //         //#region START/END/MIDNIGHT FUNCTIONS --------------------------------------------------------------------------------------------------
 
+                            
+                //             //I used to use Milliseconds to do my calculations, but since I am loading in date serial #'s from the excel sheet that could chnage at any time,
+                //             //it makes more since it instead work within the Excel Serial Number and do all my calculations as serial instead of milliseconds that I then later convert to serial
+
+                //             //I also decided to break these apart into separate functions so I can reference them one at a time later on in the code
                         
-                        //I used to use Milliseconds to do my calculations, but since I am loading in date serial #'s from the excel sheet that could chnage at any time,
-                        //it makes more since it instead work within the Excel Serial Number and do all my calculations as serial instead of milliseconds that I then later convert to serial
+                            
+                //             //#region SET TO START OF THE WORK DAY --------------------------------------------------------------------------------------------------
 
-                        //I also decided to break these apart into separate functions so I can reference them one at a time later on in the code
-                    
+                //                 /**
+                //                  * Set date to the start of the workday based on the weekday
+                //                  * @param {Date} date The date variable
+                //                  * @param {Object} theWeekdayVar The object associated with the specific weekday including all of its properties
+                //                  * @returns Date
+                //                  */    
+                //                 function setToStartOfDay(date, theWeekdayVar) {
+
+                //                     var theDateBlank = new Date(date);
+                //                     theDateBlank.setHours(0);
+                //                     theDateBlank.setMinutes(0);
+                //                     theDateBlank.setSeconds(0);
+                //                     var theDateBlankSerial = Number(JSDateToExcelDate(theDateBlank));
+                //                     //   var theDateBlankMilli = theDateBlank.getTime();
+
+                //                     if (theWeekdayVar.startTime == "--") {
+                //                         var startOfWorkDay = theDateBlankSerial //+ 8:30 as a serial number
+                //                     } else {
+                //                         var startOfWorkDay = theDateBlankSerial + theWeekdayVar.startTime;
+                //                     };
+
+
+                //                     var startWorkDayReadable = convertToDate(startOfWorkDay);
+
+                //                     return startOfWorkDay;
+
+                //                 };
+
+                //             //#endregion ----------------------------------------------------------------------------------------------------------------------------
+
+
+                //             //#region SET TO END OF THE WORK DAY ----------------------------------------------------------------------------------------------------
+
+                //                 /**
+                //                  * Set the date to the end of the workday based on the weekday
+                //                  * @param {Date} date The date variable
+                //                  * @param {Object} theWeekdayVar The object associated with the specific weekday including all of its properties
+                //                  * @returns Date
+                //                  */
+                //                 function setToEndOfDay(date, theWeekdayVar) {
+
+                //                     var theDateBlank = new Date(date);
+                //                     theDateBlank.setHours(0);
+                //                     theDateBlank.setMinutes(0);
+                //                     theDateBlank.setSeconds(0);
+                //                     var theDateBlankSerial = Number(JSDateToExcelDate(theDateBlank));
+                //                     //   var theDateBlankMilli = theDateBlank.getTime();
+
+                //                     var endOfWorkDay = theDateBlankSerial + theWeekdayVar.endTime;
+
+                //                     var endWorkDayReadable = convertToDate(endOfWorkDay);
+
+                //                     return endOfWorkDay;
+
+                //                 };
+
+                //             //#endregion ----------------------------------------------------------------------------------------------------------------------------
+
+
+                //             //#region SET TO MIDNIGHT ---------------------------------------------------------------------------------------------------------------
+
+                //                 /**
+                //                  * Sets date to serial number of the next day at midnight (very beginning of the day)
+                //                  * @param {Date} date The date variable
+                //                  * @returns Number
+                //                  */
+                //                 function setToMidnight(date) {
+
+                //                     var midnight = new Date(date);
+                //                     midnight.setDate(midnight.getDate() + 1);
+                //                     midnight.setHours(0);
+                //                     midnight.setMinutes(0);
+                //                     midnight.setSeconds(0);
+                //                     var midnightSerial = Number(JSDateToExcelDate(midnight));
+
+                //                     return midnightSerial;
+
+                //                 };
+
+                //             //#endregion -----------------------------------------------------------------------------------------------------------------------------
+
+
+                //         //#endregion ----------------------------------------------------------------------------------------------------------------------------------
+
+
+                //         //#region GET NEXT DAY FUNCTION --------------------------------------------------------------------------------------------------------
+
+                //             /**
+                //              * Adds a day to the date variable and sets it to the start time of that new day's day of the week. Also adjusts for weekends if needed.
+                //              * @param {Date} date A date object
+                //              * @returns An object with properties
+                //              */
+                //             function getNextDay(date) {
+
+                //                 var nextDay = new Date(date);
+                //                 var newNextDay = nextDay.setDate(nextDay.getDate() + 1); //returns the day after the original date
+                //                 nextDay = new Date(newNextDay);
+                //                 var nextDayDayOfWeek = nextDay.getDay();
+                //                 var nextDayTitle = titleDOW(nextDayDayOfWeek); //returns a day title based on the dayID of the addADay variable
+                //                 var theWeekdayVar = officeHoursData[nextDayTitle];
+
+                //                 if ((nextDayDayOfWeek == 6) || (nextDayDayOfWeek == 0)) { //checks if nextDay falls on a weekend
+                //                     nextDay = weekendAdjust(nextDay, nextDayDayOfWeek); //adjusts nextDay output to not fall on a weekend
+                //                     nextDayDayOfWeek = nextDay.getDay();
+                //                     nextDayTitle = titleDOW(nextDayDayOfWeek);
+                //                     theWeekdayVar = officeHoursData[nextDayTitle];
+                //                 };
+
+                //                 nextDay = setToStartOfDay(nextDay, theWeekdayVar);
+
+                //                 return {
+                //                     nextDay,
+                //                     nextDayTitle
+                //                 };
+                //             };
+
+                //         //#endregion ----------------------------------------------------------------------------------------------------------------------------------
+
+
+                //         //#region MINUTES TO SERIAL ------------------------------------------------------------------------------------------------------------
+
+                //             /**
+                //              * Converts from a time in minutes to an Excel serial number, starting from the beginning of time (otherwise known as Dec 31, 1899)
+                //              * @param {Number} minutes A time in minutes
+                //              * @returns Number
+                //              */
+                //             function minutesToSerial(minutes) {
+                //             //   var date = new Date();
+                //             //   date.setDate(0);
+                //                 var date = 0;
+                //                 date = convertToDate(date);
+                //                 date.setMinutes(minutes);
+                //                 var numberSerial = Number(JSDateToExcelDate(date));
+                //                 return numberSerial;
+                //             };
+
+                //         //#endregion ----------------------------------------------------------------------------------------------------------------------------
+
+
+                //         //#region WEEKEND ADJUST FUNCTION ------------------------------------------------------------------------------------------------------
                         
-                        //#region SET TO START OF THE WORK DAY --------------------------------------------------------------------------------------------------
+                //             /**
+                //              * If input date falls on a weekend, returns a new date adjusted to start on the next upcoming Monday
+                //              * @param {Date} date A date variable
+                //              * @param {Number} dateWeekday A number indexed 0-6 representing the weekday of the date variable
+                //              * @returns Date
+                //              */
+                //             function weekendAdjust(date, dateWeekday) {
+                //                 if (dateWeekday == 6) {
+                //                     var weekend = new Date(date);
+                //                     weekend.setDate(weekend.getDate() + 2);
+                //                     return weekend;
+                //                 } else if (dateWeekday == 0) {
+                //                     var weekend = new Date(date);
+                //                     weekend.setDate(weekend.getDate() + 1);
+                //                     return weekend;
+                //                 };
+                //             };
 
-                            /**
-                             * Set date to the start of the workday based on the weekday
-                             * @param {Date} date The date variable
-                             * @param {Object} theWeekdayVar The object associated with the specific weekday including all of its properties
-                             * @returns Date
-                             */    
-                            function setToStartOfDay(date, theWeekdayVar) {
-
-                                var theDateBlank = new Date(date);
-                                theDateBlank.setHours(0);
-                                theDateBlank.setMinutes(0);
-                                theDateBlank.setSeconds(0);
-                                var theDateBlankSerial = Number(JSDateToExcelDate(theDateBlank));
-                                //   var theDateBlankMilli = theDateBlank.getTime();
-
-                                if (theWeekdayVar.startTime == "--") {
-                                    var startOfWorkDay = theDateBlankSerial //+ 8:30 as a serial number
-                                } else {
-                                    var startOfWorkDay = theDateBlankSerial + theWeekdayVar.startTime;
-                                };
-
-
-                                var startWorkDayReadable = convertToDate(startOfWorkDay);
-
-                                return startOfWorkDay;
-
-                            };
-
-                        //#endregion ----------------------------------------------------------------------------------------------------------------------------
+                //         //#endregion ------------------------------------------------------------------------------------------------------------------------------
+                        
+            //#endregion ---------------------------------------------------------------------------------------------
 
 
-                        //#region SET TO END OF THE WORK DAY ----------------------------------------------------------------------------------------------------
+            //#region CONVERT DATE TO SERIAL ----------------------------------------------------------------------------------------------------------
 
-                            /**
-                             * Set the date to the end of the workday based on the weekday
-                             * @param {Date} date The date variable
-                             * @param {Object} theWeekdayVar The object associated with the specific weekday including all of its properties
-                             * @returns Date
-                             */
-                            function setToEndOfDay(date, theWeekdayVar) {
+                /**
+                 * Converts input date into serial number that excel can apply conditional formatting to
+                 * @param {Date} inDate A date variable
+                 * @returns String
+                 */
+                function JSDateToExcelDate(inDate) {
 
-                                var theDateBlank = new Date(date);
-                                theDateBlank.setHours(0);
-                                theDateBlank.setMinutes(0);
-                                theDateBlank.setSeconds(0);
-                                var theDateBlankSerial = Number(JSDateToExcelDate(theDateBlank));
-                                //   var theDateBlankMilli = theDateBlank.getTime();
+                    var returnDateTime = 25569.0 + ((inDate.getTime() - (inDate.getTimezoneOffset() * 60 * 1000)) / (1000 * 60 * 60 * 24));
+                    //var returnDateTime = 25569.0 + ((inDate.getTime()) / (1000 * 60 * 60 * 24));
+                    return returnDateTime.toString().substr(0,20);
 
-                                var endOfWorkDay = theDateBlankSerial + theWeekdayVar.endTime;
+                };
 
-                                var endWorkDayReadable = convertToDate(endOfWorkDay);
-
-                                return endOfWorkDay;
-
-                            };
-
-                        //#endregion ----------------------------------------------------------------------------------------------------------------------------
+            //#endregion --------------------------------------------------------------------------------------------------------------------------------
 
 
-                        //#region SET TO MIDNIGHT ---------------------------------------------------------------------------------------------------------------
+            //#region CONVERT SERIAL TO DATE --------------------------------------------------------------------------------------------------------
 
-                            /**
-                             * Sets date to serial number of the next day at midnight (very beginning of the day)
-                             * @param {Date} date The date variable
-                             * @returns Number
-                             */
-                            function setToMidnight(date) {
+                /**
+                 * Finds the value of Date Added in the changed row and converts it to be a date object in EST.
+                 * @param {Number} serial The serial number to be converted
+                 * @returns Date
+                 */
+                function convertToDate(serial) {
 
-                                var midnight = new Date(date);
-                                midnight.setDate(midnight.getDate() + 1);
-                                midnight.setHours(0);
-                                midnight.setMinutes(0);
-                                midnight.setSeconds(0);
-                                var midnightSerial = Number(JSDateToExcelDate(midnight));
+                    var date = new Date(Math.round((serial - 25569)*86400*1000)); //convert serial number to date object
+                    date.setMinutes(date.getMinutes() + date.getTimezoneOffset()); //adjusting from GMT to EST (adds 4 hours)
+                    return date;
 
-                                return midnightSerial;
+                };
 
-                            };
-
-                        //#endregion -----------------------------------------------------------------------------------------------------------------------------
-
-
-                    //#endregion ----------------------------------------------------------------------------------------------------------------------------------
-
-
-                    //#region GET NEXT DAY FUNCTION --------------------------------------------------------------------------------------------------------
-
-                        /**
-                         * Adds a day to the date variable and sets it to the start time of that new day's day of the week. Also adjusts for weekends if needed.
-                         * @param {Date} date A date object
-                         * @returns An object with properties
-                         */
-                        function getNextDay(date) {
-
-                            var nextDay = new Date(date);
-                            var newNextDay = nextDay.setDate(nextDay.getDate() + 1); //returns the day after the original date
-                            nextDay = new Date(newNextDay);
-                            var nextDayDayOfWeek = nextDay.getDay();
-                            var nextDayTitle = titleDOW(nextDayDayOfWeek); //returns a day title based on the dayID of the addADay variable
-                            var theWeekdayVar = officeHoursData[nextDayTitle];
-
-                            if ((nextDayDayOfWeek == 6) || (nextDayDayOfWeek == 0)) { //checks if nextDay falls on a weekend
-                                nextDay = weekendAdjust(nextDay, nextDayDayOfWeek); //adjusts nextDay output to not fall on a weekend
-                                nextDayDayOfWeek = nextDay.getDay();
-                                nextDayTitle = titleDOW(nextDayDayOfWeek);
-                                theWeekdayVar = officeHoursData[nextDayTitle];
-                            };
-
-                            nextDay = setToStartOfDay(nextDay, theWeekdayVar);
-
-                            return {
-                                nextDay,
-                                nextDayTitle
-                            };
-                        };
-
-                    //#endregion ----------------------------------------------------------------------------------------------------------------------------------
-
-
-                    //#region MINUTES TO SERIAL ------------------------------------------------------------------------------------------------------------
-
-                        /**
-                         * Converts from a time in minutes to an Excel serial number, starting from the beginning of time (otherwise known as Dec 31, 1899)
-                         * @param {Number} minutes A time in minutes
-                         * @returns Number
-                         */
-                        function minutesToSerial(minutes) {
-                        //   var date = new Date();
-                        //   date.setDate(0);
-                            var date = 0;
-                            date = convertToDate(date);
-                            date.setMinutes(minutes);
-                            var numberSerial = Number(JSDateToExcelDate(date));
-                            return numberSerial;
-                        };
-
-                    //#endregion ----------------------------------------------------------------------------------------------------------------------------
-
-
-                    //#region WEEKEND ADJUST FUNCTION ------------------------------------------------------------------------------------------------------
-                    
-                        /**
-                         * If input date falls on a weekend, returns a new date adjusted to start on the next upcoming Monday
-                         * @param {Date} date A date variable
-                         * @param {Number} dateWeekday A number indexed 0-6 representing the weekday of the date variable
-                         * @returns Date
-                         */
-                        function weekendAdjust(date, dateWeekday) {
-                            if (dateWeekday == 6) {
-                                var weekend = new Date(date);
-                                weekend.setDate(weekend.getDate() + 2);
-                                return weekend;
-                            } else if (dateWeekday == 0) {
-                                var weekend = new Date(date);
-                                weekend.setDate(weekend.getDate() + 1);
-                                return weekend;
-                            };
-                        };
-
-                    //#endregion ------------------------------------------------------------------------------------------------------------------------------
-
-
-                    //#region CONVERT DATE TO SERIAL ----------------------------------------------------------------------------------------------------------
-
-                        /**
-                         * Converts input date into serial number that excel can apply conditional formatting to
-                         * @param {Date} inDate A date variable
-                         * @returns String
-                         */
-                        function JSDateToExcelDate(inDate) {
-
-                            var returnDateTime = 25569.0 + ((inDate.getTime() - (inDate.getTimezoneOffset() * 60 * 1000)) / (1000 * 60 * 60 * 24));
-                            //var returnDateTime = 25569.0 + ((inDate.getTime()) / (1000 * 60 * 60 * 24));
-                            return returnDateTime.toString().substr(0,20);
-
-                        };
-
-                    //#endregion --------------------------------------------------------------------------------------------------------------------------------
-
-
-                    //#region CONVERT SERIAL TO DATE --------------------------------------------------------------------------------------------------------
-
-                        /**
-                         * Finds the value of Date Added in the changed row and converts it to be a date object in EST.
-                         * @param {Number} serial The serial number to be converted
-                         * @returns Date
-                         */
-                        function convertToDate(serial) {
-
-                            var date = new Date(Math.round((serial - 25569)*86400*1000)); //convert serial number to date object
-                            date.setMinutes(date.getMinutes() + date.getTimezoneOffset()); //adjusting from GMT to EST (adds 4 hours)
-                            return date;
-
-                        };
-
-                    //#endregion ---------------------------------------------------------------------------------------------------
-
-
-                //#endregion -------------------------------------------------------------------------------------------------------------------------------
-
-
-            //#endregion -------------------------------------------------------------------------------------------------------------------------------------
+            //#endregion ---------------------------------------------------------------------------------------------------
 
 
             //#region PRIORITY GENERATION AND SORTATION ---------------------------------------------------------------------------------------
