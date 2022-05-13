@@ -1157,6 +1157,27 @@
             //#endregion ----------------------------------------------------------------------------------------
 
 
+
+
+
+            function officeHours(startDate, endDate) {
+
+                var minutesWorked = 0;
+
+                if(endDate < startDate) {
+                    return 0;
+                };
+
+                var current = startDate;
+
+                var workHoursStart = 0;
+            }
+
+
+
+
+
+
             //#region OFFICE HOURS ---------------------------------------------------------------------------------------
 
                 /**
@@ -1165,7 +1186,7 @@
                  * @param {Number} number Number of adjustment hours to add to date
                  * @returns Date
                  */
-                function officeHours(day, number) { 
+                function oldOfficeHours(day, number) { 
 
                     while (loop == true) { //loops through the office hours function until the value returns within office hours
                         var officeHours = withinOfficeHours(day, number);
@@ -2203,6 +2224,11 @@
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------
 
+                    if ((changedColumnIndex == rowInfo.printDate.columnIndex) || (changedColumnIndex == rowInfo.group.columnIndex)) {
+                        conditionalFormatting(rowInfo, tableStart, changedWorksheet, changedRowTableIndex, includesCompletedTables, rowRange);
+                        eventsOn();
+                    };
+
 
                     //#region ADJUST TURN AROUND TIMES, SORTING, & PRIORITY NUMBERS ------------------------------------------------------------
 
@@ -2851,46 +2877,69 @@
                     //#endregion -----------------------------------------------------------------------------------------------------------------
 
 
-                    if (changedColumnIndex == rowInfo.artist.columnIndex || changedColumnIndex == rowInfo.status.columnIndex) {
+                    if (changedColumnIndex !== rowInfo.printDate.columnIndex || changedColumnIndex !== rowInfo.group.columnIndex) {
 
-                        var newChangedTableRows = destinationTable.rows.load("items");
+                        if ((changedColumnIndex == rowInfo.artist.columnIndex) || (changedColumnIndex == rowInfo.status.columnIndex)) {
 
-                        var newBodyValues = destinationTable.getDataBodyRange().load("values");
+                            var newChangedTableRows = destinationTable.rows.load("items");
+    
+                            var newBodyValues = destinationTable.getDataBodyRange().load("values");
 
-                    } else {
+                            var destinationWorksheetId = destinationTable.worksheet.id
 
-                        var newChangedTableRows = changedTable.rows.load("items");
+                            var newChangedWorksheet = context.workbook.worksheets.getItem(destinationWorksheetId).load("name");
+    
+                        } else {
+    
+                            var newChangedTableRows = changedTable.rows.load("items");
+    
+                            var newBodyValues = changedTable.getDataBodyRange().load("values");
 
-                        var newBodyValues = changedTable.getDataBodyRange().load("values");
+                            var newChangedWorksheet = changedWorksheet;
+    
+                        };
+    
 
+                        await context.sync();
+    
+    
+                        var leTableSorted = newBodyValues.values
+
+                        var tableRowsSorted = newChangedTableRows.items;
+
+                        // for (m = 0; m < leTabledSorted.length; m++) {
+
+                        //     var rowRangeSorted = newChangedTableRows.getItemAt(m).getRange();
+    
+                        //     var rowValuesSorted = tableRowsSorted[m].values;
+
+                        //     var rowInfoSorted = new Object();
+    
+                        //     for (var name of head[0]) {
+                        //         theGreatestFunctionEverWritten(head, name, rowValuesSorted, leTableSorted, rowInfoSorted, m);
+                        //     };
+        
+                        //     conditionalFormatting(rowInfoSorted, tableStart, changedWorksheet, m, includesCompletedTables, rowRangeSorted);
+
+                        // };
+
+
+                        var rowRangeSorted = newChangedTableRows.getItemAt(rowIndexPostSort).getRange();
+    
+                        var rowValuesSorted = tableRowsSorted[rowIndexPostSort].values;
+    
+  
+    
+                        var rowInfoSorted = new Object();
+    
+                        for (var name of head[0]) {
+                            theGreatestFunctionEverWritten(head, name, rowValuesSorted, leTableSorted, rowInfoSorted, rowIndexPostSort);
+                        };
+    
+                        conditionalFormatting(rowInfoSorted, tableStart, newChangedWorksheet, rowIndexPostSort, includesCompletedTables, rowRangeSorted);
+    
                     };
-
-
                     
-                    await context.sync();
-
-
-                    var leTableSorted = newBodyValues.values
-
-                    var rowRangeSorted = newChangedTableRows.getItemAt(rowIndexPostSort).getRange();
-
-                    var tableRowsSorted = newChangedTableRows.items;
-
-                    var rowValuesSorted = tableRowsSorted[rowIndexPostSort].values;
-
-                    var rowInfoSorted = new Object();
-
-                    for (var name of head[0]) {
-                        theGreatestFunctionEverWritten(head, name, rowValuesSorted, leTableSorted, rowInfoSorted, rowIndexPostSort);
-                    };
-
-                    conditionalFormatting(rowInfoSorted, tableStart, changedWorksheet, rowIndexPostSort, includesCompletedTables, rowRangeSorted);
-
-
-
-
-
-
             });
 
             eventsOn(); //turns events back on
