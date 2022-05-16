@@ -69,6 +69,9 @@
     var destinationTableRange;
     var destinationHeader;
 
+    var completedTable;
+
+
     /* Check if aevents are turned on
     Excel.run(async function(context) {
         context.runtime.load("enableEvents");
@@ -1072,7 +1075,7 @@
                     //     theGreatestFunctionEverWritten(head, name, rowValuesSorted, leTableSorted, rowInfoSorted, rowIndexPostSort);
                     // };
 
-                    conditionalFormatting(newTableRowInfo, 0, sheet, rowIndexPostSort, false, newRowRange);
+                    conditionalFormatting(newTableRowInfo, 0, sheet, rowIndexPostSort, false, newRowRange, completedTable);
 
 
 
@@ -1236,16 +1239,28 @@
 
                     //#endregion -------------------------------------------------------------------------------------------------------------------
 
+           
                     //#region WHILE ADJUSTMENT NUMBER REMAINS POSITIVE ----------------------------------------------------------------------------
-                    
+                   
+                        // if (current.toLocaleDateString('en-US') == date.toLocaleDateString('en-US')) { 
+                        //     current.setDate(current.getDate() + 1);
+                        // }
+
                         while(adjustmentMinutes > 0) {
 
                             //#region RECALCULATE START AND END TIMES IF DATE ADVANCES -----------------------------------------------------------
 
-                                if (current.getDay() !== date.getDay()) { //if we go on into another day, recalculate start and end time dates
+                                var currentInfo = shortDate(current);
+                                var dateInfo = shortDate(date);
+
+                                // if (current.toLocaleDateString('en-US') !== date.toLocaleDateString('en-US')) { //if we go on into another day, recalculate start and end time dates
+                                //if (current.getDay() !== date.getDay()) { //if we go on into another day, recalculate start and end time dates
+                                if (currentInfo !== dateInfo) {
+
 
                                     //gets the day of the week
                                     var theDay = current.getDay();
+
                                     if (theDay == 0) {theDay = "Sunday"} else if (theDay == 1) {theDay = "Monday"} else if (theDay == 2) {theDay = "Tuesday"} else if (theDay == 3) {theDay = "Wednesday"} else if (theDay == 4) {theDay = "Thursday"} else if (theDay == 5) {theDay = "Friday"} else if (theDay == 6) {theDay = "Saturday"};
 
                                     //#region SET DATES WITH 0 TIME (CURRENT) ----------------------------------------------------------------------
@@ -1296,6 +1311,8 @@
 
                                         //#endregion ------------------------------------------------------------------------------------------------
 
+                                        //date = new Date(current);
+
                                     //#endregion ----------------------------------------------------------------------------------------------------
 
                                 };
@@ -1322,6 +1339,14 @@
 
             //#endregion ----------------------------------------------------------------------------------------------------------------------
 
+
+            function shortDate(aDate) {
+                var day = aDate.getDate();
+                var month = aDate.getMonth();
+                var year = aDate.getFullYear();
+                var output = `${month} ${day} ${year}`;
+                return output;
+            };
 
 
     
@@ -2362,7 +2387,7 @@
                                 });
 
                                 //returns true if the changedTable is a completed table from the array previously made, false if it is anything else
-                                var includesCompletedTables = listOfCompletedTables.includes(changedTable.name);
+                                var completedTableChanged = listOfCompletedTables.includes(changedTable.name);
 
                             //#endregion ------------------------------------------------------------------------------------------------------
 
@@ -2372,7 +2397,7 @@
                     //#endregion ---------------------------------------------------------------------------------------------------------------
 
                     if ((changedColumnIndex == rowInfo.printDate.columnIndex) || (changedColumnIndex == rowInfo.group.columnIndex)) {
-                        conditionalFormatting(rowInfo, tableStart, changedWorksheet, changedRowTableIndex, includesCompletedTables, rowRange);
+                        conditionalFormatting(rowInfo, tableStart, changedWorksheet, changedRowTableIndex, completedTableChanged, rowRange, completedTable);
                         eventsOn();
                     };
 
@@ -2719,12 +2744,10 @@
 
                                     //#region FINDS THE COMPLETED TABLE IN CHANGED WORKSHEET ---------------------------------------------------
 
-                                        var completedTable;
-
                                         worksheetTables.items.forEach(function (table) { //for each table in the changed worksheet...
                                             if (table.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
-                                            var leTable = table.name; //sets var to name of said completed table
-                                            completedTable = worksheetTables.getItem(leTable); //grabs said table's data from the worksheet
+                                            var zeTable = table.name; //sets var to name of said completed table
+                                            completedTable = worksheetTables.getItem(zeTable); //grabs said table's data from the worksheet
                                             };
                                         });
 
@@ -2732,18 +2755,18 @@
 
                                     //#region MOVES DATA TO COMPLETED TABLE ---------------------------------------------------------------------
 
-                                        // if ((rowInfo.status.value == "Completed" || rowInfo.status.value == "Cancelled") && includesCompletedTables == false && isUnassigned == false) { //if status column = "Completed" or "Cancelled", the changedTable is not a Completed table, & the changedWorksheet is not UnassignedProjects, move data to changedWorksheet's completed table
+                                        // if ((rowInfo.status.value == "Completed" || rowInfo.status.value == "Cancelled") && completedTableChanged == false && isUnassigned == false) { //if status column = "Completed" or "Cancelled", the changedTable is not a Completed table, & the changedWorksheet is not UnassignedProjects, move data to changedWorksheet's completed table
                                         //     completedTable.rows.add(0, rowValues); //Adds empty row to bottom of the completedTable, then inserts the changed values into this empty row
                                         //     myRow.delete(); //Deletes the changed row from the original sheet
                                         //     console.log("Data was moved to the artist's Completed Projects Table!");
                                         //     return;
-                                        // } else if (rowInfo.status.value == "Editing" && includesCompletedTables == true) { //if status column = "Editing" & the changedTable is a Completed table, move data back to the artist's table
+                                        // } else if (rowInfo.status.value == "Editing" && completedTableChanged == true) { //if status column = "Editing" & the changedTable is a Completed table, move data back to the artist's table
                                         //     if (destinationTable !== "null") {
                                         //     moveData(destinationTable, rowValues, myRow, rowInfo.artist.value);
                                         //     };
                                         // };
 
-                                        if ((rowInfo.status.value == "Completed" || rowInfo.status.value == "Cancelled") && includesCompletedTables == false && isUnassigned == false) { //if status column = "Completed" or "Cancelled", the changedTable is not a Completed table, & the changedWorksheet is not UnassignedProjects, move data to changedWorksheet's completed table
+                                        if ((rowInfo.status.value == "Completed" || rowInfo.status.value == "Cancelled") && completedTableChanged == false && isUnassigned == false) { //if status column = "Completed" or "Cancelled", the changedTable is not a Completed table, & the changedWorksheet is not UnassignedProjects, move data to changedWorksheet's completed table
                                             completedTable.rows.add(0, rowValues); //Adds empty row to bottom of the completedTable, then inserts the changed values into this empty row
                                             //completedTable.rows.add(0, null); //Adds empty row to bottom of the completedTable, then inserts the changed values into this empty row
 
@@ -2754,14 +2777,45 @@
                                     
                                             var leTableSort = leSorting(rowInfo, leTable, proofToClientColumnIndex, rowValues[0]) //sorts the artist table by proof to client
                                             var bodyRangeReload = changedTable.getDataBodyRange().load("values"); //reload artist tables values after deleting a row
+
+                                            // var newCompletedRows = completedTable.rows.load("items");
+                    
+                                            // var newComplatedBodyValues = completedTable.getDataBodyRange().load("values");
+                
+                                            // var startOfCompletedTable = completedTable.getRange().load("columnIndex");
+
                                     
                                             await context.sync();
+
                                     
-                                            bodyRangeReload.values = leTableSort; //writes sorted table content from the array to the artist table
+                                            bodyRangeReload.values = leTableSort; //writes sorted table content from the array to the artist table                        
+                        
+                                            // var newCompletedTableValues = newComplatedBodyValues.values
+                    
+                                            // var newCompletedTableRows = newCompletedRows.items;
+                    
+                                            // var newCompletedTableStart = startOfCompletedTable.columnIndex; //column index of the start of the table
+                    
+                    
+                                            // for (var m = 0; m < newCompletedTableValues.length; m++) {
+                    
+                                            //     var rowRangeSortedCompleted = newCompletedRows.getItemAt(m).getRange();
+                        
+                                            //     var rowValuesSortedCompleted = newCompletedTableRows[m].values;
+                    
+                                            //     var rowInfoSortedCompleted = new Object();
+                        
+                                            //     for (var name of head[0]) {
+                                            //         theGreatestFunctionEverWritten(head, name, rowValuesSortedCompleted, newCompletedTableValues, rowInfoSortedCompleted, m);
+                                            //     };
+                            
+                                            //     conditionalFormatting(rowInfoSortedCompleted, newCompletedTableStart, changedWorksheet, m, completedTableChanged, rowRangeSortedCompleted, completedTable);
+                    
+                                            // };
                                     
                                             //return;
                                     
-                                        } else if (rowInfo.status.value == "Editing" && includesCompletedTables == true) { //if status column = "Editing" & the changedTable is a Completed table, move data back to the artist's table
+                                        } else if (rowInfo.status.value == "Editing" && completedTableChanged == true) { //if status column = "Editing" & the changedTable is a Completed table, move data back to the artist's table
                                             if (destinationTable !== "null") {
                                                 //moveData(destinationTable, rowValues, myRow, rowInfo.artist.value);
                                                 myRow.delete(); //Deletes the changed row from the original sheet
@@ -2866,7 +2920,7 @@
 
                                     //#region MOVES DATA TO DESTINATION TABLE -----------------------------------------------------------------
 
-                                        //if (includesCompletedTables == false) {
+                                        //if (completedTableChanged == false) {
                                         if (destinationTable !== "null") {
                                             if (destinationTable.worksheet.id !== changedWorksheet.id) { //if destination table is not in the same worksheet as the changedTable (prevents for unnecessary moving of data across tables in the same worksheet), do the following...
 
@@ -3026,7 +3080,7 @@
 
                     if (changedColumnIndex !== rowInfo.printDate.columnIndex || changedColumnIndex !== rowInfo.group.columnIndex) {
 
-                        if ((changedColumnIndex == rowInfo.artist.columnIndex) || (changedColumnIndex == rowInfo.status.columnIndex)) {
+                        if ((changedColumnIndex == rowInfo.artist.columnIndex) || (changedColumnIndex == rowInfo.status.columnIndex /*&& (completedTable == undefined && completedTableChanged !== false)*/)) {
 
                             var newChangedTableRows = destinationTable.rows.load("items");
     
@@ -3035,6 +3089,9 @@
                             var destinationWorksheetId = destinationTable.worksheet.id
 
                             var newChangedWorksheet = context.workbook.worksheets.getItem(destinationWorksheetId).load("name");
+
+                            var startOfTable = destinationTable.getRange().load("columnIndex");
+
     
                         } else {
     
@@ -3054,36 +3111,39 @@
 
                         var tableRowsSorted = newChangedTableRows.items;
 
-                        // for (m = 0; m < leTabledSorted.length; m++) {
+                        var newTableStart = startOfTable.columnIndex; //column index of the start of the table
 
-                        //     var rowRangeSorted = newChangedTableRows.getItemAt(m).getRange();
-    
-                        //     var rowValuesSorted = tableRowsSorted[m].values;
 
-                        //     var rowInfoSorted = new Object();
+                        for (var m = 0; m < leTableSorted.length; m++) {
+
+                            var rowRangeSorted = newChangedTableRows.getItemAt(m).getRange();
     
-                        //     for (var name of head[0]) {
-                        //         theGreatestFunctionEverWritten(head, name, rowValuesSorted, leTableSorted, rowInfoSorted, m);
-                        //     };
+                            var rowValuesSorted = tableRowsSorted[m].values;
+
+                            var rowInfoSorted = new Object();
+    
+                            for (var name of head[0]) {
+                                theGreatestFunctionEverWritten(head, name, rowValuesSorted, leTableSorted, rowInfoSorted, m);
+                            };
         
-                        //     conditionalFormatting(rowInfoSorted, tableStart, changedWorksheet, m, includesCompletedTables, rowRangeSorted);
+                            conditionalFormatting(rowInfoSorted, newTableStart, newChangedWorksheet, m, completedTableChanged, rowRangeSorted, completedTable);
 
-                        // };
+                        };
 
 
-                        var rowRangeSorted = newChangedTableRows.getItemAt(rowIndexPostSort).getRange();
+                        //var rowRangeSorted = newChangedTableRows.getItemAt(rowIndexPostSort).getRange();
     
-                        var rowValuesSorted = tableRowsSorted[rowIndexPostSort].values;
+                        //var rowValuesSorted = tableRowsSorted[rowIndexPostSort].values;
     
   
     
-                        var rowInfoSorted = new Object();
+                        // var rowInfoSorted = new Object();
     
-                        for (var name of head[0]) {
-                            theGreatestFunctionEverWritten(head, name, rowValuesSorted, leTableSorted, rowInfoSorted, rowIndexPostSort);
-                        };
+                        // for (var name of head[0]) {
+                        //     theGreatestFunctionEverWritten(head, name, rowValuesSorted, leTableSorted, rowInfoSorted, rowIndexPostSort);
+                        // };
     
-                        conditionalFormatting(rowInfoSorted, tableStart, newChangedWorksheet, rowIndexPostSort, includesCompletedTables, rowRangeSorted);
+                        // conditionalFormatting(rowInfoSorted, newTableStart, newChangedWorksheet, rowIndexPostSort, completedTableChanged, rowRangeSorted, completedTable);
     
                     };
                     
@@ -3104,7 +3164,21 @@
 
     //#region CONDITIONAL FORMATTING -------------------------------------------------------------------------------------------
 
-        function conditionalFormatting(rowInfoSorted, tableStart, changedWorksheet, rowIndexPostSort, includesCompletedTables, rowRangeSorted) {
+        function conditionalFormatting(rowInfoSorted, newTableStart, changedWorksheet, rowIndexPostSort, completedTableChanged, rowRangeSorted, completedTable) {
+
+            /**
+             * GET TABLE RANGE
+             * CLEAR THE RANGE FORMATTING
+             * tableRange.format.fill.clear()
+             */
+
+            /**
+             * loadData
+             * 
+             * for each row
+             *  if cell.date() < now
+             *      cell.range().format.fill(red)
+             */
 
             var now = new Date();
             var justNowDate = now.getDate();
@@ -3112,10 +3186,10 @@
 
             var worksheetRowIndex = rowIndexPostSort + 1; //adjusts index post table sort to work on worksheet level
 
-            var pickedUpWorksheetColumn = rowInfoSorted.pickedUpStartedBy.columnIndex + tableStart;
-            var proofToClientWorksheetColumn = rowInfoSorted.proofToClient.columnIndex + tableStart;
-            var printDateWorksheetColumn = rowInfoSorted.printDate.columnIndex + tableStart;
-            var groupWorksheetColumn = rowInfoSorted.group.columnIndex + tableStart;
+            var pickedUpWorksheetColumn = rowInfoSorted.pickedUpStartedBy.columnIndex + newTableStart;
+            var proofToClientWorksheetColumn = rowInfoSorted.proofToClient.columnIndex + newTableStart;
+            var printDateWorksheetColumn = rowInfoSorted.printDate.columnIndex + newTableStart;
+            var groupWorksheetColumn = rowInfoSorted.group.columnIndex + newTableStart;
 
             var pickedUpAddress = changedWorksheet.getCell(worksheetRowIndex, pickedUpWorksheetColumn);
             var proofToClientAddress = changedWorksheet.getCell(worksheetRowIndex, proofToClientWorksheetColumn);
@@ -3127,13 +3201,13 @@
             var groupAddress = changedWorksheet.getCell(worksheetRowIndex, groupWorksheetColumn);
 
 
-            if (includesCompletedTables == true) {
+            // if (completedTable !== undefined && completedTableChanged == false) { //if something was moved to a completed table, clear all formatting
 
-                rowRangeSorted.format.fill.clear();
-                rowRangeSorted.format.font.color = "black";
-                rowRangeSorted.format.font.bold = false;
+            //     rowRangeSorted.format.fill.clear();
+            //     rowRangeSorted.format.font.color = "black";
+            //     rowRangeSorted.format.font.bold = false;
 
-            } else {
+            // } else {
 
                 rowRangeSorted.format.font.name = "Calibri";
                 rowRangeSorted.format.font.size = 12;
@@ -3255,7 +3329,7 @@
                     // pickedUpAddress.format.fill.color = "FFC5BB";
                     // proofToClientAddress.format.fill.color = "FFC5BB";
 
-                };
+                // };
 
 
             };
@@ -3408,12 +3482,13 @@
              * @param {Object} rowInfo An object containing the values and column indexs of each cell in the changed row
              * @param {Array} leTable An array of arrays containing all the info of the changed table
              * @param {Number} leColumnIndex The index number of the column that will be used for sorting the table
+             * @param {Array} changedRowValues The values of the changed row
              * @returns Array
              */
             function leSorting(rowInfo, leTable, leColumnIndex, changedRowValues) {
 
                 //a copy of the array containing all the table data that will be used for sorting
-                var leRowSorted = JSON.parse(JSON.stringify(leTable)); //creates a duplicate of original array to be used for assigning the priority numbers, without having anything done to it affect oriignal array
+                var leTableSorted = JSON.parse(JSON.stringify(leTable)); //creates a duplicate of original array to be used for assigning the priority numbers, without having anything done to it affect oriignal array
                 
                 var priorityColumnIndex = rowInfo.priority.columnIndex; //index of priority column
 
@@ -3423,11 +3498,11 @@
                 var tempTable = [];
 
 
-                for (var i = 0; i < leRowSorted.length; i++) {
+                for (var i = 0; i < leTableSorted.length; i++) {
 
-                    if (leRowSorted[i][pickedUpColumnIndex] == "NO PRODUCT / PROJECT TYPE" || leRowSorted[i][proofToClientColumnIndex] == "NO PRODUCT / PROJECT TYPE") {
-                        tempTable.push(leRowSorted[i]);
-                        leRowSorted.splice(i, 1);
+                    if (leTableSorted[i][pickedUpColumnIndex] == "NO PRODUCT / PROJECT TYPE" || leTableSorted[i][proofToClientColumnIndex] == "NO PRODUCT / PROJECT TYPE") {
+                        tempTable.push(leTableSorted[i]);
+                        leTableSorted.splice(i, 1);
                         i = i - 1;
                     };
 
@@ -3436,15 +3511,15 @@
                 //#region RESOLVE DUPLICATE DATE/TIMES ------------------------------------------------------------------------------
 
                     //if the pickedUp array has duplicate values, this nested for statement will add 1 second to the times of each duplicate value to allow the data sorting to work properly
-                    // for (var i = 0; i < leRowSorted.length; i++) {
-                    //     for (var j = 0; j < leRowSorted.length; j++) {
+                    // for (var i = 0; i < leTableSorted.length; i++) {
+                    //     for (var j = 0; j < leTableSorted.length; j++) {
                     //         if (i !== j) { //makes sure that the values do not equal (so the first pass will fail, naturally)
-                    //             if (leRowSorted[i][leColumnIndex] == leRowSorted[j][leColumnIndex]) {
-                    //                 // if (leRowSorted[j][leColumnIndex] == "NO PRODUCT / PROJECT TYPE") {
-                    //                 //     leRowSorted[j][leColumnIndex] = j + i;
+                    //             if (leTableSorted[i][leColumnIndex] == leTableSorted[j][leColumnIndex]) {
+                    //                 // if (leTableSorted[j][leColumnIndex] == "NO PRODUCT / PROJECT TYPE") {
+                    //                 //     leTableSorted[j][leColumnIndex] = j + i;
                     //                 // };
                     //                 console.log("A duplicate is present at index " + j + " of the array");
-                    //                 leRowSorted[j][leColumnIndex] = leRowSorted[j][leColumnIndex] + 0.0000115740; //adds one second to the duplicate entry
+                    //                 leTableSorted[j][leColumnIndex] = leTableSorted[j][leColumnIndex] + 0.0000115740; //adds one second to the duplicate entry
                     //             };
                     //         };
                     //     };
@@ -3455,22 +3530,22 @@
 
 
                 //sorts the parent array (a) by the number in the sub array (b) at index of the picked up column
-                leRowSorted.sort(function(a,b){return a[leColumnIndex] > b[leColumnIndex]});
+                leTableSorted.sort(function(a,b){return a[leColumnIndex] > b[leColumnIndex]});
 
                 if (tempTable.length > 0) {
                     for (var i = 0; i < tempTable.length; i++) {
-                        leRowSorted.push(tempTable[i]);
+                        leTableSorted.push(tempTable[i]);
                         tempTable.splice(i, 1);
                         i = i - 1;
                     };
                 };
 
-                for (var j = 0; j < leRowSorted.length; j++) {
-                    for (var k = 0; k < leRowSorted[j].length; k++) {
-                        if (changedRowValues[k] !== leRowSorted[j][k]) {
+                for (var j = 0; j < leTableSorted.length; j++) {
+                    for (var k = 0; k < leTableSorted[j].length; k++) {
+                        if (changedRowValues[k] !== leTableSorted[j][k]) {
                             break;
                         } else {
-                            var l = leRowSorted[j].length - 1;
+                            var l = leTableSorted[j].length - 1;
                             if (k == l) {
                                 rowIndexPostSort = j;
                                 //break;
@@ -3482,7 +3557,7 @@
                 
 
                 // for (var name of head[0]) {
-                //     theGreatestFunctionEverWritten(head, name, changedRowValues, leRowSorted, sortedRowInfo, rowIndexPostSort);
+                //     theGreatestFunctionEverWritten(head, name, changedRowValues, leTableSorted, sortedRowInfo, rowIndexPostSort);
                 // };
 
 
@@ -3493,15 +3568,15 @@
                 //#region ASSIGN PRIORITY NUMBERS ---------------------------------------------------------------------------------------
 
                     //for each item in the sorted array of table values, assign updated priority numbers to the priority column index
-                    for (var n = 0; n < leRowSorted.length; n++) {
-                        leRowSorted[n][priorityColumnIndex] = n + 1;
+                    for (var n = 0; n < leTableSorted.length; n++) {
+                        leTableSorted[n][priorityColumnIndex] = n + 1;
                     };
 
                 //#endregion ------------------------------------------------------------------------------------------------------------
 
-                return leRowSorted;
+                return leTableSorted;
 
-            };
+            }
         
         //#endregion -------------------------------------------------------------------------------------------------------------
 
