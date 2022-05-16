@@ -2778,11 +2778,11 @@
                                             var leTableSort = leSorting(rowInfo, leTable, proofToClientColumnIndex, rowValues[0]) //sorts the artist table by proof to client
                                             var bodyRangeReload = changedTable.getDataBodyRange().load("values"); //reload artist tables values after deleting a row
 
-                                            // var newCompletedRows = completedTable.rows.load("items");
+                                            var newCompletedRows = completedTable.rows.load("items");
                     
-                                            // var newComplatedBodyValues = completedTable.getDataBodyRange().load("values");
+                                            var newComplatedBodyValues = completedTable.getDataBodyRange().load("values");
                 
-                                            // var startOfCompletedTable = completedTable.getRange().load("columnIndex");
+                                            //var startOfCompletedTable = completedTable.getRange().load("columnIndex");
 
                                     
                                             await context.sync();
@@ -2790,28 +2790,34 @@
                                     
                                             bodyRangeReload.values = leTableSort; //writes sorted table content from the array to the artist table                        
                         
-                                            // var newCompletedTableValues = newComplatedBodyValues.values
+                                            var newCompletedTableValues = newComplatedBodyValues.values
                     
                                             // var newCompletedTableRows = newCompletedRows.items;
                     
                                             // var newCompletedTableStart = startOfCompletedTable.columnIndex; //column index of the start of the table
                     
                     
-                                            // for (var m = 0; m < newCompletedTableValues.length; m++) {
+                                            for (var m = 0; m < newCompletedTableValues.length; m++) {
                     
-                                            //     var rowRangeSortedCompleted = newCompletedRows.getItemAt(m).getRange();
+                                                var rowRangeSortedCompleted = newCompletedRows.getItemAt(m).getRange();
+
+                                                rowRangeSortedCompleted.format.fill.clear();
+                                                rowRangeSortedCompleted.format.font.color = "black";
+                                                rowRangeSortedCompleted.format.font.bold = false;
                         
-                                            //     var rowValuesSortedCompleted = newCompletedTableRows[m].values;
+                                                // var rowValuesSortedCompleted = newCompletedTableRows[m].values;
                     
-                                            //     var rowInfoSortedCompleted = new Object();
+                                                // var rowInfoSortedCompleted = new Object();
                         
-                                            //     for (var name of head[0]) {
-                                            //         theGreatestFunctionEverWritten(head, name, rowValuesSortedCompleted, newCompletedTableValues, rowInfoSortedCompleted, m);
-                                            //     };
+                                                // for (var name of head[0]) {
+                                                //     theGreatestFunctionEverWritten(head, name, rowValuesSortedCompleted, newCompletedTableValues, rowInfoSortedCompleted, m);
+                                                // };
                             
-                                            //     conditionalFormatting(rowInfoSortedCompleted, newCompletedTableStart, changedWorksheet, m, completedTableChanged, rowRangeSortedCompleted, completedTable);
+                                                // conditionalFormatting(rowInfoSortedCompleted, newCompletedTableStart, changedWorksheet, m, completedTableChanged, rowRangeSortedCompleted, completedTable);
                     
-                                            // };
+                                            };
+
+
                                     
                                             //return;
                                     
@@ -3329,10 +3335,10 @@
                     // pickedUpAddress.format.fill.color = "FFC5BB";
                     // proofToClientAddress.format.fill.color = "FFC5BB";
 
-                // };
+                };
 
 
-            };
+            //};
         
         };
 
