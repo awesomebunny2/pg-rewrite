@@ -178,7 +178,7 @@ transform: translate(-50%, -50%); */
     color: #8d8d8d;
     position: absolute;
     font-weight: 400;
-    top: 9px;
+    top: 6.5px;
     left: 13px;
     background: #ffffff;
     transition: .1s;
@@ -227,16 +227,43 @@ transform: translate(-50%, -50%); */
     user-select: none;
 }
 
+/** Safari */
+@media not all and (min-resolution: 0.001dpcm) {
 
-.sel {
-    -webkit-appearance: none;
-    appearance: textField;
-    width: 100%;
-    padding-right: 50px;
+    .input-group .label {
+        top: 9px;
+    }
+
+    .sel {
+        -webkit-appearance: none;
+        appearance: textField;
+        width: 100%;
+        padding-right: 50px;
+    }
+
+    select {
+        background: url(data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0Ljk1IDEwIj48ZGVmcz48c3R5bGU+LmNscy0xe2ZpbGw6I2ZmZjt9LmNscy0ye2ZpbGw6IzQ0NDt9PC9zdHlsZT48L2RlZnM+PHRpdGxlPmFycm93czwvdGl0bGU+PHJlY3QgY2xhc3M9ImNscy0xIiB3aWR0aD0iNC45NSIgaGVpZ2h0PSIxMCIvPjxwb2x5Z29uIGNsYXNzPSJjbHMtMiIgcG9pbnRzPSIxLjQxIDQuNjcgMi40OCAzLjE4IDMuNTQgNC42NyAxLjQxIDQuNjciLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMy41NCA1LjMzIDIuNDggNi44MiAxLjQxIDUuMzMgMy41NCA1LjMzIi8+PC9zdmc+) no-repeat 95% 50%;
+        padding: 5px 14px 5px 10px !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis !important;
+    }
+
+    select:hover {
+        background: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 26.1.0  SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 4.9 10' style='enable-background:new 0 0 4.9 10%3B' xml:space='preserve'%3E%3Cstyle type='text/css'%3E.st0%7Bfill:%23FFFFFF%3B%7D.st1%7Bfill:%2367ACE6%3B%7D%3C/style%3E%3Crect class='st0' width='4.9' height='10'/%3E%3Cpolygon class='st1' points='1.4 4.7 2.5 3.2 3.5 4.7 '/%3E%3Cpolygon class='st1' points='3.5 5.3 2.5 6.8 1.4 5.3 '/%3E%3C/svg%3E") no-repeat 95% 50%;
+        /* filter: invert(72%) sepia(82%) saturate(2192%) hue-rotate(179deg) brightness(95%) contrast(88%); */
+    }
 }
 
+.sel {
+    /* -webkit-appearance: none; */
+    /* appearance: textField; */
+    width: 100%;
+    padding-right: 50px;
+} */
+
 select {
-    background: url(data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0Ljk1IDEwIj48ZGVmcz48c3R5bGU+LmNscy0xe2ZpbGw6I2ZmZjt9LmNscy0ye2ZpbGw6IzQ0NDt9PC9zdHlsZT48L2RlZnM+PHRpdGxlPmFycm93czwvdGl0bGU+PHJlY3QgY2xhc3M9ImNscy0xIiB3aWR0aD0iNC45NSIgaGVpZ2h0PSIxMCIvPjxwb2x5Z29uIGNsYXNzPSJjbHMtMiIgcG9pbnRzPSIxLjQxIDQuNjcgMi40OCAzLjE4IDMuNTQgNC42NyAxLjQxIDQuNjciLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMy41NCA1LjMzIDIuNDggNi44MiAxLjQxIDUuMzMgMy41NCA1LjMzIi8+PC9zdmc+) no-repeat 95% 50%;
+    /* background: url(data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0Ljk1IDEwIj48ZGVmcz48c3R5bGU+LmNscy0xe2ZpbGw6I2ZmZjt9LmNscy0ye2ZpbGw6IzQ0NDt9PC9zdHlsZT48L2RlZnM+PHRpdGxlPmFycm93czwvdGl0bGU+PHJlY3QgY2xhc3M9ImNscy0xIiB3aWR0aD0iNC45NSIgaGVpZ2h0PSIxMCIvPjxwb2x5Z29uIGNsYXNzPSJjbHMtMiIgcG9pbnRzPSIxLjQxIDQuNjcgMi40OCAzLjE4IDMuNTQgNC42NyAxLjQxIDQuNjciLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMy41NCA1LjMzIDIuNDggNi44MiAxLjQxIDUuMzMgMy41NCA1LjMzIi8+PC9zdmc+) no-repeat 95% 50%; */
     padding: 5px 14px 5px 10px !important;
     white-space: nowrap;
     overflow: hidden;
@@ -248,10 +275,10 @@ select {
     background-size:contain;
 } */
 
-select:hover {
-    background: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 26.1.0  SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 4.9 10' style='enable-background:new 0 0 4.9 10%3B' xml:space='preserve'%3E%3Cstyle type='text/css'%3E.st0%7Bfill:%23FFFFFF%3B%7D.st1%7Bfill:%2367ACE6%3B%7D%3C/style%3E%3Crect class='st0' width='4.9' height='10'/%3E%3Cpolygon class='st1' points='1.4 4.7 2.5 3.2 3.5 4.7 '/%3E%3Cpolygon class='st1' points='3.5 5.3 2.5 6.8 1.4 5.3 '/%3E%3C/svg%3E") no-repeat 95% 50%;
+/* select:hover { */
+    /* background: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 26.1.0  SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 4.9 10' style='enable-background:new 0 0 4.9 10%3B' xml:space='preserve'%3E%3Cstyle type='text/css'%3E.st0%7Bfill:%23FFFFFF%3B%7D.st1%7Bfill:%2367ACE6%3B%7D%3C/style%3E%3Crect class='st0' width='4.9' height='10'/%3E%3Cpolygon class='st1' points='1.4 4.7 2.5 3.2 3.5 4.7 '/%3E%3Cpolygon class='st1' points='3.5 5.3 2.5 6.8 1.4 5.3 '/%3E%3C/svg%3E") no-repeat 95% 50%; */
     /* filter: invert(72%) sepia(82%) saturate(2192%) hue-rotate(179deg) brightness(95%) contrast(88%); */
-}
+/* } */
 
 /* border-color: #8ba479 */
 

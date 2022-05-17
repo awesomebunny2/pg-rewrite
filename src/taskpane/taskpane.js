@@ -788,8 +788,9 @@
                         console.log("Events are turned off");
 
                     });
+                }).then(function() {
+                    addAProject();
                 });
-                addAProject();
             };
 
         //#endregion ---------------------------------------------------------------------------------------------------------------------------
@@ -2018,8 +2019,9 @@
 
                 });
                 // var result = await onTableChanged(eventArgs).then(tableChangedPriorityAndSort(poop.rowInfo, poop.bodyRange, poop.priorityColumnData));
+            }).then(function() {
+                tryCatch(onTableChanged(eventArgs));
             });
-            tryCatch(onTableChanged(eventArgs));
         };
 
     //#endregion ---------------------------------------------------------------------------------------------------------------------------
@@ -3537,7 +3539,8 @@
 
 
                 //sorts the parent array (a) by the number in the sub array (b) at index of the picked up column
-                leTableSorted.sort(function(a,b){return a[leColumnIndex] > b[leColumnIndex]});
+                //leTableSorted.sort(function(a,b){return a[leColumnIndex] > b[leColumnIndex]});
+                leTableSorted.sort((a, b) => (a[leColumnIndex] > b[leColumnIndex]) ? 1 : -1);
 
                 if (tempTable.length > 0) {
                     for (var i = 0; i < tempTable.length; i++) {
