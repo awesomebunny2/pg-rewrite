@@ -133,7 +133,7 @@
                     //#endregion ----------------------------------------------------------------------------------------------
 
                     //eventsFunction();
-                    changeEvent = context.workbook.tables.onChanged.add(onTableChanged);
+                    changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
                     //tryCatch(changeEvent);
 
                     await context.sync();
@@ -2001,28 +2001,26 @@
 
     //#region TURN OFF EVENTS BEFORE EXECUTING ON TABLE CHANGED -----------------------------------------------------------------------------
 
-        // /**
-        //  * Turns events off, then executes the onTableChanged function
-        //  */
-        // async function onTableChangedEvents(eventArgs) {
+        /**
+         * Turns events off, then executes the onTableChanged function
+         */
+        async function onTableChangedEvents(eventArgs) {
 
-        //     console.log("I have been TRIGGERED!");
+            console.log("I have been TRIGGERED!");
 
-        //     await Excel.run(async (context) => {
-        //         context.runtime.load("enableEvents");
-        //         await context.sync();
+            await Excel.run(async (context) => {
+                context.runtime.load("enableEvents");
+                await context.sync().then(function () {
 
-        //         //turns events off
-        //         context.runtime.enableEvents = false;
-        //         console.log("Events are turned off");
-        //         tryCatch(onTableChanged(eventArgs));
-        //         // var result = await onTableChanged(eventArgs).then(tableChangedPriorityAndSort(poop.rowInfo, poop.bodyRange, poop.priorityColumnData));
+                    //turns events off
+                    context.runtime.enableEvents = false;
+                    console.log("Events are turned off");
 
-        //     })//.then(() => {
-        //     //     eventsOn();
-        //     //     return;
-        //     // });
-        // };
+                });
+                // var result = await onTableChanged(eventArgs).then(tableChangedPriorityAndSort(poop.rowInfo, poop.bodyRange, poop.priorityColumnData));
+            });
+            tryCatch(onTableChanged(eventArgs));
+        };
 
     //#endregion ---------------------------------------------------------------------------------------------------------------------------
 
