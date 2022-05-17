@@ -781,13 +781,15 @@
             async function addAProjectEvents() {
                 await Excel.run(async (context) => {
                     context.runtime.load("enableEvents");
-                    await context.sync();
+                    await context.sync().then(function () {
 
-                    //turns events off
-                    context.runtime.enableEvents = false;
-                    console.log("Events are turned off");
-                    addAProject();
+                        //turns events off
+                        context.runtime.enableEvents = false;
+                        console.log("Events are turned off");
+
+                    });
                 });
+                addAProject();
             };
 
         //#endregion ---------------------------------------------------------------------------------------------------------------------------
