@@ -909,6 +909,7 @@
 
                     if (startOverrideVal == "") {
                         write[0][tableRowInfo.startOverride.columnIndex] = 0;
+                        //startOverrideVal = 0;
                     };
 
                     if (workOverrideVal == "") {
@@ -933,7 +934,7 @@
                         var pickedUpTurnAroundTime = pickupData[productVal][theProjectTypeCode];
 
                         //add start override time to # of hours
-                        var pickedUpHours = pickedUpTurnAroundTime + startOverrideVal;
+                        var pickedUpHours = pickedUpTurnAroundTime + Number(startOverrideVal);
                     
                         //add new time to date added, then adjust for office hours
                         var addedDate = new Date(now);
@@ -978,7 +979,7 @@
                         var proofWithReview = proofToClient + creativeReview;
 
                         //add work override time to # of hours
-                        var artTurnAround = proofWithReview + workOverrideVal;
+                        var artTurnAround = proofWithReview + Number(workOverrideVal);
                     
                         //add new time to the value previouskly found in the pickUpOfficeHours variable, then adjust for office hours
                         var proofToClientOfficeHours = officeHours(pickupOfficeHours, artTurnAround);
