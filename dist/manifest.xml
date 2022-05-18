@@ -5,12 +5,12 @@
   <ProviderName>Mail Shark Matt</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Digital Production Art Queue"/>
-  <Description DefaultValue="A utility for organizing art queue requests"/>
+  <Description DefaultValue="The Art Queue"/>
   <IconUrl DefaultValue="https://www.themailshark.com/prepress/prepress-art-queue/dist/assets/icon-32.png"/>
   <HighResolutionIconUrl DefaultValue="https://www.themailshark.com/prepress/prepress-art-queue/dist/assets/icon-64.png"/>
-  <SupportUrl DefaultValue="mattc@themailshark.com"/>
+  <SupportUrl DefaultValue="https://www.themailshark.com/"/>
   <AppDomains>
-    <AppDomain>https://www.themailshark.com</AppDomain>
+    <AppDomain>https://www.themailshark.com/</AppDomain>
   </AppDomains>
   <Hosts>
     <Host Name="Workbook"/>
@@ -72,13 +72,13 @@
         <bt:Url id="Taskpane.Url" DefaultValue="https://www.themailshark.com/prepress/prepress-art-queue/dist/taskpane.html"/>
       </bt:Urls>
       <bt:ShortStrings>
-        <bt:String id="GetStarted.Title" DefaultValue="Get started with the art queue!"/>
+        <bt:String id="GetStarted.Title" DefaultValue="Fire up the Art Queue!"/>
         <bt:String id="CommandsGroup.Label" DefaultValue="Digital Production"/>
         <bt:String id="TaskpaneButton.Label" DefaultValue="Digital Production Art Queue"/>
       </bt:ShortStrings>
       <bt:LongStrings>
-        <bt:String id="GetStarted.Description" DefaultValue="The Digital Production Art Queue add-in has loaded successfully! Click the button to open it."/>
-        <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Click to Show Digital Production Art Queue Add-In"/>
+        <bt:String id="GetStarted.Description" DefaultValue="The art queue loaded successfully."/>
+        <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Click to Show the Art Queue"/>
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>
