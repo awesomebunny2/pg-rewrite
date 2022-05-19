@@ -2308,8 +2308,8 @@
 
                             //#region TURN EVENTS OFF ----------------------------------------------------------------------------------------------
 
-                                context.runtime.enableEvents = false; //turns events off
-                                console.log("Events are turned off!!");
+                                // context.runtime.enableEvents = false; //turns events off
+                                // console.log("Events are turned off!!");
 
                             //#endregion -----------------------------------------------------------------------------------------------------------
                 
@@ -2327,7 +2327,11 @@
 
                                 var tableColumns = changedTableColumns.items; //loads all the changed table's columns
                                 var tableRows = changedTableRows.items; //loads all the changed table's rows
-                                var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
+                                if (changeType == "RowDeleted") {
+                                    var changedRowTableIndex = 0;
+                                } else {
+                                    var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
+                                };
                                 var rowValues = tableRows[changedRowTableIndex].values; //loads the values of the changed row in the changed table
                                 var myRow = changedTableRows.getItemAt(changedRowTableIndex); //loads the changed row in the changed table as an object
                                 var rowRange = changedTableRows.getItemAt(changedRowTableIndex).getRange();
@@ -2398,6 +2402,11 @@
                     
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------
+
+                    if (changeType == "RowDeleted") {
+                        console.log("RowPeepee");
+                        console.log(details);
+                    };
 
                     if ((changedColumnIndex == rowInfo.printDate.columnIndex) || (changedColumnIndex == rowInfo.group.columnIndex)) {
                         conditionalFormatting(rowInfo, tableStart, changedWorksheet, changedRowTableIndex, completedTableChanged, rowRange, completedTable);
