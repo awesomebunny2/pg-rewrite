@@ -55,6 +55,8 @@
     var proofToClientData = {};
     var creativeProofData = {};
     var officeHoursData = {};
+    var changesData = {};
+    var changesIDData = {};
     var loop = true;
     var changeEvent;
     var snailPoop = {};
@@ -114,6 +116,8 @@
                         var proofToClientValTable = sheet.tables.getItem("ArtTurnaroundTime");
                         var creativeProofTable = sheet.tables.getItem("CreativeProofAdjust");
                         var officeHoursTable = sheet.tables.getItem("OfficeHours");
+                        var changesDataTable = sheet.tables.getItem("ChangesData");
+                        var changesIDTable = sheet.tables.getItem("ChangesIDTable");
                         var activeSheet = context.workbook.worksheets.getActiveWorksheet();
                         //activeSheet.onChanged.add(handleChange);
                         // context.runtime.load("enableEvents");
@@ -129,6 +133,9 @@
                         var proofToClientBodyRange = proofToClientValTable.getDataBodyRange().load("values");
                         var creativeProofBodyRange = creativeProofTable.getDataBodyRange().load("values");
                         var officeHoursBodyRange = officeHoursTable.getDataBodyRange().load("values");
+                        var changesDataBodyRange = changesDataTable.getDataBodyRange().load("values");
+                        var changesIDBodyRange = changesIDTable.getDataBodyRange().load("values");
+
 
                     //#endregion ----------------------------------------------------------------------------------------------
 
@@ -215,7 +222,7 @@
                                 }; 
                             };
 
-                            // console.log(proofToClientData);
+                            //console.log(proofToClientData);
 
                         //#endregion ------------------------------------------------------------------------------
 
@@ -253,6 +260,39 @@
 
                         //#endregion -----------------------------------------------------------------------------
 
+
+                        //#region CHANGES DATA ------------------------------------------------
+
+                            var changesDataArr = changesDataBodyRange.values;
+                            // console.log(changesDataArr);
+
+                            for (var row of changesDataArr) {
+                                changesData[row[0].trim()] = {
+                                "lightChanges":row[1],
+                                "moderateChanges":row[2],
+                                "heavyChanges":row[3],
+                                }; 
+                            };
+
+                            console.log(changesData);
+
+                        //#endregion ------------------------------------------------------------------------------
+
+
+                        //#region CHANGES ID DATA ----------------------------------------------------------------
+
+                            var changesIDArr = changesIDBodyRange.values;
+
+                            for (var row of changesIDArr) {
+                                changesIDData[row[0].trim()] = {
+                                    "changes":row[0].trim(),
+                                    "changesCode":row[1].trim(),
+                                };
+                            };
+
+                            // console.log(changesIDData);
+
+                        //#endregion -----------------------------------------------------------------------------
 
                     //#endregion --------------------------------------------------------------------------------------------------
 
@@ -2366,6 +2406,8 @@
                                 var proofToClientColumnIndex = rowInfo.proofToClient.columnIndex; //index of proof to client cloumn
                                 var addedColumnIndex = rowInfo.added.columnIndex;
 
+                                var statusValue = rowInfo.status.value;
+
                                 //console.log("I am a fart"); //hehe
 
                             //#endregion ------------------------------------------------------------------------------------------------------------
@@ -2413,11 +2455,16 @@
                         eventsOn();
                     };
 
+                    var statusMove = false;
+
+                    if (rowInfo.status.value == "Completed" || rowInfo.status.value == "Cancelled") {
+                        statusMove = true;
+                    };
 
                     //#region ADJUST TURN AROUND TIMES, SORTING, & PRIORITY NUMBERS ------------------------------------------------------------
 
                         //if any of these columns are changed, turn around times will be adjusted and the table will be sorted
-                        if (changedColumnIndex == rowInfo.pickedUpStartedBy.columnIndex || changedColumnIndex == rowInfo.proofToClient.columnIndex || changedColumnIndex == rowInfo.priority.columnIndex || changedColumnIndex == rowInfo.product.columnIndex || changedColumnIndex == rowInfo.projectType.columnIndex || changedColumnIndex == rowInfo.added.columnIndex || changedColumnIndex == rowInfo.startOverride.columnIndex || changedColumnIndex == rowInfo.workOverride.columnIndex) {
+                        if (changedColumnIndex == rowInfo.pickedUpStartedBy.columnIndex || changedColumnIndex == rowInfo.proofToClient.columnIndex || changedColumnIndex == rowInfo.priority.columnIndex || changedColumnIndex == rowInfo.product.columnIndex || changedColumnIndex == rowInfo.projectType.columnIndex || changedColumnIndex == rowInfo.added.columnIndex || changedColumnIndex == rowInfo.startOverride.columnIndex || changedColumnIndex == rowInfo.workOverride.columnIndex || (changedColumnIndex == rowInfo.status.columnIndex && completedTableChanged == false && statusMove == false)) {
                             
                             console.log("I will update the turn around times, priority numbers, and sort the sheet before turning events back on!")
 
@@ -2779,6 +2826,18 @@
                                         // };
 
                                         if ((rowInfo.status.value == "Completed" || rowInfo.status.value == "Cancelled") && completedTableChanged == false && isUnassigned == false) { //if status column = "Completed" or "Cancelled", the changedTable is not a Completed table, & the changedWorksheet is not UnassignedProjects, move data to changedWorksheet's completed table
+
+                                            //#region UPDATE DATE OF LAST EDIT ------------------------------------------------------------------
+
+                                                //generate a new date and time based on the current date and time
+                                                var dateOfLastEditTime = new Date();
+                                                var dateOfLastEditTimeJS = JSDateToExcelDate(dateOfLastEditTime);
+
+                                                leTable[rowIndex][rowInfo.dateOfLastEdit.columnIndex] = dateOfLastEditTimeJS; //write current date and time to the Date of Last Edit position within the table array
+
+                                            //#endregion ----------------------------------------------------------------------------------------
+
+
                                             completedTable.rows.add(0, rowValues); //Adds empty row to bottom of the completedTable, then inserts the changed values into this empty row
                                             //completedTable.rows.add(0, null); //Adds empty row to bottom of the completedTable, then inserts the changed values into this empty row
 
@@ -2833,8 +2892,20 @@
                                     
                                             //return;
                                     
-                                        } else if (rowInfo.status.value == "Editing" && completedTableChanged == true) { //if status column = "Editing" & the changedTable is a Completed table, move data back to the artist's table
+                                        } else if ((rowInfo.status.value == "Light Changes" && completedTableChanged == true) || (rowInfo.status.value == "Moderate Changes" && completedTableChanged == true) || (rowInfo.status.value == "Heavy Changes" && completedTableChanged == true)) { //if status column = "Editing" & the changedTable is a Completed table, move data back to the artist's table
                                             if (destinationTable !== "null") {
+
+                                                //#region UPDATE DATE OF LAST EDIT ------------------------------------------------------------------
+
+                                                    //generate a new date and time based on the current date and time
+                                                    var dateOfLastEditTime = new Date();
+                                                    var dateOfLastEditTimeJS = JSDateToExcelDate(dateOfLastEditTime);
+
+                                                    leTable[rowIndex][rowInfo.dateOfLastEdit.columnIndex] = dateOfLastEditTimeJS; //write current date and time to the Date of Last Edit position within the table array
+
+                                                //#endregion ----------------------------------------------------------------------------------------
+
+
                                                 //moveData(destinationTable, rowValues, myRow, rowInfo.artist.value);
                                                 myRow.delete(); //Deletes the changed row from the original sheet
                                                 destinationTable.rows.add(null);
@@ -3098,7 +3169,15 @@
 
                     if (changedColumnIndex !== rowInfo.printDate.columnIndex || changedColumnIndex !== rowInfo.group.columnIndex) {
 
-                        if ((changedColumnIndex == rowInfo.artist.columnIndex) || (changedColumnIndex == rowInfo.status.columnIndex /*&& (completedTable == undefined && completedTableChanged !== false)*/)) {
+                        if (
+                            (changedColumnIndex == rowInfo.artist.columnIndex) || (changedColumnIndex == rowInfo.status.columnIndex && 
+                                (
+                                    ((rowInfo.status.value == "Completed" && completedTableChanged == false) || (rowInfo.status.value == "Cancelled" && completedTableChanged == false)) 
+                                || 
+                                    ((rowInfo.status.value == "Light Changes" && completedTableChanged == true) || (rowInfo.status.value == "Moderate Changes" && completedTableChanged == true) || (rowInfo.status.value == "Heavy Changes" && completedTableChanged == true))
+                                )
+                            )
+                        ) {
 
                             var newChangedTableRows = destinationTable.rows.load("items");
     
@@ -3227,127 +3306,161 @@
 
             // } else {
 
-                rowRangeSorted.format.font.name = "Calibri";
-                rowRangeSorted.format.font.size = 12;
-                rowRangeSorted.format.font.color = "#000000";
+                //#region ALL ENTRIES USE CONSISTENT FONT STYLING --------------------------------------------------------------------------------
 
-                if (rowInfoSorted.pickedUpStartedBy.value !== "NO PRODUCT / PROJECT TYPE" || rowInfoSorted.proofToClient.value !== "NO PRODUCT / PROJECT TYPE") {
+                    rowRangeSorted.format.font.name = "Calibri";
+                    rowRangeSorted.format.font.size = 12;
+                    rowRangeSorted.format.font.color = "#000000";
 
-                    rowRangeSorted.format.fill.clear();
-                    pickedUpAddress.format.font.bold = false;
-                    proofToClientAddress.format.font.bold = false;
-
-                };
-
-                if (toSerial > rowInfoSorted.pickedUpStartedBy.value) {
-                    pickedUpAddress.format.fill.color = "FFC000";
-                } else {
-                    pickedUpAddress.format.fill.clear();
-                };
+                //#endregion ---------------------------------------------------------------------------------------------------------------------
 
 
-                if (toSerial > rowInfoSorted.proofToClient.value) {
-                    proofToClientAddress.format.fill.color = "FF0000";
-                    proofToClientAddress.format.font.color = "white";
-                } else {
-                    proofToClientAddress.format.fill.clear();
-                    proofToClientAddress.format.font.color = "black";
-                };
+                //#region REMOVE INVALID HIGHLIGHTING IF NO LONGER INVALID -----------------------------------------------------------------------
+
+                    if (rowInfoSorted.pickedUpStartedBy.value !== "NO PRODUCT / PROJECT TYPE" || rowInfoSorted.proofToClient.value !== "NO PRODUCT / PROJECT TYPE") {
+
+                        rowRangeSorted.format.fill.clear();
+                        pickedUpAddress.format.font.bold = false;
+                        proofToClientAddress.format.font.bold = false;
+
+                    };
+
+                //#endregion ---------------------------------------------------------------------------------------------------------------------
 
 
-                if ((printDate < currentDateAbsolute) && (printDate !== 0)) { //if current date is after print date
+                //#region OVERDUE HIGHLIGHTING ---------------------------------------------------------------------------------------------------
 
-                    printDateAddress.format.fill.color = "black";
-                    printDateAddress.format.font.color = "white";
-                    printDateAddress.format.font.bold = true;
 
-                    groupAddress.format.fill.color = "black";
-                    groupAddress.format.font.color = "white";
-                    groupAddress.format.font.bold = true;
+                    //#region PICKED UP / STARTED BY OVERDUE -------------------------------------------------------------------------------------
 
-                    //groupAddress.values = [[appendGroup]];
+                        if (toSerial > rowInfoSorted.pickedUpStartedBy.value) {
+                            pickedUpAddress.format.fill.color = "FFC000";
+                        } else {
+                            pickedUpAddress.format.fill.clear();
+                        };
 
-                } else if (printDate == currentDateAbsolute) { //if current date = print date
+                    //#endregion -----------------------------------------------------------------------------------------------------------------
 
-                    printDateAddress.format.fill.clear();
-                    printDateAddress.format.font.color = "FF0000";
-                    printDateAddress.format.font.bold = true;
 
-                    groupAddress.format.fill.clear();
-                    groupAddress.format.font.color = "FF0000";
-                    groupAddress.format.font.bold = true;
+                    //#region PROOF TO CLIENT OVERDUE --------------------------------------------------------------------------------------------
 
-                } else if (((printDate - 1) == currentDateAbsolute)) { //if current date is the day before print date
+                        if (toSerial > rowInfoSorted.proofToClient.value) {
+                            proofToClientAddress.format.fill.color = "FF0000";
+                            proofToClientAddress.format.font.color = "white";
+                        } else {
+                            proofToClientAddress.format.fill.clear();
+                            proofToClientAddress.format.font.color = "black";
+                        };
 
-                    printDateAddress.format.fill.clear();
-                    printDateAddress.format.font.color = "FF0000";
-                    printDateAddress.format.font.bold = true;
+                    //#endregion ----------------------------------------------------------------------------------------------------------------
 
-                    groupAddress.format.fill.clear();
-                    groupAddress.format.font.color = "FF0000";
-                    groupAddress.format.font.bold = true;
 
-                } else if (((printDate - 6) <= currentDateAbsolute) && ((printDate - 2) >= currentDateAbsolute)) { //if current date is in the same group lock week as print date (between 7-2 days before)
+                //#endregion ---------------------------------------------------------------------------------------------------------------------
 
-                    printDateAddress.format.fill.clear();
-                    printDateAddress.format.font.color = "FF0000";
-                    printDateAddress.format.font.bold = true;
 
-                    groupAddress.format.fill.clear(); //FF8B82
-                    groupAddress.format.font.color = "FF0000";
-                    groupAddress.format.font.bold = true;
+                //#region GROUP & PRINT DATE FORMATTING ------------------------------------------------------------------------------------------
 
-                } else if (((printDate - 13) <= currentDateAbsolute) && ((printDate - 7) >= currentDateAbsolute)) { //if current date is in the week before group lock week (between 8-14 days before)
+                    if ((printDate < currentDateAbsolute) && (printDate !== 0)) { //if current date is after print date
 
-                    printDateAddress.format.fill.clear();
-                    printDateAddress.format.font.color = "70AD47";
-                    printDateAddress.format.font.bold = true;
+                        printDateAddress.format.fill.color = "black";
+                        printDateAddress.format.font.color = "white";
+                        printDateAddress.format.font.bold = true;
 
-                    groupAddress.format.fill.clear();
-                    groupAddress.format.font.color = "70AD47";
-                    groupAddress.format.font.bold = true;
+                        groupAddress.format.fill.color = "black";
+                        groupAddress.format.font.color = "white";
+                        groupAddress.format.font.bold = true;
 
-                    // } else if (((printDate - 30) <= currentDateAbsolute) && ((printDate - 14) >= currentDateAbsolute)) { //if current date is within a month of print date (between 15-31 days before)
+                        //groupAddress.values = [[appendGroup]];
 
-                    //   printDateAddress.format.fill.color = "C6E0B4";
-                    //   printDateAddress.format.font.color = "black";
-                    //   printDateAddress.format.font.bold = false;
+                    } else if (printDate == currentDateAbsolute) { //if current date = print date
 
-                    //   groupAddress.format.fill.color = "C6E0B4";
-                    //   groupAddress.format.font.color = "black";
-                    //   groupAddress.format.font.bold = false;
+                        printDateAddress.format.fill.clear();
+                        printDateAddress.format.font.color = "FF0000";
+                        printDateAddress.format.font.bold = true;
 
-                } else if (printDate == 0) { //if there are no values in the print date cell, revert to normal formatting
+                        groupAddress.format.fill.clear();
+                        groupAddress.format.font.color = "FF0000";
+                        groupAddress.format.font.bold = true;
 
-                    printDateAddress.format.fill.clear();
-                    printDateAddress.format.font.color = "black";
-                    printDateAddress.format.font.bold = false;
+                    } else if (((printDate - 1) == currentDateAbsolute)) { //if current date is the day before print date
 
-                    groupAddress.format.fill.clear();
-                    groupAddress.format.font.color = "black";
-                    groupAddress.format.font.bold = false;
+                        printDateAddress.format.fill.clear();
+                        printDateAddress.format.font.color = "FF0000";
+                        printDateAddress.format.font.bold = true;
 
-                } else { //set cell formatting to normal
+                        groupAddress.format.fill.clear();
+                        groupAddress.format.font.color = "FF0000";
+                        groupAddress.format.font.bold = true;
 
-                    printDateAddress.format.fill.clear();
-                    printDateAddress.format.font.color = "black";
-                    printDateAddress.format.font.bold = false;
+                    } else if (((printDate - 6) <= currentDateAbsolute) && ((printDate - 2) >= currentDateAbsolute)) { //if current date is in the same group lock week as print date (between 7-2 days before)
 
-                    groupAddress.format.fill.clear();
-                    groupAddress.format.font.color = "black";
-                    groupAddress.format.font.bold = false;
+                        printDateAddress.format.fill.clear();
+                        printDateAddress.format.font.color = "FF0000";
+                        printDateAddress.format.font.bold = true;
 
-                };
+                        groupAddress.format.fill.clear(); //FF8B82
+                        groupAddress.format.font.color = "FF0000";
+                        groupAddress.format.font.bold = true;
 
-                if (rowInfoSorted.pickedUpStartedBy.value == "NO PRODUCT / PROJECT TYPE" || rowInfoSorted.proofToClient.value == "NO PRODUCT / PROJECT TYPE") {
+                    } else if (((printDate - 13) <= currentDateAbsolute) && ((printDate - 7) >= currentDateAbsolute)) { //if current date is in the week before group lock week (between 8-14 days before)
 
-                    rowRangeSorted.format.fill.color = "FFC5BB";
-                    pickedUpAddress.format.font.bold = true;
-                    proofToClientAddress.format.font.bold = true;
-                    // pickedUpAddress.format.fill.color = "FFC5BB";
-                    // proofToClientAddress.format.fill.color = "FFC5BB";
+                        printDateAddress.format.fill.clear();
+                        printDateAddress.format.font.color = "70AD47";
+                        printDateAddress.format.font.bold = true;
 
-                };
+                        groupAddress.format.fill.clear();
+                        groupAddress.format.font.color = "70AD47";
+                        groupAddress.format.font.bold = true;
+
+                        // } else if (((printDate - 30) <= currentDateAbsolute) && ((printDate - 14) >= currentDateAbsolute)) { //if current date is within a month of print date (between 15-31 days before)
+
+                        //   printDateAddress.format.fill.color = "C6E0B4";
+                        //   printDateAddress.format.font.color = "black";
+                        //   printDateAddress.format.font.bold = false;
+
+                        //   groupAddress.format.fill.color = "C6E0B4";
+                        //   groupAddress.format.font.color = "black";
+                        //   groupAddress.format.font.bold = false;
+
+                    } else if (printDate == 0) { //if there are no values in the print date cell, revert to normal formatting
+
+                        printDateAddress.format.fill.clear();
+                        printDateAddress.format.font.color = "black";
+                        printDateAddress.format.font.bold = false;
+
+                        groupAddress.format.fill.clear();
+                        groupAddress.format.font.color = "black";
+                        groupAddress.format.font.bold = false;
+
+                    } else { //set cell formatting to normal
+
+                        printDateAddress.format.fill.clear();
+                        printDateAddress.format.font.color = "black";
+                        printDateAddress.format.font.bold = false;
+
+                        groupAddress.format.fill.clear();
+                        groupAddress.format.font.color = "black";
+                        groupAddress.format.font.bold = false;
+
+                    };
+
+                //#endregion ---------------------------------------------------------------------------------------------------------------------
+
+
+                //#region ADD INVALID HIGHLIGHTING IF INVALID ------------------------------------------------------------------------------------
+
+                    if (rowInfoSorted.pickedUpStartedBy.value == "NO PRODUCT / PROJECT TYPE" || rowInfoSorted.proofToClient.value == "NO PRODUCT / PROJECT TYPE") {
+
+                        rowRangeSorted.format.fill.color = "FFC5BB";
+                        pickedUpAddress.format.font.bold = true;
+                        proofToClientAddress.format.font.bold = true;
+                        // pickedUpAddress.format.fill.color = "FFC5BB";
+                        // proofToClientAddress.format.fill.color = "FFC5BB";
+
+                    };
+
+                //#endregion ---------------------------------------------------------------------------------------------------------------------
+
 
 
             //};
@@ -3461,6 +3574,43 @@
                     return null;
                 };
 
+                if (rowInfo.status.value == "Light Changes" || rowInfo.status.value == "Moderate Changes" || rowInfo.status.value == "Heavy Changes") { //if the request's status is a form of "Editing"...
+
+                    //get the Changes coded variable from the Changes ID Data based on the value in the Status column of the changed row
+                    var theChangesCode = changesIDData[rowInfo.status.value].changesCode;
+
+                    //gets the turn around time value from the Changes Data Table based on the product and status of the row
+                    var proofToClient = changesData[rowInfo.product.value][theChangesCode];
+
+                    //Heavy Changes has creative review time factored into the table variables, so no need to calculate it. Moderate and Light chnages will almost never need creative review
+
+                    //finds the work override value of the changed row and adds it to the proofToClient variable
+                    var artTurnAround = proofToClient + rowInfo.workOverride.value;
+
+                    //need to create a new date variable, possibly in the Date of Last Edit column
+
+                    //#region UPDATE DATE OF LAST EDIT ------------------------------------------------------------------
+
+                        //generate a new date and time based on the current date and time
+                        var dateOfLastEditTime = new Date();
+                        var dateOfLastEditTimeJS = JSDateToExcelDate(dateOfLastEditTime);
+
+                        leTable[rowIndex][rowInfo.dateOfLastEdit.columnIndex] = dateOfLastEditTimeJS; //write current date and time to the Date of Last Edit position within the table array
+
+                    //#endregion ----------------------------------------------------------------------------------------
+
+                    //adds the adjusted turn around time to the new Date of Last Edit date that was just generated and adjusts to be within office hours
+                    var proofToClientOfficeHours = officeHours(dateOfLastEditTime, artTurnAround);
+
+                    //converts date to excel date
+                    var excelProofToClientOfficeHours = Number(JSDateToExcelDate(proofToClientOfficeHours));
+
+                    //updates the proof to client turn around time value in the table array based on our calculations
+                    leTable[rowIndex][rowInfo.proofToClient.columnIndex] = excelProofToClientOfficeHours;
+
+                    return proofToClientOfficeHours;
+                };
+
                 //get the Project Type coded variable from the Project Type ID Data based on the value in the Project Type column of the changed row
                 var theProjectTypeCode = projectTypeIDData[rowInfo.projectType.value].projectTypeCode;
                 
@@ -3513,13 +3663,25 @@
                 var pickedUpColumnIndex = rowInfo.pickedUpStartedBy.columnIndex;
                 var proofToClientColumnIndex = rowInfo.proofToClient.columnIndex;
 
+                var statusColumnIndex = rowInfo.status.columnIndex;
+
                 var tempTable = [];
+                var onHoldTable = [];
+                var awaitingChangesTable = [];
 
 
-                for (var i = 0; i < leTableSorted.length; i++) {
+                for (var i = 0; i < leTableSorted.length; i++) { //for each row in the table...
 
-                    if (leTableSorted[i][pickedUpColumnIndex] == "NO PRODUCT / PROJECT TYPE" || leTableSorted[i][proofToClientColumnIndex] == "NO PRODUCT / PROJECT TYPE") {
+                    if (leTableSorted[i][pickedUpColumnIndex] == "NO PRODUCT / PROJECT TYPE" || leTableSorted[i][proofToClientColumnIndex] == "NO PRODUCT / PROJECT TYPE") { //removes invlaid requests from table and puts them in a temp table to be added back in after sorting
                         tempTable.push(leTableSorted[i]);
+                        leTableSorted.splice(i, 1);
+                        i = i - 1;
+                    } else if (leTableSorted[i][statusColumnIndex] == "On Hold") { //removes on hold requests from table and puts them in an on hold table to be added back in after sorting
+                        onHoldTable.push(leTableSorted[i]);
+                        leTableSorted.splice(i, 1);
+                        i = i - 1;
+                    } else if (leTableSorted[i][statusColumnIndex] == "At Client" || leTableSorted[i][statusColumnIndex] == "In Review") { //removes awaiting changes requests from table and puts them in an awaiting changes table to be added back in after sorting
+                        awaitingChangesTable.push(leTableSorted[i]);
                         leTableSorted.splice(i, 1);
                         i = i - 1;
                     };
@@ -3549,9 +3711,25 @@
 
                 //sorts the parent array (a) by the number in the sub array (b) at index of the picked up column
                 //leTableSorted.sort(function(a,b){return a[leColumnIndex] > b[leColumnIndex]});
-                leTableSorted.sort((a, b) => (a[leColumnIndex] > b[leColumnIndex]) ? 1 : -1);
+                leTableSorted.sort((a, b) => (a[leColumnIndex] > b[leColumnIndex]) ? 1 : -1); //sorts
 
-                if (tempTable.length > 0) {
+                if (awaitingChangesTable.length > 0) { //adds awaiting changes requests back into table at the bottom
+                    for (var i = 0; i < awaitingChangesTable.length; i++) {
+                        leTableSorted.push(awaitingChangesTable[i]);
+                        awaitingChangesTable.splice(i, 1);
+                        i = i - 1;
+                    };
+                };
+                
+                if (onHoldTable.length > 0) { //adds on hold requests back into table at the bottom, under awaiting changes requests
+                    for (var i = 0; i < onHoldTable.length; i++) {
+                        leTableSorted.push(onHoldTable[i]);
+                        onHoldTable.splice(i, 1);
+                        i = i - 1;
+                    };
+                };
+                
+                if (tempTable.length > 0) { //adds invalid requests back into table at the bottom, under on hold requests
                     for (var i = 0; i < tempTable.length; i++) {
                         leTableSorted.push(tempTable[i]);
                         tempTable.splice(i, 1);
@@ -3559,7 +3737,7 @@
                     };
                 };
 
-                for (var j = 0; j < leTableSorted.length; j++) {
+                for (var j = 0; j < leTableSorted.length; j++) { //finds the post row sort index number
                     for (var k = 0; k < leTableSorted[j].length; k++) {
                         if (changedRowValues[k] !== leTableSorted[j][k]) {
                             break;
