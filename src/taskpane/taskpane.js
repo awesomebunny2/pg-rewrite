@@ -57,6 +57,8 @@
     var officeHoursData = {};
     var changesData = {};
     var changesIDData = {};
+    var printDateRefData = {};
+    var groupRefData = {};
     var loop = true;
     var changeEvent;
     var snailPoop = {};
@@ -118,6 +120,7 @@
                         var officeHoursTable = sheet.tables.getItem("OfficeHours");
                         var changesDataTable = sheet.tables.getItem("ChangesData");
                         var changesIDTable = sheet.tables.getItem("ChangesIDTable");
+                        var groupPrintDateRefTable = sheet.tables.getItem("dateTable");
                         var activeSheet = context.workbook.worksheets.getActiveWorksheet();
                         //activeSheet.onChanged.add(handleChange);
                         // context.runtime.load("enableEvents");
@@ -135,166 +138,224 @@
                         var officeHoursBodyRange = officeHoursTable.getDataBodyRange().load("values");
                         var changesDataBodyRange = changesDataTable.getDataBodyRange().load("values");
                         var changesIDBodyRange = changesIDTable.getDataBodyRange().load("values");
+                        var groupPrintDateRefRange = groupPrintDateRefTable.getDataBodyRange().load("values");
 
 
                     //#endregion ----------------------------------------------------------------------------------------------
 
                     //eventsFunction();
-                    changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
+                    //changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
                     //tryCatch(changeEvent);
 
-                    await context.sync();
+                    await context.sync().then(function() {
 
-                    //#region GRABBING DATA FROM VALIDATION AND WRITING TO CODE ----------------------------------------------
+                        console.log("I sharkded");
+
+                        //#region GRABBING DATA FROM VALIDATION AND WRITING TO CODE ----------------------------------------------
 
 
-                        //#region PRODUCT ID DATA ----------------------------------------------------------------
+                            //#region PRODUCT ID DATA ----------------------------------------------------------------
 
-                            var productIDArr = productIDBodyRange.values;
+                                var productIDArr = productIDBodyRange.values;
 
-                            for (var row of productIDArr) {
-                                productIDData[row[0].trim()] = {
-                                    "productID":row[0].trim(),
-                                    "relativeProduct":row[1].trim(),
-                                    "productCode":row[2].trim()
+                                for (var row of productIDArr) {
+                                    productIDData[row[0].trim()] = {
+                                        "productID":row[0].trim(),
+                                        "relativeProduct":row[1].trim(),
+                                        "productCode":row[2].trim()
+                                    };
                                 };
-                            };
 
-                            // console.log(productIDData);
+                                // console.log(productIDData);
 
-                        //#endregion -----------------------------------------------------------------------------
+                            //#endregion -----------------------------------------------------------------------------
 
 
-                        //#region PROJECT TYPE ID DATA ----------------------------------------------------------------
+                            //#region PROJECT TYPE ID DATA ----------------------------------------------------------------
 
-                            var projectTypeIDArr = projectTypeIDBodyRange.values;
+                                var projectTypeIDArr = projectTypeIDBodyRange.values;
 
-                            for (var row of projectTypeIDArr) {
-                                projectTypeIDData[row[0].trim()] = {
-                                    "projectType":row[0].trim(),
-                                    "projectTypeCode":row[1].trim(),
+                                for (var row of projectTypeIDArr) {
+                                    projectTypeIDData[row[0].trim()] = {
+                                        "projectType":row[0].trim(),
+                                        "projectTypeCode":row[1].trim(),
+                                    };
                                 };
-                            };
 
-                            // console.log(projectTypeIDData);
+                                // console.log(projectTypeIDData);
 
-                        //#endregion -----------------------------------------------------------------------------
-
-
-                        //#region PICKED UP TURN AROUND TIME DATA ------------------------------------------------
-
-                            var pickupArr = pickedUpBodyRange.values;
-                            // console.log(pickupArr);
-
-                            for (var row of pickupArr) {
-                                pickupData[row[0].trim()] = {
-                                "brandNewBuild":row[1],
-                                "brandNewBuildFromNatives":row[2],
-                                "brandNewBuildFromTemplate":row[3],
-                                "changesToExistingNatives":row[4],
-                                "specCheck":row[5],
-                                "weTransferUpload":row[6],
-                                "specialRequest":row[7],
-                                "other":row[8]
-                                }; 
-                            };
-
-                            // console.log(pickupData);
-
-                        //#endregion ------------------------------------------------------------------------------
+                            //#endregion -----------------------------------------------------------------------------
 
 
-                        //#region PROOF TO CLIENT TIME DATA ------------------------------------------------
+                            //#region PICKED UP TURN AROUND TIME DATA ------------------------------------------------
 
-                            var proofToClientArr = proofToClientBodyRange.values;
-                            // console.log(proofToClientArr);
+                                var pickupArr = pickedUpBodyRange.values;
+                                // console.log(pickupArr);
 
-                            for (var row of proofToClientArr) {
-                                proofToClientData[row[0].trim()] = {
-                                "brandNewBuild":row[1],
-                                "brandNewBuildFromNatives":row[2],
-                                "brandNewBuildFromTemplate":row[3],
-                                "changesToExistingNatives":row[4],
-                                "specCheck":row[5],
-                                "weTransferUpload":row[6],
-                                "specialRequest":row[7],
-                                "other":row[8]
-                                }; 
-                            };
-
-                            //console.log(proofToClientData);
-
-                        //#endregion ------------------------------------------------------------------------------
-
-
-                        //#region CREATIVE PROOF DATA ----------------------------------------------------------------
-
-                            var creativeProofArr = creativeProofBodyRange.values;
-
-                            for (var row of creativeProofArr) {
-                                creativeProofData[row[0].trim()] = {
-                                    "creativeReviewProcess":row[1]
+                                for (var row of pickupArr) {
+                                    pickupData[row[0].trim()] = {
+                                    "brandNewBuild":row[1],
+                                    "brandNewBuildFromNatives":row[2],
+                                    "brandNewBuildFromTemplate":row[3],
+                                    "changesToExistingNatives":row[4],
+                                    "specCheck":row[5],
+                                    "weTransferUpload":row[6],
+                                    "specialRequest":row[7],
+                                    "other":row[8]
+                                    }; 
                                 };
-                            };
 
-                            // console.log(creativeProofData);
+                                // console.log(pickupData);
 
-                        //#endregion -----------------------------------------------------------------------------
+                            //#endregion ------------------------------------------------------------------------------
 
 
-                        //#region OFFICE HOURS DATA ----------------------------------------------------------------
+                            //#region PROOF TO CLIENT TIME DATA ------------------------------------------------
 
-                            var officeHoursArr = officeHoursBodyRange.values;
+                                var proofToClientArr = proofToClientBodyRange.values;
+                                // console.log(proofToClientArr);
 
-                            for (var row of officeHoursArr) {
-                                officeHoursData[row[0].trim()] = {
-                                    "weekday":row[0],
-                                    "startTime":row[1],
-                                    "endTime":row[2],
-                                    "workDay":row[3],
-                                    "workDayWithBreak":row[4]
+                                for (var row of proofToClientArr) {
+                                    proofToClientData[row[0].trim()] = {
+                                    "brandNewBuild":row[1],
+                                    "brandNewBuildFromNatives":row[2],
+                                    "brandNewBuildFromTemplate":row[3],
+                                    "changesToExistingNatives":row[4],
+                                    "specCheck":row[5],
+                                    "weTransferUpload":row[6],
+                                    "specialRequest":row[7],
+                                    "other":row[8]
+                                    }; 
                                 };
-                            };
 
-                            // console.log(officeHoursData);
+                                //console.log(proofToClientData);
 
-                        //#endregion -----------------------------------------------------------------------------
-
-
-                        //#region CHANGES DATA ------------------------------------------------
-
-                            var changesDataArr = changesDataBodyRange.values;
-                            // console.log(changesDataArr);
-
-                            for (var row of changesDataArr) {
-                                changesData[row[0].trim()] = {
-                                "lightChanges":row[1],
-                                "moderateChanges":row[2],
-                                "heavyChanges":row[3],
-                                }; 
-                            };
-
-                            console.log(changesData);
-
-                        //#endregion ------------------------------------------------------------------------------
+                            //#endregion ------------------------------------------------------------------------------
 
 
-                        //#region CHANGES ID DATA ----------------------------------------------------------------
+                            //#region CREATIVE PROOF DATA ----------------------------------------------------------------
 
-                            var changesIDArr = changesIDBodyRange.values;
+                                var creativeProofArr = creativeProofBodyRange.values;
 
-                            for (var row of changesIDArr) {
-                                changesIDData[row[0].trim()] = {
-                                    "changes":row[0].trim(),
-                                    "changesCode":row[1].trim(),
+                                for (var row of creativeProofArr) {
+                                    creativeProofData[row[0].trim()] = {
+                                        "creativeReviewProcess":row[1]
+                                    };
                                 };
-                            };
 
-                            // console.log(changesIDData);
+                                // console.log(creativeProofData);
 
-                        //#endregion -----------------------------------------------------------------------------
+                            //#endregion -----------------------------------------------------------------------------
 
-                    //#endregion --------------------------------------------------------------------------------------------------
+
+                            //#region OFFICE HOURS DATA ----------------------------------------------------------------
+
+                                var officeHoursArr = officeHoursBodyRange.values;
+
+                                for (var row of officeHoursArr) {
+                                    officeHoursData[row[0].trim()] = {
+                                        "weekday":row[0],
+                                        "startTime":row[1],
+                                        "endTime":row[2],
+                                        "workDay":row[3],
+                                        "workDayWithBreak":row[4]
+                                    };
+                                };
+
+                                // console.log(officeHoursData);
+
+                            //#endregion -----------------------------------------------------------------------------
+
+
+                            //#region CHANGES DATA ------------------------------------------------
+
+                                var changesDataArr = changesDataBodyRange.values;
+                                // console.log(changesDataArr);
+
+                                for (var row of changesDataArr) {
+                                    changesData[row[0].trim()] = {
+                                    "lightChanges":row[1],
+                                    "moderateChanges":row[2],
+                                    "heavyChanges":row[3],
+                                    }; 
+                                };
+
+                                console.log(changesData);
+
+                            //#endregion ------------------------------------------------------------------------------
+
+
+                            //#region CHANGES ID DATA ----------------------------------------------------------------
+
+                                var changesIDArr = changesIDBodyRange.values;
+
+                                for (var row of changesIDArr) {
+                                    changesIDData[row[0].trim()] = {
+                                        "changes":row[0].trim(),
+                                        "changesCode":row[1].trim(),
+                                    };
+                                };
+
+                                // console.log(changesIDData);
+
+                            //#endregion -----------------------------------------------------------------------------
+
+
+                            //#region PRINT DATE DATA ------------------------------------------------
+
+                                var printDateRefArr = groupPrintDateRefRange.values;
+                                // console.log(proofToClientArr);
+
+    
+                                for (var row of printDateRefArr) {
+                                    var farts = row[3];
+                                    var theD = convertToDate(farts);
+                                    var stinkyFarts = new Date(theD);
+                                    //converts the date into a simplifed format for dropdown: mm/dd/yy
+                                    theD = [('' + (stinkyFarts.getMonth() + 1)).slice(-2), ('' + stinkyFarts.getDate()).slice(-2), (stinkyFarts.getFullYear() % 100)].join('/');
+
+                                    printDateRefData[theD] = {
+                                    "basedOnNow":row[0],
+                                    "yearBasedOnNow":row[1],
+                                    "weekBasedOnNow":row[2],
+                                    "printDate":row[3],
+                                    "weekday":row[4],
+                                    "adjust":row[5],
+                                    "group":row[6]
+                                    }; 
+                                };
+
+                                //console.log(proofToClientData);
+
+                            //#endregion ------------------------------------------------------------------------------
+
+
+                            //#region GROUP DATA ------------------------------------------------
+
+                                var groupRefArr = groupPrintDateRefRange.values;
+                                // console.log(proofToClientArr);
+
+                                for (var row of groupRefArr) {
+                                    groupRefData[row[6].trim()] = {
+                                    "basedOnNow":row[0],
+                                    "yearBasedOnNow":row[1],
+                                    "weekBasedOnNow":row[2],
+                                    "printDate":row[3],
+                                    "weekday":row[4],
+                                    "adjust":row[5],
+                                    "group":row[6]
+                                    }; 
+                                };
+
+                                //console.log(proofToClientData);
+
+                            //#endregion ------------------------------------------------------------------------------
+
+                        //#endregion --------------------------------------------------------------------------------------------------
+
+                    }); 
+
+                    changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
 
                 });
                 // console.log(info);
@@ -418,6 +479,7 @@
                     var queueValTable = sheet.tables.getItem("QueueTable");
                     var tierValTable = sheet.tables.getItem("TierTable");
                     var tagsValTable = sheet.tables.getItem("TagsTable");
+                    var groupDateRefTable = sheet.tables.getItem("dateTable");
 
                     // Get data from the table.
                     var productIDBodyRange = productIDValTable.getDataBodyRange().load("values");
@@ -427,6 +489,7 @@
                     var queueBodyRange = queueValTable.getDataBodyRange().load("values");
                     var tierBodyRange = tierValTable.getDataBodyRange().load("values");
                     var tagsBodyRange = tagsValTable.getDataBodyRange().load("values");
+                    var groupDateRefRange = groupDateRefTable.getDataBodyRange().load("values");
 
                 //#endregion --------------------------------------------------------------------------------------------------
 
@@ -476,26 +539,65 @@
 
                 //#endregion ---------------------------------------------------------------------------------------------------
 
+                // //#region PRINT DATE & GROUP VALUES -----------------------------------------------------------------------------------
+
+                //     var groupPrintBodyValues = groupPrintBodyRange.values;
+
+                //     $("#print-date").empty();
+                //     $("#print-date").append($("<option disabled selected hidden></option>").val("").text(""));
+                //     $("#group").empty();
+                //     $("#group").append($("<option disabled selected hidden></option>").val("").text(""));
+
+                //     groupPrintBodyValues.forEach(function(row) {
+
+                //         // Add an option to the select box
+                //         var option = `<option group-id="${row[0]}" print-date-id="${row[1]}">${row[0]}</option>`;
+
+                //         var x = $(`#print-date > option[print-date-id="${row[1]}"]`).length;
+                //         var y = $(`#group > option[group-id="${row[0]}"]`).length;
+
+
+                //         if (x == 0) { // Meaning, it's not there yet, because it's length count is 0
+                //             var leDate = convertToDate(`${row[1]}`);
+
+                //             var d = new Date(leDate);
+
+                //             //converts the date into a simplifed format for dropdown: mm/dd/yy
+                //             leDate = [('' + (d.getMonth() + 1)).slice(-2), ('' + d.getDate()).slice(-2), (d.getFullYear() % 100)].join('/');
+
+                //             //create proper html formatting for option to be added to select box
+                //             var printDateOption = `<option print-date-convert="${leDate}">${leDate}</option>`;
+
+                //             $("#print-date").append(printDateOption);
+                //         };
+
+                //         if (y == 0) { // Meaning, it's not there yet, because it's length count is 0
+                //             $("#group").append(option);
+                //         };
+                //     });
+
+                // //#endregion ---------------------------------------------------------------------------------------------------
+
                 //#region PRINT DATE & GROUP VALUES -----------------------------------------------------------------------------------
 
-                    var groupPrintBodyValues = groupPrintBodyRange.values;
+                    var groupDateRefValues = groupDateRefRange.values;
 
                     $("#print-date").empty();
                     $("#print-date").append($("<option disabled selected hidden></option>").val("").text(""));
                     $("#group").empty();
                     $("#group").append($("<option disabled selected hidden></option>").val("").text(""));
 
-                    groupPrintBodyValues.forEach(function(row) {
+                    groupDateRefValues.forEach(function(row) {
 
                         // Add an option to the select box
-                        var option = `<option group-id="${row[0]}" print-date-id="${row[1]}">${row[0]}</option>`;
+                        var option = `<option based-on-now="${row[0]}" year-based-on-now="${row[1]}" week-based-on-now="${row[2]}" print-date="${row[3]}" weekday="${row[4]}" adjust="${row[5]}" group="${row[6]}">${row[6]}</option>`;
 
-                        var x = $(`#print-date > option[print-date-id="${row[1]}"]`).length;
-                        var y = $(`#group > option[group-id="${row[0]}"]`).length;
+                        var x = $(`#print-date > option[print-date="${row[3]}"]`).length;
+                        var y = $(`#group > option[group="${row[6]}"]`).length;
 
 
                         if (x == 0) { // Meaning, it's not there yet, because it's length count is 0
-                            var leDate = convertToDate(`${row[1]}`);
+                            var leDate = convertToDate(`${row[3]}`);
 
                             var d = new Date(leDate);
 
@@ -759,6 +861,33 @@
 
 
     //#endregion -----------------------------------------------------------------------------------------------------------------
+
+
+    $("#group").change(() => tryCatch(fartFunction));
+
+    function fartFunction() {
+        var group = $("#group").val();
+
+        if (group.length == 0) {
+
+            //clear print date dropdown
+
+        } else {
+
+            var theGroup = group.trim();
+
+            try {
+
+                var printDateMatch = groupRefData[theGroup].printDate; 
+
+                $("#print-date").val(printDateMatch);
+
+            } catch (e) {
+                console.log("Error with print date autofill based on group letter input. Please debug to resolve.")
+            };
+
+        };
+    };
 
 
 
