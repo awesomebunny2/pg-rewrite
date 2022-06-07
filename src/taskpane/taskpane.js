@@ -308,17 +308,17 @@
 
     
                                 for (var row of printDateRefArr) {
-                                    var farts = row[3];
-                                    var theD = convertToDate(farts);
-                                    var stinkyFarts = new Date(theD);
+                                    var serialPrint = row[3];
+                                    var formattedPrintDate = convertToDate(serialPrint);
+                                    var aNewDate = new Date(formattedPrintDate);
                                     //converts the date into a simplifed format for dropdown: mm/dd/yy
-                                    theD = [('' + (stinkyFarts.getMonth() + 1)).slice(-2), ('' + stinkyFarts.getDate()).slice(-2), (stinkyFarts.getFullYear() % 100)].join('/');
+                                    formattedPrintDate = [('' + (aNewDate.getMonth() + 1)).slice(-2), ('' + aNewDate.getDate()).slice(-2), (aNewDate.getFullYear() % 100)].join('/');
 
-                                    printDateRefData[theD] = {
+                                    printDateRefData[formattedPrintDate] = {
                                     "basedOnNow":row[0],
                                     "yearBasedOnNow":row[1],
                                     "weekBasedOnNow":row[2],
-                                    "printDate":row[3],
+                                    "printDate":formattedPrintDate,
                                     "weekday":row[4],
                                     "adjust":row[5],
                                     "group":row[6]
@@ -335,16 +335,37 @@
                                 var groupRefArr = groupPrintDateRefRange.values;
                                 // console.log(proofToClientArr);
 
-                                for (var row of groupRefArr) {
-                                    groupRefData[row[6].trim()] = {
-                                    "basedOnNow":row[0],
-                                    "yearBasedOnNow":row[1],
-                                    "weekBasedOnNow":row[2],
-                                    "printDate":row[3],
-                                    "weekday":row[4],
-                                    "adjust":row[5],
-                                    "group":row[6]
-                                    }; 
+                                var gArr = [];
+
+
+                                for (var row of groupRefArr) { //for each row in the dateTable...
+
+                                    var x = row[6]; //the group letter of the current row
+
+                                    var isGroupAlreadyPresent = false;
+
+                                    for (var y of gArr) { //for each element in gArr...
+                                        if (y == x) { //if an element from gArr = the current row group letter, then isGroupAlreadyPresent is true
+                                            isGroupAlreadyPresent = true;                                          
+                                        };
+                                    };
+
+                                    if (isGroupAlreadyPresent == false) { //if group letter is not already in the data, create the object and properties for the row
+
+                                        groupRefData[row[6].trim()] = {
+                                            "basedOnNow":row[0],
+                                            "yearBasedOnNow":row[1],
+                                            "weekBasedOnNow":row[2],
+                                            "printDate":row[3],
+                                            "weekday":row[4],
+                                            "adjust":row[5],
+                                            "group":row[6]
+                                        }; 
+
+                                        gArr.push(x); //pushes the group letter of the current row into the gArr for further calculations
+
+                                    };
+                            
                                 };
 
                                 //console.log(proofToClientData);
@@ -457,7 +478,6 @@
 
 
     //#endregion -------------------------------------------------------------------------------------------------------------
-
 
 
     //#region UPDATE DROPDOWNS --------------------------------------------------------------------------------------------------------------
@@ -707,188 +727,235 @@
     //#endregion ------------------------------------------------------------------------------------------------------------------
 
 
-
-    //#region AUTO POPULATE TASKPANE BASED ON SUBJECT ---------------------------------------------------------------------------------------
-
-
-        $("#subject").keyup(() => tryCatch(subjectPasted));
-        //$("#subject").keyup(() => subjectPasted());
+    //#region AUTO POPULATE TASKPANE FIELDS -------------------------------------------------------------------------------------------------
 
 
-
-        //#region SUBJECT PASTED FUNCTION ----------------------------------------------------------------------------------------------
-
-            /**
-             * Auto-fills certain taskpane inputs based on the value pasted into the subject line input
-             */
-            async function subjectPasted() {
-                var paste = $("#subject").val();
-                if (paste.length == 0) { // If what's pasted is empty
-                            
-                    $("#warning1").hide(); // Don't show the error
-                    $(this).removeClass("warning-box")
-                    $(this).removeClass("warning-box + .label")
-                    $("#client, #location, #product, #code").val(""); // Empty all inputs
-                
-                } else if (!paste.includes("~/*")) { // If what's pasted does not contain "~/*"
-                            
-                        $("#warning1").show().text(`This subject does not contain "~/*"`);
-
-                    //    var warningCSS = {
-                    //        "border": "2px",
-                    //        "border-color": "red"
-                    //    }
-                    //    $(this).css("border", "2px solid red");
-
-                        $(this).addClass("warning-box")
-                        $(this).addClass("warning-box + .label")
+        //#region AUTO POPULATE TASKPANE BASED ON SUBJECT -----------------------------------------------------------------------------------
 
 
-                    //    $(this).css("pointer-events", "none");
-                        $("#client, #location, #product, #code").val(""); // Empty all inputs
+            $("#subject").keyup(() => tryCatch(subjectPasted));
+            //$("#subject").keyup(() => subjectPasted());
+
+
+
+            //#region SUBJECT PASTED FUNCTION ---------------------------------------------------------------------------------------------
+
+                /**
+                 * Auto-fills certain taskpane inputs based on the value pasted into the subject line input
+                 */
+                async function subjectPasted() {
+                    var paste = $("#subject").val();
+                    if (paste.length == 0) { // If what's pasted is empty
                                 
-                } else { // Probably a valid subject (contains ~/*)
-                
-                    $("#warning1").hide() // Hide error
-                    $(this).removeClass("warning-box")
-                    $(this).removeClass("warning-box + .label")
+                        $("#warning1").hide(); // Don't show the error
+                        $(this).removeClass("warning-box")
+                        $(this).removeClass("warning-box + .label")
+                        $("#client, #location, #product, #code").val(""); // Empty all inputs
                     
-                
-                    /** ------------------------------------------------------------
-                     Parse the subject, fill the other inputs
-                    ------------------------------------------------------------ */
+                    } else if (!paste.includes("~/*")) { // If what's pasted does not contain "~/*"
+                                
+                            $("#warning1").show().text(`This subject does not contain "~/*"`);
 
-                    // Split at "-"s
-                    var splitPaste = paste.split("-");
+                        //    var warningCSS = {
+                        //        "border": "2px",
+                        //        "border-color": "red"
+                        //    }
+                        //    $(this).css("border", "2px solid red");
 
-                    var blanks = splitPaste.includes("");
-
-                    if (blanks == true) {
-
-                        var noBlanksArr = splitPaste.filter(function(x) {
-                            return x !== "";
-                        });
-
-                    } else {
-
-                        var noBlanksArr = splitPaste;
-
-                    };
+                            $(this).addClass("warning-box")
+                            $(this).addClass("warning-box + .label")
 
 
-                    if (noBlanksArr[0].includes(":")) {
-
-                        var str = noBlanksArr[0];
+                        //    $(this).css("pointer-events", "none");
+                            $("#client, #location, #product, #code").val(""); // Empty all inputs
+                                    
+                    } else { // Probably a valid subject (contains ~/*)
+                    
+                        $("#warning1").hide() // Hide error
+                        $(this).removeClass("warning-box")
+                        $(this).removeClass("warning-box + .label")
                         
-                        str = str.substring(str.indexOf(":") + 1);
+                    
+                        /** ------------------------------------------------------------
+                         Parse the subject, fill the other inputs
+                        ------------------------------------------------------------ */
 
-                        noBlanksArr.splice(0, 1, str);
+                        // Split at "-"s
+                        var splitPaste = paste.split("-");
 
-                    };
+                        var blanks = splitPaste.includes("");
 
-                    var hasRequest = noBlanksArr[0].includes("CREATIVE REQUEST") || noBlanksArr[0].includes("Creative Request") || noBlanksArr[0].includes("ARTIST REQUEST") || noBlanksArr[0].includes("Artist Request");
+                        if (blanks == true) {
 
-                    if (hasRequest == true) {
+                            var noBlanksArr = splitPaste.filter(function(x) {
+                                return x !== "";
+                            });
 
-                        noBlanksArr.shift();
+                        } else {
 
-                    };
-
-                    var plasticS = (noBlanksArr[noBlanksArr.length - 2]).trim();
-
-                    if (plasticS == "S" || plasticS == "Flat") {
-
-                        var plasticSIndex = noBlanksArr.indexOf(noBlanksArr[noBlanksArr.length - 2]);
-
-                        noBlanksArr.splice(plasticSIndex, 1);
-
-                        if (plasticS == "Flat") {
-
-                            var productPostFlatIndex = noBlanksArr.indexOf(noBlanksArr[noBlanksArr.length - 2]);
-
-                            noBlanksArr[productPostFlatIndex] = noBlanksArr[noBlanksArr.length - 2] + "Flat";
+                            var noBlanksArr = splitPaste;
 
                         };
 
+
+                        if (noBlanksArr[0].includes(":")) {
+
+                            var str = noBlanksArr[0];
+                            
+                            str = str.substring(str.indexOf(":") + 1);
+
+                            noBlanksArr.splice(0, 1, str);
+
+                        };
+
+                        var hasRequest = noBlanksArr[0].includes("CREATIVE REQUEST") || noBlanksArr[0].includes("Creative Request") || noBlanksArr[0].includes("ARTIST REQUEST") || noBlanksArr[0].includes("Artist Request");
+
+                        if (hasRequest == true) {
+
+                            noBlanksArr.shift();
+
+                        };
+
+                        var plasticS = (noBlanksArr[noBlanksArr.length - 2]).trim();
+
+                        if (plasticS == "S" || plasticS == "Flat") {
+
+                            var plasticSIndex = noBlanksArr.indexOf(noBlanksArr[noBlanksArr.length - 2]);
+
+                            noBlanksArr.splice(plasticSIndex, 1);
+
+                            if (plasticS == "Flat") {
+
+                                var productPostFlatIndex = noBlanksArr.indexOf(noBlanksArr[noBlanksArr.length - 2]);
+
+                                noBlanksArr[productPostFlatIndex] = noBlanksArr[noBlanksArr.length - 2] + "Flat";
+
+                            };
+
+                        };
+
+                        // .NET stuff at end (~/*20104,51824,2*/~)
+                        // Remove spaces (just in case), "~/*", "*/~", then split at ","
+                        var splitCodes = noBlanksArr[noBlanksArr.length - 1].replace(' ','').replace('~/*','').replace('*/~','').split(",");
+
+                        var theClient = noBlanksArr[0].trim();
+
+                        var theLocation = noBlanksArr[1].trim();
+
+                        var theProduct = noBlanksArr[noBlanksArr.length - 2].trim();
+                        // updatedProduct = productID(updatedProduct, 1);
+                        // productID(updatedProduct, 1).then((updatedProduct) => {
+                        //     console.log("A snail was exceuted");
+                        //     return updatedProduct;
+                        // });
+
+                        var theCode = splitCodes[0].trim();            
+
+                        try {
+                            // var snailFace = productIDData["MENU"].productID;
+                            var match = productIDData[theProduct].productID;
+                            var updatedProduct = productIDData[theProduct].relativeProduct;
+
+                            $("#client").val(theClient);
+
+                            if (noBlanksArr.length > 3) {
+                                $("#location").val(theLocation);
+                            };
+
+                            $("#code").val(theCode);
+
+                            if (match == undefined) {
+                                console.log("Product is undefined...");
+                            } else {
+                                $("#product").val(updatedProduct).removeClass("grey-sel");
+                                console.log(`You matched ${updatedProduct}!`)
+                            }
+
+                        } catch (e) {
+                            // Something was wrong with the subject
+                            $("#warning1").show().text(`Something's wrong with this subject. Error: ` + e);
+                        };
+                    
                     };
+                };
 
-                    // .NET stuff at end (~/*20104,51824,2*/~)
-                    // Remove spaces (just in case), "~/*", "*/~", then split at ","
-                    var splitCodes = noBlanksArr[noBlanksArr.length - 1].replace(' ','').replace('~/*','').replace('*/~','').split(",");
+            //#endregion ---------------------------------------------------------------------------------------------------------------------
 
-                    var theClient = noBlanksArr[0].trim();
 
-                    var theLocation = noBlanksArr[1].trim();
+        //#endregion ----------------------------------------------------------------------------------------------------------------------
 
-                    var theProduct = noBlanksArr[noBlanksArr.length - 2].trim();
-                    // updatedProduct = productID(updatedProduct, 1);
-                    // productID(updatedProduct, 1).then((updatedProduct) => {
-                    //     console.log("A snail was exceuted");
-                    //     return updatedProduct;
-                    // });
 
-                    var theCode = splitCodes[0].trim();            
+        //#region AUTO POPULATED PRINT DATE BASED ON GROUP ---------------------------------------------------------------------------------
+
+            $("#group").change(() => tryCatch(groupToPrintLink));
+
+            function groupToPrintLink() {
+                var group = $("#group").val();
+
+                if (group.length == 0) {
+
+                    $("#print-date").val("");
+
+                } else {
+
+                    var theGroup = group.trim();
 
                     try {
-                        // var snailFace = productIDData["MENU"].productID;
-                        var match = productIDData[theProduct].productID;
-                        var updatedProduct = productIDData[theProduct].relativeProduct;
 
-                        $("#client").val(theClient);
+                        var printDateMatch = groupRefData[theGroup].printDate; 
 
-                        if (noBlanksArr.length > 3) {
-                            $("#location").val(theLocation);
-                        };
+                        var formattedPrintDateMatch = convertToDate(printDateMatch);
+                        var leNewDate = new Date(formattedPrintDateMatch);
+                        //converts the date into a simplifed format for dropdown: mm/dd/yy
+                        formattedPrintDateMatch = [('' + (leNewDate.getMonth() + 1)).slice(-2), ('' + leNewDate.getDate()).slice(-2), (leNewDate.getFullYear() % 100)].join('/');
 
-                        $("#code").val(theCode);
 
-                        if (match == undefined) {
-                            console.log("Product is undefined...");
-                        } else {
-                            $("#product").val(updatedProduct).removeClass("grey-sel");
-                            console.log(`You matched ${updatedProduct}!`)
-                        }
+                        $("#print-date").val(formattedPrintDateMatch);
 
                     } catch (e) {
-                        // Something was wrong with the subject
-                        $("#warning1").show().text(`Something's wrong with this subject. Error: ` + e);
+                        console.log("Error with print date autofill based on group letter input. Please debug to resolve.")
                     };
-                
+
                 };
             };
 
-        //#endregion ---------------------------------------------------------------------------------------------------------------------
+        //#endregion -----------------------------------------------------------------------------------------------------------------------
 
 
-    //#endregion -----------------------------------------------------------------------------------------------------------------
+        //#region AUTO POPULATE GROUP BASED ON PRINT DATE ----------------------------------------------------------------------------------
+
+            $("#print-date").change(() => tryCatch(printToGroupLink));
+
+            function printToGroupLink() {
+                var lePrintDate = $("#print-date").val();
+
+                if (lePrintDate.length == 0) {
+
+                    $("#group").val("");
+
+                } else {
+
+                    var thePrintDate = lePrintDate.trim();
+
+                    try {
+
+                        var groupMatch = printDateRefData[thePrintDate].group; 
 
 
-    $("#group").change(() => tryCatch(fartFunction));
+                        $("#group").val(groupMatch);
 
-    function fartFunction() {
-        var group = $("#group").val();
+                    } catch (e) {
+                        console.log("Error with print date autofill based on group letter input. Please debug to resolve.")
+                    };
 
-        if (group.length == 0) {
-
-            //clear print date dropdown
-
-        } else {
-
-            var theGroup = group.trim();
-
-            try {
-
-                var printDateMatch = groupRefData[theGroup].printDate; 
-
-                $("#print-date").val(printDateMatch);
-
-            } catch (e) {
-                console.log("Error with print date autofill based on group letter input. Please debug to resolve.")
+                };
             };
 
-        };
-    };
+        //#endregion ------------------------------------------------------------------------------------------------------------------------
 
+
+
+    //#endregion ---------------------------------------------------------------------------------------------------------------------------
 
 
     //#region TASKPANE BUTTONS --------------------------------------------------------------------------------------------------------------
@@ -3443,7 +3510,7 @@
 
                 //#endregion ---------------------------------------------------------------------------------------------------------------------
 
-
+           
                 //#region REMOVE INVALID HIGHLIGHTING IF NO LONGER INVALID -----------------------------------------------------------------------
 
                     if (rowInfoSorted.pickedUpStartedBy.value !== "NO PRODUCT / PROJECT TYPE" || rowInfoSorted.proofToClient.value !== "NO PRODUCT / PROJECT TYPE") {
@@ -3574,6 +3641,12 @@
                     };
 
                 //#endregion ---------------------------------------------------------------------------------------------------------------------
+
+                if (rowInfoSorted.status.value == "On Hold") {
+                    rowRangeSorted.format.fill.color = "#BFBFBF";
+                    rowRangeSorted.format.font.color = "#000000";
+                    rowRangeSorted.format.font.bold = false;
+                };
 
 
                 //#region ADD INVALID HIGHLIGHTING IF INVALID ------------------------------------------------------------------------------------
