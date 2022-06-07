@@ -147,7 +147,7 @@
                     //changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
                     //tryCatch(changeEvent);
 
-                    await context.sync().then(function() {
+                    await context.sync()
 
                         console.log("I sharkded");
 
@@ -280,7 +280,7 @@
                                     }; 
                                 };
 
-                                console.log(changesData);
+                                //console.log(changesData);
 
                             //#endregion ------------------------------------------------------------------------------
 
@@ -374,11 +374,13 @@
 
                         //#endregion --------------------------------------------------------------------------------------------------
 
+                        changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
+
                     }); 
 
-                    changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
+                    // changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
 
-                });
+                
                 // console.log(info);
                 tryCatch(updateDropDowns);
 
@@ -3029,7 +3031,7 @@
                                                 var dateOfLastEditTime = new Date();
                                                 var dateOfLastEditTimeJS = JSDateToExcelDate(dateOfLastEditTime);
 
-                                                leTable[rowIndex][rowInfo.dateOfLastEdit.columnIndex] = dateOfLastEditTimeJS; //write current date and time to the Date of Last Edit position within the table array
+                                                leTable[changedRowTableIndex][rowInfo.dateOfLastEdit.columnIndex] = dateOfLastEditTimeJS; //write current date and time to the Date of Last Edit position within the table array
 
                                             //#endregion ----------------------------------------------------------------------------------------
 
@@ -3091,22 +3093,24 @@
                                         } else if ((rowInfo.status.value == "Light Changes" && completedTableChanged == true) || (rowInfo.status.value == "Moderate Changes" && completedTableChanged == true) || (rowInfo.status.value == "Heavy Changes" && completedTableChanged == true)) { //if status column = "Editing" & the changedTable is a Completed table, move data back to the artist's table
                                             if (destinationTable !== "null") {
 
-                                                //#region UPDATE DATE OF LAST EDIT ------------------------------------------------------------------
-
-                                                    //generate a new date and time based on the current date and time
-                                                    var dateOfLastEditTime = new Date();
-                                                    var dateOfLastEditTimeJS = JSDateToExcelDate(dateOfLastEditTime);
-
-                                                    leTable[rowIndex][rowInfo.dateOfLastEdit.columnIndex] = dateOfLastEditTimeJS; //write current date and time to the Date of Last Edit position within the table array
-
-                                                //#endregion ----------------------------------------------------------------------------------------
-
-
                                                 //moveData(destinationTable, rowValues, myRow, rowInfo.artist.value);
                                                 myRow.delete(); //Deletes the changed row from the original sheet
                                                 destinationTable.rows.add(null);
                                     
-                                                destTable.push(rowValues[0]);
+                                                //destTable.push(rowValues[0]);
+
+                                                moveDataTwo(destTable, rowValues, leTable, changedRowTableIndex);
+
+                                                rowIndexInDestTable = destTable.length - 1;
+
+                                                //adjusts proof to client turn around time
+                                                var destProofToClientTime = getProofToClientTime(rowInfo, destTable, 97, rowIndexInDestTable); //since this will only ever trigger the part of the function that references ligh, moderate, and heavy changes, the pick up time value is unneeded for the most part. Therefore, the random number 97 is inserted to take up its spot, and to make sure the first if statement passes every time.
+
+                                                //var changedRowValues = leTable[changedRowTableIndex];
+
+                                                //sorts based on pickedUp column values and assigns priority numbers
+                                                //var sortAndPrioritize = leSorting(rowInfo, leTable, pickedUpColumnIndex, changedRowValues);
+
                                     
                                                 var destTableSort = leSorting(destRowInfo, destTable, proofToClientColumnIndex, rowValues[0]);
                                     
@@ -3183,6 +3187,16 @@
                                                 } else {
                                                     var destinationStation = "null";
                                                 };
+
+                                                // //#region UPDATE DATE OF LAST EDIT ------------------------------------------------------------------
+
+                                                //     //generate a new date and time based on the current date and time
+                                                //     var dateOfLastEditTime = new Date();
+                                                //     var dateOfLastEditTimeJS = JSDateToExcelDate(dateOfLastEditTime);
+
+                                                //     destTable[rowIndexPostSort][rowInfo.dateOfLastEdit.columnIndex] = dateOfLastEditTimeJS; //write current date and time to the Date of Last Edit position within the table array
+
+                                                // //#endregion ----------------------------------------------------------------------------------------
                                     
                                     
                                                 await context.sync();
@@ -3419,7 +3433,7 @@
                                 theGreatestFunctionEverWritten(head, name, rowValuesSorted, leTableSorted, rowInfoSorted, m);
                             };
         
-                            conditionalFormatting(rowInfoSorted, newTableStart, newChangedWorksheet, m, completedTableChanged, rowRangeSorted, completedTable);
+                            conditionalFormatting(rowInfoSorted, newTableStart, newChangedWorksheet, m, completedTableChanged, rowRangeSorted, destTable);
 
                         };
 
@@ -3457,7 +3471,7 @@
 
     //#region CONDITIONAL FORMATTING -------------------------------------------------------------------------------------------
 
-        function conditionalFormatting(rowInfoSorted, newTableStart, changedWorksheet, rowIndexPostSort, completedTableChanged, rowRangeSorted, completedTable) {
+        function conditionalFormatting(rowInfoSorted, newTableStart, changedWorksheet, rowIndexPostSort, completedTableChanged, rowRangeSorted, destTable) {
 
             /**
              * GET TABLE RANGE
@@ -3494,13 +3508,13 @@
             var groupAddress = changedWorksheet.getCell(worksheetRowIndex, groupWorksheetColumn);
 
 
-            // if (completedTable !== undefined && completedTableChanged == false) { //if something was moved to a completed table, clear all formatting
+            if (completedTableChanged == true && destTable == null) { //if completed table was changed, clear formatting and do not do any other formatting rules
 
-            //     rowRangeSorted.format.fill.clear();
-            //     rowRangeSorted.format.font.color = "black";
-            //     rowRangeSorted.format.font.bold = false;
+                rowRangeSorted.format.fill.clear();
+                rowRangeSorted.format.font.color = "black";
+                rowRangeSorted.format.font.bold = false;
 
-            // } else {
+            } else {
 
                 //#region ALL ENTRIES USE CONSISTENT FONT STYLING --------------------------------------------------------------------------------
 
@@ -3665,7 +3679,7 @@
 
 
 
-            //};
+            };
         
         };
 
