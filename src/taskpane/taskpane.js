@@ -1249,11 +1249,21 @@
 
                     //#endregion --------------------------------------------------------------------------------------------------------
 
-                    var tablePickedUpColumnIndex = tableRowInfo.pickedUpStartedBy.columnIndex
+                    var tablePickedUpColumnIndex = tableRowInfo.pickedUpStartedBy.columnIndex;
+                    var tableProofToClientColumnIndex = tableRowInfo.proofToClient.columnIndex;
 
                     rangeOfTable[tableRowIndex] = write[0];
 
-                    var gee = leSorting(tableRowInfo, rangeOfTable, tablePickedUpColumnIndex, write[0]);
+                    if (leSheetName == "Unassigned Projects") {
+
+                        var gee = leSorting(tableRowInfo, rangeOfTable, tablePickedUpColumnIndex, write[0]);
+
+                    } else {
+
+                        var gee = leSorting(tableRowInfo, rangeOfTable, tableProofToClientColumnIndex, write[0]);
+
+                    }
+
 
                     var kale = rowIndexPostSort;
 
@@ -1286,19 +1296,22 @@
                     
                     await context.sync();
 
-                    var newTableRowItems = newSheetTableRows.items;
+                    // var newTableRowItems = newSheetTableRows.items;
 
-                    var newRangeOfTable = newSheetTableRange.values;
+                    // var newRangeOfTable = newSheetTableRange.values;
 
-                    var newRowValuesOfTable = newTableRowItems[rowIndexPostSort].values;
+                    // var newRowValuesOfTable = newTableRowItems[rowIndexPostSort].values;
 
-                    var newRowRange = newSheetTableRows.getItemAt(rowIndexPostSort).getRange();
+                    // var newRowRange = newSheetTableRows.getItemAt(rowIndexPostSort).getRange();
 
-                    var newTableRowInfo = new Object();
+                    // var newTableRowInfo = new Object();
 
-                    for (var name of headerOfTable[0]) {
-                        theGreatestFunctionEverWritten(headerOfTable, name, newRowValuesOfTable, newRangeOfTable, newTableRowInfo, rowIndexPostSort);
-                    };
+                    // for (var name of headerOfTable[0]) {
+                    //     theGreatestFunctionEverWritten(headerOfTable, name, newRowValuesOfTable, newRangeOfTable, newTableRowInfo, rowIndexPostSort);
+                    // };
+
+                    // conditionalFormatting(newTableRowInfo, 0, sheet, rowIndexPostSort, false, newRowRange, completedTable);
+
 
 
 
@@ -1317,8 +1330,29 @@
                     //     theGreatestFunctionEverWritten(head, name, rowValuesSorted, leTableSorted, rowInfoSorted, rowIndexPostSort);
                     // };
 
-                    conditionalFormatting(newTableRowInfo, 0, sheet, rowIndexPostSort, false, newRowRange, completedTable);
 
+
+
+                    for (var m = 0; m < rangeOfTable.length; m++) {
+
+
+                        var newTableRowItems = newSheetTableRows.items;
+
+                        var newRangeOfTable = newSheetTableRange.values;
+    
+                        var newRowValuesOfTable = newTableRowItems[m].values;
+    
+                        var newRowRange = newSheetTableRows.getItemAt(m).getRange();
+    
+                        var newTableRowInfo = new Object();
+    
+                        for (var name of headerOfTable[0]) {
+                            theGreatestFunctionEverWritten(headerOfTable, name, newRowValuesOfTable, newRangeOfTable, newTableRowInfo, m);
+                        };
+    
+                        conditionalFormatting(newTableRowInfo, 0, sheet, m, false, newRowRange, null);
+
+                    };
 
 
 
@@ -2644,11 +2678,71 @@
                     //#endregion ---------------------------------------------------------------------------------------------------------------
 
                     if (changeType == "RowDeleted") {
+
                         console.log("RowPeepee");
-                        console.log(details);
+
+
+                        if (changedTable.id == unassignedTable.id) {
+                            leTable = leSorting(rowInfo, leTable, pickedUpColumnIndex, rowValues[0]);
+                        };
+                        if (changedTable.id !== unassignedTable.id && completedTableChanged == false) {
+                            leTable = leSorting(rowInfo, leTable, proofToClientColumnIndex, rowValues[0]);
+                        };
+
+                        for (var m = 0; m < leTable.length; m++) {
+
+                            var rowRangeSorted = changedTableRows.getItemAt(m).getRange();
+    
+                            var rowValuesSorted = tableRows[m].values;
+
+                            var rowInfoSorted = new Object();
+    
+                            for (var name of head[0]) {
+                                theGreatestFunctionEverWritten(head, name, rowValuesSorted, leTable, rowInfoSorted, m);
+                            };
+        
+                            conditionalFormatting(rowInfoSorted, tableStart, changedWorksheet, m, completedTableChanged, rowRangeSorted, null);
+
+                        };
+
+
+                        //conditionalFormatting(rowInfo, tableStart, changedWorksheet, changedRowTableIndex, completedTableChanged, rowRange, completedTable);
+                        eventsOn();
+
+                        return;
+
                     };
 
                     if ((changedColumnIndex == rowInfo.printDate.columnIndex) || (changedColumnIndex == rowInfo.group.columnIndex)) {
+
+                        if (changedColumnIndex == rowInfo.printDate.columnIndex) {
+
+                            var formattedDate = convertToDate(rowInfo.printDate.value);
+                            var newerDate = new Date(formattedDate);
+                            formattedDate = [('' + (newerDate.getMonth() + 1)).slice(-2), ('' + newerDate.getDate()).slice(-2), (newerDate.getFullYear() % 100)].join('/');
+
+                            try {
+                                var matchGroup = printDateRefData[formattedDate].group;
+                            }
+                            catch (e) {
+                                if (matchGroup == undefined) {
+                                    matchGroup = "N/A";
+                                };
+                            };
+                     
+                            leTable[changedRowTableIndex][rowInfo.group.columnIndex] = matchGroup;
+                            bodyRange.values = leTable;
+                        }
+
+                        if (changedColumnIndex == rowInfo.group.columnIndex) {
+                            var matchPrintDate = groupRefData[rowInfo.group.value].printDate;
+                            if (matchPrintDate == undefined) {
+                                matchPrintDate = "N/A";
+                            };
+                            leTable[changedRowTableIndex][rowInfo.printDate.columnIndex] = matchPrintDate;
+                            bodyRange.values = leTable;
+                        };
+
                         conditionalFormatting(rowInfo, tableStart, changedWorksheet, changedRowTableIndex, completedTableChanged, rowRange, completedTable);
                         eventsOn();
                     };
@@ -2674,8 +2768,17 @@
 
                             var changedRowValues = leTable[changedRowTableIndex];
 
-                            //sorts based on pickedUp column values and assigns priority numbers
-                            var sortAndPrioritize = leSorting(rowInfo, leTable, pickedUpColumnIndex, changedRowValues);
+                            if (changedTable.id == unassignedTable.id) {
+
+                                //sorts based on pickedUp column values and assigns priority numbers
+                                var sortAndPrioritize = leSorting(rowInfo, leTable, pickedUpColumnIndex, changedRowValues);
+                                
+                            } else {
+
+                                //sorts based on proof to client column values and assigns priority numbers
+                                var sortAndPrioritize = leSorting(rowInfo, leTable, proofToClientColumnIndex, changedRowValues);
+                            
+                            };
 
                             var check = rowIndexPostSort;
 
@@ -2832,33 +2935,60 @@
                                         destinationTableRange = toddRange;
                                         destinationHeader = toddHeader;
                                     } else {
-                                        destinationTable = "null";
-                                        destinationTableName = "null";
-                                        destinationRows = "null";
-                                        destinationTableRange = "null";
-                                        destinationHeader = "null";
+                                        destinationTable = null;
+                                        destinationTableName = null;
+                                        destinationRows = null;
+                                        destinationTableRange = null;
+                                        destinationHeader = null;
                                     };
 
                                     //For the time being, I am recreating the variables from the changed table to work with the destination table.
                                     //I am replacing the changed row index with 0 since, at this point, there is no changed row in the destination table. We just need these values to essentially return the index number of the columns we want from the destination table in future functions.
                                     
-                                    var destinationRange = destinationTableRange.values;
+                                    if (destinationTable == null || destinationTableName == null || destinationRows == null || destinationTableRange == null || destinationHeader == null) {
 
-                                    var destRowValues = destinationRows[0].values;
+                                        // for (var m = 0; m < leTable.length; m++) {
 
-                                    var destTableName = destinationTableName;
+                                        //     var rowRangeSorted = changedTableRows.getItemAt(m).getRange();
+                    
+                                        //     var rowValuesSorted = tableRows[m].values;
+                
+                                        //     var rowInfoSorted = new Object();
+                    
+                                        //     for (var name of head[0]) {
+                                        //         theGreatestFunctionEverWritten(head, name, rowValuesSorted, leTable, rowInfoSorted, m);
+                                        //     };
+                        
+                                        //     conditionalFormatting(rowInfoSorted, tableStart, changedWorksheet, m, completedTableChanged, rowRangeSorted, null);
+                
+                                        // };
 
-                                    //var destRow = destTableRows.getItemAt(0);
+                                        // return;
 
-                                    var destTable = JSON.parse(JSON.stringify(destinationRange));
+                                        console.log("I actually don't need any of these destination table variables!");
 
-                                    var destHead = destinationHeader.values;
+                                    } else {
 
-                                    var destRowInfo = new Object();
+                                        var destinationRange = destinationTableRange.values;
 
-                                    for (var name of destHead[0]) {
-                                        theGreatestFunctionEverWritten(destHead, name, destRowValues, destTable, destRowInfo, 0)
-                                    }
+                                        var destRowValues = destinationRows[0].values;
+    
+                                        var destTableName = destinationTableName;
+    
+                                        //var destRow = destTableRows.getItemAt(0);
+    
+                                        var destTable = JSON.parse(JSON.stringify(destinationRange));
+    
+                                        var destHead = destinationHeader.values;
+    
+                                        var destRowInfo = new Object();
+    
+                                        for (var name of destHead[0]) {
+                                            theGreatestFunctionEverWritten(destHead, name, destRowValues, destTable, destRowInfo, 0)
+                                        };
+
+                                    };
+                      
 
 
                                 //#endregion ----------------------------------------------------------------------------------------------
@@ -2978,7 +3108,7 @@
 
                             //#region CHECK TABLE HEADERS TO SEE IF THEY ARE THE SAME BEFORE MOVING DATA ----------------------------
 
-                                if (destinationTable !== "null" || destinationHeader !== "null") {
+                                if (destinationTable !== null || destinationHeader !== null) {
 
                                     var headerValues = headerRange.values[0];
                                     var destHeaderValues = destinationHeader.values[0];
@@ -3521,6 +3651,7 @@
                     rowRangeSorted.format.font.name = "Calibri";
                     rowRangeSorted.format.font.size = 12;
                     rowRangeSorted.format.font.color = "#000000";
+                    rowRangeSorted.format.font.bold = false;
 
                 //#endregion ---------------------------------------------------------------------------------------------------------------------
 
@@ -3538,29 +3669,94 @@
                 //#endregion ---------------------------------------------------------------------------------------------------------------------
 
 
+                //#region GROUP & PRINT DATE FORMATTING ------------------------------------------------------------------------------------------
+
+                    if (printDate == currentDateAbsolute) { //if current date = print date
+
+                        rowRangeSorted.format.font.color = "#C00000";
+                        rowRangeSorted.format.font.bold = true;
+
+                    } else if (((printDate - 1) == currentDateAbsolute)) { //if current date is the day before print date
+
+                        rowRangeSorted.format.font.color = "#C00000";
+                        rowRangeSorted.format.font.bold = true;
+
+                    } else if (((printDate - 6) <= currentDateAbsolute) && ((printDate - 2) >= currentDateAbsolute)) { //if current date is in the same group lock week as print date (between 7-2 days before)
+
+                        rowRangeSorted.format.font.color = "#C00000";
+                        rowRangeSorted.format.font.bold = true;
+
+                    } else if (((printDate - 13) <= currentDateAbsolute) && ((printDate - 7) >= currentDateAbsolute)) { //if current date is in the week before group lock week (between 8-14 days before)
+
+                        rowRangeSorted.format.font.color = "70AD47";
+                        rowRangeSorted.format.font.bold = true;
+
+                    } else if ((printDate < currentDateAbsolute) && (printDate !== 0)) { //if current date is after print date
+
+                        rowRangeSorted.format.fill.color = "black";
+                        rowRangeSorted.format.font.color = "white";
+                        rowRangeSorted.format.font.bold = true;
+
+                    } else { //set cell formatting to normal
+
+                        rowRangeSorted.format.fill.clear();
+                        rowRangeSorted.format.font.color = "black";
+                        rowRangeSorted.format.font.bold = false;
+
+                    };
+
+                //#endregion ---------------------------------------------------------------------------------------------------------------------
+
+                if (rowInfoSorted.group.value == "N/A") {
+
+                    rowRangeSorted.format.fill.clear();
+                    rowRangeSorted.format.font.color = "black";
+                    rowRangeSorted.format.font.bold = false;
+                };
+
+                if (rowInfoSorted.status.value == "Working") {
+
+                    rowRangeSorted.format.fill.color = "#FFE699";
+                    rowRangeSorted.format.font.color = "#9C5700";
+                    rowRangeSorted.format.font.bold = true;
+
+                };
+
+                if ((printDate < currentDateAbsolute) && (printDate !== 0)) { //if current date is after print date
+
+                    rowRangeSorted.format.fill.color = "black";
+                    rowRangeSorted.format.font.color = "white";
+                    rowRangeSorted.format.font.bold = true;
+
+                };
+
                 //#region OVERDUE HIGHLIGHTING ---------------------------------------------------------------------------------------------------
 
 
                     //#region PICKED UP / STARTED BY OVERDUE -------------------------------------------------------------------------------------
 
-                        if (toSerial > rowInfoSorted.pickedUpStartedBy.value) {
-                            pickedUpAddress.format.fill.color = "FFC000";
-                        } else {
-                            pickedUpAddress.format.fill.clear();
-                        };
+                        if (toSerial > rowInfoSorted.pickedUpStartedBy.value && changedWorksheet.name == "Unassigned Projects") {
+                            //pickedUpAddress.format.fill.color = "FFC000";
+                            rowRangeSorted.format.fill.color = "FFC000";
+                            rowRangeSorted.format.font.color = "black";
+                        } //else {
+                        //     pickedUpAddress.format.fill.clear();
+                        // };
 
                     //#endregion -----------------------------------------------------------------------------------------------------------------
 
 
                     //#region PROOF TO CLIENT OVERDUE --------------------------------------------------------------------------------------------
 
-                        if (toSerial > rowInfoSorted.proofToClient.value) {
-                            proofToClientAddress.format.fill.color = "FF0000";
-                            proofToClientAddress.format.font.color = "white";
-                        } else {
-                            proofToClientAddress.format.fill.clear();
-                            proofToClientAddress.format.font.color = "black";
-                        };
+                        if (toSerial > rowInfoSorted.proofToClient.value && changedWorksheet.name !== "Unassigned Projects") {
+                            // proofToClientAddress.format.fill.color = "FF0000";
+                            // proofToClientAddress.format.font.color = "white";
+                            rowRangeSorted.format.fill.color = "FF0000";
+                            rowRangeSorted.format.font.color = "white";
+                        } //else {
+                        //     proofToClientAddress.format.fill.clear();
+                        //     proofToClientAddress.format.font.color = "black";
+                        // };
 
                     //#endregion ----------------------------------------------------------------------------------------------------------------
 
@@ -3568,97 +3764,21 @@
                 //#endregion ---------------------------------------------------------------------------------------------------------------------
 
 
-                //#region GROUP & PRINT DATE FORMATTING ------------------------------------------------------------------------------------------
-
-                    if ((printDate < currentDateAbsolute) && (printDate !== 0)) { //if current date is after print date
-
-                        printDateAddress.format.fill.color = "black";
-                        printDateAddress.format.font.color = "white";
-                        printDateAddress.format.font.bold = true;
-
-                        groupAddress.format.fill.color = "black";
-                        groupAddress.format.font.color = "white";
-                        groupAddress.format.font.bold = true;
-
-                        //groupAddress.values = [[appendGroup]];
-
-                    } else if (printDate == currentDateAbsolute) { //if current date = print date
-
-                        printDateAddress.format.fill.clear();
-                        printDateAddress.format.font.color = "FF0000";
-                        printDateAddress.format.font.bold = true;
-
-                        groupAddress.format.fill.clear();
-                        groupAddress.format.font.color = "FF0000";
-                        groupAddress.format.font.bold = true;
-
-                    } else if (((printDate - 1) == currentDateAbsolute)) { //if current date is the day before print date
-
-                        printDateAddress.format.fill.clear();
-                        printDateAddress.format.font.color = "FF0000";
-                        printDateAddress.format.font.bold = true;
-
-                        groupAddress.format.fill.clear();
-                        groupAddress.format.font.color = "FF0000";
-                        groupAddress.format.font.bold = true;
-
-                    } else if (((printDate - 6) <= currentDateAbsolute) && ((printDate - 2) >= currentDateAbsolute)) { //if current date is in the same group lock week as print date (between 7-2 days before)
-
-                        printDateAddress.format.fill.clear();
-                        printDateAddress.format.font.color = "FF0000";
-                        printDateAddress.format.font.bold = true;
-
-                        groupAddress.format.fill.clear(); //FF8B82
-                        groupAddress.format.font.color = "FF0000";
-                        groupAddress.format.font.bold = true;
-
-                    } else if (((printDate - 13) <= currentDateAbsolute) && ((printDate - 7) >= currentDateAbsolute)) { //if current date is in the week before group lock week (between 8-14 days before)
-
-                        printDateAddress.format.fill.clear();
-                        printDateAddress.format.font.color = "70AD47";
-                        printDateAddress.format.font.bold = true;
-
-                        groupAddress.format.fill.clear();
-                        groupAddress.format.font.color = "70AD47";
-                        groupAddress.format.font.bold = true;
-
-                        // } else if (((printDate - 30) <= currentDateAbsolute) && ((printDate - 14) >= currentDateAbsolute)) { //if current date is within a month of print date (between 15-31 days before)
-
-                        //   printDateAddress.format.fill.color = "C6E0B4";
-                        //   printDateAddress.format.font.color = "black";
-                        //   printDateAddress.format.font.bold = false;
-
-                        //   groupAddress.format.fill.color = "C6E0B4";
-                        //   groupAddress.format.font.color = "black";
-                        //   groupAddress.format.font.bold = false;
-
-                    } else if (printDate == 0) { //if there are no values in the print date cell, revert to normal formatting
-
-                        printDateAddress.format.fill.clear();
-                        printDateAddress.format.font.color = "black";
-                        printDateAddress.format.font.bold = false;
-
-                        groupAddress.format.fill.clear();
-                        groupAddress.format.font.color = "black";
-                        groupAddress.format.font.bold = false;
-
-                    } else { //set cell formatting to normal
-
-                        printDateAddress.format.fill.clear();
-                        printDateAddress.format.font.color = "black";
-                        printDateAddress.format.font.bold = false;
-
-                        groupAddress.format.fill.clear();
-                        groupAddress.format.font.color = "black";
-                        groupAddress.format.font.bold = false;
-
-                    };
-
-                //#endregion ---------------------------------------------------------------------------------------------------------------------
-
                 if (rowInfoSorted.status.value == "On Hold") {
                     rowRangeSorted.format.fill.color = "#BFBFBF";
                     rowRangeSorted.format.font.color = "#000000";
+                    rowRangeSorted.format.font.bold = false;
+                };
+
+                if (rowInfoSorted.status.value == "In Review") {
+                    rowRangeSorted.format.fill.clear()
+                    rowRangeSorted.format.font.color = "#757171";
+                    rowRangeSorted.format.font.bold = false;
+                };
+
+                if (rowInfoSorted.status.value == "At Client") {
+                    rowRangeSorted.format.fill.clear()
+                    rowRangeSorted.format.font.color = "#757171";
                     rowRangeSorted.format.font.bold = false;
                 };
 
