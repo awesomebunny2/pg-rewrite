@@ -2967,12 +2967,34 @@
 
                                         console.log("I actually don't need any of these destination table variables!");
 
+                                    // } else if (destinationRows.length == 0 && destinationTable !== null) {
+
+                                    //     var destinationRange = destinationTableRange.values;
+
+                                    //     var destRowValues = destinationRange;
+
+                                    //     var destTableName = destinationTableName;
+
+                                    //     var destTable = JSON.parse(JSON.stringify(destinationRange));
+
+                                    //     var destHead = destinationHeader.values;
+
+                                    //     var destRowInfo = new Object();
+
+                                    //     for (var name of destHead[0]) {
+                                    //         theGreatestFunctionEverWritten(destHead, name, destRowValues, destTable, destRowInfo, 0)
+                                    //     };
+
                                     } else {
 
                                         var destinationRange = destinationTableRange.values;
 
-                                        var destRowValues = destinationRows[0].values;
-    
+                                        if (destinationRows.length == 0) {
+                                            var destRowValues = destinationRange;
+                                        } else {
+                                            var destRowValues = destinationRows[0].values;
+                                        };
+
                                         var destTableName = destinationTableName;
     
                                         //var destRow = destTableRows.getItemAt(0);
@@ -3363,6 +3385,12 @@
                                                 //moveData(destinationTable, rowValues, myRow, rowInfo.artist.value);
                                                 moveDataTwo(destTable, rowValues, leTable, changedRowTableIndex);
 
+                                                if (destinationRows.length == 0) {
+                                                    destTable.shift();
+                                                };
+
+                                          
+
                                                 if (changedTable.id == unassignedTable.id) { //if data is moving from the unassigned table to an artist table, sort this way...
 
                                                     var leTableSort = leSorting(rowInfo, leTable, pickedUpColumnIndex, rowValues[0]); //sorts the changed unassigned table by picked up / started by
@@ -3385,6 +3413,14 @@
 
                                                 destinationTable.rows.add(null);
                                                 //destinationTableRange.values = destTableSort;
+
+                                                // var farts = destinationRows[0];
+
+                                                // var sharts = destinationTable.rows[0];
+
+                                                // if (destinationRows.length == 0) {
+                                                //     destTableSort.shift();
+                                                // };
 
                                                 var bodyPositivity = changedTable.getDataBodyRange().load("values");
 
@@ -3424,9 +3460,9 @@
                                                 } else if (rowInfo.artist.value == "Joe") {
                                                     var destinationStation = joeRange;
                                                 } else if (rowInfo.artist.value == "Sarah") {
-                                                    var destinationStation = peterRange;
+                                                    var destinationStation = sarahRange;
                                                 } else if (rowInfo.artist.value == "Michael") {
-                                                    var destinationStation = peterRange;
+                                                    var destinationStation = michaelRange;
                                                 } else if (rowInfo.artist.value == "Danny") {
                                                     var destinationStation = dannyRange;
                                                 } else if (rowInfo.artist.value == "Josh") {
@@ -3465,8 +3501,13 @@
 
                                                     var newBodyRange = bodyPositivity.values;
                                                     var newDestinationTableRange = destinationStation.values;
+
+                                                    if (leTable.length == 0) {
+                                                        newBodyRange.shift();
+                                                    };
     
-                                                    bodyPositivity.values = leTableSort;
+                                                    // bodyPositivity.values = leTableSort;
+                                                    newBodyValues = leTableSort;
     
                                                     destinationStation.values = destTableSort;
     
@@ -3523,11 +3564,20 @@
     
                             var newBodyValues = destinationTable.getDataBodyRange().load("values");
 
-                            var destinationWorksheetId = destinationTable.worksheet.id
+                            var destinationWorksheetId = destinationTable.worksheet.id;
 
                             var newChangedWorksheet = context.workbook.worksheets.getItem(destinationWorksheetId).load("name");
 
-                            var startOfTable = destinationTable.getRange().load("columnIndex");
+                            var newStartOfTable = destinationTable.getRange().load("columnIndex");
+
+
+                            // var otherTableRows = changedTable.rows.load("items");
+
+                            // var otherBodyValues = changedTable.getDataBodyRange().load("values");
+
+                            // var otherWorksheet = changedWorksheet;
+
+                            // var otherStartOfTable = startOfTable;
 
     
                         } else {
@@ -3537,9 +3587,23 @@
                             var newBodyValues = changedTable.getDataBodyRange().load("values");
 
                             var newChangedWorksheet = changedWorksheet;
+
+                            var newStartOfTable = startOfTable;
+
+
+                            // var otherTableRows = destinationTable.rows.load("items");
+
+                            // var otherBodyValues = destinationTable.getDataBodyRange().load("values");
+
+                            // var otherWorksheetId = destinationTable.worksheet.id;
+
+                            // var otherWorksheet = context.workbook.worksheets.getItem(otherWorksheetId).load("name");
+
+                            // var otherStartOfTable = destinationTable.getRange().load("columnIndex");
+
     
                         };
-    
+   
 
                         await context.sync();
     
@@ -3548,7 +3612,7 @@
 
                         var tableRowsSorted = newChangedTableRows.items;
 
-                        var newTableStart = startOfTable.columnIndex; //column index of the start of the table
+                        var newTableStart = newStartOfTable.columnIndex; //column index of the start of the table
 
 
                         for (var m = 0; m < leTableSorted.length; m++) {
@@ -3566,6 +3630,32 @@
                             conditionalFormatting(rowInfoSorted, newTableStart, newChangedWorksheet, m, completedTableChanged, rowRangeSorted, destTable);
 
                         };
+
+
+
+
+                        // var leOtherTableSorted = otherBodyValues.values
+
+                        // var otherTableRowsSorted = otherTableRows.items;
+
+                        // var otherTableStart = otherStartOfTable.columnIndex; //column index of the start of the table
+
+
+                        // for (var m = 0; m < leOtherTableSorted.length; m++) {
+
+                        //     var otherRowRangeSorted = otherTableRows.getItemAt(m).getRange();
+    
+                        //     var otherRowValuesSorted = otherTableRowsSorted[m].values;
+
+                        //     var otherRowInfoSorted = new Object();
+    
+                        //     for (var name of head[0]) {
+                        //         theGreatestFunctionEverWritten(head, name, otherRowValuesSorted, leOtherTableSorted, otherRowInfoSorted, m);
+                        //     };
+        
+                        //     conditionalFormatting(otherRowInfoSorted, otherTableStart, otherWorksheet, m, completedTableChanged, otherRowRangeSorted, destTable);
+
+                        // };
 
 
                         //var rowRangeSorted = newChangedTableRows.getItemAt(rowIndexPostSort).getRange();
