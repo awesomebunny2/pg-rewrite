@@ -1,3 +1,49 @@
+
+
+$(() => {
+    // DOCUMENT LOADED
+    console.log("DOCUMENT LOADED");
+
+    /**
+     * Clicking this prints a mouse =============================
+     */
+    $("#meece").on("click", () => {
+        //location.reload();
+        console.log("CLICKED🐭");
+        showFissh("show");
+    })
+
+    $(".ok").on("click", function() {
+        showFissh("hide");
+        location.reload();
+    });
+
+    $(".dont").on("click", function() {
+        showFissh("hide");
+    });
+
+
+    $("#reload").on("click", function() {
+
+        // Hide the message
+        // alert("YES YOU ARE!");
+        showMessage(undefined, "hide");
+        location.reload();
+
+    });
+
+
+    // function showMessage(msg, showHide) {
+    //     if (showHide === "hide") {
+    //         $("#message-text").empty();
+    //         $("#message").css("display", "none");
+    //     } else if (showHide === "show") {
+    //         $("#message-text").text(msg);
+    //         $("#message").css("display", "flex");
+    //     }
+    // }
+});
+
 //#region GLOBAL -------------------------------------------------------------------------------------------------------------------------------
 
     //#region TEST SUBJECTS -----------------------------------------------------------------------------------------------------------------------
@@ -61,6 +107,7 @@
     var groupRefData = {};
     var loop = true;
     var changeEvent;
+    var selectionEvent;
     var snailPoop = {};
 
     var rowIndexPostSort;
@@ -94,6 +141,20 @@
 
 //#endregion ----------------------------------------------------------------------------------------------------------------------------------
 
+// Office.onReady((info) => {
+
+//     // eventsOn();
+
+//     if (info.host === Office.HostType.Excel) {
+
+
+//         Excel.run(async (context) => {
+
+//             registerEventHandlers();
+//         });
+//     };
+// });
+
 
 //#region ON READY ---------------------------------------------------------------------------------------------------------------------------
 
@@ -107,6 +168,8 @@
 
 
                 Excel.run(async (context) => {
+
+                    // registerEventHandlers();
 
                     //#region LOADING VALUES ---------------------------------------------------------------------------------
 
@@ -124,6 +187,7 @@
                         var activeSheet = context.workbook.worksheets.getActiveWorksheet();
                         //activeSheet.onChanged.add(handleChange);
                         // context.runtime.load("enableEvents");
+                        //var activeTable = activeSheet.tables.getItemAt(0);
 
 
 
@@ -376,6 +440,8 @@
 
                         changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
 
+                        //selectionEvent = activeTable.onSelectionChanged.add(onTableSelectionChange);
+
                     }); 
 
                     // changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
@@ -392,6 +458,72 @@
     //#endregion ---------------------------------------------------------------------------------------------------------------
 
 //#endregion -----------------------------------------------------------------------------------------------------------------
+
+
+// async function registerEventHandlers() {
+//     await Excel.run(async (context) => {
+
+//         // var activeSheet = context.workbook.worksheets.getActiveWorksheet();
+    
+//         // let activeTable = activeSheet.tables.getItemAt(0);
+//         // activeTable.onSelectionChanged.add(onTableSelectionChange);
+
+//         // let table = context.workbook.tables.getItemAt(0);
+//         // table.onSelectionChanged.add(onTableSelectionChange);
+
+//         //Add a selection changed event handler for the worksheet.
+//         let sheet = context.workbook.worksheets.getItem("Sample");
+//         sheet.onSelectionChanged.add(onWorksheetSelectionChange);
+
+//         // Add a selection changed event handler for the worksheet collection.
+//         context.workbook.worksheets.onSelectionChanged.add(onWorksheetCollectionSelectionChange);
+ 
+    
+//         await context.sync();
+//     });
+//   }
+
+
+//   async function onWorksheetSelectionChange(eventArgs) {
+//     await Excel.run(async (context) => {
+//       console.log(`Worksheet event: The address of new selection is: ${eventArgs.address}`);
+//     });
+//   }
+  
+//   async function onWorksheetCollectionSelectionChange(eventArgs) {
+//     await Excel.run(async (context) => {
+//       console.log(`WorksheetCollection event: The address of new selection is: ${eventArgs.address}`);
+//     });
+//   }
+
+
+
+// async function onTableSelectionChange(eventArgs) {
+//     await Excel.run(async (context) => {
+//         console.log(`Table event: The address of new selection is: ${eventArgs.address}`);
+//     });
+// };
+
+// $("#pleasework").on("click", () => {
+//     console.log("PLEASE WORKKK!@!!");
+// });
+
+
+
+
+// $("#ask-question").mouseup(function() {
+//     console.log("mouses 🐭");
+// })
+
+// $("#ask-question").on("mouseUp", function() {
+
+//     console.log("fired leSnail");
+
+//     // Show the dialog with a customized message
+
+
+// });
+
 
 
 //#region TASKPANE ---------------------------------------------------------------------------------------------------------------------------
@@ -962,9 +1094,13 @@
 
     //#region TASKPANE BUTTONS --------------------------------------------------------------------------------------------------------------
 
+        // $("#meece").on("click", () => {
+        //     console.log("CLICKED🐭");
+        // })
+
         //#region ON SUBMIT CLICK ------------------------------------------------------------------------------------------------
 
-            $("#submit").on("click", function() {
+            $("#submit").on("click", async function() {
 
                 //adds warnings and doesn't write values to sheet
                 if ((($("#client").val()) == "") || (($("#product").val()) == null) || (($("#project-type").val()) == null)) {
@@ -979,7 +1115,10 @@
                     removeWarningClass("#client", "#warning2");
                     removeWarningClass("#product", "#warning3");
                     removeWarningClass("#project-type", "#warning4");
-                    addAProjectEvents();
+                    await addAProjectEvents().catch(err => {
+                        console.log(err);
+                        showMessage(err, "show");
+                    });
                 };
             });
 
@@ -1017,6 +1156,7 @@
              * Turns events off, then executes the addAProject function
              */
             async function addAProjectEvents() {
+                // throw("YOU MESSED UP");
                 await Excel.run(async (context) => {
                     context.runtime.load("enableEvents");
                     await context.sync().then(function () {
@@ -2281,19 +2421,61 @@
 
             console.log("I have been TRIGGERED!");
 
+            // try {
+            //     await Excel.run(async (context) => {
+            //         context.runtime.load("enableEvents");
+            //         await context.sync().then(function () {
+    
+            //             //turns events off
+            //             context.runtime.enableEvents = false;
+            //             console.log("Events are turned off");
+    
+            //         });
+            //         // var result = await onTableChanged(eventArgs).then(tableChangedPriorityAndSort(poop.rowInfo, poop.bodyRange, poop.priorityColumnData));
+            //     }).then(function() {
+            //         onTableChanged(eventArgs);
+            //     });
+            // } catch (error) {
+            //     showMessage(error, "show");
+            // };
+
+            // await Excel.run(async (context) => {
+
+            //     context.runtime.load("enableEvents");
+
+            //     await context.sync();
+
+            //     console.log("I awaited the context.sync().")
+            //     context.runtime.enableEvents = false;
+            //     console.log("Events are turned off");
+               
+            //     // var result = await onTableChanged(eventArgs).then(tableChangedPriorityAndSort(poop.rowInfo, poop.bodyRange, poop.priorityColumnData));
+            // });
+
+            // console.log("Excel.run() is done.")
+
+            // tryCatch(onTableChanged(eventArgs)); // <---
+
             await Excel.run(async (context) => {
+
                 context.runtime.load("enableEvents");
-                await context.sync().then(function () {
 
-                    //turns events off
-                    context.runtime.enableEvents = false;
-                    console.log("Events are turned off");
+                await context.sync();
 
-                });
+                console.log("I awaited the context.sync().")
+                context.runtime.enableEvents = false;
+                console.log("Events are turned off");
+               
                 // var result = await onTableChanged(eventArgs).then(tableChangedPriorityAndSort(poop.rowInfo, poop.bodyRange, poop.priorityColumnData));
-            }).then(function() {
-                tryCatch(onTableChanged(eventArgs));
             });
+
+            console.log("Excel.run() is done. Can we catch the error from the async onTableChanged()?? 🐭")
+
+            await onTableChanged(eventArgs).catch(err => {
+                console.log(err) // <--- does this log?
+                showMessage(err, "show");
+            })
+            
         };
 
     //#endregion ---------------------------------------------------------------------------------------------------------------------------
@@ -3418,9 +3600,9 @@
 
                                                 // var sharts = destinationTable.rows[0];
 
-                                                // if (destinationRows.length == 0) {
-                                                //     destTableSort.shift();
-                                                // };
+                                                if (destinationRows.length == 0) {
+                                                    destTableSort.shift();
+                                                };
 
                                                 var bodyPositivity = changedTable.getDataBodyRange().load("values");
 
@@ -3896,6 +4078,25 @@
 
     //#endregion ---------------------------------------------------------------------------------------------------------------
 
+
+    function showMessage(msg, showHide) {
+        if (showHide === "hide") {
+            $("#message-text").empty();
+            $("#message").css("display", "none");
+        } else if (showHide === "show") {
+            $("#message-text").text(msg);
+            $("#message").css("display", "flex");
+        }
+    }
+
+
+    function showFissh(showHide) {
+        if (showHide === "hide") {
+            $("#fissh").css("display", "none");
+        } else if (showHide === "show") {
+            $("#fissh").css("display", "flex");
+        };
+    };
 
     //#region CHECK EVENTS -----------------------------------------------------------------------------------------------------------------------
 
@@ -4385,12 +4586,18 @@
 
         //#region TRY CATCH ---------------------------------------------------------------------------------------------
             async function tryCatch(callback) {
-                try {
-                    await callback();
-                } catch (error) {
-                    console.error(error);
-                }
-            }
+                console.log("Error callback type is: ");
+                console.log(typeof callback);
+                //if (typeof callback === 'function') {
+                    try {
+                        await callback();
+                    } catch (error) {
+                        console.error(error);
+                        showMessage(error, "show");
+
+                    }
+                //}
+        }
         //#endregion ---------------------------------------------------------------------------------------------------
 
     //#endregion -----------------------------------------------------------------------------------------------------

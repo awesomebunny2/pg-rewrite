@@ -5,306 +5,340 @@
 <html lang="en-US">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Contoso Task Pane Add-in</title>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contoso Task Pane Add-in</title>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 
-    <!-- Office JavaScript API -->
-    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
+  <!-- Office JavaScript API -->
+  <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
 
-    <!-- For more information on Fluent UI, visit https://developer.microsoft.com/fluentui#/. -->
-    <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/9.6.1/css/fabric.min.css"/>
+  <!-- For more information on Fluent UI, visit https://developer.microsoft.com/fluentui#/. -->
+  <link rel="stylesheet"
+    href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/9.6.1/css/fabric.min.css" />
 
-    <!-- Template styles -->
-    <link href="taskpane.css" rel="stylesheet" type="text/css" />
+  <!-- Template styles -->
+  <link href="taskpane.css" rel="stylesheet" type="text/css" />
 
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
 
 </head>
 
 <body>
+  <!-- <button id="pleasework">Please Work!</button> -->
 
-    <div id="container">
+  <div id="message">
+    <div id="dialog">
+      <header>
+        <h2>
+          <span>ERROR</span>
+        </h2>
+      </header>
+      <i id="error-icon"></i>
 
-        <div id="header">
+      <p id="pre-message-text">Please screenshot this error message and upload to a new issue request in the Prepress Art Queue Testing SharePoint site for troubleshooting purposes.</p>
+      <p id="message-text"></p> <!-- InvalidArgument: The number of rows or columns in the input array doesn't match the size or dimensions of the range. -->
+      <p id="reload-message-text">Click the Reload button to reset the coded events and continue using the Add-In.</p>
+      <div id="buttons">
+        <button id="reload">RELOAD</button>
+      </div>
 
-            <div id="icon">
-              <i class="fa-solid fa-square-plus"></i>
-            </div>
-            <h4 class="custom-header">Add A Project</h4>
+    </div>
+  </div>
+
+  <div id="fissh">
+    <div id="warning-fissh">
+      <h2 id="warning-text">WARNING</h2>
+      <p id="fissh-text">fissh</p>
+      <img id="fissh-img" src="/assets/fissh.png" alt="fissh">
+
+      <div id="fissh-buttons">
+        <button class="ok">ok</button>
+        <button class="ok">ok</button>
+        <button class="dont">dont</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="container">
+
+
+
+    <!-- <button id="ask-question">Am I wrong?</button> -->
+
+    <div id="header">
+
+      <div id="icon">
+        <i class="fa-solid fa-square-plus"></i>
+      </div>
+      <h4 class="custom-header">Add A Project</h4>
+
+    </div>
+
+    <div id="form">
+
+      <div class="main uno">
+
+        <div class="input-group">
+
+          <input type="text" id="subject" required class="input-area single" />
+
+          <label for="subject" class="label unselectable">Subject</label>
+          <p class="warning" id="warning1"></p>
+        </div>
+
+        <div class="input-group">
+
+          <input type="text" id="client" required class="input-area single" />
+
+          <label for="client" class="label unselectable">Client*</label>
+          <p class="warning" id="warning2"></p>
+        </div>
+
+        <div class="input-group">
+
+          <input type="text" id="location" required class="input-area single" />
+
+          <label for="location" class="label unselectable">Location</label>
+          <p class="warning"></p>
+        </div>
+
+      </div>
+
+      <div class="main dos">
+
+        <div class="mini">
+
+          <div class="input-group split">
+
+            <select id="product" required class="sel input-area">
+              <option></option>
+            </select>
+
+            <label for="product" class="label unselectable">Product*</label>
+            <p class="warning" id="warning3"></p>
+
+          </div>
+
+          <div class="input-group split">
+
+            <input type="text" id="code" required class="input-area double" />
+
+            <label for="code" class="label unselectable">Code</label>
+            <!-- <p class="warning"></p> -->
+
+          </div>
 
         </div>
 
-        <div id="form">
+      </div>
 
-          <div class="main uno">
 
-            <div class="input-group">
-    
-                <input type="text" id="subject" required class="input-area single" />
-    
-                <label for="subject" class="label unselectable">Subject</label>
-                <p class="warning" id="warning1"></p>
-            </div>
-  
-            <div class="input-group">
-    
-              <input type="text" id="client" required class="input-area single"/>
-  
-              <label for="client" class="label unselectable">Client*</label>
-              <p class="warning" id="warning2"></p>
-            </div>
+      <div class="main dos">
 
-            <div class="input-group">
-    
-              <input type="text" id="location" required class="input-area single"/>
-  
-              <label for="location" class="label unselectable">Location</label>
-              <p class="warning"></p>
-            </div>
-  
-          </div>
+        <div class="mini">
 
-          <div class="main dos">
+          <div class="input-group split">
 
-            <div class="mini">
+            <select id="project-type" required class="sel input-area">
+              <option></option>
+            </select>
 
-              <div class="input-group split">
-    
-                <select id="product" required class="sel input-area">
-                  <option></option>
-                </select>
-    
-                <label for="product" class="label unselectable">Product*</label>
-                <p class="warning" id="warning3"></p>
-
-              </div>
-
-              <div class="input-group split">
-  
-                <input type="text" id="code" required class="input-area double"/>
-    
-                <label for="code" class="label unselectable">Code</label>
-                <!-- <p class="warning"></p> -->
-                
-              </div>
-
-            </div>
+            <label for="project-type" class="label unselectable">Project Type*</label>
+            <p class="warning" id="warning4"></p>
 
           </div>
 
+          <div class="input-group split">
 
-          <div class="main dos">
+            <input type="text" id="csm" required class="input-area double" />
 
-            <div class="mini">
-
-              <div class="input-group split">
-    
-                <select id="project-type" required class="sel input-area">
-                  <option></option>
-                </select>
-    
-                <label for="project-type" class="label unselectable">Project Type*</label>
-                <p class="warning" id="warning4"></p>
-
-              </div>
-
-              <div class="input-group split">
-    
-                <input type="text" id="csm" required class="input-area double"/>
-    
-                <label for="csm" class="label unselectable">CSM</label>
-                <p class="warning"></p>
-                
-              </div>
-
-            </div>
+            <label for="csm" class="label unselectable">CSM</label>
+            <p class="warning"></p>
 
           </div>
-
-          <div class="main dos">
-
-            <div class="mini">
-
-              <div class="input-group split">
-    
-                <select id="group" required class="sel input-area">
-                  <option></option>
-                </select>
-    
-                <label for="group" class="label unselectable">Group</label>
-                <p class="warning"></p>
-
-              </div>
-
-              <div class="input-group split">
-    
-                <select id="print-date" required class="sel input-area">
-                  <option></option>
-                </select>
-    
-                <label for="print-date" class="label unselectable">Print Date</label>
-                <p class="warning"></p>
-               
-              </div>
-
-            </div>
-
-          </div>
-
-          <div class="main dos">
-
-            <div class="mini">
-
-              <div class="input-group split">
-    
-                <select id="artist-lead" required class="sel input-area">
-                  <option></option>
-                </select>
-    
-                <label for="artist-lead" class="label unselectable">Artist Lead</label>
-                <p class="warning"></p>
-
-              </div>
-
-              <div class="input-group split">
-    
-                <select id="queue" required class="sel input-area">
-                  <option></option>
-                </select>
-    
-                <label for="queue" class="label unselectable">Queue</label>
-                <p class="warning"></p>
-                
-              </div>
-
-            </div>
-
-          </div>
-
-          <div class="main dos">
-
-            <div class="mini">
-
-              <div class="input-group split">
-    
-                <select id="tier" required class="sel input-area">
-                  <option></option>
-                </select>
-    
-                <label for="tier" class="label unselectable">Tier</label>
-                <p class="warning"></p>
-
-              </div>
-
-              <div class="input-group split">
-    
-                <select id="tags" required class="sel input-area">
-                  <option></option>
-                </select>
-    
-                <label for="tags" class="label unselectable">Tags</label>
-                <p class="warning"></p>
-                
-              </div>
-
-            </div>
-
-          </div>
-
-          <div class="main dos">
-
-            <div class="mini">
-
-              <div class="input-group split">
-    
-                <input type="text" id="start-override" required class="input-area double"/>
-    
-                <label for="start-override" class="label unselectable">Start Override</label>
-                <p class="warning"></p>
-
-              </div>
-
-              <div class="input-group split">
-    
-                <input type="text" id="work-override" required class="input-area double"/>
-    
-                <label for="work-override" class="label unselectable">Work Override</label>
-                <p class="warning"></p>
-                
-              </div>
-
-            </div>
-
-          </div>
-
-          <div class="main dos">
-
-            <div class="mini">
-
-              <div class="buttons">
-                <div class="bottom-buttons">
-                  <button type="submit" id="submit" class="butt">SUBMIT</button>
-                </div>
-              </div>
-
-              <div class="buttons">
-                <div class="bottom-buttons">
-                  <button type="reset" id="clear" class="butt">CLEAR</button>
-                </div>
-              </div>
-
-            </div>
-
-          </div>
-
 
         </div>
 
+      </div>
+
+      <div class="main dos">
+
+        <div class="mini">
+
+          <div class="input-group split">
+
+            <select id="group" required class="sel input-area">
+              <option></option>
+            </select>
+
+            <label for="group" class="label unselectable">Group</label>
+            <p class="warning"></p>
+
+          </div>
+
+          <div class="input-group split">
+
+            <select id="print-date" required class="sel input-area">
+              <option></option>
+            </select>
+
+            <label for="print-date" class="label unselectable">Print Date</label>
+            <p class="warning"></p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="main dos">
+
+        <div class="mini">
+
+          <div class="input-group split">
+
+            <select id="artist-lead" required class="sel input-area">
+              <option></option>
+            </select>
+
+            <label for="artist-lead" class="label unselectable">Artist Lead</label>
+            <p class="warning"></p>
+
+          </div>
+
+          <div class="input-group split">
+
+            <select id="queue" required class="sel input-area">
+              <option></option>
+            </select>
+
+            <label for="queue" class="label unselectable">Queue</label>
+            <p class="warning"></p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="main dos">
+
+        <div class="mini">
+
+          <div class="input-group split">
+
+            <select id="tier" required class="sel input-area">
+              <option></option>
+            </select>
+
+            <label for="tier" class="label unselectable">Tier</label>
+            <p class="warning"></p>
+
+          </div>
+
+          <div class="input-group split">
+
+            <select id="tags" required class="sel input-area">
+              <option></option>
+            </select>
+
+            <label for="tags" class="label unselectable">Tags</label>
+            <p class="warning"></p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="main dos">
+
+        <div class="mini">
+
+          <div class="input-group split">
+
+            <input type="text" id="start-override" required class="input-area double" />
+
+            <label for="start-override" class="label unselectable">Start Override</label>
+            <p class="warning"></p>
+
+          </div>
+
+          <div class="input-group split">
+
+            <input type="text" id="work-override" required class="input-area double" />
+
+            <label for="work-override" class="label unselectable">Work Override</label>
+            <p class="warning"></p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="main dos">
+
+        <div class="mini">
+
+          <div class="buttons">
+            <div class="bottom-buttons">
+              <button type="submit" id="submit" class="butt">SUBMIT</button>
+            </div>
+          </div>
+
+          <div class="buttons">
+            <div class="bottom-buttons">
+              <button type="reset" id="clear" class="butt">CLEAR</button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <button id="meece">🐭🐁🐭🐁🐭🐁🐭🐁🐭🐁      🖱</button>
 
 
     </div>
 
 
 
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" type="text/javascript"></script>
-    <!-- <script src="./js/jquery-datepicker/jquery-ui.min.js" type="text/javascript"></script> -->
-    <!-- <script src="taskpane.js" type="text/javascript"></script> -->
+  </div>
 
 
-    <script>
 
 
-      // $("#inputField").change(function() {
-      //   console.log("change@")
-      //   if ($(this).val() == "Todd" || $(this).val() == "") {
-      //       $(".input-group .input-area").css("border-color", "royalblue");
-      //       $(".input-group .input-area + .label").css("color", "royalblue");
-      //       $("#thelabel").text($("#thelabel").text().replace("*", ""));
-      //       $("#warning").empty().hide();
-      //   } else {
-      //       // ERROR!
-      //       $(".input-group .input-area").css("border-color", "crimson");
-      //       $(".input-group .input-area + .label").css("color", "crimson");
-      //       $("#thelabel").text($("#thelabel").text().replace("*", "")).append("*");
-      //       $("#warning").text("What a drag, man...").show();
-      //   }
-      // })
-
-      
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" type="text/javascript"></script>
+  <!-- <script src="./js/jquery-datepicker/jquery-ui.min.js" type="text/javascript"></script> -->
+  <!-- <script src="taskpane.js" type="text/javascript"></script> -->
 
 
-    </script>
+  <script>
+    // $("#inputField").change(function() {
+    //   console.log("change@")
+    //   if ($(this).val() == "Todd" || $(this).val() == "") {
+    //       $(".input-group .input-area").css("border-color", "royalblue");
+    //       $(".input-group .input-area + .label").css("color", "royalblue");
+    //       $("#thelabel").text($("#thelabel").text().replace("*", ""));
+    //       $("#warning").empty().hide();
+    //   } else {
+    //       // ERROR!
+    //       $(".input-group .input-area").css("border-color", "crimson");
+    //       $(".input-group .input-area + .label").css("color", "crimson");
+    //       $("#thelabel").text($("#thelabel").text().replace("*", "")).append("*");
+    //       $("#warning").text("What a drag, man...").show();
+    //   }
+    // })
+  </script>
 </body>
 
 </html>
