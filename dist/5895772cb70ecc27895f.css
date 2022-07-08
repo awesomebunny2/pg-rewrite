@@ -1,5 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
+@import url("https://fonts.googleapis.com/css?family=Roboto:400,400i,700");
+
+@import url("https://use.fontawesome.com/releases/v5.8.1/css/all.css");
+
+
+/* *,
+*:after,
+*:before {
+  box-sizing: border-box;
+} */
+
+
 body, html {
     /* font-family: 'Roboto', sans-serif;     */
     font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
@@ -350,3 +362,222 @@ select {
     width: 95%; */
     justify-content: center;
 }
+
+
+
+
+
+#message {
+
+    /* display:flex; */
+    display:none;
+    align-items: center;
+    justify-content:center;
+
+
+    position:absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+
+    background-color: rgba(0,0,0,.7);
+    z-index:1000;
+
+}
+
+#dialog > p {
+    margin-top:0px;
+}
+
+#dialog {
+
+    display:flex;
+    flex-direction:column;
+    align-items: center;
+    justify-content:center;
+
+    padding: 20px 20px;
+
+
+    width:80%;
+    /* height:50%; */
+    background-color:white;
+
+}
+
+#fissh {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background-color: rgba(0,0,0,.7);
+    z-index: 1000;
+}
+
+#message-fissh > p {
+    margin-top:0px;
+}
+
+#warning-fissh {
+
+    display:flex;
+    flex-direction:column;
+    align-items: center;
+    justify-content:center;
+
+    padding: 20px 20px;
+
+
+    width:80%;
+    /* height:50%; */
+    background-color:white;
+
+}
+
+#fissh-img {
+    width: 75%;
+    height: auto;
+    margin: 10px;
+}
+
+#fissh-buttons {
+    margin-top: 30px;
+    text-align: center;
+    width: 100%;
+}
+
+.ok {
+    min-height: 30px;
+    min-width: 15%;
+    margin-right: 8%;
+    margin-left: 8%;
+}
+
+.dont {
+    min-height: 30px;
+    min-width: 15%;
+    margin-right: 8%;
+    margin-left: 8%;
+}
+
+#warning-text {
+    margin: 5px;
+}
+
+#fissh-text {
+    margin: 10px;
+}
+
+#meece {
+    background: transparent;
+    border: none !important;
+    font-size: 0;
+    min-height: 20px;
+    max-width: 100%;
+    /* margin-left: 8.25%;
+    margin-right: 8.25%; */
+    margin-left: 40%;
+    margin-right: 40%;
+    justify-content: center;
+    text-align: center;
+}
+
+#meece:hover {
+    background: rgba(0, 0, 0, 0.05);
+} 
+
+header {
+    background: rgb(189, 9, 45);
+    width: 100%;
+    padding: .5em;
+    text-align: center;
+    color: white;
+    margin-bottom: 10px;
+}
+
+/* #error-icon {
+    background: mix(#222, #D50000, 85%);
+    color: lighten(#D50000, 25%);
+    content: "\f12a";
+} */
+
+h2 {
+    /* border-bottom: .1em solid #D50000; */
+    margin: 0;
+}
+
+#pre-message-text {
+    font-weight: bold;
+    text-align: center;
+}
+
+#message-text {
+    background-color:rgba(37, 18, 18, 0.245);
+    padding: 10px;
+    font-size: 10pt;
+    font-style: italic;
+    text-align: center;
+}
+
+#reload-message-text {
+    text-align: center;
+}
+
+#reload {
+    min-height: 30px;
+    min-width: 100px;
+    background-color: #022A42;
+    border-radius: 15px;
+    border: solid;
+    color: #f4f4f4;
+    font-family: "HelveticaNeue-Thin", "Helvetica Neue Thin", "Helvetica Neue";
+    font-size: 12pt;
+    font-weight: bold;
+    padding: 10px;
+}
+
+#reload:hover {
+    background-color: #67ACE6;
+}
+
+#reload:active:hover {
+    background-color: #014671;
+    transform: scale(0.95);
+    width: 95%;
+}
+
+/* $default:#9E9E9E;
+$error:#D50000;
+$warning:#FF6F00;
+$neutral:#448AFF;
+$success:#388E3C;
+$uhm:#c1610d;
+
+$light:#eee;
+$dark:#222; */
+
+/* .butt {
+    background-color: #022A42;
+    width: 100%;
+    border-radius: 15px;
+    border: solid;
+    color: #F4F4F4;
+    font-family: "HelveticaNeue-Thin", "Helvetica Neue Thin", "Helvetica Neue";
+    font-size: 12pt;
+    font-weight: 100;
+    padding: 10px;
+} */
+
+/* .butt:hover {
+    background-color: #67ACE6;
+}
+
+.butt:active:hover {
+    background-color: #014671;
+    transform: scale(0.95);
+    /* background: 99%; */
+    /* font-size: 11pt; */
+    /* size: 95%; */
+    /* height: 95%;
+    width: 95%; */
+    /* justify-content: center;
+} */
