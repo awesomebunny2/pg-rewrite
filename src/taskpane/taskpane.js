@@ -187,7 +187,7 @@ $(() => {
                         var activeSheet = context.workbook.worksheets.getActiveWorksheet();
                         //activeSheet.onChanged.add(handleChange);
                         // context.runtime.load("enableEvents");
-                        //var activeTable = activeSheet.tables.getItemAt(0);
+                        var activeTable = activeSheet.tables.getItemAt(0);
 
 
 
@@ -440,7 +440,7 @@ $(() => {
 
                         changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
 
-                        //selectionEvent = activeTable.onSelectionChanged.add(onTableSelectionChange);
+                        selectionEvent = activeTable.onSelectionChanged.add(onTableSelectionChange);
 
                     }); 
 
@@ -459,6 +459,118 @@ $(() => {
 
 //#endregion -----------------------------------------------------------------------------------------------------------------
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*_             _             _            _          _        _                _             _                   _        
+/ /\         /\ \           /\ \         /\ \       /\ \     /\ \             _\ \          / /\                / /\      
+/ /  \       /  \ \         /  \ \        \ \ \     /  \ \    \_\ \           /\__ \        / /  \              / /  \     
+/ / /\ \__   / /\ \ \       / /\ \ \       /\ \_\   / /\ \ \   /\__ \         / /_ \_\      / / /\ \            / / /\ \    
+/ / /\ \___\ / / /\ \ \     / / /\ \_\     / /\/_/  / / /\ \_\ / /_ \ \       / / /\/_/     / / /\ \ \          / / /\ \ \   
+\ \ \ \/___// / /  \ \_\   / / /_/ / /    / / /    / / /_/ / // / /\ \ \     / / /         / / /  \ \ \        / / /\ \_\ \  
+\ \ \     / / /    \/_/  / / /__\/ /    / / /    / / /__\/ // / /  \/_/    / / /         / / /___/ /\ \      / / /\ \ \___\ 
+_    \ \ \   / / /          / / /_____/    / / /    / / /_____// / /          / / / ____    / / /_____/ /\ \    / / /  \ \ \__/ 
+/_/\__/ / /  / / /________  / / /\ \ \  ___/ / /__  / / /      / / /          / /_/_/ ___/\ / /_________/\ \ \  / / /____\_\ \   
+\ \/___/ /  / / /_________\/ / /  \ \ \/\__\/_/___\/ / /      /_/ /          /_______/\__\// / /_       __\ \_\/ / /__________\  
+\_____\/   \/____________/\/_/    \_\/\/_________/\/_/       \_\/           \_______\/    \_\___\     /____/_/\/_____________/  
+*/
+                  
+// $("#setup").click(() => tryCatch(setup));
+// $("#register-event-handlers").click(() => tryCatch(registerEventHandlers));
+
+// async function registerEventHandlers() {
+//   await Excel.run(async (context) => {
+//     // Add a selection changed event handler for the binding.
+//     let binding = context.workbook.bindings.getItemAt(0);
+//     binding.onSelectionChanged.add(onBindingSelectionChange);
+
+//     // Add a selection changed event handler for the table.
+//     let table = context.workbook.tables.getItemAt(0);
+//     table.onSelectionChanged.add(onTableSelectionChange);
+
+//     // Add a selection changed event handler for the worksheet.
+//     let sheet = context.workbook.worksheets.getItem("Sample");
+//     sheet.onSelectionChanged.add(onWorksheetSelectionChange);
+
+//     // Add a selection changed event handler for the worksheet collection.
+//     context.workbook.worksheets.onSelectionChanged.add(onWorksheetCollectionSelectionChange);
+
+//     await context.sync();
+//   });
+// }
+
+// async function onBindingSelectionChange(args: Excel.BindingSelectionChangedEventArgs) {
+//   await Excel.run(async (context) => {
+//     console.log(
+//       `Binding event: The new selection is\nStarting Column: ${args.startColumn}\nStarting Row: ${args.startRow}\nColumn Count: ${args.columnCount}\nRow Count: ${args.rowCount}`
+//     );
+//   });
+// }
+
+// async function onTableSelectionChange(args: Excel.TableSelectionChangedEventArgs) {
+//   await Excel.run(async (context) => {
+//     console.log(`Table event: The address of new selection is: ${args.address}`);
+//   });
+// }
+
+// async function onWorksheetSelectionChange(args: Excel.WorksheetSelectionChangedEventArgs) {
+//   await Excel.run(async (context) => {
+//     console.log(`Worksheet event: The address of new selection is: ${args.address}`);
+//   });
+// }
+
+// async function onWorksheetCollectionSelectionChange(args: Excel.WorksheetSelectionChangedEventArgs) {
+//   await Excel.run(async (context) => {
+//     console.log(`WorksheetCollection event: The address of new selection is: ${args.address}`);
+//   });
+// }
+
+// async function setup() {
+//   await Excel.run(async (context) => {
+//     context.workbook.worksheets.getItemOrNullObject("Sample").delete();
+//     const sheet = context.workbook.worksheets.add("Sample");
+
+//     // Highlight an area and create a binding there.
+//     let bindingRange = sheet.getRange("A15:D20");
+//     bindingRange.format.fill.color = "yellow";
+//     sheet.getRange("A15").values = [["Binding range"]];
+//     context.workbook.bindings.add(bindingRange, Excel.BindingType.range, "YellowBinding");
+
+//     // Create a table.
+//     let salesTable = sheet.tables.add("A1:E1", true);
+//     salesTable.name = "SalesTable";
+
+//     salesTable.getHeaderRowRange().values = [["Product", "Qtr1", "Qtr2", "Qtr3", "Qtr4"]];
+
+//     salesTable.rows.add(null, [
+//       ["Frames", 5000, 7000, 6544, 4377],
+//       ["Saddles", 400, 323, 276, 651],
+//       ["Brake levers", 12000, 8766, 8456, 9812],
+//       ["Chains", 1550, 1088, 692, 853],
+//       ["Mirrors", 225, 600, 923, 544],
+//       ["Spokes", 6005, 7634, 4589, 8765]
+//     ]);
+
+//     sheet.getUsedRange().format.autofitColumns();
+//     sheet.getUsedRange().format.autofitRows();
+
+//     sheet.activate();
+//     await context.sync();
+//   });
+// }
+
+// /** Default helper for invoking an action and handling errors. */
+// async function tryCatch(callback) {
+//   try {
+//     await callback();
+//   } catch (error) {
+//     // Note: In a production add-in, you'd want to notify the user through your add-in's UI.
+//     console.error(error);
+//   }
+// }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // async function registerEventHandlers() {
 //     await Excel.run(async (context) => {
@@ -498,11 +610,48 @@ $(() => {
 
 
 
-// async function onTableSelectionChange(eventArgs) {
-//     await Excel.run(async (context) => {
-//         console.log(`Table event: The address of new selection is: ${eventArgs.address}`);
-//     });
-// };
+async function onTableSelectionChange(eventArgs) {
+    await Excel.run(async (context) => {
+        console.log(`Table event: The address of new selection is: ${eventArgs.address}`);
+
+        var selectedTable = context.workbook.tables.getItem(eventArgs.tableId);
+        //  //Returns tableId of the table where the event occured
+
+        // var questionMark = selectedTable.getRange(eventArgs.address);
+
+        // questionMark.load("rowIndex");
+
+
+        var range = context.workbook.getSelectedRange();
+
+        range.load(['address', 'values', 'rowIndex']);
+
+
+        var selectedTableRows = selectedTable.rows.load("items");
+
+
+        await context.sync();
+
+
+        var rI = range.rowIndex;
+
+        var bees = selectedTableRows.getItemAt(rI - 1).getRange();
+        // var row = selectedTable.rows.getItemAt(2);
+
+        bees.format.borders.color = "red";
+
+
+
+        //var selectedRowRange = selectedTableRows.getItemAt(eventArgs.address)
+
+        // var selectedRowIndex = questionMark.rowIndex;
+
+        console.log(rI);
+
+
+
+    });
+};
 
 // $("#pleasework").on("click", () => {
 //     console.log("PLEASE WORKKK!@!!");
