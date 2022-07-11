@@ -122,6 +122,12 @@ $(() => {
 
     var completedTable;
 
+    var activationEvent;
+
+    var currentWorksheet;
+
+    //var activeProjectTable;
+
 
     /* Check if aevents are turned on
     Excel.run(async function(context) {
@@ -156,6 +162,9 @@ $(() => {
 // });
 
 
+
+
+
 //#region ON READY ---------------------------------------------------------------------------------------------------------------------------
 
     //#region LOADS VALIDATION VALUES AND UPDATES DROPDOWN VALUES IN TASKPANE ------------------------------------------------
@@ -163,13 +172,28 @@ $(() => {
         Office.onReady((info) => {
 
             // eventsOn();
+            // Excel.run(async (context) => {
+            //     var activeSheet = context.workbook.worksheets.getActiveWorksheet();
+
+            //     activeSheet.onActivated.add(function (event) {
+            //         return Excel.run(async (context) => {
+            //             console.log("The activated worksheet ID is: " + event.worksheetId);
+            //             activeProjectTable = activeSheet.tables.getItemAt(0);
+            
+            //             await context.sync();
+            //         });
+            //     });
+            // });
+
+            if (info.host === Office.PlatformType.OfficeOnline) {
+                console.log("You're currently using the online version of Excel!")
+            };
 
             if (info.host === Office.HostType.Excel) {
 
-
                 Excel.run(async (context) => {
 
-                    // registerEventHandlers();
+                    activationEvent = registerOnActivateHandler();
 
                     //#region LOADING VALUES ---------------------------------------------------------------------------------
 
@@ -184,11 +208,29 @@ $(() => {
                         var changesDataTable = sheet.tables.getItem("ChangesData");
                         var changesIDTable = sheet.tables.getItem("ChangesIDTable");
                         var groupPrintDateRefTable = sheet.tables.getItem("dateTable");
-                        var activeSheet = context.workbook.worksheets.getActiveWorksheet();
+                        var activeSheet = context.workbook.worksheets.getActiveWorksheet().load("worksheetId");
                         //activeSheet.onChanged.add(handleChange);
                         // context.runtime.load("enableEvents");
-                        var activeTable = activeSheet.tables.getItemAt(0);
 
+                        //var leAllTables = context.workbook.tables.load("items/name");
+                        
+                        var activeProjectTable = activeSheet.tables.getItemAt(0);
+
+                        var workbookName = context.workbook.load("name");
+
+                        // var activeCompletedTable = activeSheet.tables.getItemAt(1);
+
+                        //var activeProjectTable;
+
+
+                        // activeSheet.onActivated.add(function (event) {
+                        //     return Excel.run(async (context) => {
+                        //         console.log("The activated worksheet ID is: " + event.worksheetId);
+                        //         activeProjectTable = activeSheet.tables.getItemAt(0);
+
+                        //         await context.sync();
+                        //     });
+                        // });
 
 
 
@@ -213,7 +255,38 @@ $(() => {
 
                     await context.sync()
 
+                        console.log(workbookName.name);
+
                         console.log("I sharkded");
+
+                        if (currentWorksheet == undefined) {
+                            currentWorksheet = activeSheet.id;
+                        };
+
+                        //var leCurrentWorksheet = context.workbook.worksheets.getItem(currentWorksheet);
+
+                        //var leCurrentProjectTable = leCurrentWorksheet.tables.getItemAt(0);
+
+
+                        // activeSheet.onActivated.add(function (event) {
+                        //     return Excel.run(async (context) => {
+                        //         console.log("The activated worksheet ID is: " + event.worksheetId);
+                        //         activeProjectTable = activeSheet.tables.getItemAt(0);
+
+                        //         await context.sync();
+                        //     });
+                        // });
+
+                        // var listOfCompletedTables = [];
+
+                        // leAllTables.items.forEach(function (table) { //for each table in the workbook...
+                        //     if (table.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
+                        //         listOfCompletedTables.push(table.name); //push the name of that table into an array
+                        //     };
+                        // });
+
+                        // //returns true if the changedTable is a completed table from the array previously made, false if it is anything else
+                        // var completedTableChanged = listOfCompletedTables.includes(changedTable.name);
 
                         //#region GRABBING DATA FROM VALIDATION AND WRITING TO CODE ----------------------------------------------
 
@@ -440,7 +513,24 @@ $(() => {
 
                         changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
 
-                        selectionEvent = activeTable.onSelectionChanged.add(onTableSelectionChange);
+                        //selectionEvent = activeProjectTable.onSelectionChanged.add(onTableSelectionChangedEvents);
+                                               
+                        //selectionEvent = leCurrentProjectTable.onSelectionChanged.add(onTableSelectionChangedEvents);
+
+
+                        //selectionEvent = context.workbook.onSelectionChanged.add(onTableSelectionChangedEvents);
+
+
+
+
+
+                        // if (completedTableChanged == true) {
+                        //     selectionEvent = activeCompletedTable.onSelectionChanged.add(onTableSelectionChangedEvents);
+                        // } else {
+                        //     selectionEvent = activeProjectTable.onSelectionChanged.add(onTableSelectionChangedEvents);
+                        // };
+
+                        //selectionEvent = activeSheet.onSelectionChanged.add(onTableSelectionChangedEvents);
 
                     }); 
 
@@ -459,7 +549,68 @@ $(() => {
 
 //#endregion -----------------------------------------------------------------------------------------------------------------
 
+async function registerOnActivateHandler() {
+    await Excel.run(async (context) => {
+      let sheets = context.workbook.worksheets;
+      var activeSheet = context.workbook.worksheets.getActiveWorksheet().load("worksheetId");
+      var activeProjectTable = activeSheet.tables.getItemAt(0);
 
+      //var allTheTables = context.workbook.tables;
+
+    //   for (var y = 0; y < allTheTables.length; y++) {
+    //       selectionEvent = allTheTables[y].onSelectionChanged.add(onTableSelectionChangedEvents);
+    //   };
+
+      sheets.onActivated.add(onActivate);
+    //   var allTables = context.workbook.tables;
+
+  
+      await context.sync();
+      console.log("A handler has been registered for the OnActivate event.");
+        selectionEvent = activeProjectTable.onSelectionChanged.add(onTableSelectionChangedEvents);
+
+
+
+        // var listOfCompletedTables = [];
+
+        // allTables.items.forEach(function (table) { //for each table in the workbook...
+        //     if (table.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
+        //         listOfCompletedTables.push(table.name); //push the name of that table into an array
+        //     };
+        // });
+
+        // //returns true if the changedTable is a completed table from the array previously made, false if it is anything else
+        // var completedTableChanged = listOfCompletedTables.includes(changedTable.name);
+
+        // if (completedTableChanged == true) {
+        //     selectionEvent = activeCompletedTable.onSelectionChanged.add(onTableSelectionChangedEvents);
+        // } else {
+        //     selectionEvent = activeProjectTable.onSelectionChanged.add(onTableSelectionChangedEvents);
+        // };
+
+        //selectionEvent = activeSheet.onSelectionChanged.add(onTableSelectionChangedEvents);
+    });
+};
+  
+async function onActivate(args) {
+    await Excel.run(async (context) => {
+        currentWorksheet = args.worksheetId;
+        console.log("The activated worksheet Id : " + args.worksheetId);
+        var leCurrentWorksheet = context.workbook.worksheets.getItem(currentWorksheet);
+        //var allTheTables = context.workbook.tables;
+
+        // for (var y = 0; y < allTheTables.length; y++) {
+        //     selectionEvent = allTheTables[y].onSelectionChanged.add(onTableSelectionChangedEvents);
+        // };
+        //var leCurrentProjectTable = leCurrentWorksheet.tables.getItemAt(0);
+
+        //selectionEvent = leCurrentProjectTable.onSelectionChanged.add(onTableSelectionChangedEvents);
+        selectionEvent = leCurrentWorksheet.onSelectionChanged.add(onTableSelectionChangedEvents);
+
+        return;
+
+    });
+};
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*_             _             _            _          _        _                _             _                   _        
@@ -608,50 +759,156 @@ _    \ \ \   / / /          / / /_____/    / / /    / / /_____// / /          / 
 //     });
 //   }
 
+async function onTableSelectionChangedEvents(eventArgs) {
+
+    console.log("Can we farts?")
+
+    await onTableSelectionChange(eventArgs).catch(err => {
+        console.log(err) // <--- does this log?
+        showMessage(err, "show");
+    });
+    
+};
 
 
-async function onTableSelectionChange(eventArgs) {
+//table level
+// async function onTableSelectionChange(eventArgs) {
     await Excel.run(async (context) => {
         console.log(`Table event: The address of new selection is: ${eventArgs.address}`);
 
+        var worksheetName = context.workbook.worksheets.getActiveWorksheet().load("name");
+
         var selectedTable = context.workbook.tables.getItem(eventArgs.tableId);
-        //  //Returns tableId of the table where the event occured
-
-        // var questionMark = selectedTable.getRange(eventArgs.address);
-
-        // questionMark.load("rowIndex");
 
 
         var range = context.workbook.getSelectedRange();
 
         range.load(['address', 'values', 'rowIndex']);
 
+        var zeTableName = selectedTable.load("name");
+
 
         var selectedTableRows = selectedTable.rows.load("items");
+        var selectedTableRowsCount = selectedTable.rows.load("count");
 
 
         await context.sync();
 
+        console.log("heck");
 
+
+        var isTableEmpty = selectedTableRowsCount.count;
+
+        if (isTableEmpty == 0) {
+            console.log("Table is empty, so no highlighting was applied")
+            return;
+        };
+
+        var selectedTableItems = selectedTableRows.items;
+
+        //clears the border formatting for the whole table before applying new border for selection
+        for (var z = 0; z < selectedTableItems.length; z++) {
+            var leCheese = selectedTableRows.getItemAt(z).getRange();
+            leCheese.format.borders.getItem("EdgeTop").style = "SlantDashDot";
+            leCheese.format.borders.getItem("EdgeTop").color = "black";
+            leCheese.format.borders.getItem("EdgeTop").weight = "Medium";
+            leCheese.format.borders.getItem("EdgeBottom").style = "SlantDashDot";
+            leCheese.format.borders.getItem("EdgeBottom").color = "black";
+            leCheese.format.borders.getItem("EdgeBottom").weight = "Medium";
+            leCheese.format.borders.getItem("EdgeLeft").style = "SlantDashDot";
+            leCheese.format.borders.getItem("EdgeLeft").color = "black";
+            leCheese.format.borders.getItem("EdgeLeft").weight = "Medium";
+            leCheese.format.borders.getItem("EdgeRight").style = "SlantDashDot";
+            leCheese.format.borders.getItem("EdgeRight").color = "black";
+            leCheese.format.borders.getItem("EdgeRight").weight = "Medium";
+        };
+
+        //applies border to selected row
         var rI = range.rowIndex;
 
         var bees = selectedTableRows.getItemAt(rI - 1).getRange();
         // var row = selectedTable.rows.getItemAt(2);
-
-        bees.format.borders.color = "red";
-
-
-
-        //var selectedRowRange = selectedTableRows.getItemAt(eventArgs.address)
-
-        // var selectedRowIndex = questionMark.rowIndex;
-
-        console.log(rI);
-
-
+        bees.format.borders.getItem("EdgeTop").color = "purple";
+        bees.format.borders.getItem("EdgeTop").weight = "Thick";
+        bees.format.borders.getItem("EdgeBottom").color = "purple";
+        bees.format.borders.getItem("EdgeBottom").weight = "Thick";
+        bees.format.borders.getItem("EdgeLeft").color = "purple";
+        bees.format.borders.getItem("EdgeLeft").weight = "Thick";
+        bees.format.borders.getItem("EdgeRight").color = "purple";
+        bees.format.borders.getItem("EdgeRight").weight = "Thick";
 
     });
-};
+//};
+
+
+//worksheet level
+// async function onTableSelectionChange(eventArgs) {
+//     await Excel.run(async (context) => {
+//         console.log(`Table event: The address of new selection is: ${eventArgs.address}`);
+
+//         var worksheetName = context.workbook.worksheets.getActiveWorksheet().load("name");
+
+//         var selectedWorksheet = context.workbook.tables.getItem(eventArgs.worksheetId);
+
+
+//         var range = context.workbook.getSelectedRange();
+
+//         range.load(['address', 'values', 'rowIndex']);
+
+//         // var zeTableName = selectedWorksheet.load("name");
+
+
+//         // var selectedWorksheetRows = selectedWorksheet.rows.load("items");
+//         // var selectedWorksheetRowsCount = selectedWorksheet.rows.load("count");
+
+
+//         await context.sync();
+
+//         console.log("heck");
+
+
+//         // var isTableEmpty = selectedWorksheetRowsCount.count;
+
+//         // if (isTableEmpty == 0) {
+//         //     console.log("Table is empty, so no highlighting was applied")
+//         //     return;
+//         // };
+
+//         // var selectedTableItems = selectedWorksheetRows.items;
+
+//         //clears the border formatting for the whole table before applying new border for selection
+//         // for (var z = 0; z < selectedTableItems.length; z++) {
+//         //     var leCheese = selectedWorksheetRows.getItemAt(z).getRange();
+//         //     leCheese.format.borders.getItem("EdgeTop").style = "SlantDashDot";
+//         //     leCheese.format.borders.getItem("EdgeTop").color = "black";
+//         //     leCheese.format.borders.getItem("EdgeTop").weight = "Medium";
+//         //     leCheese.format.borders.getItem("EdgeBottom").style = "SlantDashDot";
+//         //     leCheese.format.borders.getItem("EdgeBottom").color = "black";
+//         //     leCheese.format.borders.getItem("EdgeBottom").weight = "Medium";
+//         //     leCheese.format.borders.getItem("EdgeLeft").style = "SlantDashDot";
+//         //     leCheese.format.borders.getItem("EdgeLeft").color = "black";
+//         //     leCheese.format.borders.getItem("EdgeLeft").weight = "Medium";
+//         //     leCheese.format.borders.getItem("EdgeRight").style = "SlantDashDot";
+//         //     leCheese.format.borders.getItem("EdgeRight").color = "black";
+//         //     leCheese.format.borders.getItem("EdgeRight").weight = "Medium";
+//         // };
+
+//         //applies border to selected row
+//         var rI = range.rowIndex;
+
+//         var bees = selectedWorksheetRows.getItemAt(rI - 1).getRange();
+//         // var row = selectedTable.rows.getItemAt(2);
+//         bees.format.borders.getItem("EdgeTop").color = "purple";
+//         bees.format.borders.getItem("EdgeTop").weight = "Thick";
+//         bees.format.borders.getItem("EdgeBottom").color = "purple";
+//         bees.format.borders.getItem("EdgeBottom").weight = "Thick";
+//         bees.format.borders.getItem("EdgeLeft").color = "purple";
+//         bees.format.borders.getItem("EdgeLeft").weight = "Thick";
+//         bees.format.borders.getItem("EdgeRight").color = "purple";
+//         bees.format.borders.getItem("EdgeRight").weight = "Thick";
+
+//     });
+// };
 
 // $("#pleasework").on("click", () => {
 //     console.log("PLEASE WORKKK!@!!");
