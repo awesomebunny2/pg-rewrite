@@ -259,9 +259,9 @@ $(() => {
 
                         console.log("I sharkded");
 
-                        if (currentWorksheet == undefined) {
-                            currentWorksheet = activeSheet.id;
-                        };
+                        // if (currentWorksheet == undefined) {
+                        //     currentWorksheet = activeSheet.id;
+                        // };
 
                         //var leCurrentWorksheet = context.workbook.worksheets.getItem(currentWorksheet);
 
@@ -772,7 +772,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
 
 //table level
-// async function onTableSelectionChange(eventArgs) {
+async function onTableSelectionChange(eventArgs) {
     await Excel.run(async (context) => {
         console.log(`Table event: The address of new selection is: ${eventArgs.address}`);
 
@@ -838,7 +838,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
         bees.format.borders.getItem("EdgeRight").weight = "Thick";
 
     });
-//};
+};
 
 
 //worksheet level
