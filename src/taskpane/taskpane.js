@@ -134,6 +134,14 @@ $(() => {
 
     var previousSelectionFontWeight;
 
+    //var previousTableName;
+
+    // var previousItems = new Object();
+
+    // var cheeseFarts;
+
+    // var test;
+
     //var activeProjectTable;
 
 
@@ -559,14 +567,15 @@ $(() => {
 
 async function registerOnActivateHandler() {
     await Excel.run(async (context) => {
-      let sheets = context.workbook.worksheets;
-      var activeSheet = context.workbook.worksheets.getActiveWorksheet().load("worksheetId");
-      //var activeProjectTable = activeSheet.tables.getItemAt(0);
+        //context.runtime.load("enableEvents");
+        let sheets = context.workbook.worksheets;
+        var activeSheet = context.workbook.worksheets.getActiveWorksheet().load("worksheetId");
+        //var activeProjectTable = activeSheet.tables.getItemAt(0);
 
-      var allTheTables = context.workbook.tables.load("count");
+        var allTheTables = context.workbook.tables.load("count");
 
-  
-      await context.sync();
+    
+        await context.sync();
 
         var allTheTablesCount = allTheTables.count;
 
@@ -614,7 +623,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
 //table level
 async function onTableSelectionChange(eventArgs) {
-    await Excel.run(previousSelection, async (context) => {
+    await Excel.run(/*previousItems,*/ previousSelection, async (context) => {
         console.log(`Table event: The address of new selection is: ${eventArgs.address}`);
 
         var worksheetName = context.workbook.worksheets.getActiveWorksheet().load("name/id");
@@ -723,10 +732,12 @@ async function onTableSelectionChange(eventArgs) {
         if (previousSelection !== undefined) {
             //previousSelection.format.fill.color = previousSelectionFill;
             var oldRange = previousSelection.load("rowIndex");
-            var previousTableName = previousSelection.address.split("!");
+            //var previousTableName = previousItems.previousSelection.address.split("!");
+            //previousTableName = previousTableName[0];
 
-            var previousTable = context.workbook.tables.getItem(previousTableName[0]);
-            previousTable.load("name");
+            //var previousTable = context.workbook.tables.getItem(previousTableName);
+
+            //previousTable.load("name");
 
             //oldRange.format.fill.color = "red";
         };
@@ -759,7 +770,10 @@ async function onTableSelectionChange(eventArgs) {
         if (previousSelection !== undefined) {
             var oldRangeRow = oldRange.rowIndex;
             //console.log(previousTable.name);
+            var previousTableName = previousSelection.address.split("!");
+            previousTableName = previousTableName[0];
 
+            var previousTable = context.workbook.tables.getItem(previousTableName);
 
             var theOldRow = previousTable.rows.getItemAt(oldRangeRow - 1).getRange();
     
@@ -776,6 +790,26 @@ async function onTableSelectionChange(eventArgs) {
         //bees.format.fill.color = "yellow";
 
         context.trackedObjects.add(previousSelection);
+
+        // var previousTableAddressSplit = previousSelection.address.split("!");
+
+        // previousTableName = previousTableAddressSplit[0];
+
+        //test = 2;
+
+        // previousItems = {
+        //     //previousSelection,
+        //     theFirst: test,
+        //     theSecond: previousTableName
+        // };
+
+        //context.trackedObjects.add(test);
+
+        //context.trackedObjects.add(previousTableName);
+
+        //context.trackedObjects.add(previousItems);
+
+
 
         previousSelectionFill = bees.format.fill.color;
 
