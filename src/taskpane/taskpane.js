@@ -575,48 +575,85 @@ async function registerOnActivateHandler() {
         var allTheTables = context.workbook.tables.load("count");
 
     
-        await context.sync();
+        await context.sync()/*.then(function () {*/
 
-        var allTheTablesCount = allTheTables.count;
+            // context.runtime.enableEvents = false;
+            // console.log("Events are turned off");
 
-        for (var y = 0; y < allTheTablesCount; y++) {
-            var bonTable = context.workbook.tables.getItemAt(y);
-            selectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents);
-            console.log("bonTable fired!");
-        };
+        //}).then(function() {
 
-        sheets.onActivated.add(onActivate);
+            var allTheTablesCount = allTheTables.count;
 
-        console.log("A handler has been registered for the OnActivate event.");
+            for (var y = 0; y < allTheTablesCount; y++) {
+                var bonTable = context.workbook.tables.getItemAt(y);
+                selectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents);
+                console.log("bonTable fired!");
+            };
+    
+            sheets.onActivated.add(onActivate);
+    
+            console.log("A handler has been registered for the OnActivate event.");
+
+        //});
+
     });
 };
   
 async function onActivate(args) {
     await Excel.run(async (context) => {
-        currentWorksheet = args.worksheetId;
-        console.log("The activated worksheet Id : " + args.worksheetId);
-        //var leCurrentWorksheet = context.workbook.worksheets.getItem(currentWorksheet);
-        var allTheTablesCount = context.workbook.tables.count;
+    //     context.runtime.load("enableEvents");
 
-        for (var y = 0; y < allTheTablesCount; y++) {
-            var bonTable = context.workbook.tables.getItemAt(y);
-            selectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents);
-        };
+    //     await context.sync().then(function () {
 
-        return;
+    //         context.runtime.enableEvents = false;
+    //         console.log("Events are turned off");
+
+    //     }).then(function() {
+
+            currentWorksheet = args.worksheetId;
+            console.log("The activated worksheet Id : " + args.worksheetId);
+            //var leCurrentWorksheet = context.workbook.worksheets.getItem(currentWorksheet);
+            var allTheTablesCount = context.workbook.tables.count;
+
+            for (var y = 0; y < allTheTablesCount; y++) {
+                var bonTable = context.workbook.tables.getItemAt(y);
+                selectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents);
+            };
+
+            return;
+       // });
 
     });
 };
 
 
 async function onTableSelectionChangedEvents(eventArgs) {
+    await Excel.run(async (context) => {
+        context.runtime.load("enableEvents");
 
-    console.log("Can we farts?")
+        await context.sync().then(function () {
 
-    await onTableSelectionChange(eventArgs).catch(err => {
-        console.log(err) // <--- does this log?
-        showMessage(err, "show");
+            context.runtime.enableEvents = false;
+            console.log("Events are turned off");
+
+        }).then(function() {
+
+            console.log("Can we farts?")
+
+            //await onTableSelectionChange(eventArgs).catch(err => {
+            onTableSelectionChange(eventArgs).catch(err => {
+                console.log(err) // <--- does this log?
+                showMessage(err, "show");
+            });
+            console.log("I'm the first to fire");
+            //eventsOn();
+        });
+        console.log("I'm the second to fire");
+        //eventsOn();
     });
+    console.log("I'm the third to fire");
+
+    //eventsOn();
     
 };
 
@@ -775,11 +812,18 @@ async function onTableSelectionChange(eventArgs) {
 
             var previousTable = context.workbook.tables.getItem(previousTableName);
 
-            var theOldRow = previousTable.rows.getItemAt(oldRangeRow - 1).getRange();
+            var previousTableRows = previousTable.rows;
+
+            var theOldRow = previousTableRows.getItemAt(oldRangeRow - 1).getRange();
     
-            theOldRow.format.fill.color = previousSelectionFill;
-            theOldRow.format.font.color = previousSelectionFontColor;
-            theOldRow.format.font.bold = previousSelectionFontWeight;
+            // theOldRow.format.fill.color = previousSelectionFill;
+            // theOldRow.format.font.color = previousSelectionFontColor;
+            // theOldRow.format.font.bold = previousSelectionFontWeight;
+
+
+            theOldRow.format.fill.color = "red";
+            theOldRow.format.font.color = "green";
+            theOldRow.format.font.bold = "bold";
         };
 
         previousSelection = bees;
@@ -819,9 +863,12 @@ async function onTableSelectionChange(eventArgs) {
 
         //context.trackedObjects.add(previousSelectionFill);
 
-        console.log(bees.format.fill.color);
+        //console.log(bees.format.fill.color);
+
+        eventsOn();
 
     });
+    //eventsOn();
 };
 
 
