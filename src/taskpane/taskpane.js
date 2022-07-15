@@ -644,6 +644,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
         // };
 
         var theAllTable = context.workbook.tables.load("count"); //all of the tables in the workbook
+        theAllTable.load("items");
 
         await context.sync();
 
@@ -660,17 +661,22 @@ async function onTableSelectionChangedEvents(eventArgs) {
         for (var p = 0; p < countingAllTables; p++) {
             var cycleTables = context.workbook.tables.getItemAt(p).load("name/worksheet");
 
+            var cycleTableRows = cycleTables.rows.load("items");
+
             //await context.sync();
 
             var tablesWorksheet = cycleTables.worksheet.load("name");
 
             //await context.sync();
 
-            var cycleBodyRange = cycleTables.getDataBodyRange(); //gets range of table
+            var cycleBodyRange = cycleTables.getDataBodyRange().load("values"); //gets range of table
+            cycleBodyRange.load("columnIndex");
 
             //await context.sync();
 
             cycleBodyRange.load(["rowCount", "columnCount", "cellCount"]);
+
+            var headerRange = cycleTables.getHeaderRowRange().load("values");
 
             const usedDataRange = cycleBodyRange.getUsedRangeOrNullObject(
                 true /* valuesOnly */
@@ -703,6 +709,10 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
             await context.sync();
 
+            var head = headerRange.values;
+
+            var leTable = cycleBodyRange.values
+
             //console.log(cycleTables.name);
 
             // var isTableEmpty = selectedTableRowsCount.count;
@@ -713,16 +723,37 @@ async function onTableSelectionChangedEvents(eventArgs) {
             //     return;
             // };
 
+            var listOfCompletedTables = [];
+
+            theAllTable.items.forEach(function (table) { //for each table in the workbook...
+                if (table.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
+                    listOfCompletedTables.push(table.name); //push the name of that table into an array
+                };
+            });
+
+            //returns true if the changedTable is a completed table from the array previously made, false if it is anything else
+            var completedTableChanged = listOfCompletedTables.includes(cycleTables.name);
+
             //console.log(tablesWorksheet.name);
 
             if (tablesWorksheet.name !== "Validation" && usedDataRange.isNullObject !== true) { //ignore all tables in Validation sheet
                 //cycles through each row in the table
                 for (var iRow = 0; iRow < cycleBodyRange.rowCount; iRow++) {
-                    //var testFart = cycleBodyRange.rowCount;
+                    var theRows = cycleTableRows.items
+                    var rowValues = theRows[iRow].values
                     //var cycleRow = cycleTables.rows.getItemAt(iRow).load("index");
                     var rowRange = cycleTables.rows.getItemAt(iRow).getRange(); //range of row we are currently on
                     var rowProperties = propertiesToGet.value[iRow]; //loads in those row properites from eariler
                     //console.log(rowProperties.format.fill.color);
+                    var tableStart = cycleBodyRange.columnIndex;
+
+                    var theWorksheet = context.workbook.worksheets.getItem(tablesWorksheet.name).load("name");
+
+                    var rowInfoSorted = new Object();
+
+                    for (var name of head[0]) {
+                        theGreatestFunctionEverWritten(head, name, rowValues, leTable, rowInfoSorted, iRow);
+                    }
     
                     // bees.load(["format/*", "format/fill", "format/borders", "format/font"]);
                     // bees.load("address");
@@ -731,6 +762,9 @@ async function onTableSelectionChangedEvents(eventArgs) {
                         console.log(`Table: ${cycleTables.name}\nRow Index: ${iRow}`);
                         rowRange.format.fill.clear();
                         //will need to run conditional formatting function next
+                        await context.sync();
+
+                        conditionalFormatting(rowInfoSorted, tableStart, theWorksheet, iRow, completedTableChanged, rowRange, null)
                     };
                 };
             };
@@ -4657,6 +4691,16 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
     //#region CONDITIONAL FORMATTING -------------------------------------------------------------------------------------------
 
+        /**
+         * Applys all the row colors and other visual formatting when data is updated
+         * @param {Object} rowInfoSorted An object containing the values and column index numbers for each cell of the changed row
+         * @param {Number} newTableStart A number signifying the starting position of the table (0 means it's the first table in the sheet)
+         * @param {Object} changedWorksheet The changed worksheet
+         * @param {Number} rowIndexPostSort A number signifying the row index of the changed row AFTER sorting
+         * @param {Boolean} completedTableChanged If the current table is a Completed table, this returns true
+         * @param {Range} rowRangeSorted The range of the changed row AFTER sorting
+         * @param {Array} destTable An array of arrays containing all the info in the destination table
+         */
         function conditionalFormatting(rowInfoSorted, newTableStart, changedWorksheet, rowIndexPostSort, completedTableChanged, rowRangeSorted, destTable) {
 
             /**
@@ -5278,6 +5322,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
          * @param {Array} rowValues An array of arrays containing all the row values for the changed row
          * @param {Array} leTable A copy array of the head array that will be used to write new values to the sheet for the row  
          * @param {Object} obj An empty object that will be filled with column indexs and values for each cell in the changed row
+         * @param {Number} changedRowTableIndex The row index of the changed table
          */
         function theGreatestFunctionEverWritten (head, columnName, rowValues, leTable, obj, changedRowTableIndex) {
 
