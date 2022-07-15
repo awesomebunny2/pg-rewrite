@@ -757,7 +757,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
     
                     // bees.load(["format/*", "format/fill", "format/borders", "format/font"]);
                     // bees.load("address");
-                    if (rowProperties.format.fill.color == "#800080") { //if the row is purple, do the following...
+                    if (rowProperties.format.fill.color == "#F5D9FF") { //if the row is purple, do the following...
                         console.log("Found a purple row!");
                         console.log(`Table: ${cycleTables.name}\nRow Index: ${iRow}`);
                         rowRange.format.fill.clear();
@@ -772,47 +772,11 @@ async function onTableSelectionChangedEvents(eventArgs) {
             
         };
 
-    //     const propertiesToGet = cell.getCellProperties({
-    //         address: true,
-    //         format: {
-    //             fill: {
-    //                 color: true
-    //             },
-    //             font: {
-    //                 color: true
-    //             }
-    //         },
-    //         style: true
-    //     });
-    
-    //     // Sync to get the data from the workbook.
-    //     await context.sync();
-    //     const cellProperties = propertiesToGet.value[0][0];
-    //     console.log(
-    //         `Address: ${cellProperties.address}\nStyle: ${cellProperties.style}\nFill Color: ${cellProperties.format.fill.color}\nFont Color: ${cellProperties.format.font.color}`);
-    // });
-
-
-
-
         console.log(`Table event: The address of new selection is: ${eventArgs.address}`);
 
         var worksheetName = context.workbook.worksheets.getActiveWorksheet().load("name/id");
 
         var selectedTable = context.workbook.tables.getItem(eventArgs.tableId).load("name");
-
-        // if (previousSelection !== undefined && eventArgs.address == "") {
-        //     var oldRange = previousSelection.load("rowIndex");
-        //     //var previousTable = context.workbook.tables.getItem(previousTableId).load("name");
-        // } else if (previousTableId == eventArgs.tableId) {
-        //     var range = context.workbook.getSelectedRange();
-        //     range.load(['address', 'values', 'rowIndex']);
-
-        //     var oldRange = previousSelection.load("rowIndex");
-        // } else {
-        //     var range = context.workbook.getSelectedRange();
-        //     range.load(['address', 'values', 'rowIndex']);
-        // };
 
         var range = context.workbook.getSelectedRange();
         range.load(['address', 'values', 'rowIndex']);
@@ -832,33 +796,6 @@ async function onTableSelectionChangedEvents(eventArgs) {
             return;
         };
 
-        //console.log(worksheetName.name);
-
-        // //if we just moved to a different table, removes formatting from previous row
-        // if (previousSelection !== undefined && eventArgs.address == "") {
-        //     var oldRangeRow = oldRange.rowIndex;
-        //     //console.log(previousTable.name);
-        //     // var previousTableName = previousSelection.address.split("!");
-        //     // previousTableName = previousTableName[0];
-
-        //     //var previousTable = context.workbook.tables.getItem(previousTableName);
-
-        //     //console.log(previousTable.name);
-
-        //     //var previousTableRows = previousTable.rows;
-
-        //     var theOldRow = selectedTableRows.getItemAt(oldRangeRow - 1).getRange();
-
-        //     console.log(previousSelection.format.fill.color);
-
-    
-    
-        //     theOldRow.format.fill.color = previousSelection.format.fill.color;
-        //     theOldRow.format.font.color = previousSelection.format.font.color;
-        //     theOldRow.format.font.bold = previousSelection.format.font.bold;
-
-        // };
-
 
         //console.log("SMellY fArtS!");
 
@@ -873,7 +810,8 @@ async function onTableSelectionChangedEvents(eventArgs) {
             bees.load("address");
 
 
-            bees.format.fill.color = "purple";
+            bees.format.fill.color = "#F5D9FF";
+            bees.format.font.color = "black";
 
 
 
