@@ -128,13 +128,20 @@ $(() => {
 
     var previousSelection;
 
+    var previousSelectionObj = {
+        tableId: "",
+        address: "",
+        rowIndex: "",
+        color:""
+    };
+
     // var previousSelectionFill;
 
     // var previousSelectionFontColor;
 
     // var previousSelectionFontWeight;
     
-    var previousTableId;
+    //var previousTableId;
 
     //var previousTableName;
 
@@ -632,239 +639,145 @@ async function onActivate(args) {
 };
 
 
-async function onTableSelectionChangedEvents(eventArgs) {
-    await Excel.run(async (context) => {
-
-        context.runtime.load("enableEvents");
-
-        console.log(eventArgs);
-
-        // if (eventArgs.address == "") {
-        //     previousTableId = eventArgs.tableId; // Table we came from
-        // };
-
-        var theAllTable = context.workbook.tables.load("count"); //all of the tables in the workbook
-        theAllTable.load("items");
-
-        await context.sync();
-
-        context.runtime.enableEvents = false;
-        console.log("Events are turned off");
-
-
-
-        var countingAllTables = theAllTable.count; //the number of tables in the workbook
-
-        //function finding
-
-        //cycles through each table in the workbook
-        for (var p = 0; p < countingAllTables; p++) {
-            var cycleTables = context.workbook.tables.getItemAt(p).load("name/worksheet");
-
-            var cycleTableRows = cycleTables.rows.load("items");
-
-            //await context.sync();
-
-            var tablesWorksheet = cycleTables.worksheet.load("name");
-
-            //await context.sync();
-
-            var cycleBodyRange = cycleTables.getDataBodyRange().load("values"); //gets range of table
-            cycleBodyRange.load("columnIndex");
-
-            //await context.sync();
-
-            cycleBodyRange.load(["rowCount", "columnCount", "cellCount"]);
-
-            var headerRange = cycleTables.getHeaderRowRange().load("values");
-
-            const usedDataRange = cycleBodyRange.getUsedRangeOrNullObject(
-                true /* valuesOnly */
-            );
-
-            var propertiesToGet = cycleBodyRange.getRowProperties({ //gets format properties of the rows in the table
-                format: {
-                    fill: {
-                        color: true
-                    },
-                    font: {
-                        bold: true,
-                        color: true
-                    }
-                },
-                rowIndex: true
-            }); 
-            // var propertiesToGet = cycleBodyRange.getCellProperties({
-            //     address: true,
-            //     format: {
-            //         fill: {
-            //             color: true
-            //         },
-            //         font: {
-            //             color: true
-            //         }
-            //     },
-            //     style: true
-            // }); 
-
-            await context.sync();
-
-            var head = headerRange.values;
-
-            var leTable = cycleBodyRange.values
-
-            //console.log(cycleTables.name);
-
-            // var isTableEmpty = selectedTableRowsCount.count;
-
-            // if (isTableEmpty == 0) {
-            //     console.log("Table is empty, so no highlighting was applied");
-            //     eventsOn();
-            //     return;
-            // };
-
-            var listOfCompletedTables = [];
-
-            theAllTable.items.forEach(function (table) { //for each table in the workbook...
-                if (table.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
-                    listOfCompletedTables.push(table.name); //push the name of that table into an array
-                };
-            });
-
-            //returns true if the changedTable is a completed table from the array previously made, false if it is anything else
-            var completedTableChanged = listOfCompletedTables.includes(cycleTables.name);
-
-            //console.log(tablesWorksheet.name);
-
-            if (tablesWorksheet.name !== "Validation" && usedDataRange.isNullObject !== true) { //ignore all tables in Validation sheet
-                //cycles through each row in the table
-                for (var iRow = 0; iRow < cycleBodyRange.rowCount; iRow++) {
-                    var theRows = cycleTableRows.items
-                    var rowValues = theRows[iRow].values
-                    //var cycleRow = cycleTables.rows.getItemAt(iRow).load("index");
-                    var rowRange = cycleTables.rows.getItemAt(iRow).getRange(); //range of row we are currently on
-                    var rowProperties = propertiesToGet.value[iRow]; //loads in those row properites from eariler
-                    //console.log(rowProperties.format.fill.color);
-                    var tableStart = cycleBodyRange.columnIndex;
-
-                    var theWorksheet = context.workbook.worksheets.getItem(tablesWorksheet.name).load("name");
-
-                    var rowInfoSorted = new Object();
-
-                    for (var name of head[0]) {
-                        theGreatestFunctionEverWritten(head, name, rowValues, leTable, rowInfoSorted, iRow);
-                    }
-    
-                    // bees.load(["format/*", "format/fill", "format/borders", "format/font"]);
-                    // bees.load("address");
-                    if (rowProperties.format.fill.color == "#F5D9FF") { //if the row is purple, do the following...
-                        console.log("Found a purple row!");
-                        console.log(`Table: ${cycleTables.name}\nRow Index: ${iRow}`);
-                        rowRange.format.fill.clear();
-                        //will need to run conditional formatting function next
-                        await context.sync();
-
-                        conditionalFormatting(rowInfoSorted, tableStart, theWorksheet, iRow, completedTableChanged, rowRange, null)
-                    };
-                };
-            };
-
-            
-        };
-
-        console.log(`Table event: The address of new selection is: ${eventArgs.address}`);
-
-        var worksheetName = context.workbook.worksheets.getActiveWorksheet().load("name/id");
-
-        var selectedTable = context.workbook.tables.getItem(eventArgs.tableId).load("name");
-
-        var range = context.workbook.getSelectedRange();
-        range.load(['address', 'values', 'rowIndex']);
-
-        var selectedTableRows = selectedTable.rows.load("items");
-        var selectedTableRowsCount = selectedTable.rows.load("count");
-
-
-        await context.sync();
-
-
-        var isTableEmpty = selectedTableRowsCount.count;
-
-        if (isTableEmpty == 0) {
-            console.log("Table is empty, so no highlighting was applied");
-            eventsOn();
-            return;
-        };
-
-
-        //console.log("SMellY fArtS!");
-
-        //adds formatting to current row
-        if (eventArgs.address !== "") {
-
-            //applies border to selected row
-            var rI = range.rowIndex;
-
-            var bees = selectedTableRows.getItemAt(rI - 1).getRange();
-            bees.load(["format/*", "format/fill", "format/borders", "format/font"]);
-            bees.load("address");
-
-
-            bees.format.fill.color = "#F5D9FF";
-            bees.format.font.color = "black";
-
-
-
-            // //removes formatting from previous row in same table
-            // if (previousSelection !== undefined && previousTableId == eventArgs.tableId) {
-            //     var oldRangeRow = oldRange.rowIndex;
-    
-            //     var theOldRow = selectedTableRows.getItemAt(oldRangeRow - 1).getRange();
-    
-            //     console.log(previousSelection.format.fill.color);
-        
-            //     theOldRow.format.fill.color = previousSelection.format.fill.color;
-            //     theOldRow.format.font.color = previousSelection.format.font.color;
-            //     theOldRow.format.font.bold = previousSelection.format.font.bold;
-
-            // };
-
-            // previousTableId = eventArgs.tableId;
-
-            // previousSelection = bees;
-    
-            // context.trackedObjects.add(previousSelection);
-
-        };
-
-        eventsOn();
-
-    }).catch (err => {
-        console.log(err) // <--- does this log?
-        showMessage(err, "show");
-        context.runtime.enableEvents = true;
-    });
-};
-
-//This works, but only under certain circumstances. Moving to a new worksheet will leave the previous selection on the previous sheet highlighted. Reloading the taskpane also does the same thing. Making a change to the sheet that doesn't trigger the onSelectionChange event (adjusting text/row formatting), unselecting the table, and then sellecting it again also keeps the old highlight.
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 // async function onTableSelectionChangedEvents(eventArgs) {
-//     await Excel.run(previousSelection, async (context) => {
+//     await Excel.run(async (context) => {
 
 //         context.runtime.load("enableEvents");
 
 //         console.log(eventArgs);
 
-//         if (eventArgs.address == "") {
-//             previousTableId = eventArgs.tableId; // Table we came from
-//         };
+//         // if (eventArgs.address == "") {
+//         //     previousTableId = eventArgs.tableId; // Table we came from
+//         // };
+
+//         var theAllTable = context.workbook.tables.load("count"); //all of the tables in the workbook
+//         theAllTable.load("items");
 
 //         await context.sync();
 
 //         context.runtime.enableEvents = false;
 //         console.log("Events are turned off");
+
+
+
+//         var countingAllTables = theAllTable.count; //the number of tables in the workbook
+
+//         //function finding
+
+//         //cycles through each table in the workbook
+//         for (var p = 0; p < countingAllTables; p++) {
+//             var cycleTables = context.workbook.tables.getItemAt(p).load("name/worksheet");
+
+//             var cycleTableRows = cycleTables.rows.load("items");
+
+//             //await context.sync();
+
+//             var tablesWorksheet = cycleTables.worksheet.load("name");
+
+//             //await context.sync();
+
+//             var cycleBodyRange = cycleTables.getDataBodyRange().load("values"); //gets range of table
+//             cycleBodyRange.load("columnIndex");
+
+//             //await context.sync();
+
+//             cycleBodyRange.load(["rowCount", "columnCount", "cellCount"]);
+
+//             var headerRange = cycleTables.getHeaderRowRange().load("values");
+
+//             const usedDataRange = cycleBodyRange.getUsedRangeOrNullObject(
+//                 true /* valuesOnly */
+//             );
+
+//             var propertiesToGet = cycleBodyRange.getRowProperties({ //gets format properties of the rows in the table
+//                 format: {
+//                     fill: {
+//                         color: true
+//                     },
+//                     font: {
+//                         bold: true,
+//                         color: true
+//                     }
+//                 },
+//                 rowIndex: true
+//             }); 
+//             // var propertiesToGet = cycleBodyRange.getCellProperties({
+//             //     address: true,
+//             //     format: {
+//             //         fill: {
+//             //             color: true
+//             //         },
+//             //         font: {
+//             //             color: true
+//             //         }
+//             //     },
+//             //     style: true
+//             // }); 
+
+//             await context.sync();
+
+//             var head = headerRange.values;
+
+//             var leTable = cycleBodyRange.values
+
+//             //console.log(cycleTables.name);
+
+//             // var isTableEmpty = selectedTableRowsCount.count;
+
+//             // if (isTableEmpty == 0) {
+//             //     console.log("Table is empty, so no highlighting was applied");
+//             //     eventsOn();
+//             //     return;
+//             // };
+
+//             var listOfCompletedTables = [];
+
+//             theAllTable.items.forEach(function (table) { //for each table in the workbook...
+//                 if (table.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
+//                     listOfCompletedTables.push(table.name); //push the name of that table into an array
+//                 };
+//             });
+
+//             //returns true if the changedTable is a completed table from the array previously made, false if it is anything else
+//             var completedTableChanged = listOfCompletedTables.includes(cycleTables.name);
+
+//             //console.log(tablesWorksheet.name);
+
+//             if (tablesWorksheet.name !== "Validation" && usedDataRange.isNullObject !== true) { //ignore all tables in Validation sheet
+//                 //cycles through each row in the table
+//                 for (var iRow = 0; iRow < cycleBodyRange.rowCount; iRow++) {
+//                     var theRows = cycleTableRows.items
+//                     var rowValues = theRows[iRow].values
+//                     //var cycleRow = cycleTables.rows.getItemAt(iRow).load("index");
+//                     var rowRange = cycleTables.rows.getItemAt(iRow).getRange(); //range of row we are currently on
+//                     var rowProperties = propertiesToGet.value[iRow]; //loads in those row properites from eariler
+//                     //console.log(rowProperties.format.fill.color);
+//                     var tableStart = cycleBodyRange.columnIndex;
+
+//                     var theWorksheet = context.workbook.worksheets.getItem(tablesWorksheet.name).load("name");
+
+//                     var rowInfoSorted = new Object();
+
+//                     for (var name of head[0]) {
+//                         theGreatestFunctionEverWritten(head, name, rowValues, leTable, rowInfoSorted, iRow);
+//                     }
+    
+//                     // bees.load(["format/*", "format/fill", "format/borders", "format/font"]);
+//                     // bees.load("address");
+//                     if (rowProperties.format.fill.color == "#F5D9FF") { //if the row is purple, do the following...
+//                         console.log("Found a purple row!");
+//                         console.log(`Table: ${cycleTables.name}\nRow Index: ${iRow}`);
+//                         rowRange.format.fill.clear();
+//                         //will need to run conditional formatting function next
+//                         await context.sync();
+
+//                         conditionalFormatting(rowInfoSorted, tableStart, theWorksheet, iRow, completedTableChanged, rowRange, null)
+//                     };
+//                 };
+//             };
+
+            
+//         };
 
 //         console.log(`Table event: The address of new selection is: ${eventArgs.address}`);
 
@@ -872,18 +785,8 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
 //         var selectedTable = context.workbook.tables.getItem(eventArgs.tableId).load("name");
 
-//         if (previousSelection !== undefined && eventArgs.address == "") {
-//             var oldRange = previousSelection.load("rowIndex");
-//             //var previousTable = context.workbook.tables.getItem(previousTableId).load("name");
-//         } else if (previousTableId == eventArgs.tableId) {
-//             var range = context.workbook.getSelectedRange();
-//             range.load(['address', 'values', 'rowIndex']);
-
-//             var oldRange = previousSelection.load("rowIndex");
-//         } else {
-//             var range = context.workbook.getSelectedRange();
-//             range.load(['address', 'values', 'rowIndex']);
-//         };
+//         var range = context.workbook.getSelectedRange();
+//         range.load(['address', 'values', 'rowIndex']);
 
 //         var selectedTableRows = selectedTable.rows.load("items");
 //         var selectedTableRowsCount = selectedTable.rows.load("count");
@@ -900,35 +803,8 @@ async function onTableSelectionChangedEvents(eventArgs) {
 //             return;
 //         };
 
-//         console.log(worksheetName.name);
 
-//         //if we just moved to a different table, removes formatting from previous row
-//         if (previousSelection !== undefined && eventArgs.address == "") {
-//             var oldRangeRow = oldRange.rowIndex;
-//             //console.log(previousTable.name);
-//             // var previousTableName = previousSelection.address.split("!");
-//             // previousTableName = previousTableName[0];
-
-//             //var previousTable = context.workbook.tables.getItem(previousTableName);
-
-//             //console.log(previousTable.name);
-
-//             //var previousTableRows = previousTable.rows;
-
-//             var theOldRow = selectedTableRows.getItemAt(oldRangeRow - 1).getRange();
-
-//             console.log(previousSelection.format.fill.color);
-
-    
-    
-//             theOldRow.format.fill.color = previousSelection.format.fill.color;
-//             theOldRow.format.font.color = previousSelection.format.font.color;
-//             theOldRow.format.font.bold = previousSelection.format.font.bold;
-
-//         };
-
-
-//         console.log("SMellY fArtS!");
+//         //console.log("SMellY fArtS!");
 
 //         //adds formatting to current row
 //         if (eventArgs.address !== "") {
@@ -941,29 +817,30 @@ async function onTableSelectionChangedEvents(eventArgs) {
 //             bees.load("address");
 
 
-//             bees.format.fill.color = "purple";
+//             bees.format.fill.color = "#F5D9FF";
+//             bees.format.font.color = "black";
 
 
 
-//             //removes formatting from previous row in same table
-//             if (previousSelection !== undefined && previousTableId == eventArgs.tableId) {
-//                 var oldRangeRow = oldRange.rowIndex;
+//             // //removes formatting from previous row in same table
+//             // if (previousSelection !== undefined && previousTableId == eventArgs.tableId) {
+//             //     var oldRangeRow = oldRange.rowIndex;
     
-//                 var theOldRow = selectedTableRows.getItemAt(oldRangeRow - 1).getRange();
+//             //     var theOldRow = selectedTableRows.getItemAt(oldRangeRow - 1).getRange();
     
-//                 console.log(previousSelection.format.fill.color);
+//             //     console.log(previousSelection.format.fill.color);
         
-//                 theOldRow.format.fill.color = previousSelection.format.fill.color;
-//                 theOldRow.format.font.color = previousSelection.format.font.color;
-//                 theOldRow.format.font.bold = previousSelection.format.font.bold;
+//             //     theOldRow.format.fill.color = previousSelection.format.fill.color;
+//             //     theOldRow.format.font.color = previousSelection.format.font.color;
+//             //     theOldRow.format.font.bold = previousSelection.format.font.bold;
 
-//             };
+//             // };
 
-//             previousTableId = eventArgs.tableId;
+//             // previousTableId = eventArgs.tableId;
 
-//             previousSelection = bees;
+//             // previousSelection = bees;
     
-//             context.trackedObjects.add(previousSelection);
+//             // context.trackedObjects.add(previousSelection);
 
 //         };
 
@@ -975,6 +852,186 @@ async function onTableSelectionChangedEvents(eventArgs) {
 //         context.runtime.enableEvents = true;
 //     });
 // };
+
+//This works, but only under certain circumstances. Moving to a new worksheet will leave the previous selection on the previous sheet highlighted. Reloading the taskpane also does the same thing. Making a change to the sheet that doesn't trigger the onSelectionChange event (adjusting text/row formatting), unselecting the table, and then selecting it again also keeps the old highlight.
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+async function onTableSelectionChangedEvents(eventArgs) {
+    await Excel.run(/*previousSelection,*/ async (context) => {
+
+        context.runtime.load("enableEvents");
+
+        console.log(eventArgs.address);
+
+        console.log(previousSelectionObj.address);
+
+        if (previousSelectionObj.tableId !== "") {
+            //var previousTableId = eventArgs.tableId; // Table we came from
+
+            var previousTable = context.workbook.tables.getItem(previousSelectionObj.tableId);
+            previousTable.load("name/id");
+
+            var previousRowIndex = previousSelectionObj.rowIndex - 1;
+
+            var previousSelectionRange = previousTable.rows.getItemAt(previousRowIndex).getRange();
+
+            var previousTableRange = previousTable.getDataBodyRange();
+    
+            var previousSelectionAddress = previousSelectionObj.address;
+    
+            //var previousSelectionRange = previousSelectionObj.rowIndex;
+
+            // bees.load(["format/*", "format/fill", "format/borders", "format/font"]);
+            // bees.load("address");
+    
+        };
+
+       
+        await context.sync();
+
+        if (previousTable !== undefined) {
+
+            var previousTableName = previousTable.name
+
+            console.log("The previous table name is: " + previousTableName);
+
+            console.log("The previous selection address is: " + previousSelectionAddress);
+
+            //var oldRange = previousSelectionObj.rowIndex;
+
+        };
+
+        context.runtime.enableEvents = false;
+        console.log("Events are turned off");
+
+        console.log(`Table event: The address of new selection is: ${eventArgs.address}`);
+
+        var worksheetName = context.workbook.worksheets.getActiveWorksheet().load("name/id");
+
+        var selectedTable = context.workbook.tables.getItem(eventArgs.tableId).load("name");
+
+        var range = context.workbook.getSelectedRange();
+        range.load(['address', 'values', 'rowIndex']);
+
+
+        // if (previousSelection !== undefined && eventArgs.address == "") {
+        //     var oldRange = previousSelection.load("rowIndex");
+        //     //var previousTable = context.workbook.tables.getItem(previousTableId).load("name");
+        // } else if (previousTableId == eventArgs.tableId) {
+        //     var range = context.workbook.getSelectedRange();
+        //     range.load(['address', 'values', 'rowIndex']);
+
+        //     var oldRange = previousSelection.load("rowIndex");
+        // } else {
+        //     var range = context.workbook.getSelectedRange();
+        //     range.load(['address', 'values', 'rowIndex']);
+        // };
+
+        var selectedTableRows = selectedTable.rows.load("items");
+        var selectedTableRowsCount = selectedTable.rows.load("count");
+
+
+        await context.sync();
+
+
+        var isTableEmpty = selectedTableRowsCount.count;
+
+        if (isTableEmpty == 0) {
+            console.log("Table is empty, so no highlighting was applied");
+            eventsOn();
+            return;
+        };
+
+        console.log(worksheetName.name);
+
+        // //if we just moved to a different table, removes formatting from previous row
+        // if (previousSelectionObj.tableId !== "" && eventArgs.address == "") {
+        //     //var oldRangeRow = oldRange.rowIndex;
+        //     //console.log(previousTable.name);
+        //     // var previousTableName = previousSelection.address.split("!");
+        //     // previousTableName = previousTableName[0];
+
+        //     //var previousTable = context.workbook.tables.getItem(previousTableName);
+
+        //     //console.log(previousTable.name);
+
+        //     //var previousTableRows = previousTable.rows;
+
+        //     //var theOldRow = selectedTableRows.getItemAt(previousRowIndex).getRange();
+
+        //     //console.log(previousSelection.format.fill.color);
+
+    
+    
+        //     previousSelectionRange.format.fill.color = previousSelectionObj.color;
+        //     // previousSelectionRange.format.font.color = previousSelectionObj.color;
+        //     // previousSelectionRange.format.font.bold = previousSelectionRange.format.font.bold;
+
+        // };
+
+
+        console.log("SMellY fArtS!");
+
+        //adds formatting to current row
+        if (eventArgs.address !== "") {
+
+            //applies border to selected row
+            var rI = range.rowIndex;
+
+            var bees = selectedTableRows.getItemAt(rI - 1).getRange();
+            bees.load(["format/*", "format/fill", "format/borders", "format/font"]);
+            bees.load("address");
+            
+            await context.sync();
+
+
+            var beforeColor = bees.format.fill.color;
+
+            bees.format.fill.color = "purple";
+
+
+
+            //removes formatting from previous row in same table
+            if (previousTable !== undefined) {
+            // if (previousTable !== undefined && previousTable.id == eventArgs.tableId) {
+                //var oldRangeRow = oldRange.rowIndex;
+    
+                //var theOldRow = selectedTableRows.getItemAt(previousRowIndex).getRange();
+    
+                //console.log(previousSelectionRange.format.fill.color);
+        
+                previousSelectionRange.format.fill.color = previousSelectionObj.color;
+                // previousSelectionRange.format.font.color = previousSelectionRange.format.font.color;
+                // previousSelectionRange.format.font.bold = previousSelectionRange.format.font.bold;
+
+            };
+
+            //previousTableId = eventArgs.tableId;
+
+            //previousSelection = bees;
+
+            previousSelectionObj.tableId = eventArgs.tableId;
+
+            previousSelectionObj.address = eventArgs.address;
+
+            previousSelectionObj.rowIndex = rI;
+
+            previousSelectionObj.color = beforeColor;
+            // previousSelectionObj.range = range;
+    
+            // context.trackedObjects.add(previousSelection);
+
+        };
+
+        eventsOn();
+
+    }).catch (err => {
+        console.log(err) // <--- does this log?
+        showMessage(err, "show");
+        context.runtime.enableEvents = true;
+    });
+};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
