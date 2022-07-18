@@ -2,7 +2,7 @@
 
 $(() => {
     // DOCUMENT LOADED
-    console.log("DOCUMENT LOADED");
+    //console.log("DOCUMENT LOADED");
 
     /**
      * Clicking this prints a mouse =============================
@@ -131,10 +131,7 @@ $(() => {
     var previousSelectionObj = {
         tableId: "",
         address: "",
-        rowIndex: "",
-        color: "",
-        fontColor: "",
-        fontWeight: "",
+        rowIndex: ""
     };
 
     // var previousSelectionFill;
@@ -282,9 +279,9 @@ $(() => {
 
                     await context.sync()
 
-                        console.log(workbookName.name);
+                        //console.log(workbookName.name);
 
-                        console.log("I sharkded");
+                        //console.log("I sharkded");
 
                         // if (currentWorksheet == undefined) {
                         //     currentWorksheet = activeSheet.id;
@@ -568,6 +565,7 @@ $(() => {
                 tryCatch(updateDropDowns);
 
                 eventsOn();
+                console.log("Events: ON  →  turned on in onReady function!");
                 //updateDropDowns();
             };
         });
@@ -596,7 +594,7 @@ async function registerOnActivateHandler() {
         await context.sync();
 
         context.runtime.enableEvents = false;
-        console.log("Events are turned off");
+        console.log("Events: OFF");
 
         var countingAllTables = theAllTable.count; //the number of tables in the workbook
 
@@ -727,7 +725,7 @@ async function registerOnActivateHandler() {
             for (var y = 0; y < countingAllTables; y++) {
                 var bonTable = context.workbook.tables.getItemAt(y);
                 selectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents);
-                console.log("bonTable fired!");
+                //console.log("bonTable fired!");
             };
     
             sheets.onActivated.add(onActivate);
@@ -735,6 +733,7 @@ async function registerOnActivateHandler() {
             console.log("A handler has been registered for the OnActivate event.");
 
             eventsOn();
+            console.log("Events: ON  →  turned on in the registerOnActivateHandler function, typically triggered by a reload");
 
         //});
 
@@ -1019,11 +1018,11 @@ async function onTableSelectionChangedEvents(eventArgs) {
         await context.sync();
 
         context.runtime.enableEvents = false;
-        console.log("Events are turned off");
+        console.log("Events: OFF");
 
-        console.log(eventArgs.address);
+        //console.log(eventArgs.address);
 
-        console.log(previousSelectionObj.address);
+        //console.log(previousSelectionObj.address);
 
         if (previousSelectionObj.tableId !== "") {
             //var previousTableId = eventArgs.tableId; // Table we came from
@@ -1031,13 +1030,20 @@ async function onTableSelectionChangedEvents(eventArgs) {
             var previousTable = context.workbook.tables.getItem(previousSelectionObj.tableId);
             previousTable.load("name/id");
 
+            var previousTableRows = previousTable.rows.load("items");
+
+            var previousWorksheet = previousTable.worksheet.load("name");
+
             var previousRowIndex = previousSelectionObj.rowIndex - 1;
 
             var previousSelectionRange = previousTable.rows.getItemAt(previousRowIndex).getRange();
 
-            var previousTableRange = previousTable.getDataBodyRange();
+            var previousTableRange = previousTable.getDataBodyRange().load("values");
+            previousTableRange.load("columnIndex");
     
             var previousSelectionAddress = previousSelectionObj.address;
+
+            var tablesAll = context.workbook.tables.load("items");
     
             //var previousSelectionRange = previousSelectionObj.rowIndex;
 
@@ -1053,15 +1059,28 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
             var previousTableName = previousTable.name
 
-            console.log("The previous table name is: " + previousTableName);
+            var newLeTable = previousTableRange.values;
 
-            console.log("The previous selection address is: " + previousSelectionAddress);
+            console.log("Previous Table Event: The previous table name is: " + previousTableName + " with the selection address of: " + previousSelectionAddress);
+
+            var listOfCompletedTables = [];
+
+            tablesAll.items.forEach(function (table) { //for each table in the workbook...
+                if (table.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
+                    listOfCompletedTables.push(table.name); //push the name of that table into an array
+                };
+            });
+
+            //returns true if the changedTable is a completed table from the array previously made, false if it is anything else
+            var completedTableChanged = listOfCompletedTables.includes(previousTable.name);
+
+            var headerRangeToo = previousTable.getHeaderRowRange().load("values");
 
             //var oldRange = previousSelectionObj.rowIndex;
 
         };
 
-        console.log(`Table event: The address of new selection is: ${eventArgs.address}`);
+        //console.log(`Table event: The address of new selection is: ${eventArgs.address}`);
 
         var worksheetName = context.workbook.worksheets.getActiveWorksheet().load("name/id");
 
@@ -1090,16 +1109,18 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
         await context.sync();
 
+        console.log(`Selected Table Event: The current table name is: ${selectedTable.name} with the selection address of: ${eventArgs.address}`);
 
         var isTableEmpty = selectedTableRowsCount.count;
 
         if (isTableEmpty == 0) {
             console.log("Table is empty, so no highlighting was applied");
             eventsOn();
+            console.log("Events: ON  →  turned on in the onTableSelectionChangedEvents function when the selected range was a part of an empty table");
             return;
         };
 
-        console.log(worksheetName.name);
+        //console.log(worksheetName.name);
 
         // //if we just moved to a different table, removes formatting from previous row
         // if (previousSelectionObj.tableId !== "" && eventArgs.address == "") {
@@ -1127,7 +1148,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
         // };
 
 
-        console.log("SMellY fArtS!");
+        //console.log("SMellY fArtS!");
 
         //adds formatting to current row
         if (eventArgs.address !== "") {
@@ -1141,15 +1162,10 @@ async function onTableSelectionChangedEvents(eventArgs) {
             
             await context.sync();
 
-
-            var beforeColor = bees.format.fill.color;
-            var beforeFontColor = bees.format.font.color;
-            var beforeFontWeight = bees.format.font.bold;
-
-            bees.format.fill.color = "#F5D9FF";
-            bees.format.font.color = "black";
-
-
+            if (eventArgs.address == previousSelectionAddress) {
+                previousTable = undefined;
+                console.log("Current selection address was the same as the previous selection address, so previous row formatting was prevented");
+            };
 
             //removes formatting from previous row in same table
             if (previousTable !== undefined) {
@@ -1160,19 +1176,81 @@ async function onTableSelectionChangedEvents(eventArgs) {
     
                 //console.log(previousSelectionRange.format.fill.color);
         
-                previousSelectionRange.format.fill.color = previousSelectionObj.color;
-                previousSelectionRange.format.font.color = previousSelectionObj.fontColor;
-                previousSelectionRange.format.font.bold = previousSelectionObj.fontWeight;
+                // previousSelectionRange.format.fill.color = previousSelectionObj.color;
+                // previousSelectionRange.format.font.color = previousSelectionObj.fontColor;
+                // previousSelectionRange.format.font.bold = previousSelectionObj.fontWeight;
+
+                var headTwo = headerRangeToo.values;
+
+                var zeRows = previousTableRows.items;
+                var zeRowValues = zeRows[previousRowIndex].values
+
+                var tableStart = previousTableRange.columnIndex;
+
+                var rowInfoSorted = new Object();
+
+                for (var name of headTwo[0]) {
+                    theGreatestFunctionEverWritten(headTwo, name, zeRowValues, newLeTable, rowInfoSorted, previousRowIndex);
+                }
 
 
-                
-
+                conditionalFormatting(rowInfoSorted, tableStart, previousWorksheet, previousRowIndex, completedTableChanged, previousSelectionRange, null);
 
 
                 // previousSelectionRange.format.font.color = previousSelectionRange.format.font.color;
                 // previousSelectionRange.format.font.bold = previousSelectionRange.format.font.bold;
 
             };
+
+
+            // var beforeColor = bees.format.fill.color;
+            // var beforeFontColor = bees.format.font.color;
+            // var beforeFontWeight = bees.format.font.bold;
+
+            bees.format.fill.color = "#F5D9FF";
+            bees.format.font.color = "black";
+
+            // if (eventArgs.address == previousSelectionAddress) {
+            //     previousTable = undefined;
+            //     console.log("Current selection address was the same as the previous selection address, so previous row formatting was prevented");
+            // };
+
+            // //removes formatting from previous row in same table
+            // if (previousTable !== undefined) {
+            // // if (previousTable !== undefined && previousTable.id == eventArgs.tableId) {
+            //     //var oldRangeRow = oldRange.rowIndex;
+    
+            //     //var theOldRow = selectedTableRows.getItemAt(previousRowIndex).getRange();
+    
+            //     //console.log(previousSelectionRange.format.fill.color);
+        
+            //     // previousSelectionRange.format.fill.color = previousSelectionObj.color;
+            //     // previousSelectionRange.format.font.color = previousSelectionObj.fontColor;
+            //     // previousSelectionRange.format.font.bold = previousSelectionObj.fontWeight;
+
+            //     var headTwo = headerRangeToo.values;
+
+            //     var zeRows = previousTableRows.items;
+            //     var zeRowValues = zeRows[previousRowIndex].values
+
+            //     var tableStart = previousTableRange.columnIndex;
+
+            //     var rowInfoSorted = new Object();
+
+            //     for (var name of headTwo[0]) {
+            //         theGreatestFunctionEverWritten(headTwo, name, zeRowValues, newLeTable, rowInfoSorted, previousRowIndex);
+            //     }
+
+
+            //     conditionalFormatting(rowInfoSorted, tableStart, previousWorksheet, previousRowIndex, completedTableChanged, previousSelectionRange, null);
+
+
+
+
+            //     // previousSelectionRange.format.font.color = previousSelectionRange.format.font.color;
+            //     // previousSelectionRange.format.font.bold = previousSelectionRange.format.font.bold;
+
+            // };
 
             //previousTableId = eventArgs.tableId;
 
@@ -1184,20 +1262,43 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
             previousSelectionObj.rowIndex = rI;
 
-            previousSelectionObj.color = beforeColor;
+            // previousSelectionObj.color = beforeColor;
 
-            previousSelectionObj.fontColor = beforeFontColor;
+            // previousSelectionObj.fontColor = beforeFontColor;
 
-            previousSelectionObj.fontWeight = beforeFontWeight;
+            // previousSelectionObj.fontWeight = beforeFontWeight;
 
 
             // previousSelectionObj.range = range;
     
             // context.trackedObjects.add(previousSelection);
 
-        };
+        } else {
+
+            if (previousTable !== undefined) {
+
+                var headTwo = headerRangeToo.values;
+
+                var zeRows = previousTableRows.items;
+                var zeRowValues = zeRows[previousRowIndex].values
+
+                var tableStart = previousTableRange.columnIndex;
+
+                var rowInfoSorted = new Object();
+
+                for (var name of headTwo[0]) {
+                    theGreatestFunctionEverWritten(headTwo, name, zeRowValues, newLeTable, rowInfoSorted, previousRowIndex);
+                }
+
+
+                conditionalFormatting(rowInfoSorted, tableStart, previousWorksheet, previousRowIndex, completedTableChanged, previousSelectionRange, null);
+
+            };
+
+        }
 
         eventsOn();
+        console.log("Events: ON  →  turned on in the onTableSelectionChangeEvents function once it had successfully finished running!");
 
     }).catch (err => {
         console.log(err) // <--- does this log?
@@ -2153,7 +2254,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
                         //turns events off
                         context.runtime.enableEvents = false;
-                        console.log("Events are turned off");
+                        console.log("Events: OFF");
 
                     });
                 }).then(function() {
@@ -2519,6 +2620,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
                 });
 
                 eventsOn();
+                console.log("Events: ON  →  turned on in the addAProject function after a project was added to the sheet through the taskpane!");
 
             };
 
@@ -3339,10 +3441,11 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
                         }).then(() => {
                             eventsOn();
+                            console.log("Events: ON  →  turned on in the priorityGenerationAndSortation function, which I believe is an antiquated function that should not be used any longer. If you are seeing this, something has gone terribly wrong and you have somehow ended up in an alternate universe where this function was used. My condolances.");
                             return;
                         });
 
-                    })
+                    });
                 };
 
             //#endregion ------------------------------------------------------------------------------------------------------------------
@@ -3454,7 +3557,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
                 console.log("I awaited the context.sync().")
                 context.runtime.enableEvents = false;
-                console.log("Events are turned off");
+                console.log("Events: OFF");
                
                 // var result = await onTableChanged(eventArgs).then(tableChangedPriorityAndSort(poop.rowInfo, poop.bodyRange, poop.priorityColumnData));
             });
@@ -3880,6 +3983,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
                         //conditionalFormatting(rowInfo, tableStart, changedWorksheet, changedRowTableIndex, completedTableChanged, rowRange, completedTable);
                         eventsOn();
+                        console.log("Events: ON  →  turned on after a row was deleted within the onTableChanged function!");
 
                         return;
 
@@ -3917,6 +4021,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
                         conditionalFormatting(rowInfo, tableStart, changedWorksheet, changedRowTableIndex, completedTableChanged, rowRange, completedTable);
                         eventsOn();
+                        console.log("Events: ON  →  turned on within the onTableChanged function after the print date or group columns were updated!");
                     };
 
                     var statusMove = false;
@@ -4845,6 +4950,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
             });
 
             eventsOn(); //turns events back on
+            console.log("Events: ON  →  turned on at the end of the onTableChanged Function!");
 
         };
 
@@ -5126,7 +5232,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
                 context.runtime.load("enableEvents");
                 await context.sync();
                 context.runtime.enableEvents = true;
-                console.log("Events are turned on!");
+                //console.log("Events are turned on!");
             });
         };
 
@@ -5583,8 +5689,8 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
         //#region TRY CATCH ---------------------------------------------------------------------------------------------
             async function tryCatch(callback) {
-                console.log("Error callback type is: ");
-                console.log(typeof callback);
+                //console.log("Error callback type is: ");
+                //console.log(typeof callback);
                 //if (typeof callback === 'function') {
                     try {
                         await callback();
@@ -5971,6 +6077,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
                         // console.log("Priority & Sorting function is now finished!");
 
                         eventsOn();
+                        console.log("Events: ON  →  changed in yet another legacy function priority sort function that is still around for some reason but not being used. Can you tell I had a lot of trouble getting this feature to work? If you are seeing this, you might want to try stepping through a mirror because you are in an alternate dimension. Either that or some poor fool has enebaled a setting (probably me) that has destroyed the fabric of space and time. My wife is going to kill me; she takes her patterns and materials very seriously. Good luck explaining this one!");
                         return;
 
                         // priorityColumnData.values.push([]);
