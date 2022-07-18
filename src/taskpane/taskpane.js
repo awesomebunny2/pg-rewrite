@@ -132,7 +132,9 @@ $(() => {
         tableId: "",
         address: "",
         rowIndex: "",
-        color:""
+        color: "",
+        fontColor: "",
+        fontWeight: "",
     };
 
     // var previousSelectionFill;
@@ -582,19 +584,147 @@ async function registerOnActivateHandler() {
         var activeSheet = context.workbook.worksheets.getActiveWorksheet().load("worksheetId");
         //var activeProjectTable = activeSheet.tables.getItemAt(0);
 
-        var allTheTables = context.workbook.tables.load("count");
+        //var allTheTables = context.workbook.tables.load("count");
+
+
+        context.runtime.load("enableEvents");
+
+
+        var theAllTable = context.workbook.tables.load("count"); //all of the tables in the workbook
+        theAllTable.load("items");
+
+        await context.sync();
+
+        context.runtime.enableEvents = false;
+        console.log("Events are turned off");
+
+        var countingAllTables = theAllTable.count; //the number of tables in the workbook
+
+        //cycles through each table in the workbook
+        for (var p = 0; p < countingAllTables; p++) {
+            var cycleTables = context.workbook.tables.getItemAt(p).load("name/worksheet");
+
+            var cycleTableRows = cycleTables.rows.load("items");
+
+            //await context.sync();
+
+            var tablesWorksheet = cycleTables.worksheet.load("name");
+
+            //await context.sync();
+
+            var cycleBodyRange = cycleTables.getDataBodyRange().load("values"); //gets range of table
+            cycleBodyRange.load("columnIndex");
+
+            //await context.sync();
+
+            cycleBodyRange.load(["rowCount", "columnCount", "cellCount"]);
+
+            var headerRange = cycleTables.getHeaderRowRange().load("values");
+
+            const usedDataRange = cycleBodyRange.getUsedRangeOrNullObject(
+                true /* valuesOnly */
+            );
+
+            var propertiesToGet = cycleBodyRange.getRowProperties({ //gets format properties of the rows in the table
+                format: {
+                    fill: {
+                        color: true
+                    },
+                    font: {
+                        bold: true,
+                        color: true
+                    }
+                },
+                rowIndex: true
+            }); 
+            // var propertiesToGet = cycleBodyRange.getCellProperties({
+            //     address: true,
+            //     format: {
+            //         fill: {
+            //             color: true
+            //         },
+            //         font: {
+            //             color: true
+            //         }
+            //     },
+            //     style: true
+            // }); 
+
+            await context.sync();
+
+            var head = headerRange.values;
+
+            var leTable = cycleBodyRange.values
+
+            //console.log(cycleTables.name);
+
+            // var isTableEmpty = selectedTableRowsCount.count;
+
+            // if (isTableEmpty == 0) {
+            //     console.log("Table is empty, so no highlighting was applied");
+            //     eventsOn();
+            //     return;
+            // };
+
+            var listOfCompletedTables = [];
+
+            theAllTable.items.forEach(function (table) { //for each table in the workbook...
+                if (table.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
+                    listOfCompletedTables.push(table.name); //push the name of that table into an array
+                };
+            });
+
+            //returns true if the changedTable is a completed table from the array previously made, false if it is anything else
+            var completedTableChanged = listOfCompletedTables.includes(cycleTables.name);
+
+            //console.log(tablesWorksheet.name);
+
+            if (tablesWorksheet.name !== "Validation" && usedDataRange.isNullObject !== true) { //ignore all tables in Validation sheet
+                //cycles through each row in the table
+                for (var iRow = 0; iRow < cycleBodyRange.rowCount; iRow++) {
+                    var theRows = cycleTableRows.items
+                    var rowValues = theRows[iRow].values
+                    //var cycleRow = cycleTables.rows.getItemAt(iRow).load("index");
+                    var rowRange = cycleTables.rows.getItemAt(iRow).getRange(); //range of row we are currently on
+                    var rowProperties = propertiesToGet.value[iRow]; //loads in those row properites from eariler
+                    //console.log(rowProperties.format.fill.color);
+                    var tableStart = cycleBodyRange.columnIndex;
+
+                    var theWorksheet = context.workbook.worksheets.getItem(tablesWorksheet.name).load("name");
+
+                    var rowInfoSorted = new Object();
+
+                    for (var name of head[0]) {
+                        theGreatestFunctionEverWritten(head, name, rowValues, leTable, rowInfoSorted, iRow);
+                    }
+    
+                    // bees.load(["format/*", "format/fill", "format/borders", "format/font"]);
+                    // bees.load("address");
+                    if (rowProperties.format.fill.color == "#F5D9FF") { //if the row is purple, do the following...  #F5D9FF
+                        console.log("Found a purple row!");
+                        console.log(`Table: ${cycleTables.name}\nRow Index: ${iRow}`);
+                        rowRange.format.fill.clear();
+                        //will need to run conditional formatting function next
+                        await context.sync();
+
+                        conditionalFormatting(rowInfoSorted, tableStart, theWorksheet, iRow, completedTableChanged, rowRange, null)
+                    };
+                };
+            };       
+        };
+
 
     
-        await context.sync()/*.then(function () {*/
+        //await context.sync()/*.then(function () {*/
 
             // context.runtime.enableEvents = false;
             // console.log("Events are turned off");
 
         //}).then(function() {
 
-            var allTheTablesCount = allTheTables.count;
+            //var allTheTablesCount = allTheTables.count;
 
-            for (var y = 0; y < allTheTablesCount; y++) {
+            for (var y = 0; y < countingAllTables; y++) {
                 var bonTable = context.workbook.tables.getItemAt(y);
                 selectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents);
                 console.log("bonTable fired!");
@@ -604,8 +734,14 @@ async function registerOnActivateHandler() {
     
             console.log("A handler has been registered for the OnActivate event.");
 
+            eventsOn();
+
         //});
 
+    }).catch (err => {
+        console.log(err) // <--- does this log?
+        showMessage(err, "show");
+        context.runtime.enableEvents = true;
     });
 };
 
@@ -622,19 +758,37 @@ async function onActivate(args) {
 
     //     }).then(function() {
 
+        // context.runtime.load("enableEvents");
+
+
+        var allTheTables = context.workbook.tables.load("count"); //all of the tables in the workbook
+        // allTheTables.load("items");
+
+        await context.sync();
+
+        var allTheTablesCount = allTheTables.count; //the number of tables in the workbook
+
+
+
             currentWorksheet = args.worksheetId;
             console.log("The activated worksheet Id : " + args.worksheetId);
             //var leCurrentWorksheet = context.workbook.worksheets.getItem(currentWorksheet);
-            var allTheTablesCount = context.workbook.tables.count;
+            //var allTheTablesCount = context.workbook.tables.count;
 
             for (var y = 0; y < allTheTablesCount; y++) {
                 var bonTable = context.workbook.tables.getItemAt(y);
                 selectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents);
             };
 
-            return;
+            //return;
        // });
 
+       //eventsOn();
+
+    }).catch (err => {
+        console.log(err) // <--- does this log?
+        showMessage(err, "show");
+        context.runtime.enableEvents = true;
     });
 };
 
@@ -862,6 +1016,11 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
         context.runtime.load("enableEvents");
 
+        await context.sync();
+
+        context.runtime.enableEvents = false;
+        console.log("Events are turned off");
+
         console.log(eventArgs.address);
 
         console.log(previousSelectionObj.address);
@@ -901,9 +1060,6 @@ async function onTableSelectionChangedEvents(eventArgs) {
             //var oldRange = previousSelectionObj.rowIndex;
 
         };
-
-        context.runtime.enableEvents = false;
-        console.log("Events are turned off");
 
         console.log(`Table event: The address of new selection is: ${eventArgs.address}`);
 
@@ -987,8 +1143,11 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
 
             var beforeColor = bees.format.fill.color;
+            var beforeFontColor = bees.format.font.color;
+            var beforeFontWeight = bees.format.font.bold;
 
-            bees.format.fill.color = "purple";
+            bees.format.fill.color = "#F5D9FF";
+            bees.format.font.color = "black";
 
 
 
@@ -1002,6 +1161,14 @@ async function onTableSelectionChangedEvents(eventArgs) {
                 //console.log(previousSelectionRange.format.fill.color);
         
                 previousSelectionRange.format.fill.color = previousSelectionObj.color;
+                previousSelectionRange.format.font.color = previousSelectionObj.fontColor;
+                previousSelectionRange.format.font.bold = previousSelectionObj.fontWeight;
+
+
+                
+
+
+
                 // previousSelectionRange.format.font.color = previousSelectionRange.format.font.color;
                 // previousSelectionRange.format.font.bold = previousSelectionRange.format.font.bold;
 
@@ -1018,6 +1185,12 @@ async function onTableSelectionChangedEvents(eventArgs) {
             previousSelectionObj.rowIndex = rI;
 
             previousSelectionObj.color = beforeColor;
+
+            previousSelectionObj.fontColor = beforeFontColor;
+
+            previousSelectionObj.fontWeight = beforeFontWeight;
+
+
             // previousSelectionObj.range = range;
     
             // context.trackedObjects.add(previousSelection);
