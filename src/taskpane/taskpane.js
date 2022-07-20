@@ -4007,6 +4007,10 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
                                                 // var sharts = destinationTable.rows[0];
 
+                                                if (destinationRows.length == 0) {
+                                                    destTableSort.shift();
+                                                };
+
                                                 var bodyPositivity = changedTable.getDataBodyRange().load("values");
 
                                                 var unassignedRange = unassignedTable.getDataBodyRange().load("values");
