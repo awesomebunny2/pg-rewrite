@@ -10,16 +10,17 @@ $(() => {
     $("#meece").on("click", () => {
         //location.reload();
         console.log("CLICKED🐭");
-        showFissh("show");
+        showElement("#fissh", "show");
     })
 
     $(".ok").on("click", function() {
-        showFissh("hide");
-        location.reload();
+        showElement("#fissh", "hide");
+        showFisshGif();
+        //location.reload();
     });
 
     $(".dont").on("click", function() {
-        showFissh("hide");
+        showElement("#fissh", "hide");
     });
 
 
@@ -4492,13 +4493,32 @@ async function onTableSelectionChangedEvents(eventArgs) {
     }
 
 
-    function showFissh(showHide) {
+    // function showFissh(showHide) {
+    //     if (showHide === "hide") {
+    //         $("#fissh").css("display", "none");
+    //     } else if (showHide === "show") {
+    //         $("#fissh").css("display", "flex");
+    //     };
+    // };
+
+    function showElement(element, showHide) {
         if (showHide === "hide") {
-            $("#fissh").css("display", "none");
+            $(element).css("display", "none");
         } else if (showHide === "show") {
-            $("#fissh").css("display", "flex");
+            $(element).css("display", "flex");
         };
     };
+
+    function showFisshGif() {
+        $("#fissh-gif").css("display", "flex");
+        setTimeout(hideFisshGif, 2000);
+    };
+
+    function hideFisshGif() {
+        $("#fissh-gif").css("display", "none");
+    };
+
+    
 
     //#region CHECK EVENTS -----------------------------------------------------------------------------------------------------------------------
 
@@ -4988,8 +5008,8 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
         //#region TRY CATCH ---------------------------------------------------------------------------------------------
             async function tryCatch(callback) {
-                console.log("Error callback type is: ");
-                console.log(typeof callback);
+                // console.log("Error callback type is: ");
+                // console.log(typeof callback);
                 //if (typeof callback === 'function') {
                     try {
                         await callback();
