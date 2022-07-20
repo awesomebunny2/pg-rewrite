@@ -578,6 +578,8 @@ $(() => {
 //enables onSelectionChanged event upon inital load and any reloads of the taskpane
 async function registerOnActivateHandler() {
     await Excel.run(async (context) => {
+
+        console.log("Reload activation function fired!");
         //context.runtime.load("enableEvents");
         let sheets = context.workbook.worksheets;
         var activeSheet = context.workbook.worksheets.getActiveWorksheet().load("worksheetId");
@@ -592,16 +594,29 @@ async function registerOnActivateHandler() {
         var theAllTable = context.workbook.tables.load("count"); //all of the tables in the workbook
         theAllTable.load("items");
 
+        //var currentWorksheet = context.workbook.worksheets.getItem(args.worksheetId);
+
+        // console.log("The activated worksheet Id : " + args.worksheetId);
+
+        var worksheetTables = activeSheet.tables.load("items/count");
+
+
         await context.sync();
 
         context.runtime.enableEvents = false;
         console.log("Events: OFF");
 
-        var countingAllTables = theAllTable.count; //the number of tables in the workbook
+        //var currentWorksheet = activeSheet.worksheetId;
+
+
+        var worksheetTablesCount = worksheetTables.count; //the number of tables in the workbook
+
+
+        // var countingAllTables = theAllTable.count; //the number of tables in the workbook
 
         //cycles through each table in the workbook
-        for (var p = 0; p < countingAllTables; p++) {
-            var cycleTables = context.workbook.tables.getItemAt(p).load("name/worksheet");
+        for (var p = 0; p < worksheetTablesCount; p++) { // <-- looping your tables
+            var cycleTables = worksheetTables.getItemAt(p).load("name/worksheet");
 
             var cycleTableRows = cycleTables.rows.load("items");
 
@@ -665,13 +680,18 @@ async function registerOnActivateHandler() {
             //     return;
             // };
 
-            var listOfCompletedTables = [];
+            // console.log(worksheetTables.items);
+            // console.log(theAllTable.items[0].name);
+            // console.log(worksheetTables.items[0].name);
 
-            theAllTable.items.forEach(function (table) { //for each table in the workbook...
-                if (table.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
-                    listOfCompletedTables.push(table.name); //push the name of that table into an array
-                };
-            });
+            var listOfCompletedTables = [];
+            //console.log(cycleTables.name);
+            if (cycleTables.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
+                listOfCompletedTables.push(cycleTables.name); //push the name of that table into an array
+            };
+            // worksheetTables.items.forEach(function (table) { //for each table in the workbook...
+                
+            // });
 
             //returns true if the changedTable is a completed table from the array previously made, false if it is anything else
             var completedTableChanged = listOfCompletedTables.includes(cycleTables.name);
@@ -723,8 +743,8 @@ async function registerOnActivateHandler() {
 
             //var allTheTablesCount = allTheTables.count;
 
-            for (var y = 0; y < countingAllTables; y++) {
-                var bonTable = context.workbook.tables.getItemAt(y);
+            for (var y = 0; y < worksheetTablesCount; y++) {
+                var bonTable = worksheetTables.getItemAt(y);
                 selectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents);
                 //console.log("bonTable fired!");
             };
@@ -760,25 +780,34 @@ async function onActivate(args) {
 
         // context.runtime.load("enableEvents");
 
+        console.log("Child (onActivate) function fired");
 
-        var allTheTables = context.workbook.tables.load("count"); //all of the tables in the workbook
+
+        //var allTheTables = context.workbook.tables.load("count"); //all of the tables in the workbook
         // allTheTables.load("items");
+
+        var currentWorksheet = context.workbook.worksheets.getItem(args.worksheetId);
+
+        console.log("The activated worksheet Id : " + args.worksheetId);
+
+        var worksheetTables = currentWorksheet.tables.load("items/count");
+
 
         await context.sync();
 
-        var allTheTablesCount = allTheTables.count; //the number of tables in the workbook
+
+        //var allTheTablesCount = allTheTables.count; //the number of tables in the workbook
 
 
+        var worksheetTablesCount = worksheetTables.count; //the number of tables in the workbook
 
-            currentWorksheet = args.worksheetId;
-            console.log("The activated worksheet Id : " + args.worksheetId);
-            //var leCurrentWorksheet = context.workbook.worksheets.getItem(currentWorksheet);
-            //var allTheTablesCount = context.workbook.tables.count;
+        //var leCurrentWorksheet = context.workbook.worksheets.getItem(currentWorksheet);
+        //var allTheTablesCount = context.workbook.tables.count;
 
-            for (var y = 0; y < allTheTablesCount; y++) {
-                var bonTable = context.workbook.tables.getItemAt(y);
-                selectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents);
-            };
+        for (var y = 0; y < worksheetTablesCount; y++) {
+            var bonTable = worksheetTables.getItemAt(y);
+            selectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents); 
+        };
 
             //return;
        // });
