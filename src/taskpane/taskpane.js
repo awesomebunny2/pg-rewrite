@@ -10,16 +10,17 @@ $(() => {
     $("#meece").on("click", () => {
         //location.reload();
         console.log("CLICKED🐭");
-        showFissh("show");
+        showElement("#fissh", "show");
     })
 
     $(".ok").on("click", function() {
-        showFissh("hide");
-        location.reload();
+        showElement("#fissh", "hide");
+        showFisshGif();
+        //location.reload();
     });
 
     $(".dont").on("click", function() {
-        showFissh("hide");
+        showElement("#fissh", "hide");
     });
 
 
