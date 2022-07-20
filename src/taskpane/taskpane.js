@@ -2,7 +2,7 @@
 
 $(() => {
     // DOCUMENT LOADED
-    //console.log("DOCUMENT LOADED");
+    console.log("DOCUMENT LOADED");
 
     /**
      * Clicking this prints a mouse =============================
