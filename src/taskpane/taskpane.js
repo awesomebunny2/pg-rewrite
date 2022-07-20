@@ -10,17 +10,16 @@ $(() => {
     $("#meece").on("click", () => {
         //location.reload();
         console.log("CLICKED🐭");
-        showElement("#fissh", "show");
+        showFissh("show");
     })
 
     $(".ok").on("click", function() {
-        showElement("#fissh", "hide");
-        showFisshGif();
-        //location.reload();
+        showFissh("hide");
+        location.reload();
     });
 
     $(".dont").on("click", function() {
-        showElement("#fissh", "hide");
+        showFissh("hide");
     });
 
 
@@ -123,12 +122,6 @@ $(() => {
 
     var completedTable;
 
-    var activationEvent;
-
-    var currentWorksheet;
-
-    //var activeProjectTable;
-
 
     /* Check if aevents are turned on
     Excel.run(async function(context) {
@@ -163,9 +156,6 @@ $(() => {
 // });
 
 
-
-
-
 //#region ON READY ---------------------------------------------------------------------------------------------------------------------------
 
     //#region LOADS VALIDATION VALUES AND UPDATES DROPDOWN VALUES IN TASKPANE ------------------------------------------------
@@ -173,28 +163,13 @@ $(() => {
         Office.onReady((info) => {
 
             // eventsOn();
-            // Excel.run(async (context) => {
-            //     var activeSheet = context.workbook.worksheets.getActiveWorksheet();
-
-            //     activeSheet.onActivated.add(function (event) {
-            //         return Excel.run(async (context) => {
-            //             console.log("The activated worksheet ID is: " + event.worksheetId);
-            //             activeProjectTable = activeSheet.tables.getItemAt(0);
-            
-            //             await context.sync();
-            //         });
-            //     });
-            // });
-
-            if (info.host === Office.PlatformType.OfficeOnline) {
-                console.log("You're currently using the online version of Excel!")
-            };
 
             if (info.host === Office.HostType.Excel) {
 
+
                 Excel.run(async (context) => {
 
-                    activationEvent = registerOnActivateHandler();
+                    // registerEventHandlers();
 
                     //#region LOADING VALUES ---------------------------------------------------------------------------------
 
@@ -209,29 +184,11 @@ $(() => {
                         var changesDataTable = sheet.tables.getItem("ChangesData");
                         var changesIDTable = sheet.tables.getItem("ChangesIDTable");
                         var groupPrintDateRefTable = sheet.tables.getItem("dateTable");
-                        var activeSheet = context.workbook.worksheets.getActiveWorksheet().load("worksheetId");
+                        var activeSheet = context.workbook.worksheets.getActiveWorksheet();
                         //activeSheet.onChanged.add(handleChange);
                         // context.runtime.load("enableEvents");
+                        //var activeTable = activeSheet.tables.getItemAt(0);
 
-                        //var leAllTables = context.workbook.tables.load("items/name");
-                        
-                        var activeProjectTable = activeSheet.tables.getItemAt(0);
-
-                        var workbookName = context.workbook.load("name");
-
-                        // var activeCompletedTable = activeSheet.tables.getItemAt(1);
-
-                        //var activeProjectTable;
-
-
-                        // activeSheet.onActivated.add(function (event) {
-                        //     return Excel.run(async (context) => {
-                        //         console.log("The activated worksheet ID is: " + event.worksheetId);
-                        //         activeProjectTable = activeSheet.tables.getItemAt(0);
-
-                        //         await context.sync();
-                        //     });
-                        // });
 
 
 
@@ -256,38 +213,7 @@ $(() => {
 
                     await context.sync()
 
-                        console.log(workbookName.name);
-
                         console.log("I sharkded");
-
-                        if (currentWorksheet == undefined) {
-                            currentWorksheet = activeSheet.id;
-                        };
-
-                        //var leCurrentWorksheet = context.workbook.worksheets.getItem(currentWorksheet);
-
-                        //var leCurrentProjectTable = leCurrentWorksheet.tables.getItemAt(0);
-
-
-                        // activeSheet.onActivated.add(function (event) {
-                        //     return Excel.run(async (context) => {
-                        //         console.log("The activated worksheet ID is: " + event.worksheetId);
-                        //         activeProjectTable = activeSheet.tables.getItemAt(0);
-
-                        //         await context.sync();
-                        //     });
-                        // });
-
-                        // var listOfCompletedTables = [];
-
-                        // leAllTables.items.forEach(function (table) { //for each table in the workbook...
-                        //     if (table.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
-                        //         listOfCompletedTables.push(table.name); //push the name of that table into an array
-                        //     };
-                        // });
-
-                        // //returns true if the changedTable is a completed table from the array previously made, false if it is anything else
-                        // var completedTableChanged = listOfCompletedTables.includes(changedTable.name);
 
                         //#region GRABBING DATA FROM VALIDATION AND WRITING TO CODE ----------------------------------------------
 
@@ -514,24 +440,7 @@ $(() => {
 
                         changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
 
-                        //selectionEvent = activeProjectTable.onSelectionChanged.add(onTableSelectionChangedEvents);
-                                               
-                        //selectionEvent = leCurrentProjectTable.onSelectionChanged.add(onTableSelectionChangedEvents);
-
-
-                        //selectionEvent = context.workbook.onSelectionChanged.add(onTableSelectionChangedEvents);
-
-
-
-
-
-                        // if (completedTableChanged == true) {
-                        //     selectionEvent = activeCompletedTable.onSelectionChanged.add(onTableSelectionChangedEvents);
-                        // } else {
-                        //     selectionEvent = activeProjectTable.onSelectionChanged.add(onTableSelectionChangedEvents);
-                        // };
-
-                        //selectionEvent = activeSheet.onSelectionChanged.add(onTableSelectionChangedEvents);
+                        //selectionEvent = activeTable.onSelectionChanged.add(onTableSelectionChange);
 
                     }); 
 
@@ -550,179 +459,6 @@ $(() => {
 
 //#endregion -----------------------------------------------------------------------------------------------------------------
 
-async function registerOnActivateHandler() {
-    await Excel.run(async (context) => {
-      let sheets = context.workbook.worksheets;
-      var activeSheet = context.workbook.worksheets.getActiveWorksheet().load("worksheetId");
-      var activeProjectTable = activeSheet.tables.getItemAt(0);
-
-      //var allTheTables = context.workbook.tables;
-
-    //   for (var y = 0; y < allTheTables.length; y++) {
-    //       selectionEvent = allTheTables[y].onSelectionChanged.add(onTableSelectionChangedEvents);
-    //   };
-
-      sheets.onActivated.add(onActivate);
-    //   var allTables = context.workbook.tables;
-
-  
-      await context.sync();
-      console.log("A handler has been registered for the OnActivate event.");
-        selectionEvent = activeProjectTable.onSelectionChanged.add(onTableSelectionChangedEvents);
-
-
-
-        // var listOfCompletedTables = [];
-
-        // allTables.items.forEach(function (table) { //for each table in the workbook...
-        //     if (table.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
-        //         listOfCompletedTables.push(table.name); //push the name of that table into an array
-        //     };
-        // });
-
-        // //returns true if the changedTable is a completed table from the array previously made, false if it is anything else
-        // var completedTableChanged = listOfCompletedTables.includes(changedTable.name);
-
-        // if (completedTableChanged == true) {
-        //     selectionEvent = activeCompletedTable.onSelectionChanged.add(onTableSelectionChangedEvents);
-        // } else {
-        //     selectionEvent = activeProjectTable.onSelectionChanged.add(onTableSelectionChangedEvents);
-        // };
-
-        //selectionEvent = activeSheet.onSelectionChanged.add(onTableSelectionChangedEvents);
-    });
-};
-  
-async function onActivate(args) {
-    await Excel.run(async (context) => {
-        currentWorksheet = args.worksheetId;
-        console.log("The activated worksheet Id : " + args.worksheetId);
-        var leCurrentWorksheet = context.workbook.worksheets.getItem(currentWorksheet);
-        //var allTheTables = context.workbook.tables;
-
-        // for (var y = 0; y < allTheTables.length; y++) {
-        //     selectionEvent = allTheTables[y].onSelectionChanged.add(onTableSelectionChangedEvents);
-        // };
-        //var leCurrentProjectTable = leCurrentWorksheet.tables.getItemAt(0);
-
-        //selectionEvent = leCurrentProjectTable.onSelectionChanged.add(onTableSelectionChangedEvents);
-        selectionEvent = leCurrentWorksheet.onSelectionChanged.add(onTableSelectionChangedEvents);
-
-        return;
-
-    });
-};
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*_             _             _            _          _        _                _             _                   _        
-/ /\         /\ \           /\ \         /\ \       /\ \     /\ \             _\ \          / /\                / /\      
-/ /  \       /  \ \         /  \ \        \ \ \     /  \ \    \_\ \           /\__ \        / /  \              / /  \     
-/ / /\ \__   / /\ \ \       / /\ \ \       /\ \_\   / /\ \ \   /\__ \         / /_ \_\      / / /\ \            / / /\ \    
-/ / /\ \___\ / / /\ \ \     / / /\ \_\     / /\/_/  / / /\ \_\ / /_ \ \       / / /\/_/     / / /\ \ \          / / /\ \ \   
-\ \ \ \/___// / /  \ \_\   / / /_/ / /    / / /    / / /_/ / // / /\ \ \     / / /         / / /  \ \ \        / / /\ \_\ \  
-\ \ \     / / /    \/_/  / / /__\/ /    / / /    / / /__\/ // / /  \/_/    / / /         / / /___/ /\ \      / / /\ \ \___\ 
-_    \ \ \   / / /          / / /_____/    / / /    / / /_____// / /          / / / ____    / / /_____/ /\ \    / / /  \ \ \__/ 
-/_/\__/ / /  / / /________  / / /\ \ \  ___/ / /__  / / /      / / /          / /_/_/ ___/\ / /_________/\ \ \  / / /____\_\ \   
-\ \/___/ /  / / /_________\/ / /  \ \ \/\__\/_/___\/ / /      /_/ /          /_______/\__\// / /_       __\ \_\/ / /__________\  
-\_____\/   \/____________/\/_/    \_\/\/_________/\/_/       \_\/           \_______\/    \_\___\     /____/_/\/_____________/  
-*/
-                  
-// $("#setup").click(() => tryCatch(setup));
-// $("#register-event-handlers").click(() => tryCatch(registerEventHandlers));
-
-// async function registerEventHandlers() {
-//   await Excel.run(async (context) => {
-//     // Add a selection changed event handler for the binding.
-//     let binding = context.workbook.bindings.getItemAt(0);
-//     binding.onSelectionChanged.add(onBindingSelectionChange);
-
-//     // Add a selection changed event handler for the table.
-//     let table = context.workbook.tables.getItemAt(0);
-//     table.onSelectionChanged.add(onTableSelectionChange);
-
-//     // Add a selection changed event handler for the worksheet.
-//     let sheet = context.workbook.worksheets.getItem("Sample");
-//     sheet.onSelectionChanged.add(onWorksheetSelectionChange);
-
-//     // Add a selection changed event handler for the worksheet collection.
-//     context.workbook.worksheets.onSelectionChanged.add(onWorksheetCollectionSelectionChange);
-
-//     await context.sync();
-//   });
-// }
-
-// async function onBindingSelectionChange(args: Excel.BindingSelectionChangedEventArgs) {
-//   await Excel.run(async (context) => {
-//     console.log(
-//       `Binding event: The new selection is\nStarting Column: ${args.startColumn}\nStarting Row: ${args.startRow}\nColumn Count: ${args.columnCount}\nRow Count: ${args.rowCount}`
-//     );
-//   });
-// }
-
-// async function onTableSelectionChange(args: Excel.TableSelectionChangedEventArgs) {
-//   await Excel.run(async (context) => {
-//     console.log(`Table event: The address of new selection is: ${args.address}`);
-//   });
-// }
-
-// async function onWorksheetSelectionChange(args: Excel.WorksheetSelectionChangedEventArgs) {
-//   await Excel.run(async (context) => {
-//     console.log(`Worksheet event: The address of new selection is: ${args.address}`);
-//   });
-// }
-
-// async function onWorksheetCollectionSelectionChange(args: Excel.WorksheetSelectionChangedEventArgs) {
-//   await Excel.run(async (context) => {
-//     console.log(`WorksheetCollection event: The address of new selection is: ${args.address}`);
-//   });
-// }
-
-// async function setup() {
-//   await Excel.run(async (context) => {
-//     context.workbook.worksheets.getItemOrNullObject("Sample").delete();
-//     const sheet = context.workbook.worksheets.add("Sample");
-
-//     // Highlight an area and create a binding there.
-//     let bindingRange = sheet.getRange("A15:D20");
-//     bindingRange.format.fill.color = "yellow";
-//     sheet.getRange("A15").values = [["Binding range"]];
-//     context.workbook.bindings.add(bindingRange, Excel.BindingType.range, "YellowBinding");
-
-//     // Create a table.
-//     let salesTable = sheet.tables.add("A1:E1", true);
-//     salesTable.name = "SalesTable";
-
-//     salesTable.getHeaderRowRange().values = [["Product", "Qtr1", "Qtr2", "Qtr3", "Qtr4"]];
-
-//     salesTable.rows.add(null, [
-//       ["Frames", 5000, 7000, 6544, 4377],
-//       ["Saddles", 400, 323, 276, 651],
-//       ["Brake levers", 12000, 8766, 8456, 9812],
-//       ["Chains", 1550, 1088, 692, 853],
-//       ["Mirrors", 225, 600, 923, 544],
-//       ["Spokes", 6005, 7634, 4589, 8765]
-//     ]);
-
-//     sheet.getUsedRange().format.autofitColumns();
-//     sheet.getUsedRange().format.autofitRows();
-
-//     sheet.activate();
-//     await context.sync();
-//   });
-// }
-
-// /** Default helper for invoking an action and handling errors. */
-// async function tryCatch(callback) {
-//   try {
-//     await callback();
-//   } catch (error) {
-//     // Note: In a production add-in, you'd want to notify the user through your add-in's UI.
-//     console.error(error);
-//   }
-// }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // async function registerEventHandlers() {
 //     await Excel.run(async (context) => {
@@ -760,154 +496,11 @@ _    \ \ \   / / /          / / /_____/    / / /    / / /_____// / /          / 
 //     });
 //   }
 
-async function onTableSelectionChangedEvents(eventArgs) {
-
-    console.log("Can we farts?")
-
-    await onTableSelectionChange(eventArgs).catch(err => {
-        console.log(err) // <--- does this log?
-        showMessage(err, "show");
-    });
-    
-};
 
 
-//table level
-// async function onTableSelectionChange(eventArgs) {
-    await Excel.run(async (context) => {
-        console.log(`Table event: The address of new selection is: ${eventArgs.address}`);
-
-        var worksheetName = context.workbook.worksheets.getActiveWorksheet().load("name");
-
-        var selectedTable = context.workbook.tables.getItem(eventArgs.tableId);
-
-
-        var range = context.workbook.getSelectedRange();
-
-        range.load(['address', 'values', 'rowIndex']);
-
-        var zeTableName = selectedTable.load("name");
-
-
-        var selectedTableRows = selectedTable.rows.load("items");
-        var selectedTableRowsCount = selectedTable.rows.load("count");
-
-
-        await context.sync();
-
-        console.log("heck");
-
-
-        var isTableEmpty = selectedTableRowsCount.count;
-
-        if (isTableEmpty == 0) {
-            console.log("Table is empty, so no highlighting was applied")
-            return;
-        };
-
-        var selectedTableItems = selectedTableRows.items;
-
-        //clears the border formatting for the whole table before applying new border for selection
-        for (var z = 0; z < selectedTableItems.length; z++) {
-            var leCheese = selectedTableRows.getItemAt(z).getRange();
-            leCheese.format.borders.getItem("EdgeTop").style = "SlantDashDot";
-            leCheese.format.borders.getItem("EdgeTop").color = "black";
-            leCheese.format.borders.getItem("EdgeTop").weight = "Medium";
-            leCheese.format.borders.getItem("EdgeBottom").style = "SlantDashDot";
-            leCheese.format.borders.getItem("EdgeBottom").color = "black";
-            leCheese.format.borders.getItem("EdgeBottom").weight = "Medium";
-            leCheese.format.borders.getItem("EdgeLeft").style = "SlantDashDot";
-            leCheese.format.borders.getItem("EdgeLeft").color = "black";
-            leCheese.format.borders.getItem("EdgeLeft").weight = "Medium";
-            leCheese.format.borders.getItem("EdgeRight").style = "SlantDashDot";
-            leCheese.format.borders.getItem("EdgeRight").color = "black";
-            leCheese.format.borders.getItem("EdgeRight").weight = "Medium";
-        };
-
-        //applies border to selected row
-        var rI = range.rowIndex;
-
-        var bees = selectedTableRows.getItemAt(rI - 1).getRange();
-        // var row = selectedTable.rows.getItemAt(2);
-        bees.format.borders.getItem("EdgeTop").color = "purple";
-        bees.format.borders.getItem("EdgeTop").weight = "Thick";
-        bees.format.borders.getItem("EdgeBottom").color = "purple";
-        bees.format.borders.getItem("EdgeBottom").weight = "Thick";
-        bees.format.borders.getItem("EdgeLeft").color = "purple";
-        bees.format.borders.getItem("EdgeLeft").weight = "Thick";
-        bees.format.borders.getItem("EdgeRight").color = "purple";
-        bees.format.borders.getItem("EdgeRight").weight = "Thick";
-
-    });
-//};
-
-
-//worksheet level
 // async function onTableSelectionChange(eventArgs) {
 //     await Excel.run(async (context) => {
 //         console.log(`Table event: The address of new selection is: ${eventArgs.address}`);
-
-//         var worksheetName = context.workbook.worksheets.getActiveWorksheet().load("name");
-
-//         var selectedWorksheet = context.workbook.tables.getItem(eventArgs.worksheetId);
-
-
-//         var range = context.workbook.getSelectedRange();
-
-//         range.load(['address', 'values', 'rowIndex']);
-
-//         // var zeTableName = selectedWorksheet.load("name");
-
-
-//         // var selectedWorksheetRows = selectedWorksheet.rows.load("items");
-//         // var selectedWorksheetRowsCount = selectedWorksheet.rows.load("count");
-
-
-//         await context.sync();
-
-//         console.log("heck");
-
-
-//         // var isTableEmpty = selectedWorksheetRowsCount.count;
-
-//         // if (isTableEmpty == 0) {
-//         //     console.log("Table is empty, so no highlighting was applied")
-//         //     return;
-//         // };
-
-//         // var selectedTableItems = selectedWorksheetRows.items;
-
-//         //clears the border formatting for the whole table before applying new border for selection
-//         // for (var z = 0; z < selectedTableItems.length; z++) {
-//         //     var leCheese = selectedWorksheetRows.getItemAt(z).getRange();
-//         //     leCheese.format.borders.getItem("EdgeTop").style = "SlantDashDot";
-//         //     leCheese.format.borders.getItem("EdgeTop").color = "black";
-//         //     leCheese.format.borders.getItem("EdgeTop").weight = "Medium";
-//         //     leCheese.format.borders.getItem("EdgeBottom").style = "SlantDashDot";
-//         //     leCheese.format.borders.getItem("EdgeBottom").color = "black";
-//         //     leCheese.format.borders.getItem("EdgeBottom").weight = "Medium";
-//         //     leCheese.format.borders.getItem("EdgeLeft").style = "SlantDashDot";
-//         //     leCheese.format.borders.getItem("EdgeLeft").color = "black";
-//         //     leCheese.format.borders.getItem("EdgeLeft").weight = "Medium";
-//         //     leCheese.format.borders.getItem("EdgeRight").style = "SlantDashDot";
-//         //     leCheese.format.borders.getItem("EdgeRight").color = "black";
-//         //     leCheese.format.borders.getItem("EdgeRight").weight = "Medium";
-//         // };
-
-//         //applies border to selected row
-//         var rI = range.rowIndex;
-
-//         var bees = selectedWorksheetRows.getItemAt(rI - 1).getRange();
-//         // var row = selectedTable.rows.getItemAt(2);
-//         bees.format.borders.getItem("EdgeTop").color = "purple";
-//         bees.format.borders.getItem("EdgeTop").weight = "Thick";
-//         bees.format.borders.getItem("EdgeBottom").color = "purple";
-//         bees.format.borders.getItem("EdgeBottom").weight = "Thick";
-//         bees.format.borders.getItem("EdgeLeft").color = "purple";
-//         bees.format.borders.getItem("EdgeLeft").weight = "Thick";
-//         bees.format.borders.getItem("EdgeRight").color = "purple";
-//         bees.format.borders.getItem("EdgeRight").weight = "Thick";
-
 //     });
 // };
 
@@ -4007,10 +3600,6 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
                                                 // var sharts = destinationTable.rows[0];
 
-                                                if (destinationRows.length == 0) {
-                                                    destTableSort.shift();
-                                                };
-
                                                 var bodyPositivity = changedTable.getDataBodyRange().load("values");
 
                                                 var unassignedRange = unassignedTable.getDataBodyRange().load("values");
@@ -4497,32 +4086,13 @@ async function onTableSelectionChangedEvents(eventArgs) {
     }
 
 
-    // function showFissh(showHide) {
-    //     if (showHide === "hide") {
-    //         $("#fissh").css("display", "none");
-    //     } else if (showHide === "show") {
-    //         $("#fissh").css("display", "flex");
-    //     };
-    // };
-
-    function showElement(element, showHide) {
+    function showFissh(showHide) {
         if (showHide === "hide") {
-            $(element).css("display", "none");
+            $("#fissh").css("display", "none");
         } else if (showHide === "show") {
-            $(element).css("display", "flex");
+            $("#fissh").css("display", "flex");
         };
     };
-
-    function showFisshGif() {
-        $("#fissh-gif").css("display", "flex");
-        setTimeout(hideFisshGif, 2000);
-    };
-
-    function hideFisshGif() {
-        $("#fissh-gif").css("display", "none");
-    };
-
-    
 
     //#region CHECK EVENTS -----------------------------------------------------------------------------------------------------------------------
 
@@ -5012,8 +4582,8 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
         //#region TRY CATCH ---------------------------------------------------------------------------------------------
             async function tryCatch(callback) {
-                // console.log("Error callback type is: ");
-                // console.log(typeof callback);
+                console.log("Error callback type is: ");
+                console.log(typeof callback);
                 //if (typeof callback === 'function') {
                     try {
                         await callback();
