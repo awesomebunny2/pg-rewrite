@@ -2,7 +2,7 @@
 
 $(() => {
     // DOCUMENT LOADED
-    console.log("DOCUMENT LOADED");
+    //console.log("DOCUMENT LOADED");
 
     /**
      * Clicking this prints a mouse =============================
@@ -5193,12 +5193,29 @@ async function onTableSelectionChangedEvents(eventArgs) {
     }
 
 
-    function showFissh(showHide) {
+   // function showFissh(showHide) {
+    //     if (showHide === "hide") {
+    //         $("#fissh").css("display", "none");
+    //     } else if (showHide === "show") {
+    //         $("#fissh").css("display", "flex");
+    //     };
+    // };
+
+    function showElement(element, showHide) {
         if (showHide === "hide") {
-            $("#fissh").css("display", "none");
+            $(element).css("display", "none");
         } else if (showHide === "show") {
-            $("#fissh").css("display", "flex");
+            $(element).css("display", "flex");
         };
+    };
+
+    function showFisshGif() {
+        $("#fissh-gif").css("display", "flex");
+        setTimeout(hideFisshGif, 2000);
+    };
+
+    function hideFisshGif() {
+        $("#fissh-gif").css("display", "none");
     };
 
     //#region CHECK EVENTS -----------------------------------------------------------------------------------------------------------------------
