@@ -171,6 +171,11 @@ $(() => {
                 Excel.run(async (context) => {
 
                     // registerEventHandlers();
+                    console.log("About to run the activeSheet event!");
+
+                    let sheets = context.workbook.worksheets;
+                    sheets.onActivated.add(onWorksheetSwitch);
+                    // sheets.onActivated.add(onActivate);
 
                     //#region LOADING VALUES ---------------------------------------------------------------------------------
 
@@ -441,9 +446,11 @@ $(() => {
 
                         //changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
 
-                        console.log("About to run the activeSheet event!");
 
-                        activeSheet.onActivated.add(onWorksheetSwitch);  // onTableChangedEvents
+                        //activeSheet.onActivated.add(onWorksheetSwitch);  // onTableChangedEvents
+
+                        // var event = context.workbook.worksheets.onActivated.add(onWorksheetSwitch);  // onTableChangedEvents
+
                         //inside this function, have the on table changed event
 
                         //selectionEvent = activeTable.onSelectionChanged.add(onTableSelectionChange);
@@ -2569,7 +2576,14 @@ $(() => {
     };
     
     
-    //when the worksheet changes, this fires and binds the events to the first table that is selected in the sheet  
+    //when the worksheet changes, this fires and binds the events to the first table that is selected in the sheet 
+    
+    async function onActivate(args) {
+        await Excel.run(async (context) => {
+            console.log("The activated worksheet Id : " + args.worksheetId);
+        });
+    }
+    
     async function onWorksheetSwitch(args) {
         await Excel.run(async (context) => {
         //     context.runtime.load("enableEvents");
@@ -2617,11 +2631,12 @@ $(() => {
     
            //eventsOn();
     
-        }).catch (err => {
-            console.log(err) // <--- does this log?
-            showMessage(err, "show");
-            context.runtime.enableEvents = true;
-        });
+        })
+        // .catch (err => {
+        //     console.log(err) // <--- does this log?
+        //     showMessage(err, "show");
+        //     context.runtime.enableEvents = true;
+        // });
     };
 
 
