@@ -439,7 +439,12 @@ $(() => {
 
                         //#endregion --------------------------------------------------------------------------------------------------
 
-                        changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
+                        //changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
+
+                        console.log("About to run the activeSheet event!");
+
+                        activeSheet.onChanged.add(onTableChangedEvents);  // onTableChangedEvents
+                        //inside this function, have the on table changed event
 
                         //selectionEvent = activeTable.onSelectionChanged.add(onTableSelectionChange);
 
@@ -461,69 +466,27 @@ $(() => {
 //#endregion -----------------------------------------------------------------------------------------------------------------
 
 
-// async function registerEventHandlers() {
-//     await Excel.run(async (context) => {
+// async function activeSheetChanged(eventArgs) {
+//     // await Excel.run(async (context) => {
+//     //     console.log("An active sheet has changed! Executing onTableChanged Function!")
+//     //     console.log(eventArgs);
+//     //     //changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
+//     //     await onTableChangedEvents(eventArgs).catch(err => {
+//     //         console.log(err) // <--- does this log?
+//     //         showMessage(err, "show");
+//     //     });
+//     // });
 
-//         // var activeSheet = context.workbook.worksheets.getActiveWorksheet();
-    
-//         // let activeTable = activeSheet.tables.getItemAt(0);
-//         // activeTable.onSelectionChanged.add(onTableSelectionChange);
-
-//         // let table = context.workbook.tables.getItemAt(0);
-//         // table.onSelectionChanged.add(onTableSelectionChange);
-
-//         //Add a selection changed event handler for the worksheet.
-//         let sheet = context.workbook.worksheets.getItem("Sample");
-//         sheet.onSelectionChanged.add(onWorksheetSelectionChange);
-
-//         // Add a selection changed event handler for the worksheet collection.
-//         context.workbook.worksheets.onSelectionChanged.add(onWorksheetCollectionSelectionChange);
- 
-    
-//         await context.sync();
+//     console.log("An active sheet has changed! Executing onTableChanged Function!")
+//     console.log(eventArgs);
+//     //changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
+//     await onTableChangedEvents(eventArgs).catch(err => {
+//         console.log(err) // <--- does this log?
+//         showMessage(err, "show");
 //     });
-//   }
 
 
-//   async function onWorksheetSelectionChange(eventArgs) {
-//     await Excel.run(async (context) => {
-//       console.log(`Worksheet event: The address of new selection is: ${eventArgs.address}`);
-//     });
-//   }
-  
-//   async function onWorksheetCollectionSelectionChange(eventArgs) {
-//     await Excel.run(async (context) => {
-//       console.log(`WorksheetCollection event: The address of new selection is: ${eventArgs.address}`);
-//     });
-//   }
-
-
-
-// async function onTableSelectionChange(eventArgs) {
-//     await Excel.run(async (context) => {
-//         console.log(`Table event: The address of new selection is: ${eventArgs.address}`);
-//     });
-// };
-
-// $("#pleasework").on("click", () => {
-//     console.log("PLEASE WORKKK!@!!");
-// });
-
-
-
-
-// $("#ask-question").mouseup(function() {
-//     console.log("mouses 🐭");
-// })
-
-// $("#ask-question").on("mouseUp", function() {
-
-//     console.log("fired leSnail");
-
-//     // Show the dialog with a customized message
-
-
-// });
+// }
 
 
 
@@ -2420,44 +2383,11 @@ $(() => {
          */
         async function onTableChangedEvents(eventArgs) {
 
-            console.log("I have been TRIGGERED!");
-
-            // try {
-            //     await Excel.run(async (context) => {
-            //         context.runtime.load("enableEvents");
-            //         await context.sync().then(function () {
-    
-            //             //turns events off
-            //             context.runtime.enableEvents = false;
-            //             console.log("Events are turned off");
-    
-            //         });
-            //         // var result = await onTableChanged(eventArgs).then(tableChangedPriorityAndSort(poop.rowInfo, poop.bodyRange, poop.priorityColumnData));
-            //     }).then(function() {
-            //         onTableChanged(eventArgs);
-            //     });
-            // } catch (error) {
-            //     showMessage(error, "show");
-            // };
-
-            // await Excel.run(async (context) => {
-
-            //     context.runtime.load("enableEvents");
-
-            //     await context.sync();
-
-            //     console.log("I awaited the context.sync().")
-            //     context.runtime.enableEvents = false;
-            //     console.log("Events are turned off");
-               
-            //     // var result = await onTableChanged(eventArgs).then(tableChangedPriorityAndSort(poop.rowInfo, poop.bodyRange, poop.priorityColumnData));
-            // });
-
-            // console.log("Excel.run() is done.")
-
-            // tryCatch(onTableChanged(eventArgs)); // <---
-
             await Excel.run(async (context) => {
+
+                console.log("onTableChangedEvents has been TRIGGERED!");
+
+                console.log(eventArgs);
 
                 context.runtime.load("enableEvents");
 
