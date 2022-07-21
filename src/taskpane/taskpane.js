@@ -536,7 +536,7 @@ $(() => {
 
                         //#endregion --------------------------------------------------------------------------------------------------
 
-                        changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
+                        //changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
 
                         //selectionEvent = activeProjectTable.onSelectionChanged.add(onTableSelectionChangedEvents);
                                                
@@ -750,6 +750,9 @@ async function registerOnActivateHandler() {
             };
     
             sheets.onActivated.add(onActivate);
+
+            changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
+
     
             console.log("A handler has been registered for the OnActivate event.");
 
@@ -808,6 +811,9 @@ async function onActivate(args) {
             var bonTable = worksheetTables.getItemAt(y);
             selectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents); 
         };
+
+        changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
+
 
             //return;
        // });
@@ -1050,10 +1056,6 @@ async function onTableSelectionChangedEvents(eventArgs) {
         context.runtime.enableEvents = false;
         console.log("Events: OFF");
 
-        //console.log(eventArgs.address);
-
-        //console.log(previousSelectionObj.address);
-
         if (previousSelectionObj.tableId !== "") {
             //var previousTableId = eventArgs.tableId; // Table we came from
 
@@ -1074,11 +1076,6 @@ async function onTableSelectionChangedEvents(eventArgs) {
             var previousSelectionAddress = previousSelectionObj.address;
 
             var tablesAll = context.workbook.tables.load("items");
-    
-            //var previousSelectionRange = previousSelectionObj.rowIndex;
-
-            // bees.load(["format/*", "format/fill", "format/borders", "format/font"]);
-            // bees.load("address");
     
         };
 
@@ -4050,8 +4047,8 @@ async function onTableSelectionChangedEvents(eventArgs) {
                         };
 
                         conditionalFormatting(rowInfo, tableStart, changedWorksheet, changedRowTableIndex, completedTableChanged, rowRange, completedTable);
-                        eventsOn();
-                        console.log("Events: ON  →  turned on within the onTableChanged function after the print date or group columns were updated!");
+                        // eventsOn();
+                        // console.log("Events: ON  →  turned on within the onTableChanged function after the print date or group columns were updated!");
                     };
 
                     var statusMove = false;
