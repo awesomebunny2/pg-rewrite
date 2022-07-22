@@ -1,0 +1,150 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+$	taskpane.js	/^            $("#client").on("focusout", function() {$/;"	M
+$	taskpane.js	/^            $("#container").each(function () {$/;"	M
+$	taskpane.js	/^            $("#product").on("focusout", function() {$/;"	M
+$	taskpane.js	/^            $("#project-type").on("focusout", function() {$/;"	M
+$	taskpane.js	/^            $("#submit").on("click", async function() {$/;"	M
+$	taskpane.js	/^        $("#clear").on("click", function() {$/;"	M
+$	taskpane.js	/^    $("#reload").on("click", function() {$/;"	M
+$	taskpane.js	/^    $(".dont").on("click", function() {$/;"	M
+$	taskpane.js	/^    $(".ok").on("click", function() {$/;"	M
+JSDateToExcelDate	taskpane.js	/^                function JSDateToExcelDate(inDate) {$/;"	F
+PUTimeArr	taskpane.js	/^                    var PUTimeArr = [];$/;"	A
+aNewDate	taskpane.js	/^                                    var aNewDate = new Date(formattedPrintDate);$/;"	V
+activationEvent	taskpane.js	/^    var activationEvent;$/;"	V
+addAProject	taskpane.js	/^            async function addAProject() {$/;"	F
+addAProjectEvents	taskpane.js	/^            async function addAProjectEvents() {$/;"	F
+addWarningClass	taskpane.js	/^            function addWarningClass(object, warning) {$/;"	F
+addedDate	taskpane.js	/^                        var addedDate = new Date(now);$/;"	V
+address	taskpane.js	/^        address: "",$/;"	P
+allColumnValues	taskpane.js	/^                function allColumnValues(tableValues, columnIndex) {$/;"	F
+areArraysEqual	taskpane.js	/^        function areArraysEqual(array1, array2) {$/;"	F
+artist	taskpane.js	/^                        var artist = "Unassigned";$/;"	V
+artistAutofill	taskpane.js	/^                function artistAutofill(tableName, leSheetName) {$/;"	F
+ascending	taskpane.js	/^                                    ascending: true$/;"	P
+ascending	taskpane.js	/^                        ascending: true$/;"	P
+awaitingChangesTable	taskpane.js	/^                var awaitingChangesTable = [];$/;"	A
+bold	taskpane.js	/^                        bold: true,$/;"	P
+changeEvent	taskpane.js	/^    var changeEvent;$/;"	V
+changedRowTableIndex	taskpane.js	/^                                    var changedRowTableIndex = 0;$/;"	V
+changedTable	taskpane.js	/^    var changedTable;$/;"	V
+changesData	taskpane.js	/^    var changesData = {};$/;"	O
+changesIDData	taskpane.js	/^    var changesIDData = {};$/;"	O
+codedHeader	taskpane.js	/^            var codedHeader;$/;"	V
+color	taskpane.js	/^                        color: true$/;"	P
+columnIndex	taskpane.js	/^                columnIndex,$/;"	V
+completedTable	taskpane.js	/^    var completedTable;$/;"	V
+conditionalFormatting	taskpane.js	/^        function conditionalFormatting(rowInfoSorted, newTableStart, changedWorksheet, rowIndexPostSort, completedTableChanged, rowRangeSorted, destTable) {$/;"	F
+convertToDate	taskpane.js	/^                function convertToDate(serial) {$/;"	F
+creativeProofData	taskpane.js	/^    var creativeProofData = {};$/;"	O
+current	taskpane.js	/^                        var current = new Date(date); \/\/clone of the date variable that calculations will be made to$/;"	V
+currentWorksheet	taskpane.js	/^    var currentWorksheet;$/;"	V
+d	taskpane.js	/^                            var d = new Date(leDate);$/;"	V
+date	taskpane.js	/^                    var date = new Date(Math.round((serial - 25569)*86400*1000)); \/\/convert serial number to date object$/;"	V
+dateOfLastEditTime	taskpane.js	/^                                                var dateOfLastEditTime = new Date();$/;"	V
+dateOfLastEditTime	taskpane.js	/^                        var dateOfLastEditTime = new Date();$/;"	V
+destRowInfo	taskpane.js	/^                                        var destRowInfo = new Object();$/;"	V
+destinationHeader	taskpane.js	/^    var destinationHeader;$/;"	V
+destinationRows	taskpane.js	/^    var destinationRows;$/;"	V
+destinationStation	taskpane.js	/^                                                    var destinationStation = "null";$/;"	V
+destinationTable	taskpane.js	/^    var destinationTable;$/;"	V
+destinationTableName	taskpane.js	/^    var destinationTableName;$/;"	V
+destinationTableRange	taskpane.js	/^    var destinationTableRange;$/;"	V
+eventsEnabled	taskpane.js	/^                    var eventsEnabled = "off";$/;"	V
+eventsEnabled	taskpane.js	/^                    var eventsEnabled = "on";$/;"	V
+eventsFunction	taskpane.js	/^        async function eventsFunction() {$/;"	F
+eventsOn	taskpane.js	/^        async function eventsOn() {$/;"	F
+fill	taskpane.js	/^                    fill: {$/;"	P
+findColumnIndex	taskpane.js	/^            function findColumnIndex(header, columnName) {$/;"	F
+font	taskpane.js	/^                    font: {$/;"	P
+format	taskpane.js	/^                format: {$/;"	P
+gArr	taskpane.js	/^                                var gArr = [];$/;"	A
+getPickUpTime	taskpane.js	/^                function getPickUpTime(rowInfo, leTable, rowIndex) {$/;"	F
+getProofToClientTime	taskpane.js	/^            function getProofToClientTime(rowInfo, leTable, lePickUpTime, rowIndex) {$/;"	F
+groupRefData	taskpane.js	/^    var groupRefData = {};$/;"	O
+groupToPrintLink	taskpane.js	/^            function groupToPrintLink() {$/;"	F
+handleChange	taskpane.js	/^async function handleChange(event) {$/;"	F
+headersToCode	taskpane.js	/^        function headersToCode(name) {$/;"	F
+hideFisshGif	taskpane.js	/^    function hideFisshGif() {$/;"	F
+i	taskpane.js	/^                var i = 0;$/;"	V
+if	taskpane.js	/^                                if(current > workDayStart && current < workDayEnd && (includesWeekends ? current.getDay() !== 0 && current.getDay() !== 6 : true)) {$/;"	M
+isUnassigned	taskpane.js	/^                                var isUnassigned;$/;"	V
+jelly	taskpane.js	/^                var jelly;$/;"	V
+key	taskpane.js	/^                                    key: priorityColumnIndex,$/;"	P
+key	taskpane.js	/^                        key: priorityColumnIndex,$/;"	P
+leNewDate	taskpane.js	/^                        var leNewDate = new Date(formattedPrintDateMatch);$/;"	V
+leSorting	taskpane.js	/^            function leSorting(rowInfo, leTable, leColumnIndex, changedRowValues) {$/;"	F
+leTableSorted	taskpane.js	/^                        var leTableSorted = newBodyValues.values$/;"	V
+listOfCompletedTables	taskpane.js	/^                                var listOfCompletedTables = [];$/;"	A
+listOfCompletedTables	taskpane.js	/^            var listOfCompletedTables = [];$/;"	A
+moveData	taskpane.js	/^        function moveData(destinationTable, rowValues, myRow, artistCellValue) {$/;"	F
+moveDataTwo	taskpane.js	/^    function moveDataTwo(destTable, rowValues, leTable, changedRowTableIndex) {$/;"	F
+newCompletedTableValues	taskpane.js	/^                                            var newCompletedTableValues = newComplatedBodyValues.values$/;"	V
+newRangeOfTable	taskpane.js	/^                        var newRangeOfTable = newSheetTableRange.values;$/;"	V
+newRowRange	taskpane.js	/^                        var newRowRange = newSheetTableRows.getItemAt(m).getRange();$/;"	V
+newRowValuesOfTable	taskpane.js	/^                        var newRowValuesOfTable = newTableRowItems[m].values;$/;"	V
+newTableRowInfo	taskpane.js	/^                        var newTableRowInfo = new Object();$/;"	V
+newTableRowItems	taskpane.js	/^                        var newTableRowItems = newSheetTableRows.items;$/;"	V
+newTableStart	taskpane.js	/^                        var newTableStart = newStartOfTable.columnIndex; \/\/column index of the start of the table$/;"	V
+newerDate	taskpane.js	/^                            var newerDate = new Date(formattedDate);$/;"	V
+now	taskpane.js	/^                        var now = new Date();$/;"	V
+now	taskpane.js	/^            var now = new Date();$/;"	V
+officeHours	taskpane.js	/^                function officeHours(date, hoursToAdd) {$/;"	F
+officeHoursData	taskpane.js	/^    var officeHoursData = {};$/;"	O
+onActivate	taskpane.js	/^async function onActivate(args) {$/;"	F
+onHoldTable	taskpane.js	/^                var onHoldTable = [];$/;"	A
+onTableChanged	taskpane.js	/^        async function onTableChanged(eventArgs) {$/;"	F
+onTableSelectionChangedEvents	taskpane.js	/^async function onTableSelectionChangedEvents(eventArgs) {$/;"	F
+pickupData	taskpane.js	/^    var pickupData = {};$/;"	O
+previousSelection	taskpane.js	/^    var previousSelection;$/;"	V
+previousSelectionObj	taskpane.js	/^    var previousSelectionObj = {$/;"	O
+printDateRefData	taskpane.js	/^    var printDateRefData = {};$/;"	O
+printToGroupLink	taskpane.js	/^            function printToGroupLink() {$/;"	F
+priorityGenerationAndSortation	taskpane.js	/^                async function priorityGenerationAndSortation() {$/;"	F
+productIDData	taskpane.js	/^    var productIDData = {};$/;"	O
+projectTypeIDData	taskpane.js	/^    var projectTypeIDData = {};$/;"	O
+proofToClientData	taskpane.js	/^    var proofToClientData = {};$/;"	O
+registerOnActivateHandler	taskpane.js	/^async function registerOnActivateHandler() {$/;"	F
+removeEvent	taskpane.js	/^async function removeEvent() {$/;"	F
+removeWarningClass	taskpane.js	/^            function removeWarningClass(object, warning) {$/;"	F
+returnDateTime	taskpane.js	/^                    var returnDateTime = 25569.0 + ((inDate.getTime() - (inDate.getTimezoneOffset() * 60 * 1000)) \/ (1000 * 60 * 60 * 24));$/;"	V
+rowIndex	taskpane.js	/^                rowIndex: true$/;"	P
+rowIndex	taskpane.js	/^        rowIndex: ""$/;"	P
+rowIndexPostSort	taskpane.js	/^    var rowIndexPostSort;$/;"	V
+rowInfo	taskpane.js	/^                                var rowInfo = new Object(); \/\/object that will contain the values and column indexs of every item in the changed row$/;"	V
+rowInfoSorted	taskpane.js	/^                            var rowInfoSorted = new Object();$/;"	V
+rowInfoSorted	taskpane.js	/^                    var rowInfoSorted = new Object();$/;"	V
+rowInfoSorted	taskpane.js	/^                var rowInfoSorted = new Object();$/;"	V
+rowRangeSorted	taskpane.js	/^                            var rowRangeSorted = newChangedTableRows.getItemAt(m).getRange();$/;"	V
+rowRangeSortedCompleted	taskpane.js	/^                                                var rowRangeSortedCompleted = newCompletedRows.getItemAt(m).getRange();$/;"	V
+selectionEvent	taskpane.js	/^    var selectionEvent;$/;"	V
+shortDate	taskpane.js	/^            function shortDate(aDate) {$/;"	F
+showElement	taskpane.js	/^    function showElement(element, showHide) {$/;"	F
+showFisshGif	taskpane.js	/^    function showFisshGif() {$/;"	F
+showMessage	taskpane.js	/^    function showMessage(msg, showHide) {$/;"	F
+snailPoop	taskpane.js	/^    var snailPoop = {};$/;"	O
+sortFort	taskpane.js	/^            function sortFort(bodyRange, priorityColumnIndex) {$/;"	F
+status	taskpane.js	/^                        var status = "Awaiting Artist";$/;"	V
+status	taskpane.js	/^                        var status = "Not Working";$/;"	V
+statusAutofill	taskpane.js	/^                function statusAutofill(tableName) {$/;"	F
+subjectPasted	taskpane.js	/^                async function subjectPasted() {$/;"	F
+tableChangedPriorityAndSort	taskpane.js	/^             async function tableChangedPriorityAndSort(rowInfo, bodyRange, priorityColumnData) {$/;"	F
+tableId	taskpane.js	/^        tableId: "",$/;"	P
+tableRowInfo	taskpane.js	/^                    var tableRowInfo = new Object();$/;"	V
+tableRowsSorted	taskpane.js	/^                        var tableRowsSorted = newChangedTableRows.items;$/;"	V
+tempTable	taskpane.js	/^                var tempTable = [];$/;"	A
+theGreatestFunctionEverWritten	taskpane.js	/^        function theGreatestFunctionEverWritten (head, columnName, rowValues, leTable, obj, changedRowTableIndex) {$/;"	F
+tryCatch	taskpane.js	/^            async function tryCatch(callback) {$/;"	F
+updateDropDowns	taskpane.js	/^        async function updateDropDowns() {$/;"	F
+value	taskpane.js	/^                value$/;"	V
+while	taskpane.js	/^                        while(adjustmentMinutes > 0) {$/;"	M
+workDayEnd	taskpane.js	/^                                        var workDayEnd = new Date(current);$/;"	V
+workDayEnd	taskpane.js	/^                            var workDayEnd = new Date(date);$/;"	V
+workDayStart	taskpane.js	/^                                        var workDayStart = new Date(current);$/;"	V
+workDayStart	taskpane.js	/^                            var workDayStart = new Date(date);$/;"	V
+write	taskpane.js	/^                        var write = [[$/;"	A

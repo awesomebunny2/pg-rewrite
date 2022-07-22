@@ -1,5 +1,3 @@
-
-
 $(() => {
     // DOCUMENT LOADED
     //console.log("DOCUMENT LOADED");
@@ -33,6 +31,7 @@ $(() => {
 
     });
 
+    console.log("Hi");
 
     // function showMessage(msg, showHide) {
     //     if (showHide === "hide") {
@@ -833,18 +832,21 @@ async function removeEvent() {
 async function onTableSelectionChangedEvents(eventArgs) {
     await Excel.run(/*previousSelection,*/ async (context) => {
 
+      console.log("This is the onTableSelectionChangedEvents eventArgs");
+      console.log(eventArgs);
+
         console.log("Running onTableSelectionChangedEvents!");
 
         if (didTableChangeFire == true) {
             return;
         };
 
-        context.runtime.load("enableEvents");
+        //context.runtime.load("enableEvents");
 
         await context.sync();
 
-        context.runtime.enableEvents = false;
-        console.log("Events: OFF - Occured in onTableSelectionChangedEvents");
+        // context.runtime.enableEvents = false;
+        // console.log("Events: OFF - Occured in onTableSelectionChangedEvents");
 
         if (previousSelectionObj.tableId !== "") {
             //var previousTableId = eventArgs.tableId; // Table we came from
@@ -914,8 +916,8 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
         if (isTableEmpty == 0) {
             console.log("Table is empty, so no highlighting was applied");
-            eventsOn();
-            console.log("Events: ON  →  turned on in the onTableSelectionChangedEvents function when the selected range was a part of an empty table");
+            // eventsOn();
+            // console.log("Events: ON  →  turned on in the onTableSelectionChangedEvents function when the selected range was a part of an empty table");
             return;
         };
 
@@ -990,11 +992,11 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
         }
 
-        removeEvent();
+        //removeEvent();
 
 
-        eventsOn();
-        console.log("Events: ON  →  turned on in the onTableSelectionChangeEvents function once it had successfully finished running!");
+        // eventsOn();
+        // console.log("Events: ON  →  turned on in the onTableSelectionChangeEvents function once it had successfully finished running!");
 
     }).catch (err => {
         console.log(err) // <--- does this log?
@@ -2934,7 +2936,8 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
         async function onTableChanged(eventArgs) {
 
-            // console.log(eventArgs);
+            console.log("This is the onTableChanged eventArgs");
+            console.log(eventArgs);
 
             await Excel.run(async (context) => {
 
@@ -2951,8 +2954,14 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
                     var allWorksheets = context.workbook.worksheets;
                     allWorksheets.load("items/name/tables/id");
+                    // console.log()
                     var changedWorksheet = context.workbook.worksheets.getItem(eventArgs.worksheetId).load("name");
-                    var worksheetTables = changedWorksheet.tables.load("items/name");
+                    var worksheetTables = changedWorksheet.tables;
+
+                    // var queueSheet = worksheetTables.getItemAt(0);
+                    var completedTable = worksheetTables.getItemAt(1);
+
+                    // .load("items/name");
                     var valSheet = context.workbook.worksheets.getItem("Validation").load("name");
 
                     //Used to find the column and row index on a worksheet level
@@ -3281,16 +3290,20 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
                             //#region FINDS IF CHANGED TABLE IS A COMPLETED TABLE OR NOT ------------------------------------------------------
 
-                                var listOfCompletedTables = [];
+                                //var listOfCompletedTables = [];
 
-                                allTables.items.forEach(function (table) { //for each table in the workbook...
-                                    if (table.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
-                                        listOfCompletedTables.push(table.name); //push the name of that table into an array
-                                    };
-                                });
+                                var changedTableName = changedTable.name;
 
-                                //returns true if the changedTable is a completed table from the array previously made, false if it is anything else
-                                var completedTableChanged = listOfCompletedTables.includes(changedTable.name);
+                                var completedTableChanged = changedTableName.includes("Completed");
+
+                                // allTables.items.forEach(function (table) { //for each table in the workbook...
+                                //     if (table.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
+                                //         listOfCompletedTables.push(table.name); //push the name of that table into an array
+                                //     };
+                                // });
+                                //
+                                // //returns true if the changedTable is a completed table from the array previously made, false if it is anything else
+                                // var completedTableChanged = listOfCompletedTables.includes(changedTable.name);
 
                             //#endregion ------------------------------------------------------------------------------------------------------
 
@@ -3777,12 +3790,18 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
                                     //#region FINDS THE COMPLETED TABLE IN CHANGED WORKSHEET ---------------------------------------------------
 
-                                        worksheetTables.items.forEach(function (table) { //for each table in the changed worksheet...
-                                            if (table.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
-                                            var zeTable = table.name; //sets var to name of said completed table
-                                            completedTable = worksheetTables.getItem(zeTable); //grabs said table's data from the worksheet
-                                            };
-                                        });
+                                    // worksheetTables
+
+                                        // worksheetTables.items.forEach(function (table) { //for each table in the changed worksheet...
+                                        //
+                                        //     if (table.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
+                                        //
+                                        //
+                                        //
+                                        //       var zeTable = table.name; //sets var to name of said completed table
+                                        //       completedTable = worksheetTables.getItem(zeTable); //grabs said table's data from the worksheet
+                                        //     };
+                                        // });
 
                                     //#endregion ------------------------------------------------------------------------------------------------
 
