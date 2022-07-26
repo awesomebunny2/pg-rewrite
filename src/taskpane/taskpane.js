@@ -143,6 +143,8 @@ $(() => {
 
     var activatedWorksheet;
 
+    var valPassword = "fissh";
+
     //var activatedTables;
 
     // var previousSelectionFill;
@@ -252,6 +254,40 @@ $(() => {
 
                         var activeProjectTable = activeSheet.tables.getItemAt(0);
 
+                        let password = await passwordHandler();
+                            passwordHelper(password);
+                            await Excel.run(async (context) => {
+                                //let activeSheet = context.workbook.worksheets.getActiveWorksheet();
+                                //var sheetProtection = sheet.protection.load("isPasswordProtected");
+                                //sheet.load(["format/*", "format/protection", "format/protection/protected"]);
+                                sheet.load("protection/protected");
+
+                                await context.sync();
+
+                                //var sheetPasswordProtection = sheetProtection.isPasswordProtected;
+
+                                var isProtected = sheet.protection.protected;
+
+                                await context.sync();
+
+                                if (!sheet.protection.protected) {
+                                    sheet.protection.protect(null, password);
+                                };
+                            });
+
+                            await Excel.run(async (context) => {
+                                let activeSheet = context.workbook.worksheets.getActiveWorksheet();
+                                activeSheet.load("protection/protected");
+                                await context.sync();
+                            
+                                if (!activeSheet.protection.protected) {
+                                    activeSheet.protection.protect();
+                                }
+                            });
+
+                       
+
+
                         var workbookName = context.workbook.load("name");
 
                         // var activeCompletedTable = activeSheet.tables.getItemAt(1);
@@ -290,6 +326,9 @@ $(() => {
                     //tryCatch(changeEvent);
 
                     await context.sync()
+
+
+
 
                         //console.log(workbookName.name);
 
@@ -587,6 +626,46 @@ $(() => {
     //#endregion ---------------------------------------------------------------------------------------------------------------
 
 //#endregion -----------------------------------------------------------------------------------------------------------------
+
+
+function passwordHelper(password) {
+    if (null == password || password.trim() == "") {
+      let errorMessage = "Password is expected but not provided";
+      console.log(errorMessage);
+    };
+  };
+  
+  async function passwordHandler() {
+    let settingName = "TheTestPasswordUsedByThisSnippet";
+    let savedPassword = Office.context.document.settings.get(settingName);
+    var testPassword;
+    if (null == savedPassword || savedPassword.trim() == "") {
+      //let item = document.getElementById("test-password");
+        
+      testPassword = valPassword;
+
+      //let testPassword = item.hasAttribute("value") ? item.getAttribute("value") : null;
+      if (null != testPassword && testPassword.trim() != "") {
+        // store test password for retrieval upon re-opening this workbook
+        Office.context.document.settings.set(settingName, testPassword);
+        await Office.context.document.settings.saveAsync();
+  
+        savedPassword = testPassword;
+      }
+    } else {
+      //document.getElementById("test-password").setAttribute("value", savedPassword);
+      testPassword = valPassword;
+      savedPassword = testPassword;
+    }
+  
+    console.log("Test password is " + savedPassword);
+  
+    return savedPassword;
+  }
+
+
+
+
 
 //enables onSelectionChanged event upon inital load and any reloads of the taskpane
 async function registerOnActivateHandler() {
