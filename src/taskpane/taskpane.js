@@ -3686,11 +3686,13 @@ async function onTableSelectionChangedEvents(eventArgs) {
                         }
 
                         if (changedColumnIndex == rowInfo.group.columnIndex) {
-                            var matchPrintDate = groupRefData[rowInfo.group.value].printDate;
+                            var groupUppercase = rowInfo.group.value.toUpperCase();
+                            var matchPrintDate = groupRefData[groupUppercase].printDate;
                             if (matchPrintDate == undefined) {
                                 matchPrintDate = "N/A";
                             };
                             leTable[changedRowTableIndex][rowInfo.printDate.columnIndex] = matchPrintDate;
+                            leTable[changedRowTableIndex][rowInfo.group.columnIndex] = groupUppercase;
                             bodyRange.values = leTable;
                         };
 
