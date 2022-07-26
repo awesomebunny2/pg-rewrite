@@ -1,3 +1,4 @@
+//validation sheet password: fissh
 $(() => {
     // DOCUMENT LOADED
     //console.log("DOCUMENT LOADED");
@@ -254,36 +255,42 @@ $(() => {
 
                         var activeProjectTable = activeSheet.tables.getItemAt(0);
 
-                        let password = await passwordHandler();
-                            passwordHelper(password);
-                            await Excel.run(async (context) => {
-                                //let activeSheet = context.workbook.worksheets.getActiveWorksheet();
-                                //var sheetProtection = sheet.protection.load("isPasswordProtected");
-                                //sheet.load(["format/*", "format/protection", "format/protection/protected"]);
-                                sheet.load("protection/protected");
+                        // doingPasswords(sheet);
 
-                                await context.sync();
+                        // async function doingPasswords(sheet) {
+                        //     let password = await passwordHandler();
+                        //     passwordHelper(password);
+                        //     await Excel.run(async (context) => {
+                        //         //let activeSheet = context.workbook.worksheets.getActiveWorksheet();
+                        //         //var sheetProtection = sheet.protection.load("isPasswordProtected");
+                        //         //sheet.load(["format/*", "format/protection", "format/protection/protected"]);
+                        //         sheet.load("protection/protected");
 
-                                //var sheetPasswordProtection = sheetProtection.isPasswordProtected;
+                        //         await context.sync();
 
-                                var isProtected = sheet.protection.protected;
+                        //         //var sheetPasswordProtection = sheetProtection.isPasswordProtected;
 
-                                await context.sync();
+                        //         var isProtected = sheet.protection.protected;
 
-                                if (!sheet.protection.protected) {
-                                    sheet.protection.protect(null, password);
-                                };
-                            });
+                        //         await context.sync();
 
-                            await Excel.run(async (context) => {
-                                let activeSheet = context.workbook.worksheets.getActiveWorksheet();
-                                activeSheet.load("protection/protected");
-                                await context.sync();
+                        //         if (!sheet.protection.protected) {
+                        //             sheet.protection.protect(null, password);
+                        //         };
+                        //     });
+
+                        //     // await Excel.run(async (context) => {
+                        //     //     let activeSheet = context.workbook.worksheets.getActiveWorksheet();
+                        //     //     activeSheet.load("protection/protected");
+                        //     //     await context.sync();
                             
-                                if (!activeSheet.protection.protected) {
-                                    activeSheet.protection.protect();
-                                }
-                            });
+                        //     //     if (!activeSheet.protection.protected) {
+                        //     //         activeSheet.protection.protect();
+                        //     //     }
+                        //     // });
+
+                        // };
+                    
 
                        
 
