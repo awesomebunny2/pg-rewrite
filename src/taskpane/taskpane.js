@@ -3360,7 +3360,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
                     var worksheetTables = changedWorksheet.tables;
 
                     // var queueSheet = worksheetTables.getItemAt(0);
-                    var completedTable = worksheetTables.getItemAt(1);
+                    // var completedTable = worksheetTables.getItemAt(1);
 
                     // .load("items/name");
                     var valSheet = context.workbook.worksheets.getItem("Validation").load("name");
@@ -3624,6 +3624,12 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
 
                             //#region CALL LOADED VARIABLES ---------------------------------------------------------------------------------------
+
+                                if (changedWorksheet.name == "Unassigned Projects") {
+                                    var completedTable = null;
+                                } else {
+                                    var completedTable = worksheetTables.getItemAt(1);
+                                };
 
                                 var changedColumnIndexOG = changedAddress.columnIndex; //index of the column where the change was made (on a worksheet level)
                                 var changedRowIndex = changedAddress.rowIndex; //index of the row where the change was made (on a worksheet level)
