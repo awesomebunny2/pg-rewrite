@@ -31,7 +31,7 @@ $(() => {
 
     });
 
-    console.log("Hi");
+    //console.log("Hi");
 
     // function showMessage(msg, showHide) {
     //     if (showHide === "hide") {
@@ -135,7 +135,15 @@ $(() => {
     };
 
     var didTableChangeFire = false;
-    console.log(didTableChangeFire);
+    //console.log(didTableChangeFire);
+
+    var deactivationEvent;
+
+    var deactivatedWorksheetId;
+
+    var activatedWorksheet;
+
+    //var activatedTables;
 
     // var previousSelectionFill;
 
@@ -221,6 +229,7 @@ $(() => {
                 Excel.run(async (context) => {
 
                     activationEvent = registerOnActivateHandler();
+                    //deactivationEvent = registerOnDeactivationHandler();
 
                     //#region LOADING VALUES ---------------------------------------------------------------------------------
 
@@ -583,9 +592,14 @@ $(() => {
 async function registerOnActivateHandler() {
     await Excel.run(async (context) => {
 
+        // console.log("Inital load Selection Event: ");
+        // console.log(selectionEvent);
+        // removeSelectionEvent();
+
         console.log("Reload activation function fired!");
         let sheets = context.workbook.worksheets;
         var activeSheet = context.workbook.worksheets.getActiveWorksheet().load("worksheetId");
+        activeSheet.load("name");
 
         context.runtime.load("enableEvents");
 
@@ -599,6 +613,19 @@ async function registerOnActivateHandler() {
 
         context.runtime.enableEvents = false;
         console.log("Events: OFF - Occured in registerOnActivateHandler");
+
+        activeSheetName = activeSheet.name;
+
+        console.log(activeSheetName);
+
+        if (activeSheet.name == "Validation") {
+            console.log("Active sheet is the Validation sheet, so onSelection & onChange events have been bound");
+            sheets.onActivated.add(onActivate);
+            sheets.onDeactivated.add(onDeactivate);
+            eventsOn();
+            console.log("Events: ON  →  turned on in the registerOnActivateHandler function, but for the Validation sheet");
+            return;
+        };
 
         var worksheetTablesCount = worksheetTables.count; //the number of tables in the workbook
 
@@ -696,6 +723,12 @@ async function registerOnActivateHandler() {
         };
 
         sheets.onActivated.add(onActivate);
+        sheets.onDeactivated.add(onDeactivate);
+
+        //deactivationEvent = sheets.onDeactivated.add(onDeactivate);
+
+
+        //removeSelectionEvent();
 
         //changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
 
@@ -709,6 +742,103 @@ async function registerOnActivateHandler() {
         console.log(err) // <--- does this log?
         showMessage(err, "show");
         context.runtime.enableEvents = true;
+    });
+};
+
+// async function registerOnDeactivationHandler() {
+//     await Excel.run(async(context) => {
+//         var sheets = context.workbook.worksheets;
+//         sheets.onDeactivated.add(onDeactivate);
+
+//         var activeSheet = context.workbook.worksheets.getActiveWorksheet().load("worksheetId");
+
+//         //context.runtime.load("enableEvents");
+
+//         var theAllTable = context.workbook.tables.load("count"); //all of the tables in the workbook
+//         theAllTable.load("items");
+
+//         var worksheetTables = activeSheet.tables.load("items/count");
+
+//         await context.sync();
+//         console.log("A handler has been registered for the OnDeactivate event.");
+
+//         var worksheetTablesCount = worksheetTables.count; //the number of tables in the workbook
+
+//         //cycles through each table in the workbook
+        
+//         for (var y = 0; y < worksheetTablesCount; y++) {
+//             var bonTable = worksheetTables.getItemAt(y);
+
+//             // bonTable.onChanged.add(theFunction);
+//             // await context.sync();
+//             //bonTable.onSelectionChanged.add(theFunction);
+//             changeEvent = bonTable.onChanged.add(onTableChanged);
+
+//             removeSelectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents);
+
+//             // await context.sync().then(function() {
+//             //     selectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents);
+//             // });
+
+//             //console.log("bonTable fired!");
+//         };
+// };
+
+async function onDeactivate(eventArgs) {
+    await Excel.run(async(context) => {
+        console.log("The worksheet Id that was deactivated was: " + eventArgs.worksheetId);
+        //removeSelectionEvent();
+
+        deactivatedWorksheetId = eventArgs.worksheetId
+        // selectionEvent.remove();
+
+        // await context.sync();
+
+        // selectionEvent = null;
+        // console.log("Selection Event was removed");
+
+        // var activatedTables = activatedWorksheet.tables.load("items/count");
+
+        // await context.sync();
+
+
+        // var worksheetTablesCount = activatedTables.count; //the number of tables in the workbook
+
+        // for (var y = 0; y < worksheetTablesCount; y++) {
+        //     var bonTable = activatedTables.getItemAt(y);
+        //     changeEvent = bonTable.onChanged.add(onTableChanged);
+        //     //removeChangeEvent();
+        //     selectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents);
+        //     console.log("Added selectionEvent to each table in the current sheet!");
+        //     //removeSelectionEvent();
+
+
+        //     // await context.sync().then(function() {
+        //     //     selectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents);
+        //     // });
+        // };
+
+        // var currentWorksheet = context.workbook.worksheets.getItem(eventArgs.worksheetId);
+        // console.log("The worksheet Id that was deactivated was: " + eventArgs.worksheetId);
+
+        // var worksheetTables = currentWorksheet.tables.load("items/count");
+
+        // await context.sync();
+
+        // var worksheetTablesCount = worksheetTables.count; //the number of tables in the workbook
+
+        // for (var y = 0; y < worksheetTablesCount; y++) {
+        //     var bonTable = worksheetTables.getItemAt(y);
+        //     //changeEvent = bonTable.onChanged.add(onTableChanged);
+        //     //removeChangeEvent();
+        //     selectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents);
+        //     //removeSelectionEvent();
+
+
+        //     // await context.sync().then(function() {
+        //     //     selectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents);
+        //     // });
+        // };
     });
 };
 
@@ -762,44 +892,200 @@ async function registerOnActivateHandler() {
 
 
 //when the worksheet changes, this fires and binds the events to the first table that is selected in the sheet
-async function onActivate(args) {
+async function onActivate(eventArgs) {
     await Excel.run(async (context) => {
 
+        // console.log("Worksheet change Selection Event: ");
+        // console.log(selectionEvent);
+        // removeSelectionEvent();
 
-
-        console.log("Child (onActivate) function fired");
-        console.log(args);
-        console.log(args.type);
+        console.log("Worksheet Switched (onActivate) function fired");
+        // console.log(args);
+        // console.log(args.type);
 
         //changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
 
 
 
-        var currentWorksheet = context.workbook.worksheets.getItem(args.worksheetId);
+        activatedWorksheet = context.workbook.worksheets.getItem(eventArgs.worksheetId);
 
-        console.log("The activated worksheet Id : " + args.worksheetId);
+        console.log("The activated worksheet Id : " + eventArgs.worksheetId);
 
-        var worksheetTables = currentWorksheet.tables.load("items/count");
+        //activatedTables = currentWorksheet.tables.load("items/count");
+
+        // context.runtime.load("enableEvents");
+
+        var theAllTable = context.workbook.tables.load("count"); //all of the tables in the workbook
+        theAllTable.load("items");
+
+        var worksheetTables = activatedWorksheet.tables.load("items/count");
+
 
 
 
 
         await context.sync();
 
-        var worksheetTablesCount = worksheetTables.count; //the number of tables in the workbook
+        // context.runtime.enableEvents = false;
+        // console.log("Events: OFF - Occured in registerOnActivateHandler");
 
-        for (var y = 0; y < worksheetTablesCount; y++) {
-            var bonTable = worksheetTables.getItemAt(y);
-            changeEvent = bonTable.onChanged.add(onTableChanged);
-            selectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents);
+        console.log("The deactivation worksheet ID is: " + deactivatedWorksheetId)
+
+        var oldWorksheet = context.workbook.worksheets.getItem(deactivatedWorksheetId);
+
+        var oldWorksheetTables = oldWorksheet.tables.load("items/count");
+
+        await context.sync();
 
 
-            // await context.sync().then(function() {
-            //     selectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents);
-            // });
+
+
+        // console.log("Reload activation function fired!");
+        // let sheets = context.workbook.worksheets;
+        // var activeSheet = context.workbook.worksheets.getActiveWorksheet().load("worksheetId");
+
+
+
+
+
+        var oldWorksheetTablesCount = oldWorksheetTables.count; //the number of tables in the workbook
+
+        //cycles through each table in the workbook
+        for (var p = 0; p < oldWorksheetTablesCount; p++) { // <-- looping your tables
+            var oldCycleTables = oldWorksheetTables.getItemAt(p).load("name/worksheet");
+
+            var oldCycleTableRows = oldCycleTables.rows.load("items");
+
+            var oldTablesWorksheet = oldCycleTables.worksheet.load("name");
+
+            var oldCycleBodyRange = oldCycleTables.getDataBodyRange().load("values"); //gets range of table
+            oldCycleBodyRange.load("columnIndex");
+
+            oldCycleBodyRange.load(["rowCount", "columnCount", "cellCount"]);
+
+            var oldHeaderRange = oldCycleTables.getHeaderRowRange().load("values");
+
+            const oldUsedDataRange = oldCycleBodyRange.getUsedRangeOrNullObject(
+                true /* valuesOnly */
+            );
+
+            var oldPropertiesToGet = oldCycleBodyRange.getRowProperties({ //gets format properties of the rows in the table
+                format: {
+                    fill: {
+                        color: true
+                    },
+                    font: {
+                        bold: true,
+                        color: true
+                    }
+                },
+                rowIndex: true
+            });
+
+            await context.sync();
+
+            var oldHead = oldHeaderRange.values;
+
+            var oldLeTable = oldCycleBodyRange.values
+
+            var oldListOfCompletedTables = [];
+            if (oldCycleTables.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
+                oldListOfCompletedTables.push(oldCycleTables.name); //push the name of that table into an array
+            };
+
+            //returns true if the changedTable is a completed table from the array previously made, false if it is anything else
+            var oldCompletedTableChanged = oldListOfCompletedTables.includes(oldCycleTables.name);
+
+            if (oldTablesWorksheet.name !== "Validation" && oldUsedDataRange.isNullObject !== true) { //ignore all tables in Validation sheet
+                //cycles through each row in the table
+                for (var aRow = 0; aRow < oldCycleBodyRange.rowCount; aRow++) {
+                    var theOldRows = oldCycleTableRows.items
+                    var oldRowValues = theOldRows[aRow].values
+                    var oldRowRange = oldCycleTables.rows.getItemAt(aRow).getRange(); //range of row we are currently on
+                    var oldRowProperties = oldPropertiesToGet.value[aRow]; //loads in those row properites from eariler
+                    var oldTableStart = oldCycleBodyRange.columnIndex;
+
+                    var theOldWorksheet = context.workbook.worksheets.getItem(oldTablesWorksheet.name).load("name");
+
+                    var oldRowInfoSorted = new Object();
+
+                    for (var oldName of oldHead[0]) {
+                        theGreatestFunctionEverWritten(oldHead, oldName, oldRowValues, oldLeTable, oldRowInfoSorted, aRow);
+                    }
+
+                    if (oldRowProperties.format.fill.color == "#F5D9FF") { //if the row is purple, do the following...  #F5D9FF
+                        console.log("Found a purple row!");
+                        console.log(`Table: ${oldCycleTables.name}\nRow Index: ${aRow}`);
+                        oldRowRange.format.fill.clear();
+                        //will need to run conditional formatting function next
+                        await context.sync();
+
+                        conditionalFormatting(oldRowInfoSorted, oldTableStart, theOldWorksheet, aRow, oldCompletedTableChanged, oldRowRange, null)
+                    };
+                };
+            };
         };
 
+        location.reload();
+
+        // var worksheetTablesCount = worksheetTables.count;
+
+        // for (var y = 0; y < worksheetTablesCount; y++) {
+        //     var bonTable = worksheetTables.getItemAt(y);
+
+        //     // bonTable.onChanged.add(theFunction);
+        //     // await context.sync();
+        //     //bonTable.onSelectionChanged.add(theFunction);
+        //     changeEvent = bonTable.onChanged.add(onTableChanged);
+
+        //     selectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents);
+
+        //     // await context.sync().then(function() {
+        //     //     selectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents);
+        //     // });
+
+        //     //console.log("bonTable fired!");
+        // };
+
+        // sheets.onActivated.add(onActivate);
+        // sheets.onDeactivated.add(onDeactivate);
+
+        //deactivationEvent = sheets.onDeactivated.add(onDeactivate);
+
+
+        //removeSelectionEvent();
+
+        //changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
+
+
+        // console.log("A handler has been registered for the OnActivate event.");
+
+        // eventsOn();
+        // console.log("Events: ON  →  turned on in the registerOnActivateHandler function, typically triggered by a reload");
+
+        // var worksheetTablesCount = worksheetTables.count; //the number of tables in the workbook
+
+        // for (var y = 0; y < worksheetTablesCount; y++) {
+        //     var bonTable = worksheetTables.getItemAt(y);
+        //     changeEvent = bonTable.onChanged.add(onTableChanged);
+        //     //removeChangeEvent();
+        //     selectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents);
+        //     console.log("Added selectionEvent to each table in the current sheet!");
+        //     //removeSelectionEvent();
+
+
+        //     // await context.sync().then(function() {
+        //     //     selectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents);
+        //     // });
+        // };
+
         //removeEvent();
+        //removeChangeEvent();
+        //removeSelectionEvent();
+
+        // registerOnDeactivationHandler();
+
+
 
 
 
@@ -815,8 +1101,10 @@ async function onActivate(args) {
     });
 };
 
-async function removeEvent() {
+async function removeSelectionEvent() {
     await Excel.run(selectionEvent.context, async(context) => {
+
+        //var worksheetOld = selectionEvent.context.workbook.worksheets.getItem()
         selectionEvent.remove();
 
         await context.sync();
@@ -826,20 +1114,38 @@ async function removeEvent() {
     });
 };
 
+async function removeChangeEvent() {
+    await Excel.run(changeEvent.context, async(context) => {
+        changeEvent.remove();
+
+        await context.sync();
+
+        changeEvent = null;
+        console.log("Change Event was removed");
+    });
+};
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async function onTableSelectionChangedEvents(eventArgs) {
     await Excel.run(/*previousSelection,*/ async (context) => {
 
-      console.log("This is the onTableSelectionChangedEvents eventArgs");
-      console.log(eventArgs);
+      //console.log("This is the onTableSelectionChangedEvents eventArgs");
+      //console.log(eventArgs);
+
+        // if (selectionEvent !== null) {
+        //     removeSelectionEvent();
+        //     console.log("onSelectionHandler for the previous sheet was removed.")
+        // };
 
         console.log("Running onTableSelectionChangedEvents!");
 
-        if (didTableChangeFire == true) {
-            return;
-        };
+        // if (didTableChangeFire == true) {
+        //     return;
+        // };
+
+
 
         //context.runtime.load("enableEvents");
 
@@ -992,7 +1298,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
         }
 
-        //removeEvent();
+        //removeSelectionEvent();
 
 
         // eventsOn();
@@ -2936,8 +3242,8 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
         async function onTableChanged(eventArgs) {
 
-            console.log("This is the onTableChanged eventArgs");
-            console.log(eventArgs);
+            // console.log("This is the onTableChanged eventArgs");
+            // console.log(eventArgs);
 
             await Excel.run(async (context) => {
 
