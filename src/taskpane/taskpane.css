@@ -591,3 +591,13 @@ $dark:#222; */
     width: 95%; */
     /* justify-content: center;
 } */
+
+#version {
+    font-size: 8pt;
+    margin-left: 5%;
+    margin-top: 2%;
+    margin-bottom: 2%;
+    color: #969696;
+    vertical-align: middle;
+    align-items: center;
+}
