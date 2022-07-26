@@ -786,6 +786,8 @@ async function registerOnActivateHandler() {
 
 async function onDeactivate(eventArgs) {
     await Excel.run(async(context) => {
+        console.log("Source of the onDeactivate event: " + eventArgs.source);
+
         console.log("The worksheet Id that was deactivated was: " + eventArgs.worksheetId);
         //removeSelectionEvent();
 
@@ -898,6 +900,7 @@ async function onActivate(eventArgs) {
         // console.log("Worksheet change Selection Event: ");
         // console.log(selectionEvent);
         // removeSelectionEvent();
+        console.log("Source of the onActivate event: " + eventArgs.source);
 
         console.log("Worksheet Switched (onActivate) function fired");
         // console.log(args);
@@ -1139,7 +1142,10 @@ async function onTableSelectionChangedEvents(eventArgs) {
         //     console.log("onSelectionHandler for the previous sheet was removed.")
         // };
 
-        console.log("Running onTableSelectionChangedEvents!");
+        console.log("Source of the onTableSelectionChanged event: " + eventArgs.source);
+
+
+        //console.log("Running onTableSelectionChangedEvents!");
 
         // if (didTableChangeFire == true) {
         //     return;
@@ -3247,7 +3253,10 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
             await Excel.run(async (context) => {
 
-                console.log("Running onTableChanged!");
+                console.log("Source of the onTableChanged event: " + eventArgs.source);
+
+
+                //console.log("Running onTableChanged!");
 
                 context.runtime.load("enableEvents");
 
