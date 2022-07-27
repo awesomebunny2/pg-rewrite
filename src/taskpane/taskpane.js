@@ -1538,7 +1538,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
                     var productIDValTable = sheet.tables.getItem("ProductIDTable");
                     var projectTypeValTable = sheet.tables.getItem("ProjectTypeIDTable");
                     var groupPrintValTable = sheet.tables.getItem("GroupPrintTable");
-                    var artistLeadValTable = sheet.tables.getItem("ArtistLeadTable");
+                    var designManagersValTable = sheet.tables.getItem("DesignManagersTable");
                     var queueValTable = sheet.tables.getItem("QueueTable");
                     var tierValTable = sheet.tables.getItem("TierTable");
                     var tagsValTable = sheet.tables.getItem("TagsTable");
@@ -1548,7 +1548,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
                     var productIDBodyRange = productIDValTable.getDataBodyRange().load("values");
                     var projectTypeBodyRange = projectTypeValTable.getDataBodyRange().load("values");
                     var groupPrintBodyRange = groupPrintValTable.getDataBodyRange().load("values");
-                    var artistLeadBodyRange = artistLeadValTable.getDataBodyRange().load("values");
+                    var designManagersBodyRange = designManagersValTable.getDataBodyRange().load("values");
                     var queueBodyRange = queueValTable.getDataBodyRange().load("values");
                     var tierBodyRange = tierValTable.getDataBodyRange().load("values");
                     var tagsBodyRange = tagsValTable.getDataBodyRange().load("values");
@@ -1682,20 +1682,20 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
                 //#region ARTIST LEAD VALUES -----------------------------------------------------------------------------------
 
-                    var artistLeadBodyValues = artistLeadBodyRange.values;
+                    var designManagersBodyValues = designManagersBodyRange.values;
 
-                    $("#artist-lead").empty();
-                    $("#artist-lead").append($("<option disabled selected hidden></option>").val("").text(""));
+                    $("#design-managers").empty();
+                    $("#design-managers").append($("<option disabled selected hidden></option>").val("").text(""));
 
-                    artistLeadBodyValues.forEach(function(row) {
+                    designManagersBodyValues.forEach(function(row) {
 
                         // Add an option to the select box
-                        var option = `<option artist-lead-id="${row[0]}">${row[0]}</option>`;
+                        var option = `<option design-managers-id="${row[0]}">${row[0]}</option>`;
 
-                        var x = $(`#artist-lead > option[artist-lead-id="${row[0]}"]`).length;
+                        var x = $(`#design-managers > option[design-managers-id="${row[0]}"]`).length;
 
                         if (x == 0) { // Meaning, it's not there yet, because it's length count is 0
-                            $("#artist-lead").append(option);
+                            $("#design-managers").append(option);
                         };
                     });
 
@@ -2037,7 +2037,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
         $("#clear").on("click", function() {
 
-            $("#subject, #client, #location, #product, #code, #project-type, #csm, #print-date, #group, #artist-lead, #queue, #tier, #tags, #start-override, #work-override, #notes").val(""); // Empty all inputs
+            $("#subject, #client, #location, #product, #code, #project-type, #csm, #print-date, #group, #design-managers, #queue, #tier, #tags, #start-override, #work-override, #notes").val(""); // Empty all inputs
             removeWarningClass("#subject", "#warning1");
             removeWarningClass("#client", "#warning2");
             removeWarningClass("#product", "#warning3");
@@ -2113,7 +2113,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
                     //#region GET INPUT FROM TASKPANE ------------------------------------------------------------------------------------------
 
                         // Data from DOM
-                        var artistLeadVal = $("#artist-lead").val();
+                        var designManagersVal = $("#design-managers").val();
                         var queueVal = $("#queue").val();
                         var tierVal = $("#tier").val();
                         var subjectVal = $("#subject").val();
@@ -2138,7 +2138,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
                         // Data to send to Table
                         var write = [[
                             "", // 0 - Priority
-                            artistLeadVal, // 1 - Artist Lead
+                            designManagersVal, // 1 - Design Manager
                             queueVal, // 2 - Queue
                             tierVal, // 3 - Tier
                             subjectVal, // 4 - Subject
@@ -4957,6 +4957,12 @@ async function onTableSelectionChangedEvents(eventArgs) {
                     rowRangeSorted.format.font.bold = false;
                 };
 
+                if (rowInfoSorted.status.value == "Waiting On Info") {
+                    rowRangeSorted.format.fill.clear()
+                    rowRangeSorted.format.font.color = "#757171";
+                    rowRangeSorted.format.font.bold = false;
+                };
+
 
                 //#region ADD INVALID HIGHLIGHTING IF INVALID ------------------------------------------------------------------------------------
 
@@ -5227,7 +5233,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
                         onHoldTable.push(leTableSorted[i]);
                         leTableSorted.splice(i, 1);
                         i = i - 1;
-                    } else if (leTableSorted[i][statusColumnIndex] == "At Client" || leTableSorted[i][statusColumnIndex] == "In Review") { //removes awaiting changes requests from table and puts them in an awaiting changes table to be added back in after sorting
+                    } else if (leTableSorted[i][statusColumnIndex] == "At Client" || leTableSorted[i][statusColumnIndex] == "In Review" || leTableSorted[i][statusColumnIndex] == "Waiting On Info") { //removes awaiting changes requests from table and puts them in an awaiting changes table to be added back in after sorting
                         awaitingChangesTable.push(leTableSorted[i]);
                         leTableSorted.splice(i, 1);
                         i = i - 1;
@@ -5450,8 +5456,8 @@ async function onTableSelectionChangedEvents(eventArgs) {
             var codedHeader;
             if (name == "Priority") {
                 codedHeader = "priority";
-            } else if (name == "Artist Lead") {
-                codedHeader = "artistLead";
+            } else if (name == "Design Manager") {
+                codedHeader = "designManager";
             } else if (name == "Queue") {
                 codedHeader = "queue";
             } else if (name == "Tier") {
