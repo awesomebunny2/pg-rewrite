@@ -2037,7 +2037,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
         $("#clear").on("click", function() {
 
-            $("#subject, #client, #location, #product, #code, #project-type, #csm, #print-date, #group, #artist-lead, #queue, #tier, #tags, #start-override, #work-override", "#notes").val(""); // Empty all inputs
+            $("#subject, #client, #location, #product, #code, #project-type, #csm, #print-date, #group, #artist-lead, #queue, #tier, #tags, #start-override, #work-override, #notes").val(""); // Empty all inputs
             removeWarningClass("#subject", "#warning1");
             removeWarningClass("#client", "#warning2");
             removeWarningClass("#product", "#warning3");
