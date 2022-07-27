@@ -1228,7 +1228,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
         //     console.log("onSelectionHandler for the previous sheet was removed.")
         // };
 
-        console.log("Source of the onTableSelectionChanged event: " + eventArgs.source);
+        //console.log("Source of the onTableSelectionChanged event: " + eventArgs.source);
 
 
         //console.log("Running onTableSelectionChangedEvents!");
@@ -1237,16 +1237,25 @@ async function onTableSelectionChangedEvents(eventArgs) {
         //     return;
         // };
 
+        var theActiveWorksheet = context.workbook.worksheets.getItem(eventArgs.worksheetId);
+        var activeWorksheetTables = theActiveWorksheet.tables.load("items/count");
+
+        var currentRange = theActiveWorksheet.getRange(eventArgs.address);
+        var currentRow = currentRange.getRow();
+
+
 
 
         //context.runtime.load("enableEvents");
 
         await context.sync();
 
+        var activeWorksheetTablesCount = activeWorksheetTables.count;
+
         // context.runtime.enableEvents = false;
         // console.log("Events: OFF - Occured in onTableSelectionChangedEvents");
 
-        if (previousSelectionObj.tableId !== "") {
+        if (previousSelectionObj.tableId !== "") { //if user has made a selection prior to the current selection without triggering a reload, the previousSelectionObj should have arguments that will bring the user into this function to load in variables to handle the previous row highlighting
             //var previousTableId = eventArgs.tableId; // Table we came from
 
             var previousTable = context.workbook.tables.getItem(previousSelectionObj.tableId);
@@ -1272,7 +1281,17 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
         await context.sync();
 
-        if (previousTable !== undefined) {
+        // for (var b = 0; b < activeWorksheetTablesCount; b++) {
+        //     var oneOfTheTables = activeWorksheetTables.getItemAt(b).load("name/worksheet");
+        //     var tableHeader = oneOfTheTables.getHeaderRowRange().load("address/values");
+
+        //     await context.sync();
+
+        //     var headerAddress = tableHeader.address;
+        //     var selectionAddress = eventArgs.address;
+        // }
+
+        if (previousTable !== undefined) { //if previousTable is undefined, then the last function never fired, meaning that thsi is the first time the user is selecting anything this run. Since there are no previous selection variables stored, we skip this function. 
 
             var previousTableName = previousTable.name
 
@@ -1320,14 +1339,19 @@ async function onTableSelectionChangedEvents(eventArgs) {
         };
 
         //adds formatting to current row
-        if (eventArgs.address !== "") {
+        if (eventArgs.address !== "") { //if the selection address is not a part of a table, this function is skipped
 
             //applies border to selected row
             var rI = range.rowIndex;
 
-            var bees = selectedTableRows.getItemAt(rI - 1).getRange();
-            bees.load(["format/*", "format/fill", "format/borders", "format/font"]);
-            bees.load("address");
+            if (rI == 0) {
+                //previousTable = undefined;
+                console.log("Selection is in the header row, so no formatting was applied")
+            } else {
+                var bees = selectedTableRows.getItemAt(rI - 1).getRange();
+                bees.load(["format/*", "format/fill", "format/borders", "format/font"]);
+                bees.load("address");
+            };
 
             await context.sync();
 
@@ -1357,16 +1381,19 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
             };
 
-            bees.format.fill.color = "#F5D9FF";
-            bees.format.font.color = "black";
+            if (rI !== 0) {
+                bees.format.fill.color = "#F5D9FF";
+                bees.format.font.color = "black";
+    
+                previousSelectionObj.tableId = eventArgs.tableId;
+    
+                previousSelectionObj.address = eventArgs.address;
+    
+                previousSelectionObj.rowIndex = rI;
+            };
 
-            previousSelectionObj.tableId = eventArgs.tableId;
 
-            previousSelectionObj.address = eventArgs.address;
-
-            previousSelectionObj.rowIndex = rI;
-
-        } else {
+        } else { //if the selection address is not a part of a table AND there is a previous selection still highlighted...
 
             if (previousTable !== undefined) {
 
@@ -2010,7 +2037,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
         $("#clear").on("click", function() {
 
-            $("#subject, #client, #location, #product, #code, #project-type, #csm, #print-date, #group, #artist-lead, #queue, #tier, #tags, #start-override, #work-override").val(""); // Empty all inputs
+            $("#subject, #client, #location, #product, #code, #project-type, #csm, #print-date, #group, #artist-lead, #queue, #tier, #tags, #start-override, #work-override", "#notes").val(""); // Empty all inputs
             removeWarningClass("#subject", "#warning1");
             removeWarningClass("#client", "#warning2");
             removeWarningClass("#product", "#warning3");
@@ -2101,6 +2128,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
                         var codeVal = $("#code").val();
                         var startOverrideVal = $("#start-override").val();
                         var workOverrideVal = $("#work-override").val();
+                        var notes = $("#notes").val();
 
                     //#endregion --------------------------------------------------------------------------------------------------------------
 
@@ -2129,7 +2157,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
                             "", // 17 - Status
                             codeVal, // 18 - Code
                             "", // 19 - Artist
-                            "", // 20 - Notes
+                            notes, // 20 - Notes
                             startOverrideVal, // 21 - Start Override
                             workOverrideVal // 22 - Work Override
                         ]];
@@ -4803,34 +4831,46 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
                         rowRangeSorted.format.font.color = "#C00000";
                         rowRangeSorted.format.font.bold = true;
+                        printDateAddress.format.horizontalAlignment = "center";
+                        groupAddress.format.horizontalAlignment = "center";
 
                     } else if (((printDate - 1) == currentDateAbsolute)) { //if current date is the day before print date
 
                         rowRangeSorted.format.font.color = "#C00000";
                         rowRangeSorted.format.font.bold = true;
+                        printDateAddress.format.horizontalAlignment = "center";
+                        groupAddress.format.horizontalAlignment = "center";
 
                     } else if (((printDate - 6) <= currentDateAbsolute) && ((printDate - 2) >= currentDateAbsolute)) { //if current date is in the same group lock week as print date (between 7-2 days before)
 
                         rowRangeSorted.format.font.color = "#C00000";
                         rowRangeSorted.format.font.bold = true;
-
+                        printDateAddress.format.horizontalAlignment = "center";
+                        groupAddress.format.horizontalAlignment = "center";
+                        
                     } else if (((printDate - 13) <= currentDateAbsolute) && ((printDate - 7) >= currentDateAbsolute)) { //if current date is in the week before group lock week (between 8-14 days before)
 
                         rowRangeSorted.format.font.color = "70AD47";
                         rowRangeSorted.format.font.bold = true;
-
+                        printDateAddress.format.horizontalAlignment = "center";
+                        groupAddress.format.horizontalAlignment = "center";
+                        
                     } else if ((printDate < currentDateAbsolute) && (printDate !== 0)) { //if current date is after print date
 
                         rowRangeSorted.format.fill.color = "black";
                         rowRangeSorted.format.font.color = "white";
                         rowRangeSorted.format.font.bold = true;
-
+                        printDateAddress.format.horizontalAlignment = "center";
+                        groupAddress.format.horizontalAlignment = "center";
+                        
                     } else { //set cell formatting to normal
 
                         rowRangeSorted.format.fill.clear();
                         rowRangeSorted.format.font.color = "black";
                         rowRangeSorted.format.font.bold = false;
-
+                        printDateAddress.format.horizontalAlignment = "center";
+                        groupAddress.format.horizontalAlignment = "center";
+                        
                     };
 
                 //#endregion ---------------------------------------------------------------------------------------------------------------------
@@ -4840,6 +4880,9 @@ async function onTableSelectionChangedEvents(eventArgs) {
                     rowRangeSorted.format.fill.clear();
                     rowRangeSorted.format.font.color = "black";
                     rowRangeSorted.format.font.bold = false;
+                    printDateAddress.format.horizontalAlignment = "center";
+                    groupAddress.format.horizontalAlignment = "center";
+                    
                 };
 
                 if (rowInfoSorted.status.value == "Working") {
@@ -4847,7 +4890,9 @@ async function onTableSelectionChangedEvents(eventArgs) {
                     rowRangeSorted.format.fill.color = "#FFE699";
                     rowRangeSorted.format.font.color = "#9C5700";
                     rowRangeSorted.format.font.bold = true;
-
+                    printDateAddress.format.horizontalAlignment = "center";
+                    groupAddress.format.horizontalAlignment = "center";
+                    
                 };
 
                 if ((printDate < currentDateAbsolute) && (printDate !== 0)) { //if current date is after print date
@@ -4855,7 +4900,9 @@ async function onTableSelectionChangedEvents(eventArgs) {
                     rowRangeSorted.format.fill.color = "black";
                     rowRangeSorted.format.font.color = "white";
                     rowRangeSorted.format.font.bold = true;
-
+                    printDateAddress.format.horizontalAlignment = "center";
+                    groupAddress.format.horizontalAlignment = "center";
+                    
                 };
 
                 //#region OVERDUE HIGHLIGHTING ---------------------------------------------------------------------------------------------------
