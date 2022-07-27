@@ -3341,6 +3341,11 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
                 console.log("Source of the onTableChanged event: " + eventArgs.source);
 
+                if (eventArgs.source == "Remote") {
+                    console.log("Content was changed by a remote user, exiting onTableChanged Event");
+                    return;
+                }
+
 
                 //console.log("Running onTableChanged!");
 
