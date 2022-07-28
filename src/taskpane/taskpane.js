@@ -406,7 +406,6 @@ $(() => {
                                     projectTypeIDData[row[0].trim()] = {
                                         "projectType":row[0].trim(),
                                         "projectTypeCode":row[1].trim(),
-                                        "tier":row[2].trim()
                                     };
                                 };
 
