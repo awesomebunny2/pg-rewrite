@@ -111,6 +111,7 @@ $(() => {
     var changeEvent;
     var selectionEvent;
     var snailPoop = {};
+    var designManagersData = {};
 
     var rowIndexPostSort;
 
@@ -248,6 +249,7 @@ $(() => {
                         var changesDataTable = sheet.tables.getItem("ChangesData");
                         var changesIDTable = sheet.tables.getItem("ChangesIDTable");
                         var groupPrintDateRefTable = sheet.tables.getItem("dateTable");
+                        var designManagersTable = sheet.tables.getItem("DesignManagersTable");
                         var activeSheet = context.workbook.worksheets.getActiveWorksheet().load("worksheetId");
                         //activeSheet.onChanged.add(handleChange);
                         // context.runtime.load("enableEvents");
@@ -324,6 +326,7 @@ $(() => {
                         var officeHoursBodyRange = officeHoursTable.getDataBodyRange().load("values");
                         var changesDataBodyRange = changesDataTable.getDataBodyRange().load("values");
                         var changesIDBodyRange = changesIDTable.getDataBodyRange().load("values");
+                        var designManagersBodyRange = designManagersTable.getDataBodyRange().load("values");
                         var groupPrintDateRefRange = groupPrintDateRefTable.getDataBodyRange().load("values");
 
 
@@ -406,6 +409,18 @@ $(() => {
 
                             //#endregion -----------------------------------------------------------------------------
 
+                            //#region DESIGN MANAGERS DATA -----------------------------------------------------------
+
+                                var designManagersArr = designManagersBodyRange.values;
+
+                                for (var row of designManagersArr) {
+                                    designManagersData[row[0].trim()] = {
+                                        "designManager":row[0],
+                                        "worksheetTabColor":row[1]
+                                    };
+                                };
+
+                            //#endregion -----------------------------------------------------------------------------
 
                             //#region PICKED UP TURN AROUND TIME DATA ------------------------------------------------
 
@@ -2098,6 +2113,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
                     //#region LOAD VALUES ------------------------------------------------------------------------------------------------------
 
                         var sheet = context.workbook.worksheets.getActiveWorksheet().load("name");
+                        sheet.load("tabColor");
                         //updating this variable to work for the changedTable will not work since the taskpane doesn't trigger an onchanged event until afterward
                         var sheetTable = sheet.tables.getItemAt(0).load("name"); //this is fine since the user will only ever be adding new projects to the unassigned table or the artist tables, which are all the first tables in their documents.
                         sheetTable.rows.add(null);
@@ -2215,6 +2231,24 @@ async function onTableSelectionChangedEvents(eventArgs) {
                     var leArtist = artistAutofill(tableName, leSheetName);
 
                     write[0][tableRowInfo.artist.columnIndex] = leArtist;
+
+                    if ((designManagersVal == "" || designManagersVal == null) && (sheet.name !== "Unassigned Projects") && (sheet.name !== "Validation")) {
+                        
+                        var sheetTabColor = sheet.tabColor;
+
+                        var theDesignManager = "";
+
+                        if (sheetTabColor == designManagersData.Emily.worksheetTabColor) {
+                            theDesignManager = "Emily";
+                        } else if (sheetTabColor == designManagersData.Peter.worksheetTabColor) {
+                            theDesignManager = "Peter";
+                        } else if (sheetTabColor == designManagersData.Luke.worksheetTabColor) {
+                            theDesignManager = "Luke";
+                        };
+
+                        write[0][tableRowInfo.designManager.columnIndex] = theDesignManager;
+
+                    };
 
 
                     //#region GENERATE PICKED UP / TURN AROUND TIME VALUE -----------------------------------------------------------------
