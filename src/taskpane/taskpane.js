@@ -103,6 +103,7 @@ $(() => {
     var proofToClientData = {};
     var creativeProofData = {};
     var officeHoursData = {};
+    var tierLevelData = {};
     var changesData = {};
     var changesIDData = {};
     var printDateRefData = {};
@@ -244,6 +245,7 @@ $(() => {
                         var projectTypeIDTable = sheet.tables.getItem("ProjectTypeIDTable")
                         var pickedUpValTable = sheet.tables.getItem("PickupTurnaroundTime");
                         var proofToClientValTable = sheet.tables.getItem("ArtTurnaroundTime");
+                        var tierLevelValTable = sheet.tables.getItem("TierLevelTable");
                         var creativeProofTable = sheet.tables.getItem("CreativeProofAdjust");
                         var officeHoursTable = sheet.tables.getItem("OfficeHours");
                         var changesDataTable = sheet.tables.getItem("ChangesData");
@@ -322,6 +324,7 @@ $(() => {
                         var projectTypeIDBodyRange = projectTypeIDTable.getDataBodyRange().load("values");
                         var pickedUpBodyRange = pickedUpValTable.getDataBodyRange().load("values");
                         var proofToClientBodyRange = proofToClientValTable.getDataBodyRange().load("values");
+                        var tierLevelBodyRange = tierLevelValTable.getDataBodyRange().load("values");
                         var creativeProofBodyRange = creativeProofTable.getDataBodyRange().load("values");
                         var officeHoursBodyRange = officeHoursTable.getDataBodyRange().load("values");
                         var changesDataBodyRange = changesDataTable.getDataBodyRange().load("values");
@@ -389,6 +392,7 @@ $(() => {
                                     };
                                 };
 
+                                // console.log("The productIDData is:");
                                 // console.log(productIDData);
 
                             //#endregion -----------------------------------------------------------------------------
@@ -402,6 +406,7 @@ $(() => {
                                     projectTypeIDData[row[0].trim()] = {
                                         "projectType":row[0].trim(),
                                         "projectTypeCode":row[1].trim(),
+                                        "tier":row[2].trim()
                                     };
                                 };
 
@@ -464,6 +469,26 @@ $(() => {
                                 };
 
                                 //console.log(proofToClientData);
+
+                            //#endregion ------------------------------------------------------------------------------
+
+
+                            //#region TIER LEVEL DATA ------------------------------------------------
+
+                                var tierLevelArr = tierLevelBodyRange.values;
+
+                                for (var row of tierLevelArr) {
+                                    tierLevelData[row[0].trim()] = {
+                                    "brandNewBuild":row[1],
+                                    "brandNewBuildFromNatives":row[2],
+                                    "brandNewBuildFromTemplate":row[3],
+                                    "changesToExistingNatives":row[4],
+                                    "specCheck":row[5],
+                                    "weTransferUpload":row[6],
+                                    "specialRequest":row[7],
+                                    "other":row[8]
+                                    };
+                                };
 
                             //#endregion ------------------------------------------------------------------------------
 
@@ -1911,6 +1936,8 @@ async function onTableSelectionChangedEvents(eventArgs) {
                         var theCode = splitCodes[0].trim();
 
                         try {
+                            console.log("The productIDData is:");
+                            console.log(productIDData);
                             // var snailFace = productIDData["MENU"].productID;
                             var match = productIDData[theProduct].productID;
                             var updatedProduct = productIDData[theProduct].relativeProduct;
@@ -2233,7 +2260,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
                     write[0][tableRowInfo.artist.columnIndex] = leArtist;
 
                     if ((designManagersVal == "" || designManagersVal == null) && (sheet.name !== "Unassigned Projects") && (sheet.name !== "Validation")) {
-                        
+
                         var sheetTabColor = sheet.tabColor;
 
                         var theDesignManager = "";
@@ -2250,11 +2277,16 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
                     };
 
+                    //get the Project Type Coded variable from the Project Type ID Data based on the returned Project Type from the taskpane
+                    var theProjectTypeCode = projectTypeIDData[projectTypeVal].projectTypeCode;
+
+                    if((tierVal == "" || tierVal == null) && (sheet.name !== "Validation")) {
+                        var defaultTier = tierLevelData[productVal][theProjectTypeCode];
+                        write[0][tableRowInfo.tier.columnIndex] = defaultTier;
+                    };
+
 
                     //#region GENERATE PICKED UP / TURN AROUND TIME VALUE -----------------------------------------------------------------
-
-                        //get the Project Type Coded variable from the Project Type ID Data based on the returned Project Type from the taskpane
-                        var theProjectTypeCode = projectTypeIDData[projectTypeVal].projectTypeCode;
 
                         //returns turn around time value from the PickedUp Turn Around Time table based on the product and project type values
                         var pickedUpTurnAroundTime = pickupData[productVal][theProjectTypeCode];
