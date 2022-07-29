@@ -3428,8 +3428,53 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
         async function onTableChanged(eventArgs) {
 
-            // console.log("This is the onTableChanged eventArgs");
-            // console.log(eventArgs);
+            console.log("This is the onTableChanged eventArgs");
+            console.log(eventArgs);
+
+            if (eventArgs.changeType == "RowInserted") {
+                handleIllegalInsert(eventArgs);
+            };
+
+            async function handleIllegalInsert(eventArgs) {
+
+                await Excel.run(async (context) => {
+
+                    var changedWorksheet = context.workbook.worksheets.getItem(eventArgs.worksheetId).load("name");
+
+                    var changedTable = context.workbook.tables.getItem(eventArgs.tableId).load("name"); //Returns tableId of the table where the event occured
+
+                    var changedTableRows = changedTable.rows;
+
+                    var changedAddress = changedWorksheet.getRange(eventArgs.address);
+                    changedAddress.load("columnIndex");
+                    changedAddress.load("rowIndex");
+
+                    await context.sync();
+
+                    var changedRowIndex = changedAddress.rowIndex; //index of the row where the change was made (on a worksheet level)
+
+                    if (eventArgs.changeType == "RowDeleted") {
+                        var changedRowTableIndex = 0;
+                    } else {
+                        var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
+                    };
+
+                    var rowRange = changedTableRows.getItemAt(changedRowTableIndex).getRange();
+
+                    if (eventArgs.changeType == "RowInserted") {
+                        console.log("tsk tsk tsk...Don't forget the 7th commandment of the Art Queue Add-In:");
+                        console.log('"Thou shalt submit all requests to thy own sheet by means of the Add A Project taskpane. Manually adding rows of info to thyn sheet is forbidden."');
+                        console.log("It's a simple mistake, but make sure not to do it again.");
+                        rowRange.delete("Up");
+                        // eventsOn();
+                        // console.log("Events: ON  →  triggered after a row was manually inserted into the sheet by the user, followed by the swift removal of said row and a slap on the wrist.");
+                        return;
+                    };
+
+                });
+
+            };
+
 
             await Excel.run(async (context) => {
 
@@ -3451,6 +3496,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
                     var address = eventArgs.address;
                     var changeType = eventArgs.changeType;
                     //console.log(changeType);
+
 
                     var allWorksheets = context.workbook.worksheets;
                     allWorksheets.load("items/name/tables/id");
@@ -3688,6 +3734,28 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
                 await context.sync();
 
+                // var changedColumnIndexOG = changedAddress.columnIndex; //index of the column where the change was made (on a worksheet level)
+                // var changedRowIndex = changedAddress.rowIndex; //index of the row where the change was made (on a worksheet level)
+
+                // if (changeType == "RowDeleted") {
+                //     var changedRowTableIndex = 0;
+                // } else {
+                //     var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
+                // };
+
+                // var myRow = changedTableRows.getItemAt(changedRowTableIndex); //loads the changed row in the changed table as an object
+                // var rowRange = changedTableRows.getItemAt(changedRowTableIndex).getRange();
+
+                // if (changeType == "RowInserted") {
+                //     console.log("tsk tsk tsk...Don't forget the 7th commandment of the Art Queue Add-In:");
+                //     console.log('"Thou shalt submit all requests to thy own sheet by means of the Add A Project taskpane. Manually adding rows of info to thyn sheet is forbidden."');
+                //     console.log("It's a simple mistake, but make sure not to do it again.");
+                //     rowRange.delete("Up");
+                //     // eventsOn();
+                //     // console.log("Events: ON  →  triggered after a row was manually inserted into the sheet by the user, followed by the swift removal of said row and a slap on the wrist.");
+                //     return;
+                // };
+
                 context.runtime.enableEvents = false;
                 console.log("Events: OFF - Occured in onTableChanged!");
 
@@ -3780,6 +3848,16 @@ async function onTableSelectionChangedEvents(eventArgs) {
                                 //console.log("I am a fart"); //hehe
 
                             //#endregion ------------------------------------------------------------------------------------------------------------
+
+                            if (changeType == "RowInserted") {
+                                console.log("tsk tsk tsk...Don't forget the 7th commandment of the Art Queue Add-In:");
+                                console.log('"Thou shalt submit all requests to thy own sheet by means of the Add A Project taskpane. Manually adding rows of info to thyn sheet is forbidden."');
+                                console.log("It's a simple mistake, but make sure not to do it again.");
+                                rowRange.delete("Up");
+                                // eventsOn();
+                                // console.log("Events: ON  →  triggered after a row was manually inserted into the sheet by the user, followed by the swift removal of said row and a slap on the wrist.");
+                                return;
+                            };
 
                             //#region FINDS IF CHANGE WAS MADE TO THE UNASSIGNED PROJECTS TABLE OR NOT ----------------------------------------
 
@@ -4796,7 +4874,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
                 showMessage(err, "show");
                 context.runtime.enableEvents = true;
             });
-
+            return;
             // eventsOn(); //turns events back on
             // console.log("Events: ON  →  turned on at the end of the onTableChanged Function!");
 
@@ -5083,6 +5161,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
     function showFisshGif() {
         $("#fissh-gif").css("display", "flex");
+        console.log(":O");   //  your code here
         setTimeout(hideFisshGif, 2000);
     };
 
