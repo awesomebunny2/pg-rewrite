@@ -3428,13 +3428,6 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
         async function onTableChanged(eventArgs) {
 
-            console.log("This is the onTableChanged eventArgs");
-            console.log(eventArgs);
-
-            if (eventArgs.changeType == "RowInserted") {
-                handleIllegalInsert(eventArgs);
-            };
-
             async function handleIllegalInsert(eventArgs) {
 
                 await Excel.run(async (context) => {
