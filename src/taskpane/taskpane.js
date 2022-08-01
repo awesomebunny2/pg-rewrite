@@ -4604,9 +4604,9 @@ async function onTableSelectionChangedEvents(eventArgs) {
                                                 } else if (rowInfo.artist.value == "Joe") {
                                                     var destinationStation = joeRange;
                                                 } else if (rowInfo.artist.value == "Sarah") {
-                                                    var destinationStation = peterRange;
+                                                    var destinationStation = sarahRange;
                                                 } else if (rowInfo.artist.value == "Michael") {
-                                                    var destinationStation = peterRange;
+                                                    var destinationStation = michaelRange;
                                                 } else if (rowInfo.artist.value == "Danny") {
                                                     var destinationStation = dannyRange;
                                                 } else if (rowInfo.artist.value == "Josh") {
