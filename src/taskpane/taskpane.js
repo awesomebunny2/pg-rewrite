@@ -3428,52 +3428,52 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
         async function onTableChanged(eventArgs) {
 
-            // console.log("This is the onTableChanged eventArgs");
-            // console.log(eventArgs);
+            console.log("This is the onTableChanged eventArgs");
+            console.log(eventArgs);
 
-            // if (eventArgs.changeType == "RowInserted") {
-            //     handleIllegalInsert(eventArgs);
-            // };
+            if (eventArgs.changeType == "RowInserted") {
+                handleIllegalInsert(eventArgs);
+            };
 
-            // async function handleIllegalInsert(eventArgs) {
+            async function handleIllegalInsert(eventArgs) {
 
-            //     await Excel.run(async (context) => {
+                await Excel.run(async (context) => {
 
-            //         var changedWorksheet = context.workbook.worksheets.getItem(eventArgs.worksheetId).load("name");
+                    var changedWorksheet = context.workbook.worksheets.getItem(eventArgs.worksheetId).load("name");
 
-            //         var changedTable = context.workbook.tables.getItem(eventArgs.tableId).load("name"); //Returns tableId of the table where the event occured
+                    var changedTable = context.workbook.tables.getItem(eventArgs.tableId).load("name"); //Returns tableId of the table where the event occured
 
-            //         var changedTableRows = changedTable.rows;
+                    var changedTableRows = changedTable.rows;
 
-            //         var changedAddress = changedWorksheet.getRange(eventArgs.address);
-            //         changedAddress.load("columnIndex");
-            //         changedAddress.load("rowIndex");
+                    var changedAddress = changedWorksheet.getRange(eventArgs.address);
+                    changedAddress.load("columnIndex");
+                    changedAddress.load("rowIndex");
 
-            //         await context.sync();
+                    await context.sync();
 
-            //         var changedRowIndex = changedAddress.rowIndex; //index of the row where the change was made (on a worksheet level)
+                    var changedRowIndex = changedAddress.rowIndex; //index of the row where the change was made (on a worksheet level)
 
-            //         if (eventArgs.changeType == "RowDeleted") {
-            //             var changedRowTableIndex = 0;
-            //         } else {
-            //             var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
-            //         };
+                    if (eventArgs.changeType == "RowDeleted") {
+                        var changedRowTableIndex = 0;
+                    } else {
+                        var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
+                    };
 
-            //         var rowRange = changedTableRows.getItemAt(changedRowTableIndex).getRange();
+                    var rowRange = changedTableRows.getItemAt(changedRowTableIndex).getRange();
 
-            //         if (eventArgs.changeType == "RowInserted") {
-            //             console.log("tsk tsk tsk...Don't forget the 7th commandment of the Art Queue Add-In:");
-            //             console.log('"Thou shalt submit all requests to thy own sheet by means of the Add A Project taskpane. Manually adding rows of info to thyn sheet is forbidden."');
-            //             console.log("It's a simple mistake, but make sure not to do it again.");
-            //             rowRange.delete("Up");
-            //             // eventsOn();
-            //             // console.log("Events: ON  →  triggered after a row was manually inserted into the sheet by the user, followed by the swift removal of said row and a slap on the wrist.");
-            //             return;
-            //         };
+                    if (eventArgs.changeType == "RowInserted") {
+                        console.log("tsk tsk tsk...Don't forget the 7th commandment of the Art Queue Add-In:");
+                        console.log('"Thou shalt submit all requests to thy own sheet by means of the Add A Project taskpane. Manually adding rows of info to thyn sheet is forbidden."');
+                        console.log("It's a simple mistake, but make sure not to do it again.");
+                        rowRange.delete("Up");
+                        // eventsOn();
+                        // console.log("Events: ON  →  triggered after a row was manually inserted into the sheet by the user, followed by the swift removal of said row and a slap on the wrist.");
+                        return;
+                    };
 
-            //     });
+                });
 
-            // };
+            };
 
 
             await Excel.run(async (context) => {
