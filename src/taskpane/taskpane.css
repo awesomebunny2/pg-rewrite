@@ -606,3 +606,23 @@ $dark:#222; */
     vertical-align: middle;
     align-items: center;
 }
+
+/* #dennis {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background-color: rgba(0,0,0,.7);
+    z-index: 1000;
+} */
+
+#dennis {
+    background-image: "assets/dennis-sprite.png";
+    width: 250px;
+    height: 188px;
+    animation: anim 1.0s steps(10) infinite;
+};
+@keyframes dennis {
+    100% { background-position: -2500px; }
+};
