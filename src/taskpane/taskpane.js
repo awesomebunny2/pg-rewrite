@@ -3428,6 +3428,11 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
         async function onTableChanged(eventArgs) {
 
+            if (eventArgs.changeType == "RowInserted") {
+                handleIllegalInsert(eventArgs);
+                return;
+            }
+
             async function handleIllegalInsert(eventArgs) {
 
                 await Excel.run(async (context) => {
@@ -3456,7 +3461,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
                     if (eventArgs.changeType == "RowInserted") {
                         console.log("tsk tsk tsk...Don't forget the 7th commandment of the Art Queue Add-In:");
-                        console.log('"Thou shalt submit all requests to thy own sheet by means of the Add A Project taskpane. Manually adding rows of info to thyn sheet is forbidden."');
+                        console.log('"Thou shalt submit all requests to thy own sheet by means of the Add A Project taskpane. Manually adding rows of info to thyn sheet beith forbidden."');
                         console.log("It's a simple mistake, but make sure not to do it again.");
                         rowRange.delete("Up");
                         // eventsOn();
