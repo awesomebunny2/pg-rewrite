@@ -3893,6 +3893,8 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
                         console.log("RowPeepee");
 
+                        var leCheese = bodyRange.values;
+
 
                         if (changedTable.id == unassignedTable.id) {
                             leTable = leSorting(rowInfo, leTable, pickedUpColumnIndex, rowValues[0]);
@@ -3901,9 +3903,20 @@ async function onTableSelectionChangedEvents(eventArgs) {
                             leTable = leSorting(rowInfo, leTable, proofToClientColumnIndex, rowValues[0]);
                         };
 
+                        bodyRange.values = leTable;
+
+                        await context.sync();
+
+                        var newChangedTableRows = changedTable.rows;
+                        newChangedTableRows.load("items");
+
+                        await context.sync();
+
+                        var tableRows = changedTableRows.items; //loads all the changed table's rows
+
                         for (var m = 0; m < leTable.length; m++) {
 
-                            var rowRangeSorted = changedTableRows.getItemAt(m).getRange();
+                            var rowRangeSorted = newChangedTableRows.getItemAt(m).getRange();
 
                             var rowValuesSorted = tableRows[m].values;
 
@@ -3917,7 +3930,6 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
                         };
 
-
                         //conditionalFormatting(rowInfo, tableStart, changedWorksheet, changedRowTableIndex, completedTableChanged, rowRange, completedTable);
                         eventsOn();
                         console.log("Events: ON  →  turned on after a row was deleted within the onTableChanged function!");
@@ -3925,6 +3937,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
                         return;
 
                     };
+
 
                     if ((changedColumnIndex == rowInfo.printDate.columnIndex) || (changedColumnIndex == rowInfo.group.columnIndex)) {
 
