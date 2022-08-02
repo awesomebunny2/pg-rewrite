@@ -473,20 +473,56 @@ select {
 }
 
 #na-ah-ah-text {
-    margin: 10px;
+    /* margin: 10px; */
+    /* background-color:rgba(37, 18, 18, 0.245); */
+    padding: 10px;
+    font-size: 11pt;
+    /* font-style: italic; */
+    text-align: center;
+    margin-top: 0px;
+    margin-bottom: 5px;
+
+    font-weight: bold;
 }
 
 #na-ah-ah-buttons {
-    margin-top: 30px;
+    /* margin-top: 30px;
     text-align: center;
-    width: 100%;
+    width: 100%; */
+
+    text-align: center;
+    /* min-height: 50px; */
+    width: 85%;
+    margin-top: 5px;
+
 }
 
 .gotcha {
-    min-height: 30px;
+    /* min-height: 30px;
     min-width: 15%;
     margin-right: 8%;
-    margin-left: 8%;
+    margin-left: 8%; */
+    min-height: 30px;
+    min-width: 100px;
+    background-color: #022A42;
+    border-radius: 15px;
+    border: solid;
+    color: #f4f4f4;
+    font-family: "HelveticaNeue-Thin", "Helvetica Neue Thin", "Helvetica Neue";
+    font-size: 12pt;
+    font-weight: bold;
+    padding: 10px;
+    width: 95%;
+}
+
+.gotcha:hover {
+    background-color: #67ACE6;
+}
+
+.gotcha:active:hover {
+    background-color: #014671;
+    transform: scale(0.95);
+    width: 95%;
 }
 
 #fissh-img {
