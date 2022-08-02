@@ -33,6 +33,10 @@ $(() => {
 
     });
 
+    $(".gotcha").on("click", function() {
+        showElement("#na-ah-ah", "hide");
+    });
+
     //console.log("Hi");
 
     // function showMessage(msg, showHide) {
@@ -148,6 +152,8 @@ $(() => {
     var activatedWorksheet;
 
     var valPassword = "fissh";
+
+    var dennisHere = false;
 
     //var activatedTables;
 
@@ -3490,6 +3496,13 @@ async function onTableSelectionChangedEvents(eventArgs) {
                     return;
                 }
 
+                if (eventArgs.changeType == "RowInserted") {
+                    handleIllegalInsert(eventArgs);
+                    dennisHere = true;
+                    showDennis();
+                    return;
+                }
+
 
                 //console.log("Running onTableChanged!");
 
@@ -3500,11 +3513,11 @@ async function onTableSelectionChangedEvents(eventArgs) {
                 context.runtime.enableEvents = false;
                 console.log("Events: OFF - Occured in onTableChanged!");
 
-                if (eventArgs.changeType == "RowInserted") {
-                    handleIllegalInsert(eventArgs);
-                    showDennis();
-                    return;
-                }
+                // if (eventArgs.changeType == "RowInserted") {
+                //     handleIllegalInsert(eventArgs);
+                //     showDennis();
+                //     return;
+                // }
     
                 async function handleIllegalInsert(eventArgs) {
     
@@ -4942,6 +4955,9 @@ async function onTableSelectionChangedEvents(eventArgs) {
                     console.log("Events: ON  →  turned on at the end of the onTableChanged Function!");
 
             }).catch (err => {
+                if (dennisHere == true) {
+                    return;
+                };
                 console.log(err) // <--- does this log?
                 showMessage(err, "show");
                 context.runtime.enableEvents = true;
@@ -5241,6 +5257,32 @@ async function onTableSelectionChangedEvents(eventArgs) {
         $("#fissh-gif").css("display", "none");
     };
 
+
+    // Todd Adjustments
+    function showDennis() {
+        $("#dennis").css("display", "flex");
+        console.log("Na-Ah-Ah!");
+        var naAhAh = new Audio("assets/dennis-mock.mp3");
+        naAhAh.play();
+
+        $("#dennis").append(`
+            <img id="dennis-gif" src="/assets/dennis-crop.gif" />
+        `);
+
+
+        // Wait 1.5 seconds, hide Dennis
+        setTimeout(() => {
+          $("#dennis").css("display", "none");
+          $("#dennis-gif").remove();
+          $("#na-ah-ah").css("display", "flex");
+        }, 1500);
+
+        return;
+
+    };
+
+
+
     // function showDennis() {
     //     $("#dennis").css("display", "flex");
     //     console.log("Na-Ah-Ah!");
@@ -5253,34 +5295,31 @@ async function onTableSelectionChangedEvents(eventArgs) {
     //     $("#dennis").css("display", "none");
     // };
 
-    function showDennis() {
-        $("#dennis").css("display", "flex");
-        console.log("Na-Ah-Ah!");
-        appendImage("/assets/dennis-crop.gif", "#dennis", "#dennis-gif");
-        var naAhAh = new Audio("assets/dennis-mock.mp3");
-        naAhAh.play();
-        setTimeout(removeImage, 2000, "#dennis-gif");
-    };
 
-    function hideDennis() {
-        $("#dennis").css("display", "none");
-    };
 
-    function appendImage(imageSource, Id, imageId) {
-        var fartsss = document.getElementById("#dennis");
-        var img = document.createElement("IMG");
-        img.src = imageSource;
-        img.setAttribute('id', imageId);
-        document.getElementById(Id).appendChild(img);
-        // return imageId;
-    };
+    // function showDennis() {
+    //     $("#dennis").css("display", "flex");
+    //     console.log("Na-Ah-Ah!");
+    //     appendImage("/assets/dennis-crop.gif", "#dennis", "#dennis-gif");
+    //     var naAhAh = new Audio("assets/dennis-mock.mp3");
+    //     naAhAh.play();
+    //     setTimeout(removeImage, 2000, "#dennis-gif");
+    // };
 
-    // src="/assets/dennis-crop.gif"
+    // function appendImage(imageSource, Id, imageId) {
+    //     var fartsss = document.getElementById("#dennis");
+    //     var img = document.createElement("IMG");
+    //     img.src = imageSource;
+    //     img.setAttribute('id', imageId);
+    //     document.getElementById(Id).appendChild(img);
+    //     // return imageId;
+    // };
+
     
-    function removeImage(imageId) {
-        // var elementToBeRemoved = document.getElementById(imageId);
-        $(imageId).parentNode.removeChild(imageId);
-    };
+    // function removeImage(imageId) {
+    //     // var elementToBeRemoved = document.getElementById(imageId);
+    //     $(imageId).parentNode.removeChild(imageId);
+    // };
 
     // function appendImage(imageSource, Id, imageId) {
     //     var img = document.createElement("IMG");
@@ -5430,6 +5469,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
                     //get the Changes coded variable from the Changes ID Data based on the value in the Status column of the changed row
                     var theChangesCode = changesIDData[rowInfo.status.value].changesCode;
+                    // var snailsss = theChangesCode.changesCode;
 
                     //gets the turn around time value from the Changes Data Table based on the product and status of the row
                     var proofToClient = changesData[rowInfo.product.value][theChangesCode];

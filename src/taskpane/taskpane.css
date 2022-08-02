@@ -418,6 +418,16 @@ select {
     z-index: 1000;
 }
 
+#na-ah-ah {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background-color: rgba(0,0,0,.7);
+    z-index: 1000;
+}
+
 #fissh-gif {
     display: none;
     align-items: center;
@@ -446,6 +456,37 @@ select {
     /* height:50%; */
     background-color:white;
 
+}
+
+#na-ah-ah-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 20px;
+    width: 80%;
+    background-color: white;
+}
+
+#na-ah-ah-header {
+    margin: 5px;
+}
+
+#na-ah-ah-text {
+    margin: 10px;
+}
+
+#na-ah-ah-buttons {
+    margin-top: 30px;
+    text-align: center;
+    width: 100%;
+}
+
+.gotcha {
+    min-height: 30px;
+    min-width: 15%;
+    margin-right: 8%;
+    margin-left: 8%;
 }
 
 #fissh-img {
