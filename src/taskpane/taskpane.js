@@ -5275,7 +5275,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
           $("#dennis").css("display", "none");
           $("#dennis-gif").remove();
           $("#na-ah-ah").css("display", "flex");
-        }, 1500);
+        }, 1700);
 
         return;
 
