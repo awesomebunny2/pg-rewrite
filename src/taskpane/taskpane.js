@@ -5241,17 +5241,87 @@ async function onTableSelectionChangedEvents(eventArgs) {
         $("#fissh-gif").css("display", "none");
     };
 
+    // function showDennis() {
+    //     $("#dennis").css("display", "flex");
+    //     console.log("Na-Ah-Ah!");
+    //     var naAhAh = new Audio("assets/dennis-mock.mp3");
+    //     naAhAh.play();
+    //     setTimeout(hideDennis, 1500);
+    // };
+
+    // function hideDennis() {
+    //     $("#dennis").css("display", "none");
+    // };
+
     function showDennis() {
         $("#dennis").css("display", "flex");
         console.log("Na-Ah-Ah!");
+        appendImage("/assets/dennis-crop.gif", "#dennis", "#dennis-gif");
         var naAhAh = new Audio("assets/dennis-mock.mp3");
         naAhAh.play();
-        setTimeout(hideDennis, 2000);
+        setTimeout(removeImage, 2000, "#dennis-gif");
     };
 
     function hideDennis() {
         $("#dennis").css("display", "none");
     };
+
+    function appendImage(imageSource, Id, imageId) {
+        var fartsss = document.getElementById("#dennis");
+        var img = document.createElement("IMG");
+        img.src = imageSource;
+        img.setAttribute('id', imageId);
+        document.getElementById(Id).appendChild(img);
+        // return imageId;
+    };
+
+    // src="/assets/dennis-crop.gif"
+    
+    function removeImage(imageId) {
+        // var elementToBeRemoved = document.getElementById(imageId);
+        $(imageId).parentNode.removeChild(imageId);
+    };
+
+    // function appendImage(imageSource, Id, imageId) {
+    //     var img = document.createElement("IMG");
+    //     img.src = imageSource;
+    //     img.setAttribute('id', imageId);
+    //     document.getElementById(Id).appendChild(img);
+    //     return imageId;
+    // }
+    
+    // function removeImage(imageId) {
+    //     var elementToBeRemoved = document.getElementById(imageId);
+    //     elementToBeRemoved.parentNode.removeChild(elementToBeRemoved);
+    // }
+    
+    // var imageLifespan = 3000;
+    
+    // placeholder images courtesy http://dummyimage.com/
+    
+    // example using known id attribute with removeImage
+    function example1() {
+      console.log('Example1 - Added!');
+      appendImage("/assets/dennis-crop.gif", "#dennis", "#dennis-gif");
+      setTimeout(function() {
+        removeImage("#dennis-gif");
+        console.log('Example1 - Removed!');
+        // setTimeout(example1, imageLifespan);
+      });/*, imageLifespan);*/
+    };
+    
+    // example using reference variable with removeImage
+    // function example2() {
+    //   console.log('Example2 - Added!');
+    //   var ref = appendImage('http://dummyimage.com/200x200/000/ff000.jpg', 'image', 'myIdReference');
+    //   setTimeout(function() {
+    //     removeImage(ref);
+    //     console.log('Example2 - Removed!');
+    //     // setTimeout(example2, imageLifespan);
+    //   });/*, imageLifespan);*/
+    // };
+    
+    // example1();
 
     //#region CHECK EVENTS -----------------------------------------------------------------------------------------------------------------------
 
