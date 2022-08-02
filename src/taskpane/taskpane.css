@@ -418,6 +418,16 @@ select {
     z-index: 1000;
 }
 
+#na-ah-ah {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background-color: rgba(0,0,0,.7);
+    z-index: 1000;
+}
+
 #fissh-gif {
     display: none;
     align-items: center;
@@ -446,6 +456,73 @@ select {
     /* height:50%; */
     background-color:white;
 
+}
+
+#na-ah-ah-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 20px;
+    width: 80%;
+    background-color: white;
+}
+
+#na-ah-ah-header {
+    margin: 5px;
+}
+
+#na-ah-ah-text {
+    /* margin: 10px; */
+    /* background-color:rgba(37, 18, 18, 0.245); */
+    padding: 10px;
+    font-size: 11pt;
+    /* font-style: italic; */
+    text-align: center;
+    margin-top: 0px;
+    margin-bottom: 5px;
+
+    font-weight: bold;
+}
+
+#na-ah-ah-buttons {
+    /* margin-top: 30px;
+    text-align: center;
+    width: 100%; */
+
+    text-align: center;
+    /* min-height: 50px; */
+    width: 85%;
+    margin-top: 5px;
+
+}
+
+.gotcha {
+    /* min-height: 30px;
+    min-width: 15%;
+    margin-right: 8%;
+    margin-left: 8%; */
+    min-height: 30px;
+    min-width: 100px;
+    background-color: #022A42;
+    border-radius: 15px;
+    border: solid;
+    color: #f4f4f4;
+    font-family: "HelveticaNeue-Thin", "Helvetica Neue Thin", "Helvetica Neue";
+    font-size: 12pt;
+    font-weight: bold;
+    padding: 10px;
+    width: 95%;
+}
+
+.gotcha:hover {
+    background-color: #67ACE6;
+}
+
+.gotcha:active:hover {
+    background-color: #014671;
+    transform: scale(0.95);
+    width: 95%;
 }
 
 #fissh-img {
@@ -606,3 +683,30 @@ $dark:#222; */
     vertical-align: middle;
     align-items: center;
 }
+
+/* #dennis {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background-color: rgba(0,0,0,.7);
+    z-index: 1000;
+} */
+
+#dennis {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background-color: rgba(0,0,0,.7);
+    z-index: 1000;
+    /* background-image: url ("dennis-sprite.png"); */
+    /* width: 160px;
+    height: 288px;
+    animation: anim 1.0s steps(10) infinite; */
+};
+/* @keyframes dennis {
+    100% { background-position: -2500px; }
+}; */

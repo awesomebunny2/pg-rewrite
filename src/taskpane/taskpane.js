@@ -33,6 +33,10 @@ $(() => {
 
     });
 
+    $(".gotcha").on("click", function() {
+        showElement("#na-ah-ah", "hide");
+    });
+
     //console.log("Hi");
 
     // function showMessage(msg, showHide) {
@@ -146,6 +150,8 @@ $(() => {
     var activatedWorksheet;
 
     var valPassword = "fissh";
+
+    var dennisHere = false;
 
     //var activatedTables;
 
@@ -3363,8 +3369,58 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
         async function onTableChanged(eventArgs) {
 
-            // console.log("This is the onTableChanged eventArgs");
-            // console.log(eventArgs);
+            // console.log("Source of the onTableChanged event: " + eventArgs.source);
+
+            // if (eventArgs.source == "Remote") {
+            //     console.log("Content was changed by a remote user, exiting onTableChanged Event");
+            //     return;
+            // };
+
+            // if (eventArgs.changeType == "RowInserted") {
+            //     handleIllegalInsert(eventArgs);
+            //     return;
+            // }
+
+            // async function handleIllegalInsert(eventArgs) {
+
+            //     await Excel.run(async (context) => {
+
+            //         var changedWorksheet = context.workbook.worksheets.getItem(eventArgs.worksheetId).load("name");
+
+            //         var changedTable = context.workbook.tables.getItem(eventArgs.tableId).load("name"); //Returns tableId of the table where the event occured
+
+            //         var changedTableRows = changedTable.rows;
+
+            //         var changedAddress = changedWorksheet.getRange(eventArgs.address);
+            //         changedAddress.load("columnIndex");
+            //         changedAddress.load("rowIndex");
+
+            //         await context.sync();
+
+            //         var changedRowIndex = changedAddress.rowIndex; //index of the row where the change was made (on a worksheet level)
+
+            //         if (eventArgs.changeType == "RowDeleted") {
+            //             var changedRowTableIndex = 0;
+            //         } else {
+            //             var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
+            //         };
+
+            //         var rowRange = changedTableRows.getItemAt(changedRowTableIndex).getRange();
+
+            //         if (eventArgs.changeType == "RowInserted") {
+            //             console.log("tsk tsk tsk...Don't forget the 7th commandment of the Art Queue Add-In:");
+            //             console.log('"Thou shalt submit all requests to thy own sheet by means of the Add A Project taskpane. Manually adding rows of info to thyn sheet beith forbidden."');
+            //             console.log("It's a simple mistake, but make sure not to do it again.");
+            //             rowRange.delete("Up");
+            //             // eventsOn();
+            //             // console.log("Events: ON  →  triggered after a row was manually inserted into the sheet by the user, followed by the swift removal of said row and a slap on the wrist.");
+            //             return;
+            //         };
+
+            //     });
+
+            // };
+
 
             await Excel.run(async (context) => {
 
@@ -3375,10 +3431,71 @@ async function onTableSelectionChangedEvents(eventArgs) {
                     return;
                 }
 
+                if (eventArgs.changeType == "RowInserted") {
+                    handleIllegalInsert(eventArgs);
+                    dennisHere = true;
+                    showDennis();
+                    return;
+                }
+
 
                 //console.log("Running onTableChanged!");
 
                 context.runtime.load("enableEvents");
+
+                await context.sync();
+
+                context.runtime.enableEvents = false;
+                console.log("Events: OFF - Occured in onTableChanged!");
+
+                // if (eventArgs.changeType == "RowInserted") {
+                //     handleIllegalInsert(eventArgs);
+                //     showDennis();
+                //     return;
+                // }
+    
+                async function handleIllegalInsert(eventArgs) {
+    
+                    await Excel.run(async (context) => {
+    
+                        var changedWorksheet = context.workbook.worksheets.getItem(eventArgs.worksheetId).load("name");
+    
+                        var changedTable = context.workbook.tables.getItem(eventArgs.tableId).load("name"); //Returns tableId of the table where the event occured
+    
+                        var changedTableRows = changedTable.rows;
+    
+                        var changedAddress = changedWorksheet.getRange(eventArgs.address);
+                        changedAddress.load("columnIndex");
+                        changedAddress.load("rowIndex");
+    
+                        await context.sync();
+    
+                        var changedRowIndex = changedAddress.rowIndex; //index of the row where the change was made (on a worksheet level)
+    
+                        // if (eventArgs.changeType == "RowDeleted") {
+                        //     var changedRowTableIndex = 0;
+                        // } else {
+                        //     var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
+                        // };
+                      
+                        var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
+                    
+                        var rowRange = changedTableRows.getItemAt(changedRowTableIndex).getRange();
+    
+                        console.log("tsk tsk tsk...Don't forget the 7th commandment of the Art Queue Add-In:");
+                        console.log('"Thou shalt submit all requests to thy own sheet by means of the Add A Project taskpane. Manually adding rows of info to thyn sheet beith forbidden."');
+                        console.log("It's a simple mistake, but make sure not to do it again.");
+
+                        rowRange.delete("Up");
+
+                        eventsOn();
+                        console.log("Events: ON  →  triggered after a row was manually inserted into the sheet by the user, followed by the swift removal of said row and a slap on the wrist.");
+                        
+                        return;
+    
+                    });
+    
+                };
 
                 //#region LOAD VARIABLES FROM WORKBOOK -----------------------------------------------------------------------------------------
 
@@ -3616,15 +3733,37 @@ async function onTableSelectionChangedEvents(eventArgs) {
                     var headerRange = changedTable.getHeaderRowRange().load("values");
 
 
-                    context.runtime.load("enableEvents"); //turn on and off events
+                    //context.runtime.load("enableEvents"); //turn on and off events
 
                 //#endregion --------------------------------------------------------------------------------------------------------------
 
 
                 await context.sync();
 
-                context.runtime.enableEvents = false;
-                console.log("Events: OFF - Occured in onTableChanged!");
+                // var changedColumnIndexOG = changedAddress.columnIndex; //index of the column where the change was made (on a worksheet level)
+                // var changedRowIndex = changedAddress.rowIndex; //index of the row where the change was made (on a worksheet level)
+
+                // if (changeType == "RowDeleted") {
+                //     var changedRowTableIndex = 0;
+                // } else {
+                //     var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
+                // };
+
+                // var myRow = changedTableRows.getItemAt(changedRowTableIndex); //loads the changed row in the changed table as an object
+                // var rowRange = changedTableRows.getItemAt(changedRowTableIndex).getRange();
+
+                // if (changeType == "RowInserted") {
+                //     console.log("tsk tsk tsk...Don't forget the 7th commandment of the Art Queue Add-In:");
+                //     console.log('"Thou shalt submit all requests to thy own sheet by means of the Add A Project taskpane. Manually adding rows of info to thyn sheet is forbidden."');
+                //     console.log("It's a simple mistake, but make sure not to do it again.");
+                //     rowRange.delete("Up");
+                //     // eventsOn();
+                //     // console.log("Events: ON  →  triggered after a row was manually inserted into the sheet by the user, followed by the swift removal of said row and a slap on the wrist.");
+                //     return;
+                // };
+
+                // context.runtime.enableEvents = false;
+                // console.log("Events: OFF - Occured in onTableChanged!");
 
 
                     //#region ASSIGNING VARIABLES -----------------------------------------------------------------------------------------------
@@ -3801,6 +3940,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
                         return;
 
                     };
+
 
                     if ((changedColumnIndex == rowInfo.printDate.columnIndex) || (changedColumnIndex == rowInfo.group.columnIndex)) {
 
@@ -4739,6 +4879,9 @@ async function onTableSelectionChangedEvents(eventArgs) {
                     console.log("Events: ON  →  turned on at the end of the onTableChanged Function!");
 
             }).catch (err => {
+                if (dennisHere == true) {
+                    return;
+                };
                 console.log(err) // <--- does this log?
                 showMessage(err, "show");
                 context.runtime.enableEvents = true;
@@ -5037,6 +5180,111 @@ async function onTableSelectionChangedEvents(eventArgs) {
         $("#fissh-gif").css("display", "none");
     };
 
+
+    // Todd Adjustments
+    function showDennis() {
+        $("#dennis").css("display", "flex");
+        console.log("Na-Ah-Ah!");
+        var naAhAh = new Audio("assets/dennis-mock.mp3");
+        naAhAh.play();
+
+        $("#dennis").append(`
+            <img id="dennis-gif" src="/assets/dennis-crop.gif" />
+        `);
+
+
+        // Wait 1.5 seconds, hide Dennis
+        setTimeout(() => {
+          $("#dennis").css("display", "none");
+          $("#dennis-gif").remove();
+          $("#na-ah-ah").css("display", "flex");
+        }, 1700);
+
+        return;
+
+    };
+
+
+
+    // function showDennis() {
+    //     $("#dennis").css("display", "flex");
+    //     console.log("Na-Ah-Ah!");
+    //     var naAhAh = new Audio("assets/dennis-mock.mp3");
+    //     naAhAh.play();
+    //     setTimeout(hideDennis, 1500);
+    // };
+
+    // function hideDennis() {
+    //     $("#dennis").css("display", "none");
+    // };
+
+
+
+    // function showDennis() {
+    //     $("#dennis").css("display", "flex");
+    //     console.log("Na-Ah-Ah!");
+    //     appendImage("/assets/dennis-crop.gif", "#dennis", "#dennis-gif");
+    //     var naAhAh = new Audio("assets/dennis-mock.mp3");
+    //     naAhAh.play();
+    //     setTimeout(removeImage, 2000, "#dennis-gif");
+    // };
+
+    // function appendImage(imageSource, Id, imageId) {
+    //     var fartsss = document.getElementById("#dennis");
+    //     var img = document.createElement("IMG");
+    //     img.src = imageSource;
+    //     img.setAttribute('id', imageId);
+    //     document.getElementById(Id).appendChild(img);
+    //     // return imageId;
+    // };
+
+    
+    // function removeImage(imageId) {
+    //     // var elementToBeRemoved = document.getElementById(imageId);
+    //     $(imageId).parentNode.removeChild(imageId);
+    // };
+
+    // function appendImage(imageSource, Id, imageId) {
+    //     var img = document.createElement("IMG");
+    //     img.src = imageSource;
+    //     img.setAttribute('id', imageId);
+    //     document.getElementById(Id).appendChild(img);
+    //     return imageId;
+    // }
+    
+    // function removeImage(imageId) {
+    //     var elementToBeRemoved = document.getElementById(imageId);
+    //     elementToBeRemoved.parentNode.removeChild(elementToBeRemoved);
+    // }
+    
+    // var imageLifespan = 3000;
+    
+    // placeholder images courtesy http://dummyimage.com/
+    
+    // example using known id attribute with removeImage
+    function example1() {
+      console.log('Example1 - Added!');
+      appendImage("/assets/dennis-crop.gif", "#dennis", "#dennis-gif");
+      setTimeout(function() {
+        removeImage("#dennis-gif");
+        console.log('Example1 - Removed!');
+        // setTimeout(example1, imageLifespan);
+      });/*, imageLifespan);*/
+    };
+    
+    // example using reference variable with removeImage
+    // function example2() {
+    //   console.log('Example2 - Added!');
+    //   var ref = appendImage('http://dummyimage.com/200x200/000/ff000.jpg', 'image', 'myIdReference');
+    //   setTimeout(function() {
+    //     removeImage(ref);
+    //     console.log('Example2 - Removed!');
+    //     // setTimeout(example2, imageLifespan);
+    //   });/*, imageLifespan);*/
+    // };
+    
+    // example1();
+
     //#region CHECK EVENTS -----------------------------------------------------------------------------------------------------------------------
 
         /**
@@ -5144,6 +5392,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
                     //get the Changes coded variable from the Changes ID Data based on the value in the Status column of the changed row
                     var theChangesCode = changesIDData[rowInfo.status.value].changesCode;
+                    // var snailsss = theChangesCode.changesCode;
 
                     //gets the turn around time value from the Changes Data Table based on the product and status of the row
                     var proofToClient = changesData[rowInfo.product.value][theChangesCode];
