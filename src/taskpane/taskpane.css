@@ -4,14 +4,6 @@
 
 @import url("https://use.fontawesome.com/releases/v5.8.1/css/all.css");
 
-
-/* *,
-*:after,
-*:before {
-  box-sizing: border-box;
-} */
-
-
 body, html {
     /* font-family: 'Roboto', sans-serif;     */
     font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
@@ -20,12 +12,18 @@ body, html {
     width: 100%;
 }
 
-#container {
-    position: absolute;
-    display:flex;
-    flex-direction:column;
-    width:100%;
-    height:100%;
+header {
+    background: rgb(189, 9, 45);
+    width: 100%;
+    padding: .5em;
+    text-align: center;
+    color: white;
+    margin-bottom: 10px;
+}
+
+h2 {
+    /* border-bottom: .1em solid #D50000; */
+    margin: 0;
 }
 
 #icon {
@@ -56,8 +54,16 @@ body, html {
 
 }
 
-.grey-back {
+/* .grey-back {
     background-color:#F4F4F4;
+} */
+
+#container {
+    position: absolute;
+    display:flex;
+    flex-direction:column;
+    width:100%;
+    height:100%;
 }
 
 #form {
@@ -77,57 +83,35 @@ body, html {
     /* position: absolute; */
 }
 
-/* width:100%; */
-/* overflow: auto; */
-/* justify-content: auto; */
-/* justify-content: space-between;
-align-items: flex-start;*/
-
-/* position: absolute;
-top: 50%;
-left: 50%;
-transform: translate(-50%, -50%); */
-
-.label {
-    font-size: 10pt;
-}
-
-.bolder {
-    font-weight: 500 !important;
-}
-
 .main {
     display: flex;
     width: 100%;
     align-items: center;
 }
 
-
-/* .double-main {
-    display: flex;
-    flex-direction: row;
-    align-content: space-evenly;
-    width: 100%;
-    align-items: center; */
-    /* top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); */
-/* } */
-
 .uno {
     flex-direction: column;
     margin-top: 20px;
+}
+
+.dos {
+    flex-direction: row;
+    justify-content: center;
 }
 
 .bottom {
     margin-top: 0px;
 }
 
-
-.dos {
-    flex-direction: row;
-    justify-content: center;
-
+.mini {
+    width: 85%;
+    column-count: 2;
+    column-gap: 15px;
+    align-self: center;
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    /* align-items: center; */
 }
 
 .input-group {
@@ -143,17 +127,6 @@ transform: translate(-50%, -50%); */
 
 .double {
     width: 100%;
-}
-
-.mini {
-    width: 85%;
-    column-count: 2;
-    column-gap: 15px;
-    align-self: center;
-    position: relative;
-    box-sizing: border-box;
-    display: flex;
-    /* align-items: center; */
 }
 
 .input-group .input-area {
@@ -234,6 +207,14 @@ transform: translate(-50%, -50%); */
     color: royalblue;
 }
 
+.label {
+    font-size: 10pt;
+}
+
+/* .bolder {
+    font-weight: 500 !important;
+} */
+
 .unselectable {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -287,19 +268,6 @@ select {
     background-color: white;
 }
 
-/* .drpdown-icon {
-    background-image: url(http://www.w3.org/2000/svg) no-repeat 95% 50%;
-    background-size:contain;
-} */
-
-/* select:hover { */
-    /* background: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 26.1.0  SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 4.9 10' style='enable-background:new 0 0 4.9 10%3B' xml:space='preserve'%3E%3Cstyle type='text/css'%3E.st0%7Bfill:%23FFFFFF%3B%7D.st1%7Bfill:%2367ACE6%3B%7D%3C/style%3E%3Crect class='st0' width='4.9' height='10'/%3E%3Cpolygon class='st1' points='1.4 4.7 2.5 3.2 3.5 4.7 '/%3E%3Cpolygon class='st1' points='3.5 5.3 2.5 6.8 1.4 5.3 '/%3E%3C/svg%3E") no-repeat 95% 50%; */
-    /* filter: invert(72%) sepia(82%) saturate(2192%) hue-rotate(179deg) brightness(95%) contrast(88%); */
-/* } */
-
-/* border-color: #8ba479 */
-
-
 
 .warning {
     display:none;
@@ -319,11 +287,6 @@ select {
     border-color: crimson !important;
     color: crimson !important;
 }
-
-/* p {
-    display: flex;
-    flex-direction: column;
-} */
 
 
 
@@ -373,19 +336,14 @@ select {
 
 
 #message {
-
     /* display:flex; */
     display:none;
     align-items: center;
     justify-content:center;
-
-
     position:absolute;
     top: 0; right: 0; bottom: 0; left: 0;
-
     background-color: rgba(0,0,0,.7);
     z-index:1000;
-
 }
 
 #dialog > p {
@@ -393,197 +351,14 @@ select {
 }
 
 #dialog {
-
     display:flex;
     flex-direction:column;
     align-items: center;
     justify-content:center;
-
     padding: 20px 20px;
-
-
     width:80%;
     /* height:50%; */
     background-color:white;
-
-}
-
-#fissh {
-    display: none;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    top: 0; right: 0; bottom: 0; left: 0;
-    background-color: rgba(0,0,0,.7);
-    z-index: 1000;
-}
-
-#na-ah-ah {
-    display: none;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    top: 0; right: 0; bottom: 0; left: 0;
-    background-color: rgba(0,0,0,.7);
-    z-index: 1000;
-}
-
-#fissh-gif {
-    display: none;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    top: 0; right: 0; bottom: 0; left: 0;
-    background-color: rgba(0,0,0,.7);
-    z-index: 1000;
-}
-
-#message-fissh > p {
-    margin-top:0px;
-}
-
-#warning-fissh {
-
-    display:flex;
-    flex-direction:column;
-    align-items: center;
-    justify-content:center;
-
-    padding: 20px 20px;
-
-
-    width:80%;
-    /* height:50%; */
-    background-color:white;
-
-}
-
-#na-ah-ah-box {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px 20px;
-    width: 80%;
-    background-color: white;
-}
-
-#na-ah-ah-header {
-    margin: 5px;
-}
-
-#na-ah-ah-text {
-    /* margin: 10px; */
-    /* background-color:rgba(37, 18, 18, 0.245); */
-    padding: 10px;
-    font-size: 11pt;
-    /* font-style: italic; */
-    text-align: center;
-    margin-top: 0px;
-    margin-bottom: 5px;
-
-    font-weight: bold;
-}
-
-#na-ah-ah-buttons {
-    /* margin-top: 30px;
-    text-align: center;
-    width: 100%; */
-
-    text-align: center;
-    /* min-height: 50px; */
-    width: 85%;
-    margin-top: 5px;
-
-}
-
-.gotcha {
-    /* min-height: 30px;
-    min-width: 15%;
-    margin-right: 8%;
-    margin-left: 8%; */
-    min-height: 30px;
-    min-width: 100px;
-    background-color: #022A42;
-    border-radius: 15px;
-    border: solid;
-    color: #f4f4f4;
-    font-family: "HelveticaNeue-Thin", "Helvetica Neue Thin", "Helvetica Neue";
-    font-size: 12pt;
-    font-weight: bold;
-    padding: 10px;
-    width: 95%;
-}
-
-.gotcha:hover {
-    background-color: #67ACE6;
-}
-
-.gotcha:active:hover {
-    background-color: #014671;
-    transform: scale(0.95);
-    width: 95%;
-}
-
-#fissh-img {
-    width: 75%;
-    height: auto;
-    margin: 10px;
-}
-
-#fissh-buttons {
-    margin-top: 30px;
-    text-align: center;
-    width: 100%;
-}
-
-.ok {
-    min-height: 30px;
-    min-width: 15%;
-    margin-right: 8%;
-    margin-left: 8%;
-}
-
-.dont {
-    min-height: 30px;
-    min-width: 15%;
-    margin-right: 8%;
-    margin-left: 8%;
-}
-
-#warning-text {
-    margin: 5px;
-}
-
-#fissh-text {
-    margin: 10px;
-}
-
-#meece {
-    background: transparent;
-    border: none !important;
-    font-size: 0;
-    min-height: 20px;
-    max-width: 100%;
-    /* margin-left: 8.25%;
-    margin-right: 8.25%; */
-    margin-left: 40%;
-    margin-right: 40%;
-    justify-content: center;
-    text-align: center;
-}
-
-#meece:hover {
-    background: rgba(0, 0, 0, 0.05);
-} 
-
-header {
-    background: rgb(189, 9, 45);
-    width: 100%;
-    padding: .5em;
-    text-align: center;
-    color: white;
-    margin-bottom: 10px;
 }
 
 /* #error-icon {
@@ -591,11 +366,6 @@ header {
     color: lighten(#D50000, 25%);
     content: "\f12a";
 } */
-
-h2 {
-    /* border-bottom: .1em solid #D50000; */
-    margin: 0;
-}
 
 #pre-message-text {
     font-weight: bold;
@@ -637,42 +407,176 @@ h2 {
     width: 95%;
 }
 
-/* $default:#9E9E9E;
-$error:#D50000;
-$warning:#FF6F00;
-$neutral:#448AFF;
-$success:#388E3C;
-$uhm:#c1610d;
+#meece {
+    background: transparent;
+    border: none !important;
+    font-size: 0;
+    min-height: 20px;
+    max-width: 100%;
+    /* margin-left: 8.25%;
+    margin-right: 8.25%; */
+    margin-left: 40%;
+    margin-right: 40%;
+    justify-content: center;
+    text-align: center;
+}
 
-$light:#eee;
-$dark:#222; */
+#meece:hover {
+    background: rgba(0, 0, 0, 0.05);
+} 
 
-/* .butt {
-    background-color: #022A42;
+#fissh {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background-color: rgba(0,0,0,.7);
+    z-index: 1000;
+}
+
+#warning-fissh {
+    display:flex;
+    flex-direction:column;
+    align-items: center;
+    justify-content:center;
+    padding: 20px 20px;
+    width:80%;
+    /* height:50%; */
+    background-color:white;
+}
+
+#warning-text {
+    margin: 5px;
+}
+
+#fissh-text {
+    margin: 10px;
+}
+
+#fissh-img {
+    width: 75%;
+    height: auto;
+    margin: 10px;
+}
+
+#fissh-buttons {
+    margin-top: 30px;
+    text-align: center;
     width: 100%;
+}
+
+.ok {
+    min-height: 30px;
+    min-width: 15%;
+    margin-right: 8%;
+    margin-left: 8%;
+}
+
+.dont {
+    min-height: 30px;
+    min-width: 15%;
+    margin-right: 8%;
+    margin-left: 8%;
+}
+
+#fissh-gif {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background-color: rgba(0,0,0,.7);
+    z-index: 1000;
+}
+
+#message-fissh > p {
+    margin-top:0px;
+}
+
+#dennis {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background-color: rgba(0,0,0,.7);
+    z-index: 1000;
+}
+
+#na-ah-ah {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background-color: rgba(0,0,0,.7);
+    z-index: 1000;
+}
+
+#na-ah-ah-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 20px;
+    width: 80%;
+    background-color: white;
+}
+
+#na-ah-ah-header {
+    margin: 5px;
+}
+
+#na-ah-ah-text {
+    /* margin: 10px; */
+    /* background-color:rgba(37, 18, 18, 0.245); */
+    padding: 10px;
+    font-size: 11pt;
+    /* font-style: italic; */
+    text-align: center;
+    margin-top: 0px;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+#na-ah-ah-buttons {
+    /* margin-top: 30px;
+    text-align: center;
+    width: 100%; */
+    text-align: center;
+    /* min-height: 50px; */
+    width: 85%;
+    margin-top: 5px;
+}
+
+.gotcha {
+    /* min-height: 30px;
+    min-width: 15%;
+    margin-right: 8%;
+    margin-left: 8%; */
+    min-height: 30px;
+    min-width: 100px;
+    background-color: #022A42;
     border-radius: 15px;
     border: solid;
-    color: #F4F4F4;
+    color: #f4f4f4;
     font-family: "HelveticaNeue-Thin", "Helvetica Neue Thin", "Helvetica Neue";
     font-size: 12pt;
-    font-weight: 100;
+    font-weight: bold;
     padding: 10px;
-} */
+    width: 95%;
+}
 
-/* .butt:hover {
+.gotcha:hover {
     background-color: #67ACE6;
 }
 
-.butt:active:hover {
+.gotcha:active:hover {
     background-color: #014671;
     transform: scale(0.95);
-    /* background: 99%; */
-    /* font-size: 11pt; */
-    /* size: 95%; */
-    /* height: 95%;
-    width: 95%; */
-    /* justify-content: center;
-} */
+    width: 95%;
+}
 
 #version {
     font-size: 8pt;
@@ -683,30 +587,3 @@ $dark:#222; */
     vertical-align: middle;
     align-items: center;
 }
-
-/* #dennis {
-    display: none;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    top: 0; right: 0; bottom: 0; left: 0;
-    background-color: rgba(0,0,0,.7);
-    z-index: 1000;
-} */
-
-#dennis {
-    display: none;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    top: 0; right: 0; bottom: 0; left: 0;
-    background-color: rgba(0,0,0,.7);
-    z-index: 1000;
-    /* background-image: url ("dennis-sprite.png"); */
-    /* width: 160px;
-    height: 288px;
-    animation: anim 1.0s steps(10) infinite; */
-};
-/* @keyframes dennis {
-    100% { background-position: -2500px; }
-}; */
