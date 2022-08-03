@@ -16,6 +16,21 @@
   <!-- Office JavaScript API -->
   <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
 
+  <!-- <script>
+    if ('registerElement' in document
+      && 'createShadowRoot' in HTMLElement.prototype
+      && 'import' in document.createElement('link')
+      && 'content' in document.createElement('template')) {
+      // We're using a browser with native WC support!
+    } else {
+      document.write('<script src="https:\/\/cdnjs.cloudflare.com/ajax/libs/polymer/0.3.4/platform.js"><\/script>')
+    }
+  </script> -->
+
+  <!-- <script src="https:\/\/cdnjs.cloudflare.com/ajax/libs/polymer/0.3.4/platform.js"></script> -->
+
+  <!-- <link rel="import" href="x-gif.html"> -->
+
   <!-- For more information on Fluent UI, visit https://developer.microsoft.com/fluentui#/. -->
   <link rel="stylesheet"
     href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/9.6.1/css/fabric.min.css" />
@@ -31,6 +46,8 @@
 </head>
 
 <body>
+  <!-- <button id="pleasework">Please Work!</button> -->
+
   <div id="message">
     <div id="dialog">
       <header>
@@ -55,6 +72,7 @@
       <h2 id="warning-text">WARNING</h2>
       <p id="fissh-text">fissh</p>
       <img id="fissh-img" src="/assets/fissh.png" alt="fissh">
+
       <div id="fissh-buttons">
         <button class="ok">ok</button>
         <button class="ok">ok</button>
@@ -67,8 +85,19 @@
     <img id="intense-fissh-gif" src="/assets/intense-fissh.gif" alt="*fissh intensifies*">
   </div>
 
+  <!-- <div id="dennis">
+    <img id="dennis-gif" src="/assets/dennis-crop.gif" alt="*Na-Ah-Ah!*">
+  </div> -->
+
+
   <div id="dennis">
+    <!-- <img id="dennis-gif" alt="*Na-Ah-Ah!*"> -->
   </div>
+
+  <!-- <div id="dennis">
+    <img id="dennis-sprite" src="/assets/dennis-sprite.png" alt="*Na-Ah-Ah!*">
+  </div> -->
+
 
   <div id="na-ah-ah">
     <div id="na-ah-ah-box">
@@ -77,7 +106,9 @@
           <span>ILLEGAL INSERT</span>
         </h2>
       </header>
+      <!-- <h2 id="na-ah-ah-header">Illegal Insert</h2> -->
       <p id="na-ah-ah-text">Projects should only be submitted to the spreadsheet through the add-in taskpane. Adding a row manually to the spreadsheet breaks the code, so your row has been removed. Please use the add-in taskpane to add your project to your sheet!</p>
+
       <div id="na-ah-ah-buttons">
         <button class="gotcha">OK</button>
       </div>
@@ -85,161 +116,307 @@
   </div>
 
   <div id="container">
-    <div id="page-header">
+
+
+
+    <!-- <button id="ask-question">Am I wrong?</button> -->
+
+    <div id="header">
+
       <div id="icon">
         <i class="fa-solid fa-square-plus"></i>
       </div>
       <h4 class="custom-header">Add A Project</h4>
+
     </div>
+
     <div id="form">
+
       <div class="main uno">
+
         <div class="input-group">
+
           <input type="text" id="subject" required class="input-area single" />
+
           <label for="subject" class="label unselectable">Subject</label>
           <p class="warning" id="warning1"></p>
         </div>
+
         <div class="input-group">
+
           <input type="text" id="client" required class="input-area single" />
+
           <label for="client" class="label unselectable">Client*</label>
           <p class="warning" id="warning2"></p>
         </div>
+
         <div class="input-group">
+
           <input type="text" id="location" required class="input-area single" />
+
           <label for="location" class="label unselectable">Location</label>
           <p class="warning"></p>
         </div>
+
       </div>
+
       <div class="main dos">
+
         <div class="mini">
+
           <div class="input-group split">
+
             <select id="product" required class="sel input-area">
               <option></option>
             </select>
+
             <label for="product" class="label unselectable">Product*</label>
             <p class="warning" id="warning3"></p>
+
           </div>
+
           <div class="input-group split">
+
             <input type="text" id="code" required class="input-area double" />
+
             <label for="code" class="label unselectable">Code</label>
+            <!-- <p class="warning"></p> -->
+
           </div>
+
         </div>
+
       </div>
+
+
       <div class="main dos">
+
         <div class="mini">
+
           <div class="input-group split">
+
             <select id="project-type" required class="sel input-area">
               <option></option>
             </select>
+
             <label for="project-type" class="label unselectable">Project Type*</label>
             <p class="warning" id="warning4"></p>
+
           </div>
+
           <div class="input-group split">
+
             <input type="text" id="csm" required class="input-area double" />
+
             <label for="csm" class="label unselectable">CSM</label>
             <p class="warning"></p>
+
           </div>
+
         </div>
+
       </div>
+
       <div class="main dos">
+
         <div class="mini">
+
           <div class="input-group split">
+
             <select id="group" required class="sel input-area">
               <option></option>
             </select>
+
             <label for="group" class="label unselectable">Group</label>
             <p class="warning"></p>
+
           </div>
+
           <div class="input-group split">
+
             <select id="print-date" required class="sel input-area">
               <option></option>
             </select>
+
             <label for="print-date" class="label unselectable">Print Date</label>
             <p class="warning"></p>
+
           </div>
+
         </div>
+
       </div>
+
       <div class="main dos">
+
         <div class="mini">
+
           <div class="input-group split">
+
             <select id="design-managers" required class="sel input-area">
               <option></option>
             </select>
+
             <label for="design-managers" class="label unselectable">Design Manager</label>
             <p class="warning"></p>
+
           </div>
+
           <div class="input-group split">
+
             <select id="queue" required class="sel input-area">
               <option></option>
             </select>
+
             <label for="queue" class="label unselectable">Queue</label>
             <p class="warning"></p>
+
           </div>
+
         </div>
+
       </div>
+
       <div class="main dos">
+
         <div class="mini">
+
           <div class="input-group split">
+
             <select id="tier" required class="sel input-area">
               <option></option>
             </select>
+
             <label for="tier" class="label unselectable">Tier</label>
             <p class="warning"></p>
+
           </div>
+
           <div class="input-group split">
+
             <select id="tags" required class="sel input-area">
               <option></option>
             </select>
+
             <label for="tags" class="label unselectable">Tags</label>
             <p class="warning"></p>
+
           </div>
+
         </div>
+
       </div>
+
       <div class="main dos">
+
         <div class="mini">
+
           <div class="input-group split">
+
             <input type="text" id="start-override" required class="input-area double" />
+
             <label for="start-override" class="label unselectable">Start Override</label>
             <p class="warning"></p>
+
           </div>
+
           <div class="input-group split">
+
             <input type="text" id="work-override" required class="input-area double" />
+
             <label for="work-override" class="label unselectable">Work Override</label>
             <p class="warning"></p>
+
           </div>
+
         </div>
+
       </div>
+
       <div class="main uno bottom">
+
         <div class="input-group">
+
           <input type="text" id="notes" required class="input-area single" />
+
           <label for="notes" class="label unselectable">Notes</label>
           <p class="warning"></p>
         </div>
+
       </div>
+
       <div class="main dos">
+
         <div class="mini">
+
           <div class="buttons">
             <div class="bottom-buttons">
               <button type="submit" id="submit" class="butt">SUBMIT</button>
             </div>
           </div>
+
           <div class="buttons">
             <div class="bottom-buttons">
               <button type="reset" id="clear" class="butt">CLEAR</button>
             </div>
           </div>
+
         </div>
+
       </div>
+
 
       <button id="meece">🐭🐁🐭🐁🐭🐁🐭🐁🐭🐁      🖱</button>
 
+
     </div>
+
 
     <p id="version">Version 0.4.2.4</p>
 
+
+
+
+
   </div>
 
+
+
+
   <script src="https://code.jquery.com/jquery-3.6.0.min.js" type="text/javascript"></script>
-  
+  <!-- <script src="./js/jquery-datepicker/jquery-ui.min.js" type="text/javascript"></script> -->
+  <!-- <script src="taskpane.js" type="text/javascript"></script> -->
+
+
+  <!-- <script>
+    // $("#inputField").change(function() {
+    //   console.log("change@")
+    //   if ($(this).val() == "Todd" || $(this).val() == "") {
+    //       $(".input-group .input-area").css("border-color", "royalblue");
+    //       $(".input-group .input-area + .label").css("color", "royalblue");
+    //       $("#thelabel").text($("#thelabel").text().replace("*", ""));
+    //       $("#warning").empty().hide();
+    //   } else {
+    //       // ERROR!
+    //       $(".input-group .input-area").css("border-color", "crimson");
+    //       $(".input-group .input-area + .label").css("color", "crimson");
+    //       $("#thelabel").text($("#thelabel").text().replace("*", "")).append("*");
+    //       $("#warning").text("What a drag, man...").show();
+    //   }
+    // })
+
+  if ('registerElement' in document
+    && 'createShadowRoot' in HTMLElement.prototype
+    && 'import' in document.createElement('link')
+    && 'content' in document.createElement('template')) {
+    // We're using a browser with native WC support!
+  } else {
+    document.write('<script src="https:\/\/cdnjs.cloudflare.com/ajax/libs/polymer/0.3.4/platform.js"><\/script>')
+  }
+</script>
+
+<link rel="import" href="x-gif.html"> -->
+
 </body>
 
 </html>
