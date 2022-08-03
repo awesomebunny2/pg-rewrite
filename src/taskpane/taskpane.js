@@ -1,12 +1,6 @@
 //validation sheet password: fissh
-//just a comment
 $(() => {
-    // DOCUMENT LOADED
-    //console.log("DOCUMENT LOADED");
 
-    /**
-     * Clicking this prints a mouse =============================
-     */
     $("#meece").on("click", () => {
         //location.reload();
         console.log("CLICKED🐭");
@@ -23,31 +17,17 @@ $(() => {
         showElement("#fissh", "hide");
     });
 
-
     $("#reload").on("click", function() {
-
         // Hide the message
         // alert("YES YOU ARE!");
         showMessage(undefined, "hide");
         location.reload();
-
     });
 
     $(".gotcha").on("click", function() {
         showElement("#na-ah-ah", "hide");
     });
 
-    //console.log("Hi");
-
-    // function showMessage(msg, showHide) {
-    //     if (showHide === "hide") {
-    //         $("#message-text").empty();
-    //         $("#message").css("display", "none");
-    //     } else if (showHide === "show") {
-    //         $("#message-text").text(msg);
-    //         $("#message").css("display", "flex");
-    //     }
-    // }
 });
 
 //#region GLOBAL -------------------------------------------------------------------------------------------------------------------------------
@@ -99,8 +79,6 @@ $(() => {
 
     //#endregion -----------------------------------------------------------------------------------------------------------------------
 
-
-    // var lookup = new Object();
     var productIDData = {};
     var projectTypeIDData = {};
     var pickupData = {};
@@ -115,567 +93,343 @@ $(() => {
     var changeEvent;
     var selectionEvent;
     var snailPoop = {};
-
     var rowIndexPostSort;
-
     var changedTable;
-
     var destinationTable;
     var destinationTableName;
     var destinationRows;
     var destinationTableRange;
     var destinationHeader;
-
     var completedTable;
-
     var activationEvent;
-
     var currentWorksheet;
-
     var previousSelection;
-
     var previousSelectionObj = {
         tableId: "",
         address: "",
         rowIndex: ""
     };
-
     var didTableChangeFire = false;
-    //console.log(didTableChangeFire);
-
     var deactivationEvent;
-
     var deactivatedWorksheetId;
-
     var activatedWorksheet;
-
     var valPassword = "fissh";
-
     var dennisHere = false;
 
-    //var activatedTables;
-
-    // var previousSelectionFill;
-
-    // var previousSelectionFontColor;
-
-    // var previousSelectionFontWeight;
-
-    //var previousTableId;
-
-    //var previousTableName;
-
-    // var previousItems = new Object();
-
-    // var cheeseFarts;
-
-    // var test;
-
-    //var activeProjectTable;
-
-
-    /* Check if aevents are turned on
-    Excel.run(async function(context) {
-        context.runtime.load("enableEvents");
-        await context.sync();
-        console.log(context.runtime.enableEvents)
-    });
-
-
-    Excel.run(async function(context) {
-        context.runtime.load("enableEvents");
-        await context.sync();
-        context.runtime.enableEvents = true;
-        console.log(context.runtime.enableEvents);
-    });
-    */
-
 //#endregion ----------------------------------------------------------------------------------------------------------------------------------
-
-// Office.onReady((info) => {
-
-//     // eventsOn();
-
-//     if (info.host === Office.HostType.Excel) {
-
-
-//         Excel.run(async (context) => {
-
-//             registerEventHandlers();
-//         });
-//     };
-// });
-
-
-
 
 
 //#region ON READY ---------------------------------------------------------------------------------------------------------------------------
 
-    //#region LOADS VALIDATION VALUES AND UPDATES DROPDOWN VALUES IN TASKPANE ------------------------------------------------
+    Office.onReady((info) => {
 
-        Office.onReady((info) => {
+        if (info.host === Office.PlatformType.OfficeOnline) {
+            console.log("You're currently using the online version of Excel!")
+        };
 
-            // eventsOn();
-            // Excel.run(async (context) => {
-            //     var activeSheet = context.workbook.worksheets.getActiveWorksheet();
+        if (info.host === Office.HostType.Excel) {
 
-            //     activeSheet.onActivated.add(function (event) {
-            //         return Excel.run(async (context) => {
-            //             console.log("The activated worksheet ID is: " + event.worksheetId);
-            //             activeProjectTable = activeSheet.tables.getItemAt(0);
+            Excel.run(async (context) => {
 
-            //             await context.sync();
-            //         });
-            //     });
-            // });
+                activationEvent = registerOnActivateHandler();
 
-            if (info.host === Office.PlatformType.OfficeOnline) {
-                console.log("You're currently using the online version of Excel!")
-            };
+                //#region LOADING VALUES ---------------------------------------------------------------------------------
 
-            if (info.host === Office.HostType.Excel) {
+                    //load up the validation tables being referenced
+                    var sheet = context.workbook.worksheets.getItem("Validation");
+                    var productIDValTable = sheet.tables.getItem("ProductIDTable");
+                    var projectTypeIDTable = sheet.tables.getItem("ProjectTypeIDTable")
+                    var pickedUpValTable = sheet.tables.getItem("PickupTurnaroundTime");
+                    var proofToClientValTable = sheet.tables.getItem("ArtTurnaroundTime");
+                    var creativeProofTable = sheet.tables.getItem("CreativeProofAdjust");
+                    var officeHoursTable = sheet.tables.getItem("OfficeHours");
+                    var changesDataTable = sheet.tables.getItem("ChangesData");
+                    var changesIDTable = sheet.tables.getItem("ChangesIDTable");
+                    var groupPrintDateRefTable = sheet.tables.getItem("dateTable");
+                    var activeSheet = context.workbook.worksheets.getActiveWorksheet().load("worksheetId");
+                    var activeProjectTable = activeSheet.tables.getItemAt(0);
+                    var workbookName = context.workbook.load("name");
 
-                Excel.run(async (context) => {
+                    //get data from the tables
+                    var productIDBodyRange = productIDValTable.getDataBodyRange().load("values");
+                    var projectTypeIDBodyRange = projectTypeIDTable.getDataBodyRange().load("values");
+                    var pickedUpBodyRange = pickedUpValTable.getDataBodyRange().load("values");
+                    var proofToClientBodyRange = proofToClientValTable.getDataBodyRange().load("values");
+                    var creativeProofBodyRange = creativeProofTable.getDataBodyRange().load("values");
+                    var officeHoursBodyRange = officeHoursTable.getDataBodyRange().load("values");
+                    var changesDataBodyRange = changesDataTable.getDataBodyRange().load("values");
+                    var changesIDBodyRange = changesIDTable.getDataBodyRange().load("values");
+                    var groupPrintDateRefRange = groupPrintDateRefTable.getDataBodyRange().load("values");
 
-                    activationEvent = registerOnActivateHandler();
-                    //deactivationEvent = registerOnDeactivationHandler();
+                //#endregion ----------------------------------------------------------------------------------------------
 
-                    //#region LOADING VALUES ---------------------------------------------------------------------------------
+                await context.sync()
 
-                        //load up the validation tables being referenced
-                        var sheet = context.workbook.worksheets.getItem("Validation");
-                        var productIDValTable = sheet.tables.getItem("ProductIDTable");
-                        var projectTypeIDTable = sheet.tables.getItem("ProjectTypeIDTable")
-                        var pickedUpValTable = sheet.tables.getItem("PickupTurnaroundTime");
-                        var proofToClientValTable = sheet.tables.getItem("ArtTurnaroundTime");
-                        var creativeProofTable = sheet.tables.getItem("CreativeProofAdjust");
-                        var officeHoursTable = sheet.tables.getItem("OfficeHours");
-                        var changesDataTable = sheet.tables.getItem("ChangesData");
-                        var changesIDTable = sheet.tables.getItem("ChangesIDTable");
-                        var groupPrintDateRefTable = sheet.tables.getItem("dateTable");
-                        var activeSheet = context.workbook.worksheets.getActiveWorksheet().load("worksheetId");
-                        //activeSheet.onChanged.add(handleChange);
-                        // context.runtime.load("enableEvents");
+                    //#region GRABBING DATA FROM VALIDATION AND WRITING TO CODE ----------------------------------------------
 
-                        //var leAllTables = context.workbook.tables.load("items/name");
+                        //#region PRODUCT ID DATA ----------------------------------------------------------------
 
-                        var activeProjectTable = activeSheet.tables.getItemAt(0);
+                            var productIDArr = productIDBodyRange.values;
 
-                        // doingPasswords(sheet);
+                            for (var row of productIDArr) {
+                                productIDData[row[0].trim()] = {
+                                    "productID":row[0].trim(),
+                                    "relativeProduct":row[1].trim(),
+                                    "productCode":row[2].trim()
+                                };
+                            };
 
-                        // async function doingPasswords(sheet) {
-                        //     let password = await passwordHandler();
-                        //     passwordHelper(password);
-                        //     await Excel.run(async (context) => {
-                        //         //let activeSheet = context.workbook.worksheets.getActiveWorksheet();
-                        //         //var sheetProtection = sheet.protection.load("isPasswordProtected");
-                        //         //sheet.load(["format/*", "format/protection", "format/protection/protected"]);
-                        //         sheet.load("protection/protected");
+                            // console.log(productIDData);
 
-                        //         await context.sync();
+                        //#endregion -----------------------------------------------------------------------------
 
-                        //         //var sheetPasswordProtection = sheetProtection.isPasswordProtected;
+                        //#region PROJECT TYPE ID DATA ----------------------------------------------------------------
 
-                        //         var isProtected = sheet.protection.protected;
+                            var projectTypeIDArr = projectTypeIDBodyRange.values;
 
-                        //         await context.sync();
+                            for (var row of projectTypeIDArr) {
+                                projectTypeIDData[row[0].trim()] = {
+                                    "projectType":row[0].trim(),
+                                    "projectTypeCode":row[1].trim(),
+                                };
+                            };
 
-                        //         if (!sheet.protection.protected) {
-                        //             sheet.protection.protect(null, password);
-                        //         };
-                        //     });
+                            // console.log(projectTypeIDData);
 
-                        //     // await Excel.run(async (context) => {
-                        //     //     let activeSheet = context.workbook.worksheets.getActiveWorksheet();
-                        //     //     activeSheet.load("protection/protected");
-                        //     //     await context.sync();
-                            
-                        //     //     if (!activeSheet.protection.protected) {
-                        //     //         activeSheet.protection.protect();
-                        //     //     }
-                        //     // });
+                        //#endregion -----------------------------------------------------------------------------
 
-                        // };
-                    
+                        //#region PICKED UP TURN AROUND TIME DATA ------------------------------------------------
 
-                       
+                            var pickupArr = pickedUpBodyRange.values;
+                            // console.log(pickupArr);
 
+                            for (var row of pickupArr) {
+                                pickupData[row[0].trim()] = {
+                                "brandNewBuild":row[1],
+                                "brandNewBuildFromNatives":row[2],
+                                "brandNewBuildFromTemplate":row[3],
+                                "changesToExistingNatives":row[4],
+                                "specCheck":row[5],
+                                "weTransferUpload":row[6],
+                                "specialRequest":row[7],
+                                "other":row[8]
+                                };
+                            };
 
-                        var workbookName = context.workbook.load("name");
+                            // console.log(pickupData);
 
-                        // var activeCompletedTable = activeSheet.tables.getItemAt(1);
+                        //#endregion ------------------------------------------------------------------------------
 
-                        //var activeProjectTable;
+                        //#region PROOF TO CLIENT TIME DATA ------------------------------------------------
 
+                            var proofToClientArr = proofToClientBodyRange.values;
+                            // console.log(proofToClientArr);
 
-                        // activeSheet.onActivated.add(function (event) {
-                        //     return Excel.run(async (context) => {
-                        //         console.log("The activated worksheet ID is: " + event.worksheetId);
-                        //         activeProjectTable = activeSheet.tables.getItemAt(0);
+                            for (var row of proofToClientArr) {
+                                proofToClientData[row[0].trim()] = {
+                                "brandNewBuild":row[1],
+                                "brandNewBuildFromNatives":row[2],
+                                "brandNewBuildFromTemplate":row[3],
+                                "changesToExistingNatives":row[4],
+                                "specCheck":row[5],
+                                "weTransferUpload":row[6],
+                                "specialRequest":row[7],
+                                "other":row[8]
+                                };
+                            };
 
-                        //         await context.sync();
-                        //     });
-                        // });
+                            //console.log(proofToClientData);
 
+                        //#endregion ------------------------------------------------------------------------------
 
+                        //#region CREATIVE PROOF DATA ----------------------------------------------------------------
 
+                            var creativeProofArr = creativeProofBodyRange.values;
 
-                        //get data from the tables
-                        var productIDBodyRange = productIDValTable.getDataBodyRange().load("values");
-                        var projectTypeIDBodyRange = projectTypeIDTable.getDataBodyRange().load("values");
-                        var pickedUpBodyRange = pickedUpValTable.getDataBodyRange().load("values");
-                        var proofToClientBodyRange = proofToClientValTable.getDataBodyRange().load("values");
-                        var creativeProofBodyRange = creativeProofTable.getDataBodyRange().load("values");
-                        var officeHoursBodyRange = officeHoursTable.getDataBodyRange().load("values");
-                        var changesDataBodyRange = changesDataTable.getDataBodyRange().load("values");
-                        var changesIDBodyRange = changesIDTable.getDataBodyRange().load("values");
-                        var groupPrintDateRefRange = groupPrintDateRefTable.getDataBodyRange().load("values");
+                            for (var row of creativeProofArr) {
+                                creativeProofData[row[0].trim()] = {
+                                    "creativeReviewProcess":row[1]
+                                };
+                            };
 
+                            // console.log(creativeProofData);
 
-                    //#endregion ----------------------------------------------------------------------------------------------
+                        //#endregion -----------------------------------------------------------------------------
 
-                    //eventsFunction();
-                    //changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
-                    //tryCatch(changeEvent);
+                        //#region OFFICE HOURS DATA ----------------------------------------------------------------
 
-                    await context.sync()
+                            var officeHoursArr = officeHoursBodyRange.values;
 
+                            for (var row of officeHoursArr) {
+                                officeHoursData[row[0].trim()] = {
+                                    "weekday":row[0],
+                                    "startTime":row[1],
+                                    "endTime":row[2],
+                                    "workDay":row[3],
+                                    "workDayWithBreak":row[4]
+                                };
+                            };
 
+                            // console.log(officeHoursData);
 
+                        //#endregion -----------------------------------------------------------------------------
 
-                        //console.log(workbookName.name);
+                        //#region CHANGES DATA ------------------------------------------------
 
-                        //console.log("I sharkded");
+                            var changesDataArr = changesDataBodyRange.values;
+                            // console.log(changesDataArr);
 
-                        // if (currentWorksheet == undefined) {
-                        //     currentWorksheet = activeSheet.id;
-                        // };
+                            for (var row of changesDataArr) {
+                                changesData[row[0].trim()] = {
+                                "lightChanges":row[1],
+                                "moderateChanges":row[2],
+                                "heavyChanges":row[3],
+                                };
+                            };
 
-                        //var leCurrentWorksheet = context.workbook.worksheets.getItem(currentWorksheet);
+                            //console.log(changesData);
 
-                        //var leCurrentProjectTable = leCurrentWorksheet.tables.getItemAt(0);
+                        //#endregion ------------------------------------------------------------------------------
 
+                        //#region CHANGES ID DATA ----------------------------------------------------------------
 
-                        // activeSheet.onActivated.add(function (event) {
-                        //     return Excel.run(async (context) => {
-                        //         console.log("The activated worksheet ID is: " + event.worksheetId);
-                        //         activeProjectTable = activeSheet.tables.getItemAt(0);
+                            var changesIDArr = changesIDBodyRange.values;
 
-                        //         await context.sync();
-                        //     });
-                        // });
+                            for (var row of changesIDArr) {
+                                changesIDData[row[0].trim()] = {
+                                    "changes":row[0].trim(),
+                                    "changesCode":row[1].trim(),
+                                };
+                            };
 
-                        // var listOfCompletedTables = [];
+                            // console.log(changesIDData);
 
-                        // leAllTables.items.forEach(function (table) { //for each table in the workbook...
-                        //     if (table.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
-                        //         listOfCompletedTables.push(table.name); //push the name of that table into an array
-                        //     };
-                        // });
+                        //#endregion -----------------------------------------------------------------------------
 
-                        // //returns true if the changedTable is a completed table from the array previously made, false if it is anything else
-                        // var completedTableChanged = listOfCompletedTables.includes(changedTable.name);
+                        //#region PRINT DATE DATA ------------------------------------------------
 
-                        //#region GRABBING DATA FROM VALIDATION AND WRITING TO CODE ----------------------------------------------
+                            var printDateRefArr = groupPrintDateRefRange.values;
+                            // console.log(proofToClientArr);
 
+                            for (var row of printDateRefArr) {
+                                var serialPrint = row[3];
+                                var formattedPrintDate = convertToDate(serialPrint);
+                                var aNewDate = new Date(formattedPrintDate);
+                                //converts the date into a simplifed format for dropdown: mm/dd/yy
+                                formattedPrintDate = [('' + (aNewDate.getMonth() + 1)).slice(-2),
+                                    ('' + aNewDate.getDate()).slice(-2),
+                                    (aNewDate.getFullYear() % 100)].join('/');
 
-                            //#region PRODUCT ID DATA ----------------------------------------------------------------
+                                printDateRefData[formattedPrintDate] = {
+                                "basedOnNow":row[0],
+                                "yearBasedOnNow":row[1],
+                                "weekBasedOnNow":row[2],
+                                "printDate":formattedPrintDate,
+                                "weekday":row[4],
+                                "adjust":row[5],
+                                "group":row[6]
+                                };
+                            };
 
-                                var productIDArr = productIDBodyRange.values;
+                            //console.log(proofToClientData);
 
-                                for (var row of productIDArr) {
-                                    productIDData[row[0].trim()] = {
-                                        "productID":row[0].trim(),
-                                        "relativeProduct":row[1].trim(),
-                                        "productCode":row[2].trim()
+                        //#endregion ------------------------------------------------------------------------------
+
+                        //#region GROUP DATA ------------------------------------------------
+
+                            var groupRefArr = groupPrintDateRefRange.values;
+                            // console.log(proofToClientArr);
+
+                            var gArr = [];
+
+                            for (var row of groupRefArr) { //for each row in the dateTable...
+
+                                var x = row[6]; //the group letter of the current row
+
+                                var isGroupAlreadyPresent = false;
+
+                                for (var y of gArr) { //for each element in gArr...
+                                    if (y == x) { //if an element from gArr = the current row group letter, then isGroupAlreadyPresent is true
+                                        isGroupAlreadyPresent = true;
                                     };
                                 };
 
-                                // console.log(productIDData);
+                                if (isGroupAlreadyPresent == false) { //if group letter is not already in the data, create the object and properties for the row
 
-                            //#endregion -----------------------------------------------------------------------------
-
-
-                            //#region PROJECT TYPE ID DATA ----------------------------------------------------------------
-
-                                var projectTypeIDArr = projectTypeIDBodyRange.values;
-
-                                for (var row of projectTypeIDArr) {
-                                    projectTypeIDData[row[0].trim()] = {
-                                        "projectType":row[0].trim(),
-                                        "projectTypeCode":row[1].trim(),
-                                    };
-                                };
-
-                                // console.log(projectTypeIDData);
-
-                            //#endregion -----------------------------------------------------------------------------
-
-
-                            //#region PICKED UP TURN AROUND TIME DATA ------------------------------------------------
-
-                                var pickupArr = pickedUpBodyRange.values;
-                                // console.log(pickupArr);
-
-                                for (var row of pickupArr) {
-                                    pickupData[row[0].trim()] = {
-                                    "brandNewBuild":row[1],
-                                    "brandNewBuildFromNatives":row[2],
-                                    "brandNewBuildFromTemplate":row[3],
-                                    "changesToExistingNatives":row[4],
-                                    "specCheck":row[5],
-                                    "weTransferUpload":row[6],
-                                    "specialRequest":row[7],
-                                    "other":row[8]
-                                    };
-                                };
-
-                                // console.log(pickupData);
-
-                            //#endregion ------------------------------------------------------------------------------
-
-
-                            //#region PROOF TO CLIENT TIME DATA ------------------------------------------------
-
-                                var proofToClientArr = proofToClientBodyRange.values;
-                                // console.log(proofToClientArr);
-
-                                for (var row of proofToClientArr) {
-                                    proofToClientData[row[0].trim()] = {
-                                    "brandNewBuild":row[1],
-                                    "brandNewBuildFromNatives":row[2],
-                                    "brandNewBuildFromTemplate":row[3],
-                                    "changesToExistingNatives":row[4],
-                                    "specCheck":row[5],
-                                    "weTransferUpload":row[6],
-                                    "specialRequest":row[7],
-                                    "other":row[8]
-                                    };
-                                };
-
-                                //console.log(proofToClientData);
-
-                            //#endregion ------------------------------------------------------------------------------
-
-
-                            //#region CREATIVE PROOF DATA ----------------------------------------------------------------
-
-                                var creativeProofArr = creativeProofBodyRange.values;
-
-                                for (var row of creativeProofArr) {
-                                    creativeProofData[row[0].trim()] = {
-                                        "creativeReviewProcess":row[1]
-                                    };
-                                };
-
-                                // console.log(creativeProofData);
-
-                            //#endregion -----------------------------------------------------------------------------
-
-
-                            //#region OFFICE HOURS DATA ----------------------------------------------------------------
-
-                                var officeHoursArr = officeHoursBodyRange.values;
-
-                                for (var row of officeHoursArr) {
-                                    officeHoursData[row[0].trim()] = {
-                                        "weekday":row[0],
-                                        "startTime":row[1],
-                                        "endTime":row[2],
-                                        "workDay":row[3],
-                                        "workDayWithBreak":row[4]
-                                    };
-                                };
-
-                                // console.log(officeHoursData);
-
-                            //#endregion -----------------------------------------------------------------------------
-
-
-                            //#region CHANGES DATA ------------------------------------------------
-
-                                var changesDataArr = changesDataBodyRange.values;
-                                // console.log(changesDataArr);
-
-                                for (var row of changesDataArr) {
-                                    changesData[row[0].trim()] = {
-                                    "lightChanges":row[1],
-                                    "moderateChanges":row[2],
-                                    "heavyChanges":row[3],
-                                    };
-                                };
-
-                                //console.log(changesData);
-
-                            //#endregion ------------------------------------------------------------------------------
-
-
-                            //#region CHANGES ID DATA ----------------------------------------------------------------
-
-                                var changesIDArr = changesIDBodyRange.values;
-
-                                for (var row of changesIDArr) {
-                                    changesIDData[row[0].trim()] = {
-                                        "changes":row[0].trim(),
-                                        "changesCode":row[1].trim(),
-                                    };
-                                };
-
-                                // console.log(changesIDData);
-
-                            //#endregion -----------------------------------------------------------------------------
-
-
-                            //#region PRINT DATE DATA ------------------------------------------------
-
-                                var printDateRefArr = groupPrintDateRefRange.values;
-                                // console.log(proofToClientArr);
-
-
-                                for (var row of printDateRefArr) {
-                                    var serialPrint = row[3];
-                                    var formattedPrintDate = convertToDate(serialPrint);
-                                    var aNewDate = new Date(formattedPrintDate);
-                                    //converts the date into a simplifed format for dropdown: mm/dd/yy
-                                    formattedPrintDate = [('' + (aNewDate.getMonth() + 1)).slice(-2),
-                                      ('' + aNewDate.getDate()).slice(-2),
-                                        (aNewDate.getFullYear() % 100)].join('/');
-
-                                    printDateRefData[formattedPrintDate] = {
-                                    "basedOnNow":row[0],
-                                    "yearBasedOnNow":row[1],
-                                    "weekBasedOnNow":row[2],
-                                    "printDate":formattedPrintDate,
-                                    "weekday":row[4],
-                                    "adjust":row[5],
-                                    "group":row[6]
-                                    };
-                                };
-
-                                //console.log(proofToClientData);
-
-                            //#endregion ------------------------------------------------------------------------------
-
-
-                            //#region GROUP DATA ------------------------------------------------
-
-                                var groupRefArr = groupPrintDateRefRange.values;
-                                // console.log(proofToClientArr);
-
-                                var gArr = [];
-
-
-                                for (var row of groupRefArr) { //for each row in the dateTable...
-
-                                    var x = row[6]; //the group letter of the current row
-
-                                    var isGroupAlreadyPresent = false;
-
-                                    for (var y of gArr) { //for each element in gArr...
-                                        if (y == x) { //if an element from gArr = the current row group letter, then isGroupAlreadyPresent is true
-                                            isGroupAlreadyPresent = true;
-                                        };
+                                    groupRefData[row[6].trim()] = {
+                                        "basedOnNow":row[0],
+                                        "yearBasedOnNow":row[1],
+                                        "weekBasedOnNow":row[2],
+                                        "printDate":row[3],
+                                        "weekday":row[4],
+                                        "adjust":row[5],
+                                        "group":row[6]
                                     };
 
-                                    if (isGroupAlreadyPresent == false) { //if group letter is not already in the data, create the object and properties for the row
-
-                                        groupRefData[row[6].trim()] = {
-                                            "basedOnNow":row[0],
-                                            "yearBasedOnNow":row[1],
-                                            "weekBasedOnNow":row[2],
-                                            "printDate":row[3],
-                                            "weekday":row[4],
-                                            "adjust":row[5],
-                                            "group":row[6]
-                                        };
-
-                                        gArr.push(x); //pushes the group letter of the current row into the gArr for further calculations
-
-                                    };
+                                    gArr.push(x); //pushes the group letter of the current row into the gArr for further calculations
 
                                 };
 
-                                //console.log(proofToClientData);
+                            };
 
-                            //#endregion ------------------------------------------------------------------------------
+                            //console.log(proofToClientData);
 
-                        //#endregion --------------------------------------------------------------------------------------------------
+                        //#endregion ------------------------------------------------------------------------------
 
-                        //changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
+                    //#endregion --------------------------------------------------------------------------------------------------
 
-                        //selectionEvent = activeProjectTable.onSelectionChanged.add(onTableSelectionChangedEvents);
+                });
 
-                        //selectionEvent = leCurrentProjectTable.onSelectionChanged.add(onTableSelectionChangedEvents);
+            // console.log(info);
+            tryCatch(updateDropDowns);
 
-
-                        //selectionEvent = context.workbook.onSelectionChanged.add(onTableSelectionChangedEvents);
-
-
-
-
-
-                        // if (completedTableChanged == true) {
-                        //     selectionEvent = activeCompletedTable.onSelectionChanged.add(onTableSelectionChangedEvents);
-                        // } else {
-                        //     selectionEvent = activeProjectTable.onSelectionChanged.add(onTableSelectionChangedEvents);
-                        // };
-
-                        //selectionEvent = activeSheet.onSelectionChanged.add(onTableSelectionChangedEvents);
-
-                    });
-
-                    // changeEvent = context.workbook.tables.onChanged.add(onTableChangedEvents);
-
-
-                // console.log(info);
-                tryCatch(updateDropDowns);
-
-                eventsOn();
-                console.log("Events: ON  →  turned on in onReady function!");
-                //updateDropDowns();
-            };
-        });
-
-    //#endregion ---------------------------------------------------------------------------------------------------------------
+            eventsOn();
+            console.log("Events: ON  →  turned on in onReady function!");
+            //updateDropDowns();
+        };
+    });
 
 //#endregion -----------------------------------------------------------------------------------------------------------------
 
 
-function passwordHelper(password) {
-    if (null == password || password.trim() == "") {
-      let errorMessage = "Password is expected but not provided";
-      console.log(errorMessage);
-    };
-  };
-  
-  async function passwordHandler() {
-    let settingName = "TheTestPasswordUsedByThisSnippet";
-    let savedPassword = Office.context.document.settings.get(settingName);
-    var testPassword;
-    if (null == savedPassword || savedPassword.trim() == "") {
-      //let item = document.getElementById("test-password");
-        
-      testPassword = valPassword;
+//#region DATA PROTECTION (UNUSED) -----------------------------------------------------------------------------------------------------------
 
-      //let testPassword = item.hasAttribute("value") ? item.getAttribute("value") : null;
-      if (null != testPassword && testPassword.trim() != "") {
-        // store test password for retrieval upon re-opening this workbook
-        Office.context.document.settings.set(settingName, testPassword);
-        await Office.context.document.settings.saveAsync();
-  
+    function passwordHelper(password) {
+        if (null == password || password.trim() == "") {
+        let errorMessage = "Password is expected but not provided";
+        console.log(errorMessage);
+        };
+    };
+    
+    async function passwordHandler() {
+        let settingName = "TheTestPasswordUsedByThisSnippet";
+        let savedPassword = Office.context.document.settings.get(settingName);
+        var testPassword;
+        if (null == savedPassword || savedPassword.trim() == "") {
+        //let item = document.getElementById("test-password");
+            
+        testPassword = valPassword;
+
+        //let testPassword = item.hasAttribute("value") ? item.getAttribute("value") : null;
+        if (null != testPassword && testPassword.trim() != "") {
+            // store test password for retrieval upon re-opening this workbook
+            Office.context.document.settings.set(settingName, testPassword);
+            await Office.context.document.settings.saveAsync();
+    
+            savedPassword = testPassword;
+        }
+        } else {
+        //document.getElementById("test-password").setAttribute("value", savedPassword);
+        testPassword = valPassword;
         savedPassword = testPassword;
-      }
-    } else {
-      //document.getElementById("test-password").setAttribute("value", savedPassword);
-      testPassword = valPassword;
-      savedPassword = testPassword;
+        }
+    
+        console.log("Test password is " + savedPassword);
+    
+        return savedPassword;
     }
-  
-    console.log("Test password is " + savedPassword);
-  
-    return savedPassword;
-  }
+
+//#endregion -------------------------------------------------------------------------------------------------------------------------------
 
 
 
