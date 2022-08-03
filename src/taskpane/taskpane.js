@@ -5200,6 +5200,8 @@ async function onTableSelectionChangedEvents(eventArgs) {
           $("#na-ah-ah").css("display", "flex");
         }, 1700);
 
+        // $("#na-ah-ah-box").css("display", "flex");
+
         return;
 
     };
