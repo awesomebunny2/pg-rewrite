@@ -1432,6 +1432,11 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
     }).catch (err => {
         console.log(err) // <--- does this log?
+
+        if (dennisHere == true) {
+            return;
+        };
+
         showMessage(err, "show");
         context.runtime.enableEvents = true;
     });
@@ -3424,7 +3429,8 @@ async function onTableSelectionChangedEvents(eventArgs) {
 
             await Excel.run(async (context) => {
 
-                console.log("Source of the onTableChanged event: " + eventArgs.source);
+                // console.log("Source of the onTableChanged event: " + eventArgs.source);
+                console.log(eventArgs);
 
                 if (eventArgs.source == "Remote") {
                     console.log("Content was changed by a remote user, exiting onTableChanged Event");
@@ -4879,6 +4885,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
                     console.log("Events: ON  →  turned on at the end of the onTableChanged Function!");
 
             }).catch (err => {
+
                 if (dennisHere == true) {
                     return;
                 };
