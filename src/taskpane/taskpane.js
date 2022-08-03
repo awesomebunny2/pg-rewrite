@@ -5189,7 +5189,7 @@ async function onTableSelectionChangedEvents(eventArgs) {
         naAhAh.play();
 
         $("#dennis").append(`
-            <img id="dennis-gif" src="assets/dennis-crop.gif" />
+            <img id="dennis-gif" src="/assets/dennis-crop.gif" />
         `);
 
 
