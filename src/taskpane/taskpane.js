@@ -922,6 +922,9 @@ $(() => {
             }
 
         }).catch (err => {
+            if (dennisHere == true) {
+                return;
+            };
             console.log(err) // <--- does this log?
             showMessage(err, "show");
             context.runtime.enableEvents = true;
@@ -3933,7 +3936,7 @@ $(() => {
         naAhAh.play();
 
         $("#dennis").append(`
-            <img id="dennis-gif" src="/assets/dennis-crop.gif" />
+            <img id="dennis-gif" src="assets/dennis-crop.gif" />
         `);
 
 
