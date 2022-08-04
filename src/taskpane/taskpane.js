@@ -1487,7 +1487,6 @@ $(() => {
 
         //#endregion ---------------------------------------------------------------------------------------------------------------------------------
 
-
         //#region ADD A PROJECT ----------------------------------------------------------------------------------------------------------------------
 
             /**
@@ -2060,154 +2059,72 @@ $(() => {
                     };
 
                 //#endregion -------------------------------------------------------------------------------------------------------------------------
-                //#region NEW                                                                                                                           
 
 
-            //#region ALL COLUMN VALUES ---------------------------------------------------------------------------------------------------
+                //#region ALL COLUMN VALUES ----------------------------------------------------------------------------------------------------------
 
-                /**
-                 * Returns an array of the all the values from a specific column in a table
-                 * @param {Array} tableValues An array of arrays containing all the data from the table
-                 * @param {Number} columnIndex Index number of the column we are trying to make an array of from its data
-                 * @returns Array
-                 */
-                function allColumnValues(tableValues, columnIndex) {
+                    /**
+                     * Returns an array of the all the values from a specific column in a table
+                     * @param {Array} tableValues An array of arrays containing all the data from the table
+                     * @param {Number} columnIndex Index number of the column we are trying to make an array of from its data
+                     * @returns Array
+                     */
+                    function allColumnValues(tableValues, columnIndex) {
 
-                    var PUTimeArr = [];
+                        var PUTimeArr = [];
 
-                    for (var row of tableValues) { //for each row in the table
-                        var PUTurnAroundTime = row[columnIndex]; //get the item where the row and columnIndex values meet
-                        PUTimeArr.push(PUTurnAroundTime); //push this value to a new array
+                        for (var row of tableValues) { //for each row in the table
+                            var PUTurnAroundTime = row[columnIndex]; //get the item where the row and columnIndex values meet
+                            PUTimeArr.push(PUTurnAroundTime); //push this value to a new array
+                        };
+
+                        return PUTimeArr;
+
                     };
 
-                    return PUTimeArr;
-
-                };
-
-            //#endregion ------------------------------------------------------------------------------------------------------------------
+                //#endregion -------------------------------------------------------------------------------------------------------------------------
 
 
-            //#region FIND COLUMN INDEX ---------------------------------------------------------------------------------------------------
+                //#region FIND COLUMN INDEX ----------------------------------------------------------------------------------------------------------
 
-            /**
-             * Returns index of a column name based on it's position in the header row
-             * @param {Array} header An array of arrays containing all the headers in the table
-             * @param {String} columnName The name of the column that we are trying to find an index number for
-             * @returns Number
-             */
-            function findColumnIndex(header, columnName) {
-                var i = 0;
-                var jelly;
+                    /**
+                     * Returns index of a column name based on it's position in the header row
+                     * @param {Array} header An array of arrays containing all the headers in the table
+                     * @param {String} columnName The name of the column that we are trying to find an index number for
+                     * @returns Number
+                     */
+                    function findColumnIndex(header, columnName) {
+                        var i = 0;
+                        var jelly;
 
-                for (var column of header[0]) { //for each item in the header array
-                    if (column == columnName) { //if the item matches the columnName input, return the value of i, otherwise increment i and continue through rest of array
-                        jelly = i;
-                        return jelly;
-                    }
-                    i++;
-                };
-            };
+                        for (var column of header[0]) { //for each item in the header array
+                            //if the item matches the columnName input, return the value of i, otherwise increment i & continue through rest of array
+                            if (column == columnName) { 
+                                jelly = i;
+                                return jelly;
+                            }
+                            i++;
+                        };
+                    };
 
-        //#endregion -------------------------------------------------------------------------------------------------------------------
-
-
-        //#endregion ----------------------------------------------------------------------------------------------------------------------
+                //#endregion -------------------------------------------------------------------------------------------------------------------------
 
 
-    //#endregion -------------------------------------------------------------------------------------------------------------------------------
+            //#endregion -----------------------------------------------------------------------------------------------------------------------------
 
 
-    //#region TURN OFF EVENTS BEFORE EXECUTING ON TABLE CHANGED -----------------------------------------------------------------------------
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+
+    //#endregion -------------------------------------------------------------------------------------------------------------------------------------
+
+
+    //#region ON TABLE CHANGED -----------------------------------------------------------------------------------------------------------------------
 
         /**
-         * Turns events off, then executes the onTableChanged function
+         * When anything is changed in the workbook, it is handled here
+         * @param {Object} eventArgs The event arguments, which are details about the event that was triggered
          */
-        // async function onTableChangedEvents(eventArgs) {
-
-        //     console.log("Running onTableChangedEvents!");
-
-        //     await Excel.run(async (context) => {
-
-        //         context.runtime.load("enableEvents");
-
-        //         await context.sync();
-
-        //         console.log("I awaited the context.sync().")
-        //         context.runtime.enableEvents = false;
-        //         console.log("Events: OFF - Occured in onTableChangedEvents");
-
-        //         // var result = await onTableChanged(eventArgs).then(tableChangedPriorityAndSort(poop.rowInfo, poop.bodyRange, poop.priorityColumnData));
-        //     });
-
-        //     console.log("Excel.run() is done. Can we catch the error from the async onTableChanged()?? 🐭")
-
-        //     await onTableChanged(eventArgs).catch(err => {
-        //         console.log(err) // <--- does this log?
-        //         showMessage(err, "show");
-        //     })
-
-        // };
-
-    //#endregion ---------------------------------------------------------------------------------------------------------------------------
-
-
-    //#region ON TABLE CHANGED --------------------------------------------------------------------------------------------------------------
-
         async function onTableChanged(eventArgs) {
-
-            // console.log("Source of the onTableChanged event: " + eventArgs.source);
-
-            // if (eventArgs.source == "Remote") {
-            //     console.log("Content was changed by a remote user, exiting onTableChanged Event");
-            //     return;
-            // };
-
-            // if (eventArgs.changeType == "RowInserted") {
-            //     handleIllegalInsert(eventArgs);
-            //     return;
-            // }
-
-            // async function handleIllegalInsert(eventArgs) {
-
-            //     await Excel.run(async (context) => {
-
-            //         var changedWorksheet = context.workbook.worksheets.getItem(eventArgs.worksheetId).load("name");
-
-            //         var changedTable = context.workbook.tables.getItem(eventArgs.tableId).load("name"); //Returns tableId of the table where the event occured
-
-            //         var changedTableRows = changedTable.rows;
-
-            //         var changedAddress = changedWorksheet.getRange(eventArgs.address);
-            //         changedAddress.load("columnIndex");
-            //         changedAddress.load("rowIndex");
-
-            //         await context.sync();
-
-            //         var changedRowIndex = changedAddress.rowIndex; //index of the row where the change was made (on a worksheet level)
-
-            //         if (eventArgs.changeType == "RowDeleted") {
-            //             var changedRowTableIndex = 0;
-            //         } else {
-            //             var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
-            //         };
-
-            //         var rowRange = changedTableRows.getItemAt(changedRowTableIndex).getRange();
-
-            //         if (eventArgs.changeType == "RowInserted") {
-            //             console.log("tsk tsk tsk...Don't forget the 7th commandment of the Art Queue Add-In:");
-            //             console.log('"Thou shalt submit all requests to thy own sheet by means of the Add A Project taskpane. Manually adding rows of info to thyn sheet beith forbidden."');
-            //             console.log("It's a simple mistake, but make sure not to do it again.");
-            //             rowRange.delete("Up");
-            //             // eventsOn();
-            //             // console.log("Events: ON  →  triggered after a row was manually inserted into the sheet by the user, followed by the swift removal of said row and a slap on the wrist.");
-            //             return;
-            //         };
-
-            //     });
-
-            // };
-
-
             await Excel.run(async (context) => {
 
                 console.log("Source of the onTableChanged event: " + eventArgs.source);
@@ -2233,55 +2150,49 @@ $(() => {
 
                 context.runtime.enableEvents = false;
                 console.log("Events: OFF - Occured in onTableChanged!");
-
-                // if (eventArgs.changeType == "RowInserted") {
-                //     handleIllegalInsert(eventArgs);
-                //     showDennis();
-                //     return;
-                // }
     
-                async function handleIllegalInsert(eventArgs) {
+                // async function handleIllegalInsert(eventArgs) {
     
-                    await Excel.run(async (context) => {
+                //     await Excel.run(async (context) => {
     
-                        var changedWorksheet = context.workbook.worksheets.getItem(eventArgs.worksheetId).load("name");
+                //         var changedWorksheet = context.workbook.worksheets.getItem(eventArgs.worksheetId).load("name");
     
-                        var changedTable = context.workbook.tables.getItem(eventArgs.tableId).load("name"); //Returns tableId of the table where the event occured
+                //         var changedTable = context.workbook.tables.getItem(eventArgs.tableId).load("name"); //Returns tableId of the table where the event occured
     
-                        var changedTableRows = changedTable.rows;
+                //         var changedTableRows = changedTable.rows;
     
-                        var changedAddress = changedWorksheet.getRange(eventArgs.address);
-                        changedAddress.load("columnIndex");
-                        changedAddress.load("rowIndex");
+                //         var changedAddress = changedWorksheet.getRange(eventArgs.address);
+                //         changedAddress.load("columnIndex");
+                //         changedAddress.load("rowIndex");
     
-                        await context.sync();
+                //         await context.sync();
     
-                        var changedRowIndex = changedAddress.rowIndex; //index of the row where the change was made (on a worksheet level)
+                //         var changedRowIndex = changedAddress.rowIndex; //index of the row where the change was made (on a worksheet level)
     
-                        // if (eventArgs.changeType == "RowDeleted") {
-                        //     var changedRowTableIndex = 0;
-                        // } else {
-                        //     var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
-                        // };
+                //         // if (eventArgs.changeType == "RowDeleted") {
+                //         //     var changedRowTableIndex = 0;
+                //         // } else {
+                //         //     var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
+                //         // };
                       
-                        var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
+                //         var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
                     
-                        var rowRange = changedTableRows.getItemAt(changedRowTableIndex).getRange();
+                //         var rowRange = changedTableRows.getItemAt(changedRowTableIndex).getRange();
     
-                        console.log("tsk tsk tsk...Don't forget the 7th commandment of the Art Queue Add-In:");
-                        console.log('"Thou shalt submit all requests to thy own sheet by means of the Add A Project taskpane. Manually adding rows of info to thyn sheet beith forbidden."');
-                        console.log("It's a simple mistake, but make sure not to do it again.");
+                //         console.log("tsk tsk tsk...Don't forget the 7th commandment of the Art Queue Add-In:");
+                //         console.log('"Thou shalt submit all requests to thy own sheet by means of the Add A Project taskpane. Manually adding rows of info to thyn sheet beith forbidden."');
+                //         console.log("It's a simple mistake, but make sure not to do it again.");
 
-                        rowRange.delete("Up");
+                //         rowRange.delete("Up");
 
-                        eventsOn();
-                        console.log("Events: ON  →  triggered after a row was manually inserted into the sheet by the user, followed by the swift removal of said row and a slap on the wrist.");
+                //         eventsOn();
+                //         console.log("Events: ON  →  triggered after a row was manually inserted into the sheet by the user, followed by the swift removal of said row and a slap on the wrist.");
                         
-                        return;
+                //         return;
     
-                    });
+                //     });
     
-                };
+                // };
 
                 //#region LOAD VARIABLES FROM WORKBOOK -----------------------------------------------------------------------------------------
 
@@ -3929,6 +3840,53 @@ $(() => {
 
     //#endregion ---------------------------------------------------------------------------------------------------------------
 
+
+    /**
+     * If a row is inserted to the sheet manually, it will be removed and the user chastised
+     * @param {Object} eventArgs The event arguments, which are details about the event that was triggered
+     */
+    async function handleIllegalInsert(eventArgs) {
+    
+        await Excel.run(async (context) => {
+
+            var changedWorksheet = context.workbook.worksheets.getItem(eventArgs.worksheetId).load("name");
+
+            var changedTable = context.workbook.tables.getItem(eventArgs.tableId).load("name"); //Returns tableId of the table where the event occured
+
+            var changedTableRows = changedTable.rows;
+
+            var changedAddress = changedWorksheet.getRange(eventArgs.address);
+            changedAddress.load("columnIndex");
+            changedAddress.load("rowIndex");
+
+            await context.sync();
+
+            var changedRowIndex = changedAddress.rowIndex; //index of the row where the change was made (on a worksheet level)
+
+            // if (eventArgs.changeType == "RowDeleted") {
+            //     var changedRowTableIndex = 0;
+            // } else {
+            //     var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
+            // };
+          
+            var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
+        
+            var rowRange = changedTableRows.getItemAt(changedRowTableIndex).getRange();
+
+            console.log("tsk tsk tsk...Don't forget the 7th commandment of the Art Queue Add-In:");
+            console.log('"Thou shalt submit all requests to thy own sheet by means of the Add A Project taskpane. Manually adding rows of info to thyn sheet beith forbidden."');
+            console.log("It's a simple mistake, but make sure not to do it again.");
+
+            rowRange.delete("Up");
+
+            eventsOn();
+            console.log("Events: ON  →  triggered after a row was manually inserted into the sheet by the user, followed by the swift removal of said row and a slap on the wrist.");
+            
+            return;
+
+        });
+
+    };
 
     function showMessage(msg, showHide) {
         if (showHide === "hide") {
