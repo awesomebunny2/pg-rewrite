@@ -1,34 +1,4 @@
 //validation sheet password: fissh
-$(() => {
-
-    $("#meece").on("click", () => {
-        //location.reload();
-        console.log("CLICKED🐭");
-        showElement("#fissh", "show");
-    })
-
-    $(".ok").on("click", function() {
-        showElement("#fissh", "hide");
-        showFisshGif();
-        //location.reload();
-    });
-
-    $(".dont").on("click", function() {
-        showElement("#fissh", "hide");
-    });
-
-    $("#reload").on("click", function() {
-        // Hide the message
-        // alert("YES YOU ARE!");
-        showMessage(undefined, "hide");
-        location.reload();
-    });
-
-    $(".gotcha").on("click", function() {
-        showElement("#na-ah-ah", "hide");
-    });
-
-});
 
 //#region GLOBAL -------------------------------------------------------------------------------------------------------------------------------------
 
@@ -79,42 +49,46 @@ $(() => {
 
     //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
-    var productIDData = {};
-    var projectTypeIDData = {};
-    var pickupData = {};
-    var proofToClientData = {};
-    var creativeProofData = {};
-    var officeHoursData = {};
-    var changesData = {};
-    var changesIDData = {};
-    var printDateRefData = {};
-    var groupRefData = {};
-    var loop = true;
-    var changeEvent;
-    var selectionEvent;
-    var snailPoop = {};
-    var rowIndexPostSort;
-    var changedTable;
-    var destinationTable;
-    var destinationTableName;
-    var destinationRows;
-    var destinationTableRange;
-    var destinationHeader;
-    var completedTable;
-    var activationEvent;
-    var currentWorksheet;
-    var previousSelection;
-    var previousSelectionObj = {
-        tableId: "",
-        address: "",
-        rowIndex: ""
-    };
-    var didTableChangeFire = false;
-    var deactivationEvent;
-    var deactivatedWorksheetId;
-    var activatedWorksheet;
-    var valPassword = "fissh";
-    var dennisHere = false;
+    //#region GLOBAL VARIABLES -----------------------------------------------------------------------------------------------------------------------
+
+        var productIDData = {};
+        var projectTypeIDData = {};
+        var pickupData = {};
+        var proofToClientData = {};
+        var creativeProofData = {};
+        var officeHoursData = {};
+        var changesData = {};
+        var changesIDData = {};
+        var printDateRefData = {};
+        var groupRefData = {};
+        var loop = true;
+        var changeEvent;
+        var selectionEvent;
+        var snailPoop = {};
+        var rowIndexPostSort;
+        var changedTable;
+        var destinationTable;
+        var destinationTableName;
+        var destinationRows;
+        var destinationTableRange;
+        var destinationHeader;
+        var completedTable;
+        var activationEvent;
+        var currentWorksheet;
+        var previousSelection;
+        var previousSelectionObj = {
+            tableId: "",
+            address: "",
+            rowIndex: ""
+        };
+        var didTableChangeFire = false;
+        var deactivationEvent;
+        var deactivatedWorksheetId;
+        var activatedWorksheet;
+        var valPassword = "fissh";
+        var dennisHere = false;
+
+    //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
 //#endregion -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -393,564 +367,19 @@ $(() => {
 //#endregion -----------------------------------------------------------------------------------------------------------------------------------------
 
 
-//#region DATA PROTECTION (UNUSED) -------------------------------------------------------------------------------------------------------------------
-
-    function passwordHelper(password) {
-        if (null == password || password.trim() == "") {
-        let errorMessage = "Password is expected but not provided";
-        console.log(errorMessage);
-        };
-    };
-    
-    async function passwordHandler() {
-        let settingName = "TheTestPasswordUsedByThisSnippet";
-        let savedPassword = Office.context.document.settings.get(settingName);
-        var testPassword;
-        if (null == savedPassword || savedPassword.trim() == "") {
-        //let item = document.getElementById("test-password");
-            
-        testPassword = valPassword;
-
-        //let testPassword = item.hasAttribute("value") ? item.getAttribute("value") : null;
-        if (null != testPassword && testPassword.trim() != "") {
-            // store test password for retrieval upon re-opening this workbook
-            Office.context.document.settings.set(settingName, testPassword);
-            await Office.context.document.settings.saveAsync();
-    
-            savedPassword = testPassword;
-        }
-        } else {
-        //document.getElementById("test-password").setAttribute("value", savedPassword);
-        testPassword = valPassword;
-        savedPassword = testPassword;
-        }
-    
-        console.log("Test password is " + savedPassword);
-    
-        return savedPassword;
-    }
-
-//#endregion -----------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-//#region REGISTER ON WORKSHEET ACTIVATE HANDLER & BINDS OTHER HANDLERS TO CURRENT SHEET -------------------------------------------------------------
-
-    /**
-     * Enables onSelectionChanged event upon inital load and any reloads of the taskpane
-     */
-    async function registerOnActivateHandler() {
-        await Excel.run(async (context) => {
-
-            // console.log("Inital load Selection Event: ");
-            // console.log(selectionEvent);
-            // removeSelectionEvent();
-
-            console.log("Reload activation function fired!");
-            let sheets = context.workbook.worksheets;
-            var activeSheet = context.workbook.worksheets.getActiveWorksheet().load("worksheetId");
-            activeSheet.load("name");
-
-            context.runtime.load("enableEvents");
-
-            var theAllTable = context.workbook.tables.load("count"); //all of the tables in the workbook
-            theAllTable.load("items");
-
-            var worksheetTables = activeSheet.tables.load("items/count");
-
-
-            await context.sync();
-
-            context.runtime.enableEvents = false;
-            console.log("Events: OFF - Occured in registerOnActivateHandler");
-
-            activeSheetName = activeSheet.name;
-
-            console.log(activeSheetName);
-
-            if (activeSheet.name == "Validation") {
-                console.log("Active sheet is the Validation sheet, so onSelection & onChange events have been bound");
-                sheets.onActivated.add(onActivate);
-                sheets.onDeactivated.add(onDeactivate);
-                eventsOn();
-                console.log("Events: ON  →  turned on in the registerOnActivateHandler function, but for the Validation sheet");
-                return;
-            };
-
-            var worksheetTablesCount = worksheetTables.count; //the number of tables in the workbook
-
-            //cycles through each table in the workbook
-            for (var p = 0; p < worksheetTablesCount; p++) { // <-- looping your tables
-                var cycleTables = worksheetTables.getItemAt(p).load("name/worksheet");
-
-                var cycleTableRows = cycleTables.rows.load("items");
-
-                var tablesWorksheet = cycleTables.worksheet.load("name");
-
-                var cycleBodyRange = cycleTables.getDataBodyRange().load("values"); //gets range of table
-                cycleBodyRange.load("columnIndex");
-
-                cycleBodyRange.load(["rowCount", "columnCount", "cellCount"]);
-
-                var headerRange = cycleTables.getHeaderRowRange().load("values");
-
-                const usedDataRange = cycleBodyRange.getUsedRangeOrNullObject(
-                    true /* valuesOnly */
-                );
-
-                var propertiesToGet = cycleBodyRange.getRowProperties({ //gets format properties of the rows in the table
-                    format: {
-                        fill: {
-                            color: true
-                        },
-                        font: {
-                            bold: true,
-                            color: true
-                        }
-                    },
-                    rowIndex: true
-                });
-
-                await context.sync();
-
-                var head = headerRange.values;
-
-                var leTable = cycleBodyRange.values
-
-                var listOfCompletedTables = [];
-                if (cycleTables.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
-                    listOfCompletedTables.push(cycleTables.name); //push the name of that table into an array
-                };
-
-                //returns true if the changedTable is a completed table from the array previously made, false if it is anything else
-                var completedTableChanged = listOfCompletedTables.includes(cycleTables.name);
-
-                if (tablesWorksheet.name !== "Validation" && usedDataRange.isNullObject !== true) { //ignore all tables in Validation sheet
-                    //cycles through each row in the table
-                    for (var iRow = 0; iRow < cycleBodyRange.rowCount; iRow++) {
-                        var theRows = cycleTableRows.items
-                        var rowValues = theRows[iRow].values
-                        var rowRange = cycleTables.rows.getItemAt(iRow).getRange(); //range of row we are currently on
-                        var rowProperties = propertiesToGet.value[iRow]; //loads in those row properites from eariler
-                        var tableStart = cycleBodyRange.columnIndex;
-
-                        var theWorksheet = context.workbook.worksheets.getItem(tablesWorksheet.name).load("name");
-
-                        var rowInfoSorted = new Object();
-
-                        for (var name of head[0]) {
-                            theGreatestFunctionEverWritten(head, name, rowValues, leTable, rowInfoSorted, iRow);
-                        }
-
-                        if (rowProperties.format.fill.color == "#F5D9FF") { //if the row is purple, do the following...  #F5D9FF
-                            console.log("Found a purple row!");
-                            console.log(`Table: ${cycleTables.name}\nRow Index: ${iRow}`);
-                            rowRange.format.fill.clear();
-                            //will need to run conditional formatting function next
-                            await context.sync();
-
-                            conditionalFormatting(rowInfoSorted, tableStart, theWorksheet, iRow, completedTableChanged, rowRange, null)
-                        };
-                    };
-                };
-            };
-
-            for (var y = 0; y < worksheetTablesCount; y++) {
-                var bonTable = worksheetTables.getItemAt(y);
-
-                changeEvent = bonTable.onChanged.add(onTableChanged);
-
-                selectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents);
-
-            };
-
-            sheets.onActivated.add(onActivate);
-            sheets.onDeactivated.add(onDeactivate);
-
-            console.log("A handler has been registered for the OnActivate event.");
-
-            eventsOn();
-            console.log("Events: ON  →  turned on in the registerOnActivateHandler function, typically triggered by a reload");
-
-        }).catch (err => {
-            console.log(err) // <--- does this log?
-            showMessage(err, "show");
-            context.runtime.enableEvents = true;
-        });
-    };
-
-//#endregion -----------------------------------------------------------------------------------------------------------------------------------------
-
-//#region DEACTIVATION EVENT -------------------------------------------------------------------------------------------------------------------------
-
-    /**
-     * Simply writes the worksheetId to a global deactivatedWorksheetId variable to be used in other functions
-     * @param {Object} eventArgs The event arguments, which are details about the event that was triggered
-     */
-    async function onDeactivate(eventArgs) {
-        await Excel.run(async(context) => {
-            console.log("Source of the onDeactivate event: " + eventArgs.source);
-
-            console.log("The worksheet Id that was deactivated was: " + eventArgs.worksheetId);
-
-            deactivatedWorksheetId = eventArgs.worksheetId
-        });
-    };
-
-//#endregion -----------------------------------------------------------------------------------------------------------------------------------------
-
-
-//#region ON NEW WORKSHEET ACTIVATE ------------------------------------------------------------------------------------------------------------------
-
-    /**
-     * When the worksheet changes, this fires and binds the events to the first table that is selected in the sheet
-     * @param {Object} eventArgs The event arguments, which are details about the event that was triggered
-     */
-    async function onActivate(eventArgs) {
-        await Excel.run(async (context) => {
-
-            // console.log("Worksheet change Selection Event: ");
-            // console.log(selectionEvent);
-            // removeSelectionEvent();
-            console.log("Source of the onActivate event: " + eventArgs.source);
-
-            console.log("Worksheet Switched (onActivate) function fired");
-
-            activatedWorksheet = context.workbook.worksheets.getItem(eventArgs.worksheetId);
-
-            console.log("The activated worksheet Id : " + eventArgs.worksheetId);
-
-            //activatedTables = currentWorksheet.tables.load("items/count");
-
-            // context.runtime.load("enableEvents");
-
-            var theAllTable = context.workbook.tables.load("count"); //all of the tables in the workbook
-            theAllTable.load("items");
-
-            var worksheetTables = activatedWorksheet.tables.load("items/count");
-
-            await context.sync();
-
-            // context.runtime.enableEvents = false;
-            // console.log("Events: OFF - Occured in registerOnActivateHandler");
-
-            console.log("The deactivation worksheet ID is: " + deactivatedWorksheetId)
-
-            var oldWorksheet = context.workbook.worksheets.getItem(deactivatedWorksheetId);
-
-            var oldWorksheetTables = oldWorksheet.tables.load("items/count");
-
-            await context.sync();
-
-            var oldWorksheetTablesCount = oldWorksheetTables.count; //the number of tables in the workbook
-
-            //cycles through each table in the workbook
-            for (var p = 0; p < oldWorksheetTablesCount; p++) { // <-- looping your tables
-                var oldCycleTables = oldWorksheetTables.getItemAt(p).load("name/worksheet");
-
-                var oldCycleTableRows = oldCycleTables.rows.load("items");
-
-                var oldTablesWorksheet = oldCycleTables.worksheet.load("name");
-
-                var oldCycleBodyRange = oldCycleTables.getDataBodyRange().load("values"); //gets range of table
-                oldCycleBodyRange.load("columnIndex");
-
-                oldCycleBodyRange.load(["rowCount", "columnCount", "cellCount"]);
-
-                var oldHeaderRange = oldCycleTables.getHeaderRowRange().load("values");
-
-                const oldUsedDataRange = oldCycleBodyRange.getUsedRangeOrNullObject(
-                    true /* valuesOnly */
-                );
-
-                var oldPropertiesToGet = oldCycleBodyRange.getRowProperties({ //gets format properties of the rows in the table
-                    format: {
-                        fill: {
-                            color: true
-                        },
-                        font: {
-                            bold: true,
-                            color: true
-                        }
-                    },
-                    rowIndex: true
-                });
-
-                await context.sync();
-
-                var oldHead = oldHeaderRange.values;
-
-                var oldLeTable = oldCycleBodyRange.values
-
-                var oldListOfCompletedTables = [];
-                if (oldCycleTables.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
-                    oldListOfCompletedTables.push(oldCycleTables.name); //push the name of that table into an array
-                };
-
-                //returns true if the changedTable is a completed table from the array previously made, false if it is anything else
-                var oldCompletedTableChanged = oldListOfCompletedTables.includes(oldCycleTables.name);
-
-                if (oldTablesWorksheet.name !== "Validation" && oldUsedDataRange.isNullObject !== true) { //ignore all tables in Validation sheet
-                    //cycles through each row in the table
-                    for (var aRow = 0; aRow < oldCycleBodyRange.rowCount; aRow++) {
-                        var theOldRows = oldCycleTableRows.items
-                        var oldRowValues = theOldRows[aRow].values
-                        var oldRowRange = oldCycleTables.rows.getItemAt(aRow).getRange(); //range of row we are currently on
-                        var oldRowProperties = oldPropertiesToGet.value[aRow]; //loads in those row properites from eariler
-                        var oldTableStart = oldCycleBodyRange.columnIndex;
-
-                        var theOldWorksheet = context.workbook.worksheets.getItem(oldTablesWorksheet.name).load("name");
-
-                        var oldRowInfoSorted = new Object();
-
-                        for (var oldName of oldHead[0]) {
-                            theGreatestFunctionEverWritten(oldHead, oldName, oldRowValues, oldLeTable, oldRowInfoSorted, aRow);
-                        }
-
-                        if (oldRowProperties.format.fill.color == "#F5D9FF") { //if the row is purple, do the following...  #F5D9FF
-                            console.log("Found a purple row!");
-                            console.log(`Table: ${oldCycleTables.name}\nRow Index: ${aRow}`);
-                            oldRowRange.format.fill.clear();
-                            //will need to run conditional formatting function next
-                            await context.sync();
-
-                            conditionalFormatting(oldRowInfoSorted, oldTableStart, theOldWorksheet, aRow, oldCompletedTableChanged, oldRowRange, null)
-                        };
-                    };
-                };
-            };
-
-            location.reload();
-
-        }).catch (err => {
-            console.log(err) // <--- does this log?
-            showMessage(err, "show");
-            context.runtime.enableEvents = true;
-        });
-    };
-
-
-    async function removeSelectionEvent() {
-        await Excel.run(selectionEvent.context, async(context) => {
-
-            //var worksheetOld = selectionEvent.context.workbook.worksheets.getItem()
-            selectionEvent.remove();
-
-            await context.sync();
-
-            selectionEvent = null;
-            console.log("Selection Event was removed");
-        });
-    };
-
-    async function removeChangeEvent() {
-        await Excel.run(changeEvent.context, async(context) => {
-            changeEvent.remove();
-
-            await context.sync();
-
-            changeEvent = null;
-            console.log("Change Event was removed");
-        });
-    };
-
-//#endregion -----------------------------------------------------------------------------------------------------------------------------------------
-
-//#region TABLE SELECTION HIGHLIGHTING ---------------------------------------------------------------------------------------------------------------
-
-    /**
-     * Adds a purple row highlight to the row of the current selection
-     * @param {Object} eventArgs The event arguments, which are details about the event that was triggered
-     */
-    async function onTableSelectionChangedEvents(eventArgs) {
-        await Excel.run(/*previousSelection,*/ async (context) => {
-
-            var theActiveWorksheet = context.workbook.worksheets.getItem(eventArgs.worksheetId);
-            var activeWorksheetTables = theActiveWorksheet.tables.load("items/count");
-
-            var currentRange = theActiveWorksheet.getRange(eventArgs.address);
-            var currentRow = currentRange.getRow();
-
-            await context.sync();
-
-            var activeWorksheetTablesCount = activeWorksheetTables.count;
-
-            if (previousSelectionObj.tableId !== "") { //if user has made a selection prior to the current selection without triggering a reload, the previousSelectionObj should have arguments that will bring the user into this function to load in variables to handle the previous row highlighting
-                //var previousTableId = eventArgs.tableId; // Table we came from
-
-                var previousTable = context.workbook.tables.getItem(previousSelectionObj.tableId);
-                previousTable.load("name/id");
-
-                var previousTableRows = previousTable.rows.load("items");
-
-                var previousWorksheet = previousTable.worksheet.load("name");
-
-                var previousRowIndex = previousSelectionObj.rowIndex - 1;
-
-                var previousSelectionRange = previousTable.rows.getItemAt(previousRowIndex).getRange();
-
-                var previousTableRange = previousTable.getDataBodyRange().load("values");
-                previousTableRange.load("columnIndex");
-
-                var previousSelectionAddress = previousSelectionObj.address;
-
-                var tablesAll = context.workbook.tables.load("items");
-
-            };
-
-
-            await context.sync();
-
-            if (previousTable !== undefined) { //if previousTable is undefined, then the last function never fired, meaning that thsi is the first time the user is selecting anything this run. Since there are no previous selection variables stored, we skip this function. 
-
-                var previousTableName = previousTable.name
-
-                var newLeTable = previousTableRange.values;
-
-                var listOfCompletedTables = [];
-
-                tablesAll.items.forEach(function (table) { //for each table in the workbook...
-                    if (table.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
-                        listOfCompletedTables.push(table.name); //push the name of that table into an array
-                    };
-                });
-
-                //returns true if the changedTable is a completed table from the array previously made, false if it is anything else
-                var completedTableChanged = listOfCompletedTables.includes(previousTable.name);
-
-                var headerRangeToo = previousTable.getHeaderRowRange().load("values");
-
-            };
-
-            var worksheetName = context.workbook.worksheets.getActiveWorksheet().load("name/id");
-
-            var selectedTable = context.workbook.tables.getItem(eventArgs.tableId).load("name");
-
-            var range = context.workbook.getSelectedRange();
-            range.load(['address', 'values', 'rowIndex']);
-
-            var selectedTableRows = selectedTable.rows.load("items");
-            var selectedTableRowsCount = selectedTable.rows.load("count");
-
-
-            await context.sync();
-
-            var isTableEmpty = selectedTableRowsCount.count;
-
-            if (isTableEmpty == 0) {
-                console.log("Table is empty, so no highlighting was applied");
-                return;
-            };
-
-            //adds formatting to current row
-            if (eventArgs.address !== "") { //if the selection address is not a part of a table, this function is skipped
-
-                //applies border to selected row
-                var rI = range.rowIndex;
-
-                if (rI == 0) {
-                    //previousTable = undefined;
-                    console.log("Selection is in the header row, so no formatting was applied")
-                } else {
-                    var bees = selectedTableRows.getItemAt(rI - 1).getRange();
-                    bees.load(["format/*", "format/fill", "format/borders", "format/font"]);
-                    bees.load("address");
-                };
-
-                await context.sync();
-
-                if (eventArgs.address == previousSelectionAddress) {
-                    previousTable = undefined;
-                    console.log("Current selection address was the same as the previous selection address, so previous row formatting was prevented");
-                };
-
-                //removes formatting from previous row in same table
-                if (previousTable !== undefined) {
-
-                    var headTwo = headerRangeToo.values;
-
-                    var zeRows = previousTableRows.items;
-                    var zeRowValues = zeRows[previousRowIndex].values
-
-                    var tableStart = previousTableRange.columnIndex;
-
-                    var rowInfoSorted = new Object();
-
-                    for (var name of headTwo[0]) {
-                        theGreatestFunctionEverWritten(headTwo, name, zeRowValues, newLeTable, rowInfoSorted, previousRowIndex);
-                    }
-
-
-                    conditionalFormatting(rowInfoSorted, tableStart, previousWorksheet, previousRowIndex, 
-                        completedTableChanged, previousSelectionRange, null);
-                };
-
-                if (rI !== 0) {
-                    bees.format.fill.color = "#F5D9FF";
-                    bees.format.font.color = "black";
-        
-                    previousSelectionObj.tableId = eventArgs.tableId;
-        
-                    previousSelectionObj.address = eventArgs.address;
-        
-                    previousSelectionObj.rowIndex = rI;
-                };
-
-            } else { //if the selection address is not a part of a table AND there is a previous selection still highlighted...
-
-                if (previousTable !== undefined) {
-
-                    var headTwo = headerRangeToo.values;
-
-                    var zeRows = previousTableRows.items;
-                    var zeRowValues = zeRows[previousRowIndex].values
-
-                    var tableStart = previousTableRange.columnIndex;
-
-                    var rowInfoSorted = new Object();
-
-                    for (var name of headTwo[0]) {
-                        theGreatestFunctionEverWritten(headTwo, name, zeRowValues, newLeTable, rowInfoSorted, previousRowIndex);
-                    }
-
-
-                    conditionalFormatting(rowInfoSorted, tableStart, previousWorksheet, previousRowIndex, 
-                        completedTableChanged, previousSelectionRange, null);
-                };
-
-            }
-
-        }).catch (err => {
-            if (dennisHere == true) {
-                return;
-            };
-            console.log(err) // <--- does this log?
-            showMessage(err, "show");
-            context.runtime.enableEvents = true;
-        });
-    };
-
-//#endregion -----------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
 //#region TASKPANE -----------------------------------------------------------------------------------------------------------------------------------
 
-
     //#region STYLIZING TASKPANE ELEMENTS ------------------------------------------------------------------------------------------------------------
-
 
         //#region STYLIZE SPECIFIC CHARACTERS --------------------------------------------------------------------------------------------------------
 
             //this stylizes all * characeters in the container element to use different CSS than other character elements
             $("#container").each(function () {
-                $(this).html($(this).html().replace(/(\*)/g, '<span style="color: rgba(220, 20, 60, 0.50); font-size: 9pt; padding-left: 1px; padding-bottom: 1px;">$1</span>'));
+                $(this).html($(this).html().replace(/(\*)/g, 
+                '<span style="color: rgba(220, 20, 60, 0.50); font-size: 9pt; padding-left: 1px; padding-bottom: 1px;">$1</span>'));
             });
 
         //#endregion ---------------------------------------------------------------------------------------------------------------------------------
-
 
         //#region WHEN THESE TASKPANE ITEMS ARE NO LONGER FOCUSED ON, DO SOMETHING -------------------------------------------------------------------
 
@@ -967,7 +396,6 @@ $(() => {
             });
 
         //#endregion ---------------------------------------------------------------------------------------------------------------------------------
-
 
         //#region ADD WARNING CLASS ------------------------------------------------------------------------------------------------------------------
 
@@ -987,7 +415,6 @@ $(() => {
 
         //#endregion ---------------------------------------------------------------------------------------------------------------------------------
 
-
         //#region REMOVE WARNING CLASS ---------------------------------------------------------------------------------------------------------------
 
             /**
@@ -1005,9 +432,7 @@ $(() => {
 
         //#endregion ---------------------------------------------------------------------------------------------------------------------------------
 
-
     //#endregion -------------------------------------------------------------------------------------------------------------------------------------
-
 
     //#region UPDATE DROPDOWNS -----------------------------------------------------------------------------------------------------------------------
 
@@ -1219,7 +644,6 @@ $(() => {
 
     //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
-
     //#region AUTO POPULATE TASKPANE FIELDS ----------------------------------------------------------------------------------------------------------
 
         //#region AUTO POPULATE TASKPANE BASED ON SUBJECT --------------------------------------------------------------------------------------------
@@ -1387,7 +811,6 @@ $(() => {
 
         //#endregion ---------------------------------------------------------------------------------------------------------------------------------
 
-
         //#region AUTO POPULATE GROUP BASED ON PRINT DATE --------------------------------------------------------------------------------------------
 
             $("#print-date").change(() => tryCatch(printToGroupLink));
@@ -1416,7 +839,6 @@ $(() => {
         //#endregion ---------------------------------------------------------------------------------------------------------------------------------
 
     //#endregion -------------------------------------------------------------------------------------------------------------------------------------
-
 
     //#region TASKPANE BUTTONS -----------------------------------------------------------------------------------------------------------------------
 
@@ -1457,6 +879,41 @@ $(() => {
                 removeWarningClass("#project-type", "#warning4");
 
             });
+
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+
+        //#region OTHER BUTTONS ----------------------------------------------------------------------------------------------------------------------
+
+                $("#meece").on("click", () => {
+                    //location.reload();
+                    console.log("CLICKED🐭");
+                    showElement("#fissh", "show");
+                })
+
+                $(".ok").on("click", function() {
+                    showElement("#fissh", "hide");
+                    showFisshGif();
+                    //location.reload();
+                });
+
+                $(".dont").on("click", function() {
+                    showElement("#fissh", "hide");
+                });
+
+                $("#close-xp").on("click", function() {
+                    showElement("#fissh", "hide");
+                });
+
+                $("#reload").on("click", function() {
+                    // Hide the message
+                    // alert("YES YOU ARE!");
+                    showMessage(undefined, "hide");
+                    location.reload();
+                });
+
+                $(".gotcha").on("click", function() {
+                    showElement("#na-ah-ah", "hide");
+                });
 
         //#endregion ---------------------------------------------------------------------------------------------------------------------------------
 
@@ -1519,7 +976,6 @@ $(() => {
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
 
-
                     //#region GET INPUT FROM TASKPANE ------------------------------------------------------------------------------------------------
 
                         // Data from DOM
@@ -1541,7 +997,6 @@ $(() => {
                         var notes = $("#notes").val();
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
-
 
                     //#region WRITE ARRAY ------------------------------------------------------------------------------------------------------------
 
@@ -1763,7 +1218,7 @@ $(() => {
 
                         };
 
-                    //#endregion -------------------------------------------------------------------------------------------------------------------------
+                    //#endregion ---------------------------------------------------------------------------------------------------------------------
 
                 });
 
@@ -1774,349 +1229,185 @@ $(() => {
 
         //#endregion ---------------------------------------------------------------------------------------------------------------------------------
 
-        //#region ADD A PROJECT SUB-FUNCTIONS --------------------------------------------------------------------------------------------------------
+    //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
-            //#region AUTOFILL STATUS COLUMN ---------------------------------------------------------------------------------------------------------
+    //#region TABLE SELECTION HIGHLIGHTING -----------------------------------------------------------------------------------------------------------
 
-                /**
-                 * If the table name is "UnassignedProjects", sets status to "Awaiting Artist", otherwise sets status to "Not Working"
-                 * @param {String} tableName The name of the table
-                 * @returns String
-                 */    
-                function statusAutofill(tableName) {
-                    //if the table the row was inserted into is "UnassignedProjects", set status column to "Awaiting Artist"
-                    if (tableName == "UnassignedProjects") {
-                        var status = "Awaiting Artist";
-                    };
-                    //if the table the row was inserted into is not "UnassaignedProjects"...
-                    if (tableName !== "UnassignedProjects") {
-                        var status = "Not Working";
-                    };
-                    return status;
-                };
+        /**
+         * Adds a purple row highlight to the row of the current selection
+         * @param {Object} eventArgs The event arguments, which are details about the event that was triggered
+         */
+        async function onTableSelectionChangedEvents(eventArgs) {
+            await Excel.run(/*previousSelection,*/ async (context) => {
 
-            //#endregion -----------------------------------------------------------------------------------------------------------------------------
+                var theActiveWorksheet = context.workbook.worksheets.getItem(eventArgs.worksheetId);
+                var activeWorksheetTables = theActiveWorksheet.tables.load("items/count");
 
+                var currentRange = theActiveWorksheet.getRange(eventArgs.address);
+                var currentRow = currentRange.getRow();
 
-            //#region AUTOFILL ARTIST COLUMN ---------------------------------------------------------------------------------------------------------
+                await context.sync();
 
-                /**
-                 * If table is "UnassignedProjects", sets artist to "Unassigned", otherwise sets artist to the name of the worksheet
-                 * @param {String} tableName The name of the table
-                 * @param {String} leSheetName The name of the worksheet
-                 * @returns String
-                 */
-                function artistAutofill(tableName, leSheetName) {
-                    if (tableName == "UnassignedProjects") {
-                        var artist = "Unassigned";
-                    } else if (tableName !== "UnassignedProjects") {
-                        var artist = leSheetName;
-                    };
-                    return artist;
-                };
+                var activeWorksheetTablesCount = activeWorksheetTables.count;
 
-            //#endregion -----------------------------------------------------------------------------------------------------------------------------
+                //if user has made a selection prior to the current selection without triggering a reload, the previousSelectionObj should 
+                //have arguments that will bring the user into this function to load in variables to handle the previous row highlighting
+                if (previousSelectionObj.tableId !== "") {
+                    //var previousTableId = eventArgs.tableId; // Table we came from
 
+                    var previousTable = context.workbook.tables.getItem(previousSelectionObj.tableId);
+                    previousTable.load("name/id");
 
-            //#region OFFICE HOURS FUNCTION ----------------------------------------------------------------------------------------------------------
+                    var previousTableRows = previousTable.rows.load("items");
 
-                /**
-                 * Adds adjustment hours to the date and adjusts to fit within office hours
-                 * @param {Date} date the added date
-                 * @param {Number} hoursToAdd The humber of adjustment hours to add to the added date
-                 * @returns Date
-                 */
-                function officeHours(date, hoursToAdd) {
+                    var previousWorksheet = previousTable.worksheet.load("name");
 
-                    //#region FUNCTION VARIABLES -----------------------------------------------------------------------------------------------------
+                    var previousRowIndex = previousSelectionObj.rowIndex - 1;
 
-                        //date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
-                        //gets the day of the week
-                        var theDay = date.getDay();
-                        if (theDay == 0) {theDay = "Sunday"} else if (theDay == 1) {theDay = "Monday"} else if (theDay == 2) {theDay = "Tuesday"} else if (theDay == 3) {theDay = "Wednesday"} else if (theDay == 4) {theDay = "Thursday"} else if (theDay == 5) {theDay = "Friday"} else if (theDay == 6) {theDay = "Saturday"};
+                    var previousSelectionRange = previousTable.rows.getItemAt(previousRowIndex).getRange();
 
-                        var adjustmentMinutes = hoursToAdd * 60; // 12.5 hours = 750 minutes
-                        var includesWeekends = false;
+                    var previousTableRange = previousTable.getDataBodyRange().load("values");
+                    previousTableRange.load("columnIndex");
 
-                        var current = new Date(date); //clone of the date variable that calculations will be made to
-                        //current.setMinutes(current.getMinutes() - current.getTimezoneOffset()); //removes time zone offset to bring all dates to the same level
+                    var previousSelectionAddress = previousSelectionObj.address;
 
-                        //#region SET DATES WITH 0 TIME ----------------------------------------------------------------------------------------------
-
-                            //set workDayStart date to = date, but have the time be 0 (will assign times to later)
-                            var workDayStart = new Date(date);
-                            workDayStart.setHours(0);
-                            workDayStart.setMinutes(0);
-                            workDayStart.setSeconds(0);
-                            workDayStart.setMilliseconds(0);
-
-                            //set workDayEnd date to = date, but have the time be 0 (will assign times to later)
-                            var workDayEnd = new Date(date);
-                            workDayEnd.setHours(0);
-                            workDayEnd.setMinutes(0);
-                            workDayEnd.setSeconds(0);
-                            workDayEnd.setMilliseconds(0);
-
-                        //#endregion -----------------------------------------------------------------------------------------------------------------
-
-                        //#region CREATE START TIME AND END TIME VARIABLES FOR THE DATE --------------------------------------------------------------
-
-                            var weekdayVars = officeHoursData[theDay] //returns all the info for the weekday that date lands on
-
-                            //#region CREATE START TIME DATE -----------------------------------------------------------------------------------------
-
-                                //this varibale will have the correct start time but will still be using the ground 0 date for serial numbers. Will be adjusted up next
-                                var theStart = convertToDate(weekdayVars.startTime); //converts serial number to JSDate for start of work day
-                                //sets that date of theStart to be at ground 0 for JSDates
-                                theStart.setFullYear(1970);
-                                theStart.setMonth(0);
-                                theStart.setDate(1);
-                                //removes time zone offset to bring all dates to the same level
-                                theStart.setMinutes(theStart.getMinutes() - theStart.getTimezoneOffset());
-                                //gives us the milliseconds between 0 and this time
-                                var fartTime = theStart.getTime();
-                                workDayStart.setMilliseconds(fartTime); //adds the startTime to the correct date variable from eariler
-
-                            //#endregion -------------------------------------------------------------------------------------------------------------
-
-                            //#region CREATE END TIME DATE -------------------------------------------------------------------------------------------
-
-                                //this varibale will have the correct end time but will still be using the ground 0 date for serial numbers. 
-                                //Will be adjusted up next
-                                var theEnd = convertToDate(weekdayVars.endTime); //converts serial number to JSDate for end of work day
-                                //sets that date of theEnd to be at ground 0 for JSDates
-                                theEnd.setFullYear(1970);
-                                theEnd.setMonth(0);
-                                theEnd.setDate(1);
-                                //removes time zone offset to bring all dates to the same level
-                                theEnd.setMinutes(theEnd.getMinutes() - theEnd.getTimezoneOffset());
-                                //gives us the milliseconds between 0 and this time
-                                var shartTime = theEnd.getTime();
-                                workDayEnd.setMilliseconds(shartTime); //adds the endTime to the correct date variable from eariler
-
-                            //#endregion -------------------------------------------------------------------------------------------------------------
-
-                        //#endregion -----------------------------------------------------------------------------------------------------------------
-
-                    //#endregion ---------------------------------------------------------------------------------------------------------------------
-
-
-                    //#region WHILE ADJUSTMENT NUMBER REMAINS POSITIVE -------------------------------------------------------------------------------
-
-                        while(adjustmentMinutes > 0) {
-
-                            //#region RECALCULATE START AND END TIMES IF DATE ADVANCES ---------------------------------------------------------------
-
-                                var currentInfo = shortDate(current);
-                                var dateInfo = shortDate(date);
-
-                                // if (current.toLocaleDateString('en-US') !== date.toLocaleDateString('en-US')) { //if we go on into another day, 
-                                //recalculate start and end time dates
-                                //if (current.getDay() !== date.getDay()) { //if we go on into another day, recalculate start and end time dates
-                                if (currentInfo !== dateInfo) {
-
-                                    //gets the day of the week
-                                    var theDay = current.getDay();
-                                    if (theDay == 0) {
-                                        theDay = "Sunday"
-                                    } else if (theDay == 1) {
-                                        theDay = "Monday"
-                                    } else if (theDay == 2) {
-                                        theDay = "Tuesday"
-                                    } else if (theDay == 3) {
-                                        theDay = "Wednesday"
-                                    } else if (theDay == 4) {
-                                        theDay = "Thursday"
-                                    } else if (theDay == 5) {
-                                        theDay = "Friday"
-                                    } else if (theDay == 6) {
-                                        theDay = "Saturday"
-                                    };
-
-                                    //#region SET DATES WITH 0 TIME (CURRENT) ------------------------------------------------------------------------
-
-                                        //set workDayStart date to = current date, but have the time be 0 (will assign times to later)
-                                        var workDayStart = new Date(current);
-                                        workDayStart.setHours(0);
-                                        workDayStart.setMinutes(0);
-                                        workDayStart.setSeconds(0);
-                                        workDayStart.setMilliseconds(0);
-
-                                        //set workDayEnd date to = current date, but have the time be 0 (will assign times to later)
-                                        var workDayEnd = new Date(current);
-                                        workDayEnd.setHours(0);
-                                        workDayEnd.setMinutes(0);
-                                        workDayEnd.setSeconds(0);
-                                        workDayEnd.setMilliseconds(0);
-
-                                    //#endregion -----------------------------------------------------------------------------------------------------
-
-                                    //#region CREATE START TIME AND END TIME VARIABLES FOR THE DATE (CURRENT) ----------------------------------------
-
-                                        //gets start and end times of date's work day
-                                        weekdayVars = officeHoursData[theDay] //returns all the info for the weekday that date lands on
-
-                                        //#region CREATE START TIME DATE (CURRENT) -------------------------------------------------------------------
-
-                                            theStart = convertToDate(weekdayVars.startTime); //converts serial number to JSDate for start of work day
-                                            theStart.setFullYear(1970);
-                                            theStart.setMonth(0);
-                                            theStart.setDate(1);
-                                            //removes time zone offset to bring all dates to the same level
-                                            theStart.setMinutes(theStart.getMinutes() - theStart.getTimezoneOffset()); 
-                                            fartTime = theStart.getTime();
-                                            workDayStart.setMilliseconds(fartTime);
-
-                                        //#endregion -------------------------------------------------------------------------------------------------
-
-                                        //#region CREATE END TIME DATE (CURRENT) ---------------------------------------------------------------------
-
-                                            theEnd = convertToDate(weekdayVars.endTime); //converts serial number to JSDate for end of work day
-                                            theEnd.setFullYear(1970);
-                                            theEnd.setMonth(0);
-                                            theEnd.setDate(1);
-                                            //removes time zone offset to bring all dates to the same level
-                                            theEnd.setMinutes(theEnd.getMinutes() - theEnd.getTimezoneOffset()); 
-                                            shartTime = theEnd.getTime();
-                                            workDayEnd.setMilliseconds(shartTime);
-
-                                        //#endregion -------------------------------------------------------------------------------------------------
-
-                                    //#endregion -----------------------------------------------------------------------------------------------------
-
-                                };
-
-                            //#endregion -------------------------------------------------------------------------------------------------------------
-
-                            //#region INCREMENT ------------------------------------------------------------------------------------------------------
-
-                                //if current is still within the workday and not on a weekend, subtract 1 minute from the adjustment number
-                                if (current > workDayStart 
-                                    && current < workDayEnd 
-                                    && (includesWeekends ? current.getDay() !== 0 
-                                    && current.getDay() !== 6 : true)) {
-                                        adjustmentMinutes--;
-                                };
-                                current.setTime(current.getTime() + 1000 * 60); //adds 1 minute to current time
-
-                            //#endregion -------------------------------------------------------------------------------------------------------------
-
-                        };
-
-                    //#endregion ---------------------------------------------------------------------------------------------------------------------
-
-                    return current;
+                    var tablesAll = context.workbook.tables.load("items");
 
                 };
 
-            //#endregion -----------------------------------------------------------------------------------------------------------------------------
 
+                await context.sync();
 
-            //#region FUNCTIONS USED IN OFFICE HOURS -------------------------------------------------------------------------------------------------
+                //if previousTable is undefined, then the last function never fired, meaning that thsi is the first time the user is selecting 
+                //anything this run. Since there are no previous selection variables stored, we skip this function. 
+                if (previousTable !== undefined) {
 
-                //#region SHORT DATE -----------------------------------------------------------------------------------------------------------------
+                    var previousTableName = previousTable.name
 
-                    /**
-                     * Takes the date, month, and year from the input and outputs it as month, date, year date object (or sting)
-                     * @param {Date} aDate A date object
-                     * @returns Date? Or maybe a String?
-                     */
-                    function shortDate(aDate) {
-                        var day = aDate.getDate();
-                        var month = aDate.getMonth();
-                        var year = aDate.getFullYear();
-                        var output = `${month} ${day} ${year}`;
-                        return output;
-                    };
+                    var newLeTable = previousTableRange.values;
 
-                //#endregion -------------------------------------------------------------------------------------------------------------------------
+                    var listOfCompletedTables = [];
 
-
-                //#region CONVERT DATE TO SERIAL -----------------------------------------------------------------------------------------------------
-
-                    /**
-                     * Converts input date into serial number that excel can apply conditional formatting to
-                     * @param {Date} inDate A date variable
-                     * @returns String
-                     */
-                    function JSDateToExcelDate(inDate) {
-                        var returnDateTime = 25569.0 + ((inDate.getTime() - (inDate.getTimezoneOffset() * 60 * 1000)) / (1000 * 60 * 60 * 24));
-                        //var returnDateTime = 25569.0 + ((inDate.getTime()) / (1000 * 60 * 60 * 24));
-                        return returnDateTime.toString().substr(0,20);
-                    };
-
-                //#endregion -------------------------------------------------------------------------------------------------------------------------
-
-
-                //#region CONVERT SERIAL TO DATE -----------------------------------------------------------------------------------------------------
-
-                    /**
-                     * Finds the value of Date Added in the changed row and converts it to be a date object in EST.
-                     * @param {Number} serial The serial number to be converted
-                     * @returns Date
-                     */
-                    function convertToDate(serial) {
-                        var date = new Date(Math.round((serial - 25569)*86400*1000)); //convert serial number to date object
-                        date.setMinutes(date.getMinutes() + date.getTimezoneOffset()); //adjusting from GMT to EST (adds 4 hours)
-                        return date;
-                    };
-
-                //#endregion -------------------------------------------------------------------------------------------------------------------------
-
-
-                //#region ALL COLUMN VALUES ----------------------------------------------------------------------------------------------------------
-
-                    /**
-                     * Returns an array of the all the values from a specific column in a table
-                     * @param {Array} tableValues An array of arrays containing all the data from the table
-                     * @param {Number} columnIndex Index number of the column we are trying to make an array of from its data
-                     * @returns Array
-                     */
-                    function allColumnValues(tableValues, columnIndex) {
-
-                        var PUTimeArr = [];
-
-                        for (var row of tableValues) { //for each row in the table
-                            var PUTurnAroundTime = row[columnIndex]; //get the item where the row and columnIndex values meet
-                            PUTimeArr.push(PUTurnAroundTime); //push this value to a new array
+                    tablesAll.items.forEach(function (table) { //for each table in the workbook...
+                        if (table.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
+                            listOfCompletedTables.push(table.name); //push the name of that table into an array
                         };
+                    });
 
-                        return PUTimeArr;
+                    //returns true if the changedTable is a completed table from the array previously made, false if it is anything else
+                    var completedTableChanged = listOfCompletedTables.includes(previousTable.name);
 
+                    var headerRangeToo = previousTable.getHeaderRowRange().load("values");
+
+                };
+
+                var worksheetName = context.workbook.worksheets.getActiveWorksheet().load("name/id");
+
+                var selectedTable = context.workbook.tables.getItem(eventArgs.tableId).load("name");
+
+                var range = context.workbook.getSelectedRange();
+                range.load(['address', 'values', 'rowIndex']);
+
+                var selectedTableRows = selectedTable.rows.load("items");
+                var selectedTableRowsCount = selectedTable.rows.load("count");
+
+
+                await context.sync();
+
+                var isTableEmpty = selectedTableRowsCount.count;
+
+                if (isTableEmpty == 0) {
+                    console.log("Table is empty, so no highlighting was applied");
+                    return;
+                };
+
+                //adds formatting to current row
+                if (eventArgs.address !== "") { //if the selection address is not a part of a table, this function is skipped
+
+                    //applies border to selected row
+                    var rI = range.rowIndex;
+
+                    if (rI == 0) {
+                        //previousTable = undefined;
+                        console.log("Selection is in the header row, so no formatting was applied")
+                    } else {
+                        var bees = selectedTableRows.getItemAt(rI - 1).getRange();
+                        bees.load(["format/*", "format/fill", "format/borders", "format/font"]);
+                        bees.load("address");
                     };
 
-                //#endregion -------------------------------------------------------------------------------------------------------------------------
+                    await context.sync();
 
-
-                //#region FIND COLUMN INDEX ----------------------------------------------------------------------------------------------------------
-
-                    /**
-                     * Returns index of a column name based on it's position in the header row
-                     * @param {Array} header An array of arrays containing all the headers in the table
-                     * @param {String} columnName The name of the column that we are trying to find an index number for
-                     * @returns Number
-                     */
-                    function findColumnIndex(header, columnName) {
-                        var i = 0;
-                        var jelly;
-
-                        for (var column of header[0]) { //for each item in the header array
-                            //if the item matches the columnName input, return the value of i, otherwise increment i & continue through rest of array
-                            if (column == columnName) { 
-                                jelly = i;
-                                return jelly;
-                            }
-                            i++;
-                        };
+                    if (eventArgs.address == previousSelectionAddress) {
+                        previousTable = undefined;
+                        console.log("Current selection address was the same as previous selection address, so previous row formatting was prevented");
                     };
 
-                //#endregion -------------------------------------------------------------------------------------------------------------------------
+                    //removes formatting from previous row in same table
+                    if (previousTable !== undefined) {
+
+                        var headTwo = headerRangeToo.values;
+
+                        var zeRows = previousTableRows.items;
+                        var zeRowValues = zeRows[previousRowIndex].values
+
+                        var tableStart = previousTableRange.columnIndex;
+
+                        var rowInfoSorted = new Object();
+
+                        for (var name of headTwo[0]) {
+                            theGreatestFunctionEverWritten(headTwo, name, zeRowValues, newLeTable, rowInfoSorted, previousRowIndex);
+                        }
 
 
-            //#endregion -----------------------------------------------------------------------------------------------------------------------------
+                        conditionalFormatting(rowInfoSorted, tableStart, previousWorksheet, previousRowIndex, 
+                            completedTableChanged, previousSelectionRange, null);
+                    };
+
+                    if (rI !== 0) {
+                        bees.format.fill.color = "#F5D9FF";
+                        bees.format.font.color = "black";
+            
+                        previousSelectionObj.tableId = eventArgs.tableId;
+            
+                        previousSelectionObj.address = eventArgs.address;
+            
+                        previousSelectionObj.rowIndex = rI;
+                    };
+
+                } else { //if the selection address is not a part of a table AND there is a previous selection still highlighted...
+
+                    if (previousTable !== undefined) {
+
+                        var headTwo = headerRangeToo.values;
+
+                        var zeRows = previousTableRows.items;
+                        var zeRowValues = zeRows[previousRowIndex].values
+
+                        var tableStart = previousTableRange.columnIndex;
+
+                        var rowInfoSorted = new Object();
+
+                        for (var name of headTwo[0]) {
+                            theGreatestFunctionEverWritten(headTwo, name, zeRowValues, newLeTable, rowInfoSorted, previousRowIndex);
+                        }
 
 
-        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+                        conditionalFormatting(rowInfoSorted, tableStart, previousWorksheet, previousRowIndex, 
+                            completedTableChanged, previousSelectionRange, null);
+                    };
+
+                }
+
+            }).catch (err => {
+                if (dennisHere == true) {
+                    return;
+                };
+                console.log(err) // <--- does this log?
+                showMessage(err, "show");
+                context.runtime.enableEvents = true;
+            });
+        };
 
     //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
@@ -2516,7 +1807,6 @@ $(() => {
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
 
-
                     //#region PRINT DATE / GROUP LETTER AUTO UPDATE ----------------------------------------------------------------------------------
 
                         if ((changedColumnIndex == rowInfo.printDate.columnIndex) || (changedColumnIndex == rowInfo.group.columnIndex)) {
@@ -2610,7 +1900,6 @@ $(() => {
                         };
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
-
 
                     //#region MOVE DATA BETWEEN TABLES -----------------------------------------------------------------------------------------------
 
@@ -3397,7 +2686,8 @@ $(() => {
                                 for (var name of head[0]) {
                                     theGreatestFunctionEverWritten(head, name, rowValuesSorted, leTableSorted, rowInfoSorted, m);
                                 };
-                                conditionalFormatting(rowInfoSorted, newTableStart, newChangedWorksheet, m, completedTableChanged, rowRangeSorted, destTable);
+                                conditionalFormatting(rowInfoSorted, newTableStart, newChangedWorksheet, m, 
+                                    completedTableChanged, rowRangeSorted, destTable);
                             };
                         };
 
@@ -3424,6 +2714,1118 @@ $(() => {
 
 //#region FUNCTIONS ----------------------------------------------------------------------------------------------------------------------------------
 
+    //#region ACTIVATION HANDLERS --------------------------------------------------------------------------------------------------------------------
+
+        //#region REGISTER ON WORKSHEET ACTIVATE HANDLER & BINDS OTHER HANDLERS TO CURRENT SHEET -----------------------------------------------------
+
+            /**
+             * Enables onSelectionChanged event upon inital load and any reloads of the taskpane
+             */
+            async function registerOnActivateHandler() {
+                await Excel.run(async (context) => {
+
+                    // console.log("Inital load Selection Event: ");
+                    // console.log(selectionEvent);
+                    // removeSelectionEvent();
+
+                    console.log("Reload activation function fired!");
+                    let sheets = context.workbook.worksheets;
+                    var activeSheet = context.workbook.worksheets.getActiveWorksheet().load("worksheetId");
+                    activeSheet.load("name");
+
+                    context.runtime.load("enableEvents");
+
+                    var theAllTable = context.workbook.tables.load("count"); //all of the tables in the workbook
+                    theAllTable.load("items");
+
+                    var worksheetTables = activeSheet.tables.load("items/count");
+
+
+                    await context.sync();
+
+                    context.runtime.enableEvents = false;
+                    console.log("Events: OFF - Occured in registerOnActivateHandler");
+
+                    activeSheetName = activeSheet.name;
+
+                    console.log(activeSheetName);
+
+                    if (activeSheet.name == "Validation") {
+                        console.log("Active sheet is the Validation sheet, so onSelection & onChange events have been bound");
+                        sheets.onActivated.add(onActivate);
+                        sheets.onDeactivated.add(onDeactivate);
+                        eventsOn();
+                        console.log("Events: ON  →  turned on in the registerOnActivateHandler function, but for the Validation sheet");
+                        return;
+                    };
+
+                    var worksheetTablesCount = worksheetTables.count; //the number of tables in the workbook
+
+                    //cycles through each table in the workbook
+                    for (var p = 0; p < worksheetTablesCount; p++) { // <-- looping your tables
+                        var cycleTables = worksheetTables.getItemAt(p).load("name/worksheet");
+
+                        var cycleTableRows = cycleTables.rows.load("items");
+
+                        var tablesWorksheet = cycleTables.worksheet.load("name");
+
+                        var cycleBodyRange = cycleTables.getDataBodyRange().load("values"); //gets range of table
+                        cycleBodyRange.load("columnIndex");
+
+                        cycleBodyRange.load(["rowCount", "columnCount", "cellCount"]);
+
+                        var headerRange = cycleTables.getHeaderRowRange().load("values");
+
+                        const usedDataRange = cycleBodyRange.getUsedRangeOrNullObject(
+                            true /* valuesOnly */
+                        );
+
+                        var propertiesToGet = cycleBodyRange.getRowProperties({ //gets format properties of the rows in the table
+                            format: {
+                                fill: {
+                                    color: true
+                                },
+                                font: {
+                                    bold: true,
+                                    color: true
+                                }
+                            },
+                            rowIndex: true
+                        });
+
+                        await context.sync();
+
+                        var head = headerRange.values;
+
+                        var leTable = cycleBodyRange.values
+
+                        var listOfCompletedTables = [];
+                        if (cycleTables.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
+                            listOfCompletedTables.push(cycleTables.name); //push the name of that table into an array
+                        };
+
+                        //returns true if the changedTable is a completed table from the array previously made, false if it is anything else
+                        var completedTableChanged = listOfCompletedTables.includes(cycleTables.name);
+
+                        if (tablesWorksheet.name !== "Validation" && usedDataRange.isNullObject !== true) { //ignore all tables in Validation sheet
+                            //cycles through each row in the table
+                            for (var iRow = 0; iRow < cycleBodyRange.rowCount; iRow++) {
+                                var theRows = cycleTableRows.items
+                                var rowValues = theRows[iRow].values
+                                var rowRange = cycleTables.rows.getItemAt(iRow).getRange(); //range of row we are currently on
+                                var rowProperties = propertiesToGet.value[iRow]; //loads in those row properites from eariler
+                                var tableStart = cycleBodyRange.columnIndex;
+
+                                var theWorksheet = context.workbook.worksheets.getItem(tablesWorksheet.name).load("name");
+
+                                var rowInfoSorted = new Object();
+
+                                for (var name of head[0]) {
+                                    theGreatestFunctionEverWritten(head, name, rowValues, leTable, rowInfoSorted, iRow);
+                                }
+
+                                if (rowProperties.format.fill.color == "#F5D9FF") { //if the row is purple, do the following...  #F5D9FF
+                                    console.log("Found a purple row!");
+                                    console.log(`Table: ${cycleTables.name}\nRow Index: ${iRow}`);
+                                    rowRange.format.fill.clear();
+                                    //will need to run conditional formatting function next
+                                    await context.sync();
+
+                                    conditionalFormatting(rowInfoSorted, tableStart, theWorksheet, iRow, completedTableChanged, rowRange, null)
+                                };
+                            };
+                        };
+                    };
+
+                    for (var y = 0; y < worksheetTablesCount; y++) {
+                        var bonTable = worksheetTables.getItemAt(y);
+
+                        changeEvent = bonTable.onChanged.add(onTableChanged);
+
+                        selectionEvent = bonTable.onSelectionChanged.add(onTableSelectionChangedEvents);
+
+                    };
+
+                    sheets.onActivated.add(onActivate);
+                    sheets.onDeactivated.add(onDeactivate);
+
+                    console.log("A handler has been registered for the OnActivate event.");
+
+                    eventsOn();
+                    console.log("Events: ON  →  turned on in the registerOnActivateHandler function, typically triggered by a reload");
+
+                }).catch (err => {
+                    console.log(err) // <--- does this log?
+                    showMessage(err, "show");
+                    context.runtime.enableEvents = true;
+                });
+            };
+
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+
+        //#region ON NEW WORKSHEET ACTIVATE ----------------------------------------------------------------------------------------------------------
+
+            /**
+             * When the worksheet changes, this fires and binds the events to the first table that is selected in the sheet
+             * @param {Object} eventArgs The event arguments, which are details about the event that was triggered
+             */
+            async function onActivate(eventArgs) {
+                await Excel.run(async (context) => {
+
+                    // console.log("Worksheet change Selection Event: ");
+                    // console.log(selectionEvent);
+                    // removeSelectionEvent();
+                    console.log("Source of the onActivate event: " + eventArgs.source);
+
+                    console.log("Worksheet Switched (onActivate) function fired");
+
+                    activatedWorksheet = context.workbook.worksheets.getItem(eventArgs.worksheetId);
+
+                    console.log("The activated worksheet Id : " + eventArgs.worksheetId);
+
+                    //activatedTables = currentWorksheet.tables.load("items/count");
+
+                    // context.runtime.load("enableEvents");
+
+                    var theAllTable = context.workbook.tables.load("count"); //all of the tables in the workbook
+                    theAllTable.load("items");
+
+                    var worksheetTables = activatedWorksheet.tables.load("items/count");
+
+                    await context.sync();
+
+                    // context.runtime.enableEvents = false;
+                    // console.log("Events: OFF - Occured in registerOnActivateHandler");
+
+                    console.log("The deactivation worksheet ID is: " + deactivatedWorksheetId)
+
+                    var oldWorksheet = context.workbook.worksheets.getItem(deactivatedWorksheetId);
+
+                    var oldWorksheetTables = oldWorksheet.tables.load("items/count");
+
+                    await context.sync();
+
+                    var oldWorksheetTablesCount = oldWorksheetTables.count; //the number of tables in the workbook
+
+                    //cycles through each table in the workbook
+                    for (var p = 0; p < oldWorksheetTablesCount; p++) { // <-- looping your tables
+                        var oldCycleTables = oldWorksheetTables.getItemAt(p).load("name/worksheet");
+
+                        var oldCycleTableRows = oldCycleTables.rows.load("items");
+
+                        var oldTablesWorksheet = oldCycleTables.worksheet.load("name");
+
+                        var oldCycleBodyRange = oldCycleTables.getDataBodyRange().load("values"); //gets range of table
+                        oldCycleBodyRange.load("columnIndex");
+
+                        oldCycleBodyRange.load(["rowCount", "columnCount", "cellCount"]);
+
+                        var oldHeaderRange = oldCycleTables.getHeaderRowRange().load("values");
+
+                        const oldUsedDataRange = oldCycleBodyRange.getUsedRangeOrNullObject(
+                            true /* valuesOnly */
+                        );
+
+                        var oldPropertiesToGet = oldCycleBodyRange.getRowProperties({ //gets format properties of the rows in the table
+                            format: {
+                                fill: {
+                                    color: true
+                                },
+                                font: {
+                                    bold: true,
+                                    color: true
+                                }
+                            },
+                            rowIndex: true
+                        });
+
+                        await context.sync();
+
+                        var oldHead = oldHeaderRange.values;
+
+                        var oldLeTable = oldCycleBodyRange.values
+
+                        var oldListOfCompletedTables = [];
+                        if (oldCycleTables.name.includes("Completed")) { //if the table name includes the word "Completed" in it...
+                            oldListOfCompletedTables.push(oldCycleTables.name); //push the name of that table into an array
+                        };
+
+                        //returns true if the changedTable is a completed table from the array previously made, false if it is anything else
+                        var oldCompletedTableChanged = oldListOfCompletedTables.includes(oldCycleTables.name);
+
+                        //ignore all tables in Validation sheet cycles through each row in the table
+                        if (oldTablesWorksheet.name !== "Validation" && oldUsedDataRange.isNullObject !== true) { 
+                            for (var aRow = 0; aRow < oldCycleBodyRange.rowCount; aRow++) {
+                                var theOldRows = oldCycleTableRows.items
+                                var oldRowValues = theOldRows[aRow].values
+                                var oldRowRange = oldCycleTables.rows.getItemAt(aRow).getRange(); //range of row we are currently on
+                                var oldRowProperties = oldPropertiesToGet.value[aRow]; //loads in those row properites from eariler
+                                var oldTableStart = oldCycleBodyRange.columnIndex;
+
+                                var theOldWorksheet = context.workbook.worksheets.getItem(oldTablesWorksheet.name).load("name");
+
+                                var oldRowInfoSorted = new Object();
+
+                                for (var oldName of oldHead[0]) {
+                                    theGreatestFunctionEverWritten(oldHead, oldName, oldRowValues, oldLeTable, oldRowInfoSorted, aRow);
+                                }
+
+                                if (oldRowProperties.format.fill.color == "#F5D9FF") { //if the row is purple, do the following...  #F5D9FF
+                                    console.log("Found a purple row!");
+                                    console.log(`Table: ${oldCycleTables.name}\nRow Index: ${aRow}`);
+                                    oldRowRange.format.fill.clear();
+                                    //will need to run conditional formatting function next
+                                    await context.sync();
+
+                                    conditionalFormatting(oldRowInfoSorted, oldTableStart, theOldWorksheet, 
+                                        aRow, oldCompletedTableChanged, oldRowRange, null)
+                                };
+                            };
+                        };
+                    };
+
+                    location.reload();
+
+                }).catch (err => {
+                    console.log(err) // <--- does this log?
+                    showMessage(err, "show");
+                    context.runtime.enableEvents = true;
+                });
+            };
+
+
+            async function removeSelectionEvent() {
+                await Excel.run(selectionEvent.context, async(context) => {
+
+                    //var worksheetOld = selectionEvent.context.workbook.worksheets.getItem()
+                    selectionEvent.remove();
+
+                    await context.sync();
+
+                    selectionEvent = null;
+                    console.log("Selection Event was removed");
+                });
+            };
+
+            async function removeChangeEvent() {
+                await Excel.run(changeEvent.context, async(context) => {
+                    changeEvent.remove();
+
+                    await context.sync();
+
+                    changeEvent = null;
+                    console.log("Change Event was removed");
+                });
+            };
+
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+
+        //#region DEACTIVATION EVENT -----------------------------------------------------------------------------------------------------------------
+
+            /**
+             * Simply writes the worksheetId to a global deactivatedWorksheetId variable to be used in other functions
+             * @param {Object} eventArgs The event arguments, which are details about the event that was triggered
+             */
+            async function onDeactivate(eventArgs) {
+                await Excel.run(async(context) => {
+                    console.log("Source of the onDeactivate event: " + eventArgs.source);
+
+                    console.log("The worksheet Id that was deactivated was: " + eventArgs.worksheetId);
+
+                    deactivatedWorksheetId = eventArgs.worksheetId
+                });
+            };
+
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+
+    //#endregion -------------------------------------------------------------------------------------------------------------------------------------
+
+    //#region AUTO-FILLING ---------------------------------------------------------------------------------------------------------------------------
+        
+        //#region AUTOFILL STATUS COLUMN -------------------------------------------------------------------------------------------------------------
+
+            /**
+             * If the table name is "UnassignedProjects", sets status to "Awaiting Artist", otherwise sets status to "Not Working"
+             * @param {String} tableName The name of the table
+             * @returns String
+             */    
+             function statusAutofill(tableName) {
+                //if the table the row was inserted into is "UnassignedProjects", set status column to "Awaiting Artist"
+                if (tableName == "UnassignedProjects") {
+                    var status = "Awaiting Artist";
+                };
+                //if the table the row was inserted into is not "UnassaignedProjects"...
+                if (tableName !== "UnassignedProjects") {
+                    var status = "Not Working";
+                };
+                return status;
+            };
+
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+
+        //#region AUTOFILL ARTIST COLUMN -------------------------------------------------------------------------------------------------------------
+
+            /**
+             * If table is "UnassignedProjects", sets artist to "Unassigned", otherwise sets artist to the name of the worksheet
+             * @param {String} tableName The name of the table
+             * @param {String} leSheetName The name of the worksheet
+             * @returns String
+             */
+            function artistAutofill(tableName, leSheetName) {
+                if (tableName == "UnassignedProjects") {
+                    var artist = "Unassigned";
+                } else if (tableName !== "UnassignedProjects") {
+                    var artist = leSheetName;
+                };
+                return artist;
+            };
+
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+
+    //#endregion -------------------------------------------------------------------------------------------------------------------------------------
+
+    //#region THE GREATEST FUNCTION EVER WRITTEN (AND GUEST) -----------------------------------------------------------------------------------------
+
+        //#region INDEX & VALUES OF CHANGED ROW (THE GREATEST FUNCTION EVER WRITTEN) -----------------------------------------------------------------
+
+            /**
+             * Using the column names, finds and writes the column index and value of each cell in the changed row to an object. 
+             * Also updates a copy of the header array with the values of the changed row in the correct column indexed positions
+             * @param {Array} head An array of all the header values in the table
+             * @param {String} columnName The name of the column to find the index for
+             * @param {Array} rowValues An array of arrays containing all the row values for the changed row
+             * @param {Array} leTable A copy array of the head array that will be used to write new values to the sheet for the row
+             * @param {Object} obj An empty object that will be filled with column indexs and values for each cell in the changed row
+             * @param {Number} changedRowTableIndex The row index of the changed table
+             */
+             function theGreatestFunctionEverWritten (head, columnName, rowValues, leTable, obj, changedRowTableIndex) {
+
+                //returns the index number of the column name based on it's position in the table header row
+                var columnIndex = findColumnIndex(head, columnName);
+
+                //returns the values of a specific cell from a specific columnn in the changed row
+                var value = rowValues[0][columnIndex];
+
+                //writes value to appropriate columnIndex in leTable array
+                leTable[changedRowTableIndex][columnIndex] = value;
+
+                var headerColumn = headersToCode(columnName); //returns a properly coded variable based on the column name
+
+                obj[headerColumn] = { //adds a new key to the object, including it's column index and value properties
+                    columnIndex,
+                    value
+                };
+
+            };
+
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+
+        //#region HEADERS TO CODE --------------------------------------------------------------------------------------------------------------------
+
+            /**
+             * Finds the coded version of the column names
+             * @param {String} name The name of the column
+             * @returns String
+             */
+            function headersToCode(name) {
+                var codedHeader;
+                if (name == "Priority") {
+                    codedHeader = "priority";
+                } else if (name == "Design Manager") {
+                    codedHeader = "designManager";
+                } else if (name == "Queue") {
+                    codedHeader = "queue";
+                } else if (name == "Tier") {
+                    codedHeader = "tier";
+                } else if (name == "Subject") {
+                    codedHeader = "subject";
+                } else if (name == "Client") {
+                    codedHeader = "client";
+                } else if (name == "Location") {
+                    codedHeader = "location";
+                } else if (name == "Product") {
+                    codedHeader = "product";
+                } else if (name == "Project Type") {
+                    codedHeader = "projectType";
+                } else if (name == "CSM") {
+                    codedHeader = "csm";
+                } else if (name == "Added") {
+                    codedHeader = "added";
+                } else if (name == "Print Date") {
+                    codedHeader = "printDate";
+                } else if (name == "Group") {
+                    codedHeader = "group";
+                } else if (name == "Picked Up / Started By") {
+                    codedHeader = "pickedUpStartedBy";
+                } else if (name == "Proof to Client") {
+                    codedHeader = "proofToClient";
+                } else if (name == "Date of Last Edit") {
+                    codedHeader = "dateOfLastEdit";
+                } else if (name == "Tags") {
+                    codedHeader = "tags";
+                } else if (name == "Status") {
+                    codedHeader = "status";
+                } else if (name == "Code") {
+                    codedHeader = "code";
+                } else if (name == "Artist") {
+                    codedHeader = "artist";
+                } else if (name == "Notes") {
+                    codedHeader = "notes";
+                } else if (name == "Start Override") {
+                    codedHeader = "startOverride";
+                } else if (name == "Work Override") {
+                    codedHeader = "workOverride";
+                } else {
+                    codedHeader = name;
+                };
+                return codedHeader;
+            }
+
+        //#endregion -------------------------------------------------------------------------------------------------------------------------------------
+
+    //#endregion -------------------------------------------------------------------------------------------------------------------------------------
+
+    //#region TURN AROUND TIME FUNCTIONS & OFFICE HOURS ----------------------------------------------------------------------------------------------
+
+        //#region ADJUST PICKED UP / STARTED BY TURN AROUND TIME -------------------------------------------------------------------------------------
+
+            /**
+             * Adjusts the picked up / started by turn around time value
+             * @param {Object} rowInfo An object containing the values and column indexs of each cell in the changed row
+             * @param {Array} leTable An array of arrays containing all the info of the changed table
+             * @param {Number} rowIndex The index number of the changed row (table level)
+             * @returns Date
+             */
+             function getPickUpTime(rowInfo, leTable, rowIndex) {
+
+                if (rowInfo.product.value == "" || rowInfo.projectType.value == "") {
+                    leTable[rowIndex][rowInfo.pickedUpStartedBy.columnIndex] = "NO PRODUCT / PROJECT TYPE";
+                    return null;
+                };
+
+                //get the Project Type coded variable from the Project Type ID Data based on the value in Project Type column of the changed row
+                var theProjectTypeCode = projectTypeIDData[rowInfo.projectType.value].projectTypeCode;
+
+                //returns turn around time value from the Pickup Turn Around Time table based on the Product column of the 
+                //changed row and the projetc type codeed variable
+                var pickedUpTurnAroundTime = pickupData[rowInfo.product.value][theProjectTypeCode];
+
+                //finds the start override value of the changed row and adds it to the previous turn around time variable
+                var pickedUpHours = pickedUpTurnAroundTime + rowInfo.startOverride.value;
+
+                //finds the added date/time serial of the changed row and converts it to a date
+                var addedDate = convertToDate(rowInfo.added.value);
+
+                //adds the adjusted turn around time to the added date and adjusts to be within office hours
+                var pickupOfficeHours = officeHours(addedDate, pickedUpHours);
+
+                //converts date to excel date
+                var excelPickupOfficeHours = Number(JSDateToExcelDate(pickupOfficeHours));
+
+                //updates the pickedup turn around time value in the table array based on our calculations
+                leTable[rowIndex][rowInfo.pickedUpStartedBy.columnIndex] = excelPickupOfficeHours;
+
+                return pickupOfficeHours;
+
+            };
+
+    //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+
+    //#region ADJUST PROOF TO CLIENT TURN AROUND TIME --------------------------------------------------------------------------------------------
+
+        /**
+         * Adjusts the proof to client turn around time values
+         * @param {Object} rowInfo An object containing the values and column indexs of each cell in the changed row
+         * @param {Array} leTable An array of arrays containing all the info of the changed table
+         * @param {Date} lePickUpTime The date returned from the previous getPickUpTime function
+         * @param {Number} rowIndex The index number of the changed row (table level)
+         * @returns Date
+         */
+        function getProofToClientTime(rowInfo, leTable, lePickUpTime, rowIndex) {
+
+            if (lePickUpTime == null) {
+                leTable[rowIndex][rowInfo.proofToClient.columnIndex] = "NO PRODUCT / PROJECT TYPE";
+                return null;
+            };
+
+            //if the request's status is a form of "Editing"...
+            if (
+                rowInfo.status.value == "Light Changes" 
+                || rowInfo.status.value == "Moderate Changes" 
+                || rowInfo.status.value == "Heavy Changes"
+            ) {
+
+                //get the Changes coded variable from the Changes ID Data based on the value in the Status column of the changed row
+                var theChangesCode = changesIDData[rowInfo.status.value].changesCode;
+                // var snailsss = theChangesCode.changesCode;
+
+                //gets the turn around time value from the Changes Data Table based on the product and status of the row
+                var proofToClient = changesData[rowInfo.product.value][theChangesCode];
+
+                //Heavy Changes has creative review time factored into the table variables, so no need to calculate it
+                //Moderate and Light chnages will almost never need creative review
+
+                //finds the work override value of the changed row and adds it to the proofToClient variable
+                var artTurnAround = proofToClient + rowInfo.workOverride.value;
+
+                //need to create a new date variable, possibly in the Date of Last Edit column
+
+                //#region UPDATE DATE OF LAST EDIT -----------------------------------------------------------------------------------------------
+
+                    //generate a new date and time based on the current date and time
+                    var dateOfLastEditTime = new Date();
+                    var dateOfLastEditTimeJS = JSDateToExcelDate(dateOfLastEditTime);
+
+                    //write current date and time to the Date of Last Edit position within the table array
+                    leTable[rowIndex][rowInfo.dateOfLastEdit.columnIndex] = dateOfLastEditTimeJS;
+
+                //#endregion ---------------------------------------------------------------------------------------------------------------------
+
+                //adds the adjusted turn around time to new Date of Last Edit date that was just generated and adjusts to be within office hours
+                var proofToClientOfficeHours = officeHours(dateOfLastEditTime, artTurnAround);
+
+                //converts date to excel date
+                var excelProofToClientOfficeHours = Number(JSDateToExcelDate(proofToClientOfficeHours));
+
+                //updates the proof to client turn around time value in the table array based on our calculations
+                leTable[rowIndex][rowInfo.proofToClient.columnIndex] = excelProofToClientOfficeHours;
+
+                return proofToClientOfficeHours;
+            };
+
+            //get the Project Type coded variable from the Project Type ID Data based on the value in the Project Type column of the changed row
+            var theProjectTypeCode = projectTypeIDData[rowInfo.projectType.value].projectTypeCode;
+
+            //returns turn around time value from the Proof to Client Turn Around Time table based on the Product column of the 
+            //changed row and the projetc type codeed variable
+            var proofToClient = proofToClientData[rowInfo.product.value][theProjectTypeCode];
+
+            //returns creative review process hours adjustment number from thhe creative review table based on 
+            //the Product column value of the changed row
+            var creativeReview = creativeProofData[rowInfo.product.value].creativeReviewProcess;
+
+            //adds the proof to client turn around time to the creative review time
+            var proofWithReview = proofToClient + creativeReview;
+
+            //finds the work override value of the changed row and adds it to the previous turn around time variable
+            var artTurnAround = proofWithReview + rowInfo.workOverride.value;
+
+            //adds the adjusted turn around time to the pickedUpStartedBy date and adjusts to be within office hours
+            var proofToClientOfficeHours = officeHours(lePickUpTime, artTurnAround);
+
+            //converts date to excel date
+            var excelProofToClientOfficeHours = Number(JSDateToExcelDate(proofToClientOfficeHours));
+
+            //updates the proof to client turn around time value in the table array based on our calculations
+            leTable[rowIndex][rowInfo.proofToClient.columnIndex] = excelProofToClientOfficeHours;
+
+            return proofToClientOfficeHours;
+
+        };
+
+    //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+
+    //#region SORTING THE TABLE BY PICKED UP TURN AROUND TIME ------------------------------------------------------------------------------------
+
+        /**
+         * Sorts the table array by the values in leColumnIndex and then assigns updated priority numbers
+         * @param {Object} rowInfo An object containing the values and column indexs of each cell in the changed row
+         * @param {Array} leTable An array of arrays containing all the info of the changed table
+         * @param {Number} leColumnIndex The index number of the column that will be used for sorting the table
+         * @param {Array} changedRowValues The values of the changed row
+         * @returns Array
+         */
+        function leSorting(rowInfo, leTable, leColumnIndex, changedRowValues) {
+
+            //#region ASSIGNING VARIABLES --------------------------------------------------------------------------------------------------------
+
+                //a copy of the array containing all the table data that will be used for sorting
+                var leTableSorted = JSON.parse(JSON.stringify(leTable)); //creates a duplicate of original array to be used for 
+                //assigning the priority numbers, without having anything done to it affect oriignal array
+
+                var priorityColumnIndex = rowInfo.priority.columnIndex; //index of priority column
+
+                var pickedUpColumnIndex = rowInfo.pickedUpStartedBy.columnIndex;
+                var proofToClientColumnIndex = rowInfo.proofToClient.columnIndex;
+
+                var statusColumnIndex = rowInfo.status.columnIndex;
+
+                var tempTable = [];
+                var onHoldTable = [];
+                var awaitingChangesTable = [];
+
+            //#endregion -------------------------------------------------------------------------------------------------------------------------
+
+
+            //#region WITHHOLDS ITEMS NOT TO BE SORTED FROM TABLE ARRAY ----------------------------------------------------------------------------
+
+                for (var i = 0; i < leTableSorted.length; i++) { //for each row in the table...
+
+                    //removes invlaid requests from table and puts them in a temp table to be added back in after sorting
+                    if (
+                        leTableSorted[i][pickedUpColumnIndex] == "NO PRODUCT / PROJECT TYPE" 
+                        || leTableSorted[i][proofToClientColumnIndex] == "NO PRODUCT / PROJECT TYPE"
+                    ) {
+                        tempTable.push(leTableSorted[i]);
+                        leTableSorted.splice(i, 1);
+                        i = i - 1;
+                    //removes on hold requests from table and puts them in an on hold table to be added back in after sorting
+                    } else if (
+                        leTableSorted[i][statusColumnIndex] == "On Hold"
+                        ) { 
+                        onHoldTable.push(leTableSorted[i]);
+                        leTableSorted.splice(i, 1);
+                        i = i - 1;
+                    //removes awaiting changes requests from table and puts them in an awaiting changes table to be added back in after sorting
+                    } else if (
+                        leTableSorted[i][statusColumnIndex] == "At Client" 
+                        || leTableSorted[i][statusColumnIndex] == "In Review" 
+                        || leTableSorted[i][statusColumnIndex] == "Waiting On Info"
+                        ) {
+                        awaitingChangesTable.push(leTableSorted[i]);
+                        leTableSorted.splice(i, 1);
+                        i = i - 1;
+                    };
+                };
+
+            //#endregion -------------------------------------------------------------------------------------------------------------------------
+
+
+            //#region SORTS THE TABLE ARRAY ------------------------------------------------------------------------------------------------------
+
+                //sorts the parent array (a) by the number in the sub array (b) at index of the picked up column
+                //leTableSorted.sort(function(a,b){return a[leColumnIndex] > b[leColumnIndex]});
+                leTableSorted.sort((a, b) => (a[leColumnIndex] > b[leColumnIndex]) ? 1 : -1); //sorts
+
+            //#endregion --------------------------------------------------------------------------------------------------------------------------
+
+
+            //#region ADDS WITHHELD INFO BACK INTO THE TABLE AT THE BOTTOM -----------------------------------------------------------------------
+
+                //#region ADDED AT CLIENT, IN REVIEW, AND WAITING ON INFO FIRST ------------------------------------------------------------------
+
+                    if (awaitingChangesTable.length > 0) { //adds awaiting changes requests back into table at the bottom
+                        for (var i = 0; i < awaitingChangesTable.length; i++) {
+                            leTableSorted.push(awaitingChangesTable[i]);
+                            awaitingChangesTable.splice(i, 1);
+                            i = i - 1;
+                        };
+                    };
+
+                //#endregion ---------------------------------------------------------------------------------------------------------------------
+
+                //#region ADDS ON HOLD NEXT ------------------------------------------------------------------------------------------------------
+
+                    if (onHoldTable.length > 0) { //adds on hold requests back into table at the bottom, under awaiting changes requests
+                        for (var i = 0; i < onHoldTable.length; i++) {
+                            leTableSorted.push(onHoldTable[i]);
+                            onHoldTable.splice(i, 1);
+                            i = i - 1;
+                        };
+                    };
+
+                //#endregion ---------------------------------------------------------------------------------------------------------------------
+
+                //#region ADDS INVALID REQUEST AT THE VERY END -----------------------------------------------------------------------------------
+
+                    if (tempTable.length > 0) { //adds invalid requests back into table at the bottom, under on hold requests
+                        for (var i = 0; i < tempTable.length; i++) {
+                            leTableSorted.push(tempTable[i]);
+                            tempTable.splice(i, 1);
+                            i = i - 1;
+                        };
+                    };
+
+                //#endregion ---------------------------------------------------------------------------------------------------------------------
+
+            //#endregion -------------------------------------------------------------------------------------------------------------------------
+
+            //#region FINDS POST SORT INDEX NUMBER OF ROW ----------------------------------------------------------------------------------------
+
+                for (var j = 0; j < leTableSorted.length; j++) { //finds the post row sort index number
+                    for (var k = 0; k < leTableSorted[j].length; k++) {
+                        if (changedRowValues[k] !== leTableSorted[j][k]) {
+                            break;
+                        } else {
+                            var l = leTableSorted[j].length - 1;
+                            if (k == l) {
+                                rowIndexPostSort = j;
+                                //break;
+                            };
+                        };
+                    };
+                };
+
+            //#endregion -------------------------------------------------------------------------------------------------------------------------
+
+            //#region ASSIGN PRIORITY NUMBERS ----------------------------------------------------------------------------------------------------
+
+                //for each item in the sorted array of table values, assign updated priority numbers to the priority column index
+                for (var n = 0; n < leTableSorted.length; n++) {
+                    leTableSorted[n][priorityColumnIndex] = n + 1;
+                };
+
+            //#endregion -------------------------------------------------------------------------------------------------------------------------
+
+            return leTableSorted;
+
+        }
+
+    //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+
+    //#region GENERATE OFFICE HOURS --------------------------------------------------------------------------------------------------------------
+
+        //#region OFFICE HOURS FUNCTION ----------------------------------------------------------------------------------------------------------
+
+            /**
+             * Adds adjustment hours to the date and adjusts to fit within office hours
+             * @param {Date} date the added date
+             * @param {Number} hoursToAdd The humber of adjustment hours to add to the added date
+             * @returns Date
+             */
+             function officeHours(date, hoursToAdd) {
+
+                //#region FUNCTION VARIABLES -----------------------------------------------------------------------------------------------------
+
+                    //date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+                    //gets the day of the week
+                    var theDay = date.getDay();
+                    if (theDay == 0) {
+                        theDay = "Sunday"
+                    } else if (theDay == 1) {
+                        theDay = "Monday"
+                    } else if (theDay == 2) {
+                        theDay = "Tuesday"
+                    } else if (theDay == 3) {
+                        theDay = "Wednesday"
+                    } else if (theDay == 4) {
+                        theDay = "Thursday"
+                    } else if (theDay == 5) {
+                        theDay = "Friday"
+                    } else if (theDay == 6) {
+                        theDay = "Saturday"
+                    };
+
+                    var adjustmentMinutes = hoursToAdd * 60; // 12.5 hours = 750 minutes
+                    var includesWeekends = false;
+
+                    var current = new Date(date); //clone of the date variable that calculations will be made to
+
+                    //#region SET DATES WITH 0 TIME ----------------------------------------------------------------------------------------------
+
+                        //set workDayStart date to = date, but have the time be 0 (will assign times to later)
+                        var workDayStart = new Date(date);
+                        workDayStart.setHours(0);
+                        workDayStart.setMinutes(0);
+                        workDayStart.setSeconds(0);
+                        workDayStart.setMilliseconds(0);
+
+                        //set workDayEnd date to = date, but have the time be 0 (will assign times to later)
+                        var workDayEnd = new Date(date);
+                        workDayEnd.setHours(0);
+                        workDayEnd.setMinutes(0);
+                        workDayEnd.setSeconds(0);
+                        workDayEnd.setMilliseconds(0);
+
+                    //#endregion -----------------------------------------------------------------------------------------------------------------
+
+                    //#region CREATE START TIME AND END TIME VARIABLES FOR THE DATE --------------------------------------------------------------
+
+                        var weekdayVars = officeHoursData[theDay] //returns all the info for the weekday that date lands on
+
+                        //#region CREATE START TIME DATE -----------------------------------------------------------------------------------------
+
+                            //this varibale will have the correct start time but will still be using the ground 0 date for serial numbers. 
+                            //Will be adjusted up next
+                            var theStart = convertToDate(weekdayVars.startTime); //converts serial number to JSDate for start of work day
+                            //sets that date of theStart to be at ground 0 for JSDates
+                            theStart.setFullYear(1970);
+                            theStart.setMonth(0);
+                            theStart.setDate(1);
+                            //removes time zone offset to bring all dates to the same level
+                            theStart.setMinutes(theStart.getMinutes() - theStart.getTimezoneOffset());
+                            //gives us the milliseconds between 0 and this time
+                            var fartTime = theStart.getTime();
+                            workDayStart.setMilliseconds(fartTime); //adds the startTime to the correct date variable from eariler
+
+                        //#endregion -------------------------------------------------------------------------------------------------------------
+
+                        //#region CREATE END TIME DATE -------------------------------------------------------------------------------------------
+
+                            //this varibale will have the correct end time but will still be using the ground 0 date for serial numbers. 
+                            //Will be adjusted up next
+                            var theEnd = convertToDate(weekdayVars.endTime); //converts serial number to JSDate for end of work day
+                            //sets that date of theEnd to be at ground 0 for JSDates
+                            theEnd.setFullYear(1970);
+                            theEnd.setMonth(0);
+                            theEnd.setDate(1);
+                            //removes time zone offset to bring all dates to the same level
+                            theEnd.setMinutes(theEnd.getMinutes() - theEnd.getTimezoneOffset());
+                            //gives us the milliseconds between 0 and this time
+                            var shartTime = theEnd.getTime();
+                            workDayEnd.setMilliseconds(shartTime); //adds the endTime to the correct date variable from eariler
+
+                        //#endregion -------------------------------------------------------------------------------------------------------------
+
+                    //#endregion -----------------------------------------------------------------------------------------------------------------
+
+                //#endregion ---------------------------------------------------------------------------------------------------------------------
+
+                //#region WHILE ADJUSTMENT NUMBER REMAINS POSITIVE -------------------------------------------------------------------------------
+
+                    while(adjustmentMinutes > 0) {
+
+                        //#region RECALCULATE START AND END TIMES IF DATE ADVANCES ---------------------------------------------------------------
+
+                            var currentInfo = shortDate(current);
+                            var dateInfo = shortDate(date);
+
+                            // if (current.toLocaleDateString('en-US') !== date.toLocaleDateString('en-US')) { //if we go on into another day, 
+                            //recalculate start and end time dates
+                            //if (current.getDay() !== date.getDay()) { //if we go on into another day, recalculate start and end time dates
+                            if (currentInfo !== dateInfo) {
+
+                                //gets the day of the week
+                                var theDay = current.getDay();
+                                if (theDay == 0) {
+                                    theDay = "Sunday"
+                                } else if (theDay == 1) {
+                                    theDay = "Monday"
+                                } else if (theDay == 2) {
+                                    theDay = "Tuesday"
+                                } else if (theDay == 3) {
+                                    theDay = "Wednesday"
+                                } else if (theDay == 4) {
+                                    theDay = "Thursday"
+                                } else if (theDay == 5) {
+                                    theDay = "Friday"
+                                } else if (theDay == 6) {
+                                    theDay = "Saturday"
+                                };
+
+                                //#region SET DATES WITH 0 TIME (CURRENT) ------------------------------------------------------------------------
+
+                                    //set workDayStart date to = current date, but have the time be 0 (will assign times to later)
+                                    var workDayStart = new Date(current);
+                                    workDayStart.setHours(0);
+                                    workDayStart.setMinutes(0);
+                                    workDayStart.setSeconds(0);
+                                    workDayStart.setMilliseconds(0);
+
+                                    //set workDayEnd date to = current date, but have the time be 0 (will assign times to later)
+                                    var workDayEnd = new Date(current);
+                                    workDayEnd.setHours(0);
+                                    workDayEnd.setMinutes(0);
+                                    workDayEnd.setSeconds(0);
+                                    workDayEnd.setMilliseconds(0);
+
+                                //#endregion -----------------------------------------------------------------------------------------------------
+
+                                //#region CREATE START TIME AND END TIME VARIABLES FOR THE DATE (CURRENT) ----------------------------------------
+
+                                    //gets start and end times of date's work day
+                                    weekdayVars = officeHoursData[theDay] //returns all the info for the weekday that date lands on
+
+                                    //#region CREATE START TIME DATE (CURRENT) -------------------------------------------------------------------
+
+                                        theStart = convertToDate(weekdayVars.startTime); //converts serial number to JSDate for start of work day
+                                        theStart.setFullYear(1970);
+                                        theStart.setMonth(0);
+                                        theStart.setDate(1);
+                                        //removes time zone offset to bring all dates to the same level
+                                        theStart.setMinutes(theStart.getMinutes() - theStart.getTimezoneOffset()); 
+                                        fartTime = theStart.getTime();
+                                        workDayStart.setMilliseconds(fartTime);
+
+                                    //#endregion -------------------------------------------------------------------------------------------------
+
+                                    //#region CREATE END TIME DATE (CURRENT) ---------------------------------------------------------------------
+
+                                        theEnd = convertToDate(weekdayVars.endTime); //converts serial number to JSDate for end of work day
+                                        theEnd.setFullYear(1970);
+                                        theEnd.setMonth(0);
+                                        theEnd.setDate(1);
+                                        //removes time zone offset to bring all dates to the same level
+                                        theEnd.setMinutes(theEnd.getMinutes() - theEnd.getTimezoneOffset()); 
+                                        shartTime = theEnd.getTime();
+                                        workDayEnd.setMilliseconds(shartTime);
+
+                                    //#endregion -------------------------------------------------------------------------------------------------
+
+                                //#endregion -----------------------------------------------------------------------------------------------------
+
+                            };
+
+                        //#endregion -------------------------------------------------------------------------------------------------------------
+
+                        //#region INCREMENT ------------------------------------------------------------------------------------------------------
+
+                            //if current is still within the workday and not on a weekend, subtract 1 minute from the adjustment number
+                            if (current > workDayStart 
+                                && current < workDayEnd 
+                                && (includesWeekends ? current.getDay() !== 0 
+                                && current.getDay() !== 6 : true)) {
+                                    adjustmentMinutes--;
+                            };
+                            current.setTime(current.getTime() + 1000 * 60); //adds 1 minute to current time
+
+                        //#endregion -------------------------------------------------------------------------------------------------------------
+
+                    };
+
+                //#endregion ---------------------------------------------------------------------------------------------------------------------
+
+                return current;
+
+            };
+
+        //#endregion -----------------------------------------------------------------------------------------------------------------------------
+
+        //#region FUNCTIONS USED IN OFFICE HOURS -------------------------------------------------------------------------------------------------
+
+            //#region SHORT DATE -----------------------------------------------------------------------------------------------------------------
+
+                /**
+                 * Takes the date, month, and year from the input and outputs it as month, date, year date object (or sting)
+                 * @param {Date} aDate A date object
+                 * @returns Date? Or maybe a String?
+                 */
+                function shortDate(aDate) {
+                    var day = aDate.getDate();
+                    var month = aDate.getMonth();
+                    var year = aDate.getFullYear();
+                    var output = `${month} ${day} ${year}`;
+                    return output;
+                };
+
+            //#endregion -------------------------------------------------------------------------------------------------------------------------
+
+            //#region CONVERT DATE TO SERIAL -----------------------------------------------------------------------------------------------------
+
+                /**
+                 * Converts input date into serial number that excel can apply conditional formatting to
+                 * @param {Date} inDate A date variable
+                 * @returns String
+                 */
+                function JSDateToExcelDate(inDate) {
+                    var returnDateTime = 25569.0 + ((inDate.getTime() - (inDate.getTimezoneOffset() * 60 * 1000)) / (1000 * 60 * 60 * 24));
+                    //var returnDateTime = 25569.0 + ((inDate.getTime()) / (1000 * 60 * 60 * 24));
+                    return returnDateTime.toString().substr(0,20);
+                };
+
+            //#endregion -------------------------------------------------------------------------------------------------------------------------
+
+            //#region CONVERT SERIAL TO DATE -----------------------------------------------------------------------------------------------------
+
+                /**
+                 * Finds the value of Date Added in the changed row and converts it to be a date object in EST.
+                 * @param {Number} serial The serial number to be converted
+                 * @returns Date
+                 */
+                function convertToDate(serial) {
+                    var date = new Date(Math.round((serial - 25569)*86400*1000)); //convert serial number to date object
+                    date.setMinutes(date.getMinutes() + date.getTimezoneOffset()); //adjusting from GMT to EST (adds 4 hours)
+                    return date;
+                };
+
+            //#endregion -------------------------------------------------------------------------------------------------------------------------
+
+            //#region ALL COLUMN VALUES ----------------------------------------------------------------------------------------------------------
+
+                /**
+                 * Returns an array of the all the values from a specific column in a table
+                 * @param {Array} tableValues An array of arrays containing all the data from the table
+                 * @param {Number} columnIndex Index number of the column we are trying to make an array of from its data
+                 * @returns Array
+                 */
+                function allColumnValues(tableValues, columnIndex) {
+
+                    var PUTimeArr = [];
+
+                    for (var row of tableValues) { //for each row in the table
+                        var PUTurnAroundTime = row[columnIndex]; //get the item where the row and columnIndex values meet
+                        PUTimeArr.push(PUTurnAroundTime); //push this value to a new array
+                    };
+
+                    return PUTimeArr;
+
+                };
+
+            //#endregion -------------------------------------------------------------------------------------------------------------------------
+
+            //#region FIND COLUMN INDEX ----------------------------------------------------------------------------------------------------------
+
+                /**
+                 * Returns index of a column name based on it's position in the header row
+                 * @param {Array} header An array of arrays containing all the headers in the table
+                 * @param {String} columnName The name of the column that we are trying to find an index number for
+                 * @returns Number
+                 */
+                function findColumnIndex(header, columnName) {
+                    var i = 0;
+                    var jelly;
+
+                    for (var column of header[0]) { //for each item in the header array
+                        //if the item matches the columnName input, return the value of i, otherwise increment i & continue through rest of array
+                        if (column == columnName) { 
+                            jelly = i;
+                            return jelly;
+                        }
+                        i++;
+                    };
+                };
+
+            //#endregion -------------------------------------------------------------------------------------------------------------------------
+
+        //#endregion -----------------------------------------------------------------------------------------------------------------------------
+
+    //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+
+//#endregion -------------------------------------------------------------------------------------------------------------------------------------
+
+    //#region MOVING DATA FUNCTIONS ------------------------------------------------------------------------------------------------------------------
+
+        //#region MOVE DATA TWO ----------------------------------------------------------------------------------------------------------------------
+
+            /**
+             * Pushes the rowValues to the destTable array and removes it from the leTable array
+             * @param {Array} destTable the table array that the data is being moved to
+             * @param {Array} rowValues an array of all the values of the changed row
+             * @param {Array} leTable the changed table array
+             * @param {Number} changedRowTableIndex the index number of the changed table row
+             */
+             function moveDataTwo(destTable, rowValues, leTable, changedRowTableIndex) {
+
+                destTable.push(rowValues[0]);
+                leTable.splice(changedRowTableIndex, 1);
+
+            };
+
+        //#endregion -------------------------------------------------------------------------------------------------------------------------------------
+
+        //#region CHECK IF TWO ARRAYS ARE EQUAL ------------------------------------------------------------------------------------------------------
+
+            /**
+             * Compares th contents of two arrays and returns a boolean of true if they are the same and false if they differ in anyway
+             * @param {Array} array1 The first array being compared
+             * @param {Array} array2 The second array being compared
+             * @returns Boolean
+             */
+            function areArraysEqual(array1, array2) {
+                if (array1.length == array2.length) {
+                    return array1.every((element, index) => {
+                        if (element == array2[index]) {
+                            return true;
+                        };
+                        return false;
+                    });
+                };
+                return false;
+            };
+
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+
+    //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
     //#region CONDITIONAL FORMATTING -----------------------------------------------------------------------------------------------------------------
 
@@ -3437,7 +3839,7 @@ $(() => {
          * @param {Range} rowRangeSorted The range of the changed row AFTER sorting
          * @param {Array} destTable An array of arrays containing all the info in the destination table
          */
-        function conditionalFormatting(rowInfoSorted, newTableStart, changedWorksheet, 
+         function conditionalFormatting(rowInfoSorted, newTableStart, changedWorksheet, 
             rowIndexPostSort, completedTableChanged, rowRangeSorted, destTable) {
 
             //#region DEFINING VARIABLES -------------------------------------------------------------------------------------------------------------
@@ -3473,7 +3875,7 @@ $(() => {
                     rowRangeSorted.format.font.bold = false;
 
             //#endregion -----------------------------------------------------------------------------------------------------------------------------
-            
+
             } else {
 
                 //#region ALL ENTRIES USE CONSISTENT FONT STYLING ------------------------------------------------------------------------------------
@@ -3484,7 +3886,6 @@ $(() => {
                     rowRangeSorted.format.font.bold = false;
 
                 //#endregion -------------------------------------------------------------------------------------------------------------------------
-
 
                 //#region REMOVE INVALID HIGHLIGHTING IF NO LONGER INVALID ---------------------------------------------------------------------------
 
@@ -3501,7 +3902,6 @@ $(() => {
 
                 //#endregion -------------------------------------------------------------------------------------------------------------------------
 
-
                 //#region GROUP & PRINT DATE FORMATTING ----------------------------------------------------------------------------------------------
 
                     if (printDate == currentDateAbsolute) { //if current date = print date
@@ -3517,15 +3917,17 @@ $(() => {
                         rowRangeSorted.format.font.bold = true;
                         printDateAddress.format.horizontalAlignment = "center";
                         groupAddress.format.horizontalAlignment = "center";
-
-                    } else if (((printDate - 6) <= currentDateAbsolute) && ((printDate - 2) >= currentDateAbsolute)) { //if current date is in the same group lock week as print date (between 7-2 days before)
+                    
+                        //if current date is in the same group lock week as print date (between 7-2 days before)
+                    } else if (((printDate - 6) <= currentDateAbsolute) && ((printDate - 2) >= currentDateAbsolute)) { 
 
                         rowRangeSorted.format.font.color = "#C00000";
                         rowRangeSorted.format.font.bold = true;
                         printDateAddress.format.horizontalAlignment = "center";
                         groupAddress.format.horizontalAlignment = "center";
-                        
-                    } else if (((printDate - 13) <= currentDateAbsolute) && ((printDate - 7) >= currentDateAbsolute)) { //if current date is in the week before group lock week (between 8-14 days before)
+
+                    //if current date is in the week before group lock week (between 8-14 days before)
+                    } else if (((printDate - 13) <= currentDateAbsolute) && ((printDate - 7) >= currentDateAbsolute)) { 
 
                         rowRangeSorted.format.font.color = "70AD47";
                         rowRangeSorted.format.font.bold = true;
@@ -3592,7 +3994,6 @@ $(() => {
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
 
-
                     //#region PICKED UP / STARTED BY OVERDUE -----------------------------------------------------------------------------------------
 
                         if (toSerial > rowInfoSorted.pickedUpStartedBy.value && changedWorksheet.name == "Unassigned Projects") {
@@ -3602,7 +4003,6 @@ $(() => {
                         };
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
-
 
                     //#region PROOF TO CLIENT OVERDUE ------------------------------------------------------------------------------------------------
 
@@ -3615,9 +4015,7 @@ $(() => {
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
 
-
                 //#endregion -------------------------------------------------------------------------------------------------------------------------
-
 
                 //#region STATUS OVERRIDE FORMATTING (FINAL SAY) -------------------------------------------------------------------------------------
 
@@ -3663,7 +4061,6 @@ $(() => {
 
                 //#endregion -------------------------------------------------------------------------------------------------------------------------
 
-
                 //#region ADD INVALID HIGHLIGHTING IF INVALID ----------------------------------------------------------------------------------------
 
                     if (
@@ -3687,53 +4084,66 @@ $(() => {
 
     //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
+    //#region TOGGLE AND CHECK EVENTS ----------------------------------------------------------------------------------------------------------------
 
-    /**
-     * If a row is inserted to the sheet manually, it will be removed and the user chastised
-     * @param {Object} eventArgs The event arguments, which are details about the event that was triggered
-     */
-    async function handleIllegalInsert(eventArgs) {
-    
-        await Excel.run(async (context) => {
+        //#region EVENTS ON --------------------------------------------------------------------------------------------------------------------------
 
-            var changedWorksheet = context.workbook.worksheets.getItem(eventArgs.worksheetId).load("name");
+            /**
+             * Manually turns events on
+             */
+            async function eventsOn() {
+                await Excel.run(async (context) => {
+                    context.runtime.load("enableEvents");
+                    await context.sync();
+                    context.runtime.enableEvents = true;
+                    //console.log("Events are turned on!");
+                });
+            };
 
-            var changedTable = context.workbook.tables.getItem(eventArgs.tableId).load("name"); //Returns tableId of the table where the event occured
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
 
-            var changedTableRows = changedTable.rows;
+        //#region CHECK EVENTS -----------------------------------------------------------------------------------------------------------------------
 
-            var changedAddress = changedWorksheet.getRange(eventArgs.address);
-            changedAddress.load("columnIndex");
-            changedAddress.load("rowIndex");
+            /**
+             * Writes whether events are turned on or off to the console
+             */
+            async function eventsFunction() {
 
-            await context.sync();
+                await Excel.run(async (context) => {
+                    context.runtime.load("enableEvents");
+                    await context.sync();
+                    if (context.runtime.enableEvents == true) {
+                        var eventsEnabled = "on";
+                    } else {
+                        var eventsEnabled = "off";
+                    };
+                    console.log("Events are turned " + eventsEnabled);
+                });
+            };
 
-            var changedRowIndex = changedAddress.rowIndex; //index of the row where the change was made (on a worksheet level)
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
 
-            // if (eventArgs.changeType == "RowDeleted") {
-            //     var changedRowTableIndex = 0;
-            // } else {
-            //     var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
-            // };
-          
-            var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
-        
-            var rowRange = changedTableRows.getItemAt(changedRowTableIndex).getRange();
+        //#region HANDLE CHANGE EVENT FOR DEBUGGING --------------------------------------------------------------------------------------------------
 
-            console.log("tsk tsk tsk...Don't forget the 7th commandment of the Art Queue Add-In:");
-            console.log('"Thou shalt submit all requests to thy own sheet by means of the Add A Project taskpane. Manually adding rows of info to thyn sheet beith forbidden."');
-            console.log("It's a simple mistake, but make sure not to do it again.");
+            async function handleChange(event) {
+                await Excel.run(async (context) => {
+                    await context.sync();
+                    console.log("Address of event: " + event.address);
+                    // console.log("The change direction state of the event: " + event.changeDirectionState);
+                    console.log("Change type of event: " + event.changeType);
+                    console.log("The details of the event: " + event.details);
+                    // console.log("Source of event: " + event.source);
+                    // console.log("The trigger source of the event: " + event.triggerSource);
+                    // console.log("The worrksheet ID of the event: " + event.worksheetId);
+                    console.log("END OF ENTRY////////////////////////////////////////////////////////////////////////////////////");
+                }).catch(errorHandlerFunction);
+            }
 
-            rowRange.delete("Up");
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
 
-            eventsOn();
-            console.log("Events: ON  →  triggered after a row was manually inserted into the sheet by the user, followed by the swift removal of said row and a slap on the wrist.");
-            
-            return;
+    //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
-        });
-
-    };
+    //#region SHOW AND HIDE MESSAGES / ERRORS --------------------------------------------------------------------------------------------------------
 
     function showMessage(msg, showHide) {
         if (showHide === "hide") {
@@ -3743,16 +4153,7 @@ $(() => {
             $("#message-text").text(msg);
             $("#message").css("display", "flex");
         }
-    }
-
-
-   // function showFissh(showHide) {
-    //     if (showHide === "hide") {
-    //         $("#fissh").css("display", "none");
-    //     } else if (showHide === "show") {
-    //         $("#fissh").css("display", "flex");
-    //     };
-    // };
+    };
 
     function showElement(element, showHide) {
         if (showHide === "hide") {
@@ -3772,7 +4173,7 @@ $(() => {
     };
 
 
-    // Todd Adjustments
+    // Illegal insert dennis gif
     function showDennis() {
         $("#dennis").css("display", "flex");
         console.log("Na-Ah-Ah!");
@@ -3783,1141 +4184,150 @@ $(() => {
             <img id="dennis-gif" src="assets/dennis-crop.gif" />
         `);
 
-
         // Wait 1.5 seconds, hide Dennis
         setTimeout(() => {
-          $("#dennis").css("display", "none");
-          $("#dennis-gif").remove();
-          $("#na-ah-ah").css("display", "flex");
+        $("#dennis").css("display", "none");
+        $("#dennis-gif").remove();
+        $("#na-ah-ah").css("display", "flex");
         }, 1700);
-
-        // $("#na-ah-ah-box").css("display", "flex");
 
         return;
 
     };
 
+//#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
-
-    // function showDennis() {
-    //     $("#dennis").css("display", "flex");
-    //     console.log("Na-Ah-Ah!");
-    //     var naAhAh = new Audio("assets/dennis-mock.mp3");
-    //     naAhAh.play();
-    //     setTimeout(hideDennis, 1500);
-    // };
-
-    // function hideDennis() {
-    //     $("#dennis").css("display", "none");
-    // };
-
-
-
-    // function showDennis() {
-    //     $("#dennis").css("display", "flex");
-    //     console.log("Na-Ah-Ah!");
-    //     appendImage("/assets/dennis-crop.gif", "#dennis", "#dennis-gif");
-    //     var naAhAh = new Audio("assets/dennis-mock.mp3");
-    //     naAhAh.play();
-    //     setTimeout(removeImage, 2000, "#dennis-gif");
-    // };
-
-    // function appendImage(imageSource, Id, imageId) {
-    //     var fartsss = document.getElementById("#dennis");
-    //     var img = document.createElement("IMG");
-    //     img.src = imageSource;
-    //     img.setAttribute('id', imageId);
-    //     document.getElementById(Id).appendChild(img);
-    //     // return imageId;
-    // };
-
-    
-    // function removeImage(imageId) {
-    //     // var elementToBeRemoved = document.getElementById(imageId);
-    //     $(imageId).parentNode.removeChild(imageId);
-    // };
-
-    // function appendImage(imageSource, Id, imageId) {
-    //     var img = document.createElement("IMG");
-    //     img.src = imageSource;
-    //     img.setAttribute('id', imageId);
-    //     document.getElementById(Id).appendChild(img);
-    //     return imageId;
-    // }
-    
-    // function removeImage(imageId) {
-    //     var elementToBeRemoved = document.getElementById(imageId);
-    //     elementToBeRemoved.parentNode.removeChild(elementToBeRemoved);
-    // }
-    
-    // var imageLifespan = 3000;
-    
-    // placeholder images courtesy http://dummyimage.com/
-    
-    // example using known id attribute with removeImage
-    function example1() {
-      console.log('Example1 - Added!');
-      appendImage("/assets/dennis-crop.gif", "#dennis", "#dennis-gif");
-      setTimeout(function() {
-        removeImage("#dennis-gif");
-        console.log('Example1 - Removed!');
-        // setTimeout(example1, imageLifespan);
-      });/*, imageLifespan);*/
-    };
-    
-    // example using reference variable with removeImage
-    // function example2() {
-    //   console.log('Example2 - Added!');
-    //   var ref = appendImage('http://dummyimage.com/200x200/000/ff000.jpg', 'image', 'myIdReference');
-    //   setTimeout(function() {
-    //     removeImage(ref);
-    //     console.log('Example2 - Removed!');
-    //     // setTimeout(example2, imageLifespan);
-    //   });/*, imageLifespan);*/
-    // };
-    
-    // example1();
-
-    //#region CHECK EVENTS -----------------------------------------------------------------------------------------------------------------------
+    //#region HANDLING ILLEGAL ROW INSERTS -----------------------------------------------------------------------------------------------------------
 
         /**
-         * Writes whether events are turned on or off to the console
+         * If a row is inserted to the sheet manually, it will be removed and the user chastised
+         * @param {Object} eventArgs The event arguments, which are details about the event that was triggered
          */
-        async function eventsFunction() {
-
+        async function handleIllegalInsert(eventArgs) {
+        
             await Excel.run(async (context) => {
-                context.runtime.load("enableEvents");
+
+                var changedWorksheet = context.workbook.worksheets.getItem(eventArgs.worksheetId).load("name");
+
+                //Returns tableId of the table where the event occured
+                var changedTable = context.workbook.tables.getItem(eventArgs.tableId).load("name"); 
+
+                var changedTableRows = changedTable.rows;
+
+                var changedAddress = changedWorksheet.getRange(eventArgs.address);
+                changedAddress.load("columnIndex");
+                changedAddress.load("rowIndex");
+
                 await context.sync();
-                if (context.runtime.enableEvents == true) {
-                    var eventsEnabled = "on";
-                } else {
-                    var eventsEnabled = "off";
-                };
-                console.log("Events are turned " + eventsEnabled);
-            });
-        };
 
-    //#endregion ----------------------------------------------------------------------------------------------------------------------------------
+                var changedRowIndex = changedAddress.rowIndex; //index of the row where the change was made (on a worksheet level)
 
-
-    //#region EVENTS ON -------------------------------------------------------------------------------------------------------------------------
-
-        /**
-         * Manually turns events on
-         */
-        async function eventsOn() {
-            await Excel.run(async (context) => {
-                context.runtime.load("enableEvents");
-                await context.sync();
-                context.runtime.enableEvents = true;
-                //console.log("Events are turned on!");
-            });
-        };
-
-    //#endregion -------------------------------------------------------------------------------------------------------------------------------
-
-
-    //#region TURN AROUND TIME FUNCTIONS -------------------------------------------------------------------------------------------------------
-
-
-        //#region ADJUST PICKED UP / STARTED BY TURN AROUND TIME ---------------------------------------------------------------
-
-            /**
-             * Adjusts the picked up / started by turn around time value
-             * @param {Object} rowInfo An object containing the values and column indexs of each cell in the changed row
-             * @param {Array} leTable An array of arrays containing all the info of the changed table
-             * @param {Number} rowIndex The index number of the changed row (table level)
-             * @returns Date
-             */
-                function getPickUpTime(rowInfo, leTable, rowIndex) {
-
-                    if (rowInfo.product.value == "" || rowInfo.projectType.value == "") {
-                        leTable[rowIndex][rowInfo.pickedUpStartedBy.columnIndex] = "NO PRODUCT / PROJECT TYPE";
-                        return null;
-                    };
-
-                    //get the Project Type coded variable from the Project Type ID Data based on the value in the Project Type column of the changed row
-                    var theProjectTypeCode = projectTypeIDData[rowInfo.projectType.value].projectTypeCode;
-
-                    //returns turn around time value from the Pickup Turn Around Time table based on the Product column of the changed row and the projetc type codeed variable
-                    var pickedUpTurnAroundTime = pickupData[rowInfo.product.value][theProjectTypeCode];
-
-                    //finds the start override value of the changed row and adds it to the previous turn around time variable
-                    var pickedUpHours = pickedUpTurnAroundTime + rowInfo.startOverride.value;
-
-                    //finds the added date/time serial of the changed row and converts it to a date
-                    var addedDate = convertToDate(rowInfo.added.value);
-
-                    //adds the adjusted turn around time to the added date and adjusts to be within office hours
-                    var pickupOfficeHours = officeHours(addedDate, pickedUpHours);
-
-                    //converts date to excel date
-                    var excelPickupOfficeHours = Number(JSDateToExcelDate(pickupOfficeHours));
-
-                    //updates the pickedup turn around time value in the table array based on our calculations
-                    leTable[rowIndex][rowInfo.pickedUpStartedBy.columnIndex] = excelPickupOfficeHours;
-
-                    return pickupOfficeHours;
-
-                };
-
-        //#endregion ------------------------------------------------------------------------------------------------------------
-
-
-        //#region ADJUST PROOF TO CLIENT TURN AROUND TIME ----------------------------------------------------------------------
-
-            /**
-             * Adjusts the proof to client turn around time values
-             * @param {Object} rowInfo An object containing the values and column indexs of each cell in the changed row
-             * @param {Array} leTable An array of arrays containing all the info of the changed table
-             * @param {Date} lePickUpTime The date returned from the previous getPickUpTime function
-             * @param {Number} rowIndex The index number of the changed row (table level)
-             * @returns Date
-             */
-            function getProofToClientTime(rowInfo, leTable, lePickUpTime, rowIndex) {
-
-                if (lePickUpTime == null) {
-                    leTable[rowIndex][rowInfo.proofToClient.columnIndex] = "NO PRODUCT / PROJECT TYPE";
-                    return null;
-                };
-
-                if (rowInfo.status.value == "Light Changes" || rowInfo.status.value == "Moderate Changes" || rowInfo.status.value == "Heavy Changes") { //if the request's status is a form of "Editing"...
-
-                    //get the Changes coded variable from the Changes ID Data based on the value in the Status column of the changed row
-                    var theChangesCode = changesIDData[rowInfo.status.value].changesCode;
-                    // var snailsss = theChangesCode.changesCode;
-
-                    //gets the turn around time value from the Changes Data Table based on the product and status of the row
-                    var proofToClient = changesData[rowInfo.product.value][theChangesCode];
-
-                    //Heavy Changes has creative review time factored into the table variables, so no need to calculate it. Moderate and Light chnages will almost never need creative review
-
-                    //finds the work override value of the changed row and adds it to the proofToClient variable
-                    var artTurnAround = proofToClient + rowInfo.workOverride.value;
-
-                    //need to create a new date variable, possibly in the Date of Last Edit column
-
-                    //#region UPDATE DATE OF LAST EDIT ------------------------------------------------------------------
-
-                        //generate a new date and time based on the current date and time
-                        var dateOfLastEditTime = new Date();
-                        var dateOfLastEditTimeJS = JSDateToExcelDate(dateOfLastEditTime);
-
-                        leTable[rowIndex][rowInfo.dateOfLastEdit.columnIndex] = dateOfLastEditTimeJS; //write current date and time to the Date of Last Edit position within the table array
-
-                    //#endregion ----------------------------------------------------------------------------------------
-
-                    //adds the adjusted turn around time to the new Date of Last Edit date that was just generated and adjusts to be within office hours
-                    var proofToClientOfficeHours = officeHours(dateOfLastEditTime, artTurnAround);
-
-                    //converts date to excel date
-                    var excelProofToClientOfficeHours = Number(JSDateToExcelDate(proofToClientOfficeHours));
-
-                    //updates the proof to client turn around time value in the table array based on our calculations
-                    leTable[rowIndex][rowInfo.proofToClient.columnIndex] = excelProofToClientOfficeHours;
-
-                    return proofToClientOfficeHours;
-                };
-
-                //get the Project Type coded variable from the Project Type ID Data based on the value in the Project Type column of the changed row
-                var theProjectTypeCode = projectTypeIDData[rowInfo.projectType.value].projectTypeCode;
-
-                //returns turn around time value from the Proof to Client Turn Around Time table based on the Product column of the changed row and the projetc type codeed variable
-                var proofToClient = proofToClientData[rowInfo.product.value][theProjectTypeCode];
-
-                //returns creative review process hours adjustment number from thhe creative review table based on the Product column value of the changed row
-                var creativeReview = creativeProofData[rowInfo.product.value].creativeReviewProcess;
-
-                //adds the proof to client turn around time to the creative review time
-                var proofWithReview = proofToClient + creativeReview;
-
-                //finds the work override value of the changed row and adds it to the previous turn around time variable
-                var artTurnAround = proofWithReview + rowInfo.workOverride.value;
-
-                //adds the adjusted turn around time to the pickedUpStartedBy date and adjusts to be within office hours
-                var proofToClientOfficeHours = officeHours(lePickUpTime, artTurnAround);
-
-                //converts date to excel date
-                var excelProofToClientOfficeHours = Number(JSDateToExcelDate(proofToClientOfficeHours));
-
-                //updates the proof to client turn around time value in the table array based on our calculations
-                leTable[rowIndex][rowInfo.proofToClient.columnIndex] = excelProofToClientOfficeHours;
-
-                return proofToClientOfficeHours;
-
-            };
-
-        //#endregion -----------------------------------------------------------------------------------------------------------
-
-
-
-        //#region SORTING THE TABLE BY PICKED UP TURN AROUND TIME ---------------------------------------------------------------
-
-            /**
-             * Sorts the table array by the values in leColumnIndex and then assigns updated priority numbers
-             * @param {Object} rowInfo An object containing the values and column indexs of each cell in the changed row
-             * @param {Array} leTable An array of arrays containing all the info of the changed table
-             * @param {Number} leColumnIndex The index number of the column that will be used for sorting the table
-             * @param {Array} changedRowValues The values of the changed row
-             * @returns Array
-             */
-            function leSorting(rowInfo, leTable, leColumnIndex, changedRowValues) {
-
-                //a copy of the array containing all the table data that will be used for sorting
-                var leTableSorted = JSON.parse(JSON.stringify(leTable)); //creates a duplicate of original array to be used for assigning the priority numbers, without having anything done to it affect oriignal array
-
-                var priorityColumnIndex = rowInfo.priority.columnIndex; //index of priority column
-
-                var pickedUpColumnIndex = rowInfo.pickedUpStartedBy.columnIndex;
-                var proofToClientColumnIndex = rowInfo.proofToClient.columnIndex;
-
-                var statusColumnIndex = rowInfo.status.columnIndex;
-
-                var tempTable = [];
-                var onHoldTable = [];
-                var awaitingChangesTable = [];
-
-
-                for (var i = 0; i < leTableSorted.length; i++) { //for each row in the table...
-
-                    if (leTableSorted[i][pickedUpColumnIndex] == "NO PRODUCT / PROJECT TYPE" || leTableSorted[i][proofToClientColumnIndex] == "NO PRODUCT / PROJECT TYPE") { //removes invlaid requests from table and puts them in a temp table to be added back in after sorting
-                        tempTable.push(leTableSorted[i]);
-                        leTableSorted.splice(i, 1);
-                        i = i - 1;
-                    } else if (leTableSorted[i][statusColumnIndex] == "On Hold") { //removes on hold requests from table and puts them in an on hold table to be added back in after sorting
-                        onHoldTable.push(leTableSorted[i]);
-                        leTableSorted.splice(i, 1);
-                        i = i - 1;
-                    } else if (leTableSorted[i][statusColumnIndex] == "At Client" || leTableSorted[i][statusColumnIndex] == "In Review" || leTableSorted[i][statusColumnIndex] == "Waiting On Info") { //removes awaiting changes requests from table and puts them in an awaiting changes table to be added back in after sorting
-                        awaitingChangesTable.push(leTableSorted[i]);
-                        leTableSorted.splice(i, 1);
-                        i = i - 1;
-                    };
-
-                };
-
-                //#region RESOLVE DUPLICATE DATE/TIMES ------------------------------------------------------------------------------
-
-                    //if the pickedUp array has duplicate values, this nested for statement will add 1 second to the times of each duplicate value to allow the data sorting to work properly
-                    // for (var i = 0; i < leTableSorted.length; i++) {
-                    //     for (var j = 0; j < leTableSorted.length; j++) {
-                    //         if (i !== j) { //makes sure that the values do not equal (so the first pass will fail, naturally)
-                    //             if (leTableSorted[i][leColumnIndex] == leTableSorted[j][leColumnIndex]) {
-                    //                 // if (leTableSorted[j][leColumnIndex] == "NO PRODUCT / PROJECT TYPE") {
-                    //                 //     leTableSorted[j][leColumnIndex] = j + i;
-                    //                 // };
-                    //                 console.log("A duplicate is present at index " + j + " of the array");
-                    //                 leTableSorted[j][leColumnIndex] = leTableSorted[j][leColumnIndex] + 0.0000115740; //adds one second to the duplicate entry
-                    //             };
-                    //         };
-                    //     };
-                    // };
-
-                //#endregion -------------------------------------------------------------------------------------------------------
-
-
-
-                //sorts the parent array (a) by the number in the sub array (b) at index of the picked up column
-                //leTableSorted.sort(function(a,b){return a[leColumnIndex] > b[leColumnIndex]});
-                leTableSorted.sort((a, b) => (a[leColumnIndex] > b[leColumnIndex]) ? 1 : -1); //sorts
-
-                if (awaitingChangesTable.length > 0) { //adds awaiting changes requests back into table at the bottom
-                    for (var i = 0; i < awaitingChangesTable.length; i++) {
-                        leTableSorted.push(awaitingChangesTable[i]);
-                        awaitingChangesTable.splice(i, 1);
-                        i = i - 1;
-                    };
-                };
-
-                if (onHoldTable.length > 0) { //adds on hold requests back into table at the bottom, under awaiting changes requests
-                    for (var i = 0; i < onHoldTable.length; i++) {
-                        leTableSorted.push(onHoldTable[i]);
-                        onHoldTable.splice(i, 1);
-                        i = i - 1;
-                    };
-                };
-
-                if (tempTable.length > 0) { //adds invalid requests back into table at the bottom, under on hold requests
-                    for (var i = 0; i < tempTable.length; i++) {
-                        leTableSorted.push(tempTable[i]);
-                        tempTable.splice(i, 1);
-                        i = i - 1;
-                    };
-                };
-
-                for (var j = 0; j < leTableSorted.length; j++) { //finds the post row sort index number
-                    for (var k = 0; k < leTableSorted[j].length; k++) {
-                        if (changedRowValues[k] !== leTableSorted[j][k]) {
-                            break;
-                        } else {
-                            var l = leTableSorted[j].length - 1;
-                            if (k == l) {
-                                rowIndexPostSort = j;
-                                //break;
-                            };
-                        };
-                    };
-                };
-
-
-
-                // for (var name of head[0]) {
-                //     theGreatestFunctionEverWritten(head, name, changedRowValues, leTableSorted, sortedRowInfo, rowIndexPostSort);
+                // if (eventArgs.changeType == "RowDeleted") {
+                //     var changedRowTableIndex = 0;
+                // } else {
+                //     var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
                 // };
-
-
-
-
-
-
-                //#region ASSIGN PRIORITY NUMBERS ---------------------------------------------------------------------------------------
-
-                    //for each item in the sorted array of table values, assign updated priority numbers to the priority column index
-                    for (var n = 0; n < leTableSorted.length; n++) {
-                        leTableSorted[n][priorityColumnIndex] = n + 1;
-                    };
-
-                //#endregion ------------------------------------------------------------------------------------------------------------
-
-                return leTableSorted;
-
-            }
-
-        //#endregion -------------------------------------------------------------------------------------------------------------
-
-
-    //#endregion ----------------------------------------------------------------------------------------------------------------------------------
-
-
-    // async function poopsicle(changeEvent) {
-
-    //     await Excel.run(async (context) => {
-
-    //         var smells = changedTable;
-    //         var kells = changedTable.name;
-    //     });
-
-
-    // };
-
-
-
-
-
-    //#region MOVE DATA FUNCTION ------------------------------------------------------------------------------------------------------------------
-
-        /**
-         * moves the changed row's data to the destionation table
-         * @param {Object} destinationTable the table that the data is being moved to
-         * @param {Array} myRow the data, values, and attributes of the changed row
-         * @param {String} artistCellValue the value of the artist cell in the changed row
-         */
-        function moveData(destinationTable, rowValues, myRow, artistCellValue) {
-            destinationTable.rows.add(null, rowValues); //Adds empty row to bottom of the destinationTable, then inserts the changed values into this empty row
-            myRow.delete(); //Deletes the changed row from the original sheet
-            console.log("Data was moved to " + artistCellValue + "'s Projects Table!");
-        };
-
-    //#endregion -----------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-    /**
-     * Pushes the rowValues to the destTable array and removes it from the leTable array
-     * @param {Array} destTable the table array that the data is being moved to
-     * @param {Array} rowValues an array of all the values of the changed row
-     * @param {Array} leTable the changed table array
-     * @param {Number} changedRowTableIndex the index number of the changed table row
-     */
-    function moveDataTwo(destTable, rowValues, leTable, changedRowTableIndex) {
-
-        destTable.push(rowValues[0]);
-        leTable.splice(changedRowTableIndex, 1);
-
-    };
-
-    // async function commitMovedData(bodyRange, leTableSort, destinationRange, destTableSort) {
-    //     await Excel.run(async (context) => {
-
-    //         bodyRange.values = leTableSort;
-    //         destinationRange.values = destTableSort;
-
-    //         await context.sync();
-
-    //     });
-    // };
-
-
-
-    //#region CHECK IF TWO ARRAYS ARE EQUAL --------------------------------------------------------------------------------------------------------
-
-        /**
-         * Compares th contents of two arrays and returns a boolean of true if they are the same and false if they differ in anyway
-         * @param {Array} array1 The first array being compared
-         * @param {Array} array2 The second array being compared
-         * @returns Boolean
-         */
-        function areArraysEqual(array1, array2) {
-            if (array1.length == array2.length) {
-                return array1.every((element, index) => {
-                    if (element == array2[index]) {
-                        return true;
-                    };
-                    return false;
-                });
-            };
-            return false;
-        };
-
-    //#endregion ----------------------------------------------------------------------------------------------------------------------------------
-
-
-    //#region INDEX & VALUES OF CHANGED ROW (THE GREATEST FUNCTION EVER WRITTEN) ------------------------------------------------------------------
-
-        /**
-         * Using the column names, finds and writes the column index and value of each cell in the changed row to an object. Also updates a copy of the header array with the values of the changed row in the correct column indexed positions
-         * @param {Array} head An array of all the header values in the table
-         * @param {String} columnName The name of the column to find the index for
-         * @param {Array} rowValues An array of arrays containing all the row values for the changed row
-         * @param {Array} leTable A copy array of the head array that will be used to write new values to the sheet for the row
-         * @param {Object} obj An empty object that will be filled with column indexs and values for each cell in the changed row
-         * @param {Number} changedRowTableIndex The row index of the changed table
-         */
-        function theGreatestFunctionEverWritten (head, columnName, rowValues, leTable, obj, changedRowTableIndex) {
-
-            //returns the index number of the column name based on it's position in the table header row
-            var columnIndex = findColumnIndex(head, columnName);
-
-            //returns the values of a specific cell from a specific columnn in the changed row
-            var value = rowValues[0][columnIndex];
-
-            //writes value to appropriate columnIndex in leTable array
-            leTable[changedRowTableIndex][columnIndex] = value;
-
-            var headerColumn = headersToCode(columnName); //returns a properly coded variable based on the column name
-
-            obj[headerColumn] = { //adds a new key to the object, including it's column index and value properties
-                columnIndex,
-                value
-            };
-
-        };
-
-    //#endregion -----------------------------------------------------------------------------------------------------------------------------
-
-
-    //#region HEADERS TO CODE ---------------------------------------------------------------------------------------------------------------------
-
-        /**
-         * Finds the coded version of the column names
-         * @param {String} name The name of the column
-         * @returns String
-         */
-        function headersToCode(name) {
-            var codedHeader;
-            if (name == "Priority") {
-                codedHeader = "priority";
-            } else if (name == "Design Manager") {
-                codedHeader = "designManager";
-            } else if (name == "Queue") {
-                codedHeader = "queue";
-            } else if (name == "Tier") {
-                codedHeader = "tier";
-            } else if (name == "Subject") {
-                codedHeader = "subject";
-            } else if (name == "Client") {
-                codedHeader = "client";
-            } else if (name == "Location") {
-                codedHeader = "location";
-            } else if (name == "Product") {
-                codedHeader = "product";
-            } else if (name == "Project Type") {
-                codedHeader = "projectType";
-            } else if (name == "CSM") {
-                codedHeader = "csm";
-            } else if (name == "Added") {
-                codedHeader = "added";
-            } else if (name == "Print Date") {
-                codedHeader = "printDate";
-            } else if (name == "Group") {
-                codedHeader = "group";
-            } else if (name == "Picked Up / Started By") {
-                codedHeader = "pickedUpStartedBy";
-            } else if (name == "Proof to Client") {
-                codedHeader = "proofToClient";
-            } else if (name == "Date of Last Edit") {
-                codedHeader = "dateOfLastEdit";
-            } else if (name == "Tags") {
-                codedHeader = "tags";
-            } else if (name == "Status") {
-                codedHeader = "status";
-            } else if (name == "Code") {
-                codedHeader = "code";
-            } else if (name == "Artist") {
-                codedHeader = "artist";
-            } else if (name == "Notes") {
-                codedHeader = "notes";
-            } else if (name == "Start Override") {
-                codedHeader = "startOverride";
-            } else if (name == "Work Override") {
-                codedHeader = "workOverride";
-            } else {
-                codedHeader = name;
-            };
-            return codedHeader;
-        }
-
-    //#endregion --------------------------------------------------------------------------------------------------------------------------------
-
-
-    //#region ERROR HANDLING ----------------------------------------------------------------------------------------------------------------------
-
-        //#region TRY CATCH ---------------------------------------------------------------------------------------------
-            async function tryCatch(callback) {
-                //console.log("Error callback type is: ");
-                //console.log(typeof callback);
-                //if (typeof callback === 'function') {
-                    try {
-                        await callback();
-                    } catch (error) {
-                        console.error(error);
-                        showMessage(error, "show");
-
-                    }
-                //}
-        }
-        //#endregion ---------------------------------------------------------------------------------------------------
-
-    //#endregion -----------------------------------------------------------------------------------------------------
-
-
-//#endregion ----------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-//#region ANTIQUATED FUNCTIONS (NO LONGER IN USE / ALTERNATE VERSIONS OF WORKING FUNCTIONS) ---------------------------------------------------
-
-    // $("#subject").on("keyup", function() {
-
-    //     var paste = $(this).val(); // Get value from pasted input
-
-    //     if (paste.length == 0) { // If what's pasted is empty
-
-    //            $(".warning1").hide(); // Don't show the error
-    //            $(this).removeClass("warning-box")
-    //            $(this).removeClass("warning-box + .label")
-    //            $("#client, #location, #product, #code").val(""); // Empty all inputs
-
-    //     } else if (!paste.includes("~/*")) { // If what's pasted does not contain "~/*"
-
-    //            $(".warning1").show().text(`This subject does not contain "~/*"`);
-
-    //         //    var warningCSS = {
-    //         //        "border": "2px",
-    //         //        "border-color": "red"
-    //         //    }
-    //         //    $(this).css("border", "2px solid red");
-
-    //             $(this).addClass("warning-box")
-    //             $(this).addClass("warning-box + .label")
-
-
-    //         //    $(this).css("pointer-events", "none");
-    //            $("#client, #location, #product, #code").val(""); // Empty all inputs
-
-    //     } else { // Probably a valid subject (contains ~/*)
-
-    //            $(".warning1").hide() // Hide error
-    //            $(this).removeClass("warning-box")
-    //            $(this).removeClass("warning-box + .label")
-
-
-    //             /** ------------------------------------------------------------
-    //                Parse the subject, fill the other inputs
-    //             ------------------------------------------------------------ */
-
-    //             // Split at "-"s
-    //             var splitPaste = paste.split("-");
-
-    //             var blanks = splitPaste.includes("");
-
-    //             if (blanks == true) {
-
-    //                     var noBlanksArr = splitPaste.filter(function(x) {
-    //                             return x !== "";
-    //                     });
-
-    //             } else {
-
-    //                     var noBlanksArr = splitPaste;
-
-    //             };
-
-
-    //             if (noBlanksArr[0].includes(":")) {
-
-    //                     var str = noBlanksArr[0];
-
-    //                     str = str.substring(str.indexOf(":") + 1);
-
-    //                     noBlanksArr.splice(0, 1, str);
-
-    //             };
-
-    //             var hasRequest = noBlanksArr[0].includes("CREATIVE REQUEST") || noBlanksArr[0].includes("Creative Request") || noBlanksArr[0].includes("ARTIST REQUEST") || noBlanksArr[0].includes("Artist Request");
-
-    //             if (hasRequest == true) {
-
-    //                     noBlanksArr.shift();
-
-    //             };
-
-    //             var plasticS = removeFirstAndLastSpace(noBlanksArr[noBlanksArr.length - 2]);
-
-    //             if (plasticS == "S" || plasticS == "Flat") {
-
-    //                     var plasticSIndex = noBlanksArr.indexOf(noBlanksArr[noBlanksArr.length - 2]);
-
-    //                     noBlanksArr.splice(plasticSIndex, 1);
-
-    //                     if (plasticS == "Flat") {
-
-    //                             var productPostFlatIndex = noBlanksArr.indexOf(noBlanksArr[noBlanksArr.length - 2]);
-
-    //                             noBlanksArr[productPostFlatIndex] = noBlanksArr[noBlanksArr.length - 2] + "Flat";
-
-    //                     };
-
-    //             };
-
-    //             if (noBlanksArr.length > 3) { //if the subject line includes a location, do this...
-
-    //                     // .NET stuff at end (~/*20104,51824,2*/~)
-    //                     // Remove spaces (just in case), "~/*", "*/~", then split at ","
-    //                     var splitCodes = noBlanksArr[noBlanksArr.length - 1].replace(' ','').replace('~/*','').replace('*/~','').split(",");
-
-    //                     var theClient = noBlanksArr[0];
-    //                     var updatedClient = removeFirstAndLastSpace(theClient);
-
-    //                     var theLocation = noBlanksArr[1];
-    //                     var updatedLocation = removeFirstAndLastSpace(theLocation);
-
-    //                     var theProduct = noBlanksArr[noBlanksArr.length - 2];
-    //                     var updatedProduct = removeFirstAndLastSpace(theProduct);
-    //                     // updatedProduct = productID(updatedProduct, 1);
-    //                     productID(updatedProduct, 1).then((updatedProduct) => {
-    //                         console.log("A snail was exceuted");
-    //                         return updatedProduct;
-    //                     });
-
-    //                     var theCode = splitCodes[0];
-    //                     var updatedCode = removeFirstAndLastSpace(theCode);
-
-
-
-
-    //                     // if we can't fill the data out, error:
-    //                     try {
-    //                             $("#client").val(updatedClient);
-    //                             $("#location").val(updatedLocation);
-    //                             $("#product").val(updatedProduct).removeClass("grey-sel");
-    //                             $("#code").val(updatedCode);
-    //                     } catch (e) {
-    //                             // Something was wrong with the subject
-    //                             $(".warning1").show().text(`Something's wrong with this subject. Error: ` + e);
-    //                     }
-
-    //             } else { //if subject line does not include a location, do this...
-
-    //                     // .NET stuff at end (~/*20104,51824,2*/~)
-    //                     // Remove spaces (just in case), "~/*", "*/~", then split at ","
-    //                     var splitCodes = noBlanksArr[2].replace(' ','').replace('~/*','').replace('*/~','').split(",");
-
-    //                     var theClient = noBlanksArr[0];
-    //                     var updatedClient = removeFirstAndLastSpace(theClient);
-
-    //                     var theProduct = noBlanksArr[1];
-    //                     var updatedProduct = removeFirstAndLastSpace(theProduct);
-    //                     updatedProduct = productID(updatedProduct, 1);
-
-    //                     var theCode = splitCodes[0];
-    //                     var updatedCode = removeFirstAndLastSpace(theCode);
-
-
-
-    //                     // if we can't fill the data out, error:
-    //                     try {
-    //                             $("#client").val(updatedClient);
-    //                             $("#product").val(updatedProduct).removeClass("grey-sel");
-    //                             $("#code").val(updatedCode);
-    //                     } catch (e) {
-    //                             // Something was wrong with the subject
-    //                             $(".warning1").show().text(`Something's wrong with this subject. Error: ` + e);
-    //                     }
-
-    //             };
-
-    //     };
-
-    // });
-
-
-
-
-
-
-
-
-    // function removeFirstAndLastSpace(splitItem) {
-    //     var firstChar = splitItem.charAt(0);
-
-    //     if (firstChar == " ") {
-    //             splitItem = splitItem.slice(1);
-    //     };
-
-    //     var lastChar = splitItem.charAt(splitItem.length - 1);
-
-    //     if (lastChar == " ") {
-    //             splitItem = splitItem.slice(0, splitItem.length - 1);
-    //     };
-
-    //     return splitItem;
-    // };
-
-
-
-
-
-
-
-    // async function productID(product, option) {
-
-    //     var relativeProduct;
-
-    //     await Excel.run(async (context) => {
-    //         var sheet = context.workbook.worksheets.getItem("Validation");
-    //         var productIDValTable = sheet.tables.getItem("ProductIDTable");
-
-    //         // Get data from the table.
-    //         var productIDBodyRange = productIDValTable.getDataBodyRange().load("values");
-
-    //         await context.sync();
-
-    //         //#region PRODUCT ID VALUES -----------------------------------------------------------------------------------
-
-    //         var poop = productIDBodyRange.values;
-
-    //         if (option == 1) {
-    //             for (var row of poop) {
-    //                 var check = row[0].trim();
-    //                 // var netProduct = removeFirstAndLastSpace(row[0]);
-    //                 if (row[0].trim() == product) {
-    //                     relativeProduct = row[1];
-    //                     break;
-    //                 };
-    //             };
-
-
-
-    //             // if (option == 1) {
-
-    //             //     var relativeProduct;
-
-    //             //     for (var row of productIDBodyValues) {
-    //             //         var a = row;
-    //             //         var netProduct = removeFirstAndLastSpace(row[0]);
-    //             //         if (netProduct == product) {
-    //             //             relativeProduct = row[1];
-    //             //             return relativeProduct;
-    //             //         }
-    //             //     }
-
-    //                 // productIDBodyValues.forEach(function(row) {
-
-    //                 //     var netProduct = removeFirstAndLastSpace(row[0]);
-
-    //                 //     if (netProduct == product) {
-    //                 //         relativeProduct = row[1];
-    //                 //         return relativeProduct;
-    //                 //     };
-
-    //                 // });
-
-    //                 // return relativeProduct;
-
-    //             };
-
-
-    //             if (option == 2) {
-
-    //                 var code;
-
-    //                 productIDBodyValues.forEach(function(row) {
-
-    //                     if (row[1] == product) {
-    //                         code = row[2];
-    //                     };
-
-    //                 });
-
-    //                 return code;
-
-    //             }
-
-
-
-
-
-    //             //     // Add an option to the select box
-    //             //     var option = `<option product-id="${row[0]}" relative-product="${row[1]}" product-code="${row[2]}">${row[1]}</option>`;
-
-    //             //     var x = $(`#product > option[relative-product="${row[1]}"]`).length; //finds current relative-product in current option in the product dropdown and returns how many are currently in the dropdown
-
-    //             //     if (x == 0) { // Meaning, it's not there yet, because it's length count is 0
-    //             //         if (row[1] !== "") { //if the relative-product in option is empty, do not add to list
-    //             //             $("#product").append(option);
-    //             //         };
-    //             //     };
-    //              //});
-
-    //         //#endregion ---------------------------------------------------------------------------------------------------
-
-    //     });
-
-    //     return relativeProduct;
-
-    // };
-
-
-
-    //#region ORIGINAL ON TABLE CHANGED PRIORITY GENERATION AND SORTATION CODE ----------------------------------------------------------------
-
-        //#region PRIORITY GENERATION AND SORTATION ---------------------------------------------------------------------------------------
-
-            /**
-             * Generates a priority number for each row in the table based on the values in the Picked Up / Started By column. Also sorts the data by priority
-             */
-             async function tableChangedPriorityAndSort(rowInfo, bodyRange, priorityColumnData) {
-
-                console.log("Priority and sorting function has fired!");
-
-                await Excel.run(async (context) => {
-
-                    context.runtime.load("enableEvents");
-
-                    var pickedUpColumnIndex = rowInfo.pickedUpStartedBy.columnIndex; //returns the index number of the "Picked Up / Started By" column based on it's position in the table header row
-                    var activeTableValues = bodyRange.values; //loads all values of the active table
-                    var pickedUpAllValuesArr = allColumnValues(activeTableValues, pickedUpColumnIndex); //makes an array of just the values from the Picked Up / Started By column
-
-                    //if the pickedUp array has duplicate values, this nested for statement will add 1 second to the times of each duplicate value to allow the priority number generation to work properly
-                    for (var i = 0; i < pickedUpAllValuesArr.length; i++) {
-                        for (var j = 0; j < pickedUpAllValuesArr.length; j++) {
-                            if (i !== j) { //makes sure that the values do not equal (so the first pass will fail, naturally)
-                                if (pickedUpAllValuesArr[i] == pickedUpAllValuesArr[j]) {
-                                    console.log("A duplicate is present at index " + j + " of the array");
-                                    pickedUpAllValuesArr[j] = pickedUpAllValuesArr[j] + 0.0000115740; //adds one second to the duplicate entry
-                                };
-                            };
-                        };
-                    };
-
-                    var priorityNumbers = JSON.parse(JSON.stringify(pickedUpAllValuesArr)); //creates a duplicate of original array to be used for assigning the priority numbers, without having anything done to it affect oriignal array
-                    var pickedUpAllValuesSorted = JSON.parse(JSON.stringify(pickedUpAllValuesArr)); //creates a duplicate of original array to be used to sort the original arrays values, without having anything done to it affect oriignal array
-                    pickedUpAllValuesSorted.sort(); //sorts the array
-
-                    for (var n = 0; n < pickedUpAllValuesSorted.length; n++) {
-                        var index = pickedUpAllValuesArr.indexOf(pickedUpAllValuesSorted[n]); //finds the value at n in the sorted array, then finds that index of that value in the unsorted array
-                        priorityNumbers[index] = [(n + 1)]; //in the new priority numbers array, inserts the n value (+1 to account for 0 index) at the index spot
-                    };
-
-                    priorityColumnData.values = priorityNumbers; //writes values to the priority column
-                    console.log("The priority numbers are " + priorityNumbers);
-
-
-                    var priorityColumnIndex = rowInfo.priority.columnIndex; //returns index number of the priority column
-
-
-                    sortFort(bodyRange, priorityColumnIndex);
-
-
-
-                    await context.sync().then(function () {
-
-
-                        // bodyRange.sort.apply([ //sorts entire table based on the priority column
-                        //     {
-                        //         key: priorityColumnIndex,
-                        //         ascending: true
-                        //     }
-                        // ])
-
-                        // console.log("Priority & Sorting function is now finished!");
-
-                        eventsOn();
-                        console.log("Events: ON  →  changed in yet another legacy function priority sort function that is still around for some reason but not being used. Can you tell I had a lot of trouble getting this feature to work? If you are seeing this, you might want to try stepping through a mirror because you are in an alternate dimension. Either that or some poor fool has enebaled a setting (probably me) that has destroyed the fabric of space and time. My wife is going to kill me; she takes her patterns and materials very seriously. Good luck explaining this one!");
-                        return;
-
-                        // priorityColumnData.values.push([]);
-
-                        // var head = headerRange.values;
-
-
-                        //need a function that will pull values from "pickedUpColumnIndex" position of the bodyRange.values for each row in sheet and put them in a new array
-
-
-                        // pickedUpAllValuesArr.push(excelPickupOfficeHours);
-
-
-
-
-
-
-
-
-
-
-                        // context.runtime.enableEvents = true;
-                        // console.log("Events are turned on");
-
-                    });
-
-                });
-            };
-
-            function sortFort(bodyRange, priorityColumnIndex) {
-
-                //console.log(bodyRange.values);
-
-                bodyRange.sort.apply([ //sorts entire table based on the priority column
-                    {
-                        key: priorityColumnIndex,
-                        ascending: true
-                    }
-                ])
-
-                console.log("Priority & Sorting function is now finished!");
-
-               //console.log(bodyRange.values);
-
-                // eventsOn();
+            
+                var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
+            
+                var rowRange = changedTableRows.getItemAt(changedRowTableIndex).getRange();
+
+                console.log("tsk tsk tsk...Don't forget the 7th commandment of the Art Queue Add-In:");
+                console.log(`"Thou shalt submit all requests to thy own sheet by means of the Add A Project taskpane. 
+                Manually adding rows of info to thyn sheet beith forbidden."`);
+                console.log("It's a simple mistake, but make sure not to do it again.");
+
+                rowRange.delete("Up");
+
+                eventsOn();
+                console.log(`Events: ON  →  triggered after a row was manually inserted into the sheet by the user, 
+                followed by the swift removal of said row and a slap on the wrist.`);
+                
                 return;
 
+            });
+
+        };
+
+    //#endregion -------------------------------------------------------------------------------------------------------------------------------------
+
+    //#region ERROR HANDLING -------------------------------------------------------------------------------------------------------------------------
+
+        async function tryCatch(callback) {
+            //console.log("Error callback type is: ");
+            //console.log(typeof callback);
+            //if (typeof callback === 'function') {
+                try {
+                    await callback();
+                } catch (error) {
+                    console.error(error);
+                    showMessage(error, "show");
+
+                }
+        }
+
+    //#endregion -------------------------------------------------------------------------------------------------------------------------------------
+
+    //#region UNUSED FUNCTIONS / WORK IN PROGRESS ----------------------------------------------------------------------------------------------------
+
+        //#region MOVE DATA FUNCTION (LEGACY, NOT USED ANYMORE) --------------------------------------------------------------------------------------
+
+            /**
+             * moves the changed row's data to the destionation table
+             * @param {Object} destinationTable the table that the data is being moved to
+             * @param {Array} myRow the data, values, and attributes of the changed row
+             * @param {String} artistCellValue the value of the artist cell in the changed row
+             */
+             function moveData(destinationTable, rowValues, myRow, artistCellValue) {
+                //Adds empty row to bottom of the destinationTable, then inserts the changed values into this empty row
+                destinationTable.rows.add(null, rowValues); 
+                myRow.delete(); //Deletes the changed row from the original sheet
+                console.log("Data was moved to " + artistCellValue + "'s Projects Table!");
             };
 
-        //#endregion ------------------------------------------------------------------------------------------------------------------
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
 
-    //#endregion ------------------------------------------------------------------------------------------------------------------------------
+        //#region DATA PROTECTION (UNUSED) -----------------------------------------------------------------------------------------------------------
 
-    //#region PRIORITY GENERATION AND SORTATION ---------------------------------------------------------------------------------------
-
-                /**
-                 * Generates a priority number for each row in the table based on the values in the Picked Up / Started By column. Also sorts the data by priority
-                 */
-                 async function priorityGenerationAndSortation() {
-
-                    console.log("Priority and sorting function has fired!");
-
-                    await Excel.run(async (context) => {
-
-                        var sheet = context.workbook.worksheets.getActiveWorksheet();
-                        var sheetTable = sheet.tables.getItemAt(0);
-                        var priorityColumnData = sheetTable.columns.getItem("Priority").getDataBodyRange().load("values");
-                        var bodyRange = sheetTable.getDataBodyRange().load("values");
-                        var headerRange = sheetTable.getHeaderRowRange().load("values");
-                        context.runtime.load("enableEvents");
-
-
-                        await context.sync().then(function () {
-
-                            // priorityColumnData.values.push([]);
-
-                            var head = headerRange.values;
-
-                            var pickedUpColumnIndex = findColumnIndex(head, "Picked Up / Started By"); //returns the index number of the "Picked Up / Started By" column based on it's position in the table header row
-
-                            //need a function that will pull values from "pickedUpColumnIndex" position of the bodyRange.values for each row in sheet and put them in a new array
-
-                            var activeTableValues = bodyRange.values; //loads all values of the active table
-
-                            var pickedUpAllValuesArr = allColumnValues(activeTableValues, pickedUpColumnIndex); //makes an array of just the values from the Picked Up / Started By column
-                            // pickedUpAllValuesArr.push(excelPickupOfficeHours);
-
-                            //if the pickedUp array has duplicate values, this nested for statement will add 1 second to the times of each duplicate value to allow the priority number generation to work properly
-                            for (var i = 0; i < pickedUpAllValuesArr.length; i++) {
-                                for (var j = 0; j < pickedUpAllValuesArr.length; j++) {
-                                    if (i !== j) { //makes sure that the values do not equal (so the first pass will fail, naturally)
-                                        if (pickedUpAllValuesArr[i] == pickedUpAllValuesArr[j]) {
-                                            console.log("A duplicate is present at index " + j + " of the array");
-                                            pickedUpAllValuesArr[j] = pickedUpAllValuesArr[j] + 0.0000115740; //adds one second to the duplicate entry
-                                        }
-                                    }
-                                }
-                            }
-
-                            var priorityNumbers = JSON.parse(JSON.stringify(pickedUpAllValuesArr)); //creates a duplicate of original array to be used for assigning the priority numbers, without having anything done to it affect oriignal array
-
-                            var pickedUpAllValuesSorted = JSON.parse(JSON.stringify(pickedUpAllValuesArr)); //creates a duplicate of original array to be used to sort the original arrays values, without having anything done to it affect oriignal array
-                            pickedUpAllValuesSorted.sort(); //sorts the array
-
-
-
-
-
-                            for (var n = 0; n < pickedUpAllValuesSorted.length; n++) {
-                                var index = pickedUpAllValuesArr.indexOf(pickedUpAllValuesSorted[n]); //finds the value at n in the sorted array, then finds that index of that value in the unsorted array
-                                priorityNumbers[index] = [(n + 1)]; //in the new priority numbers array, inserts the n value (+1 to account for 0 index) at the index spot
-                            };
-
-                            priorityColumnData.values = priorityNumbers; //writes values to the priority column
-                            // priorityColumnValues = priorityNumbers;
-
-                            var priorityColumnIndex = findColumnIndex(head, "Priority"); //returns index number of the priority column
-
-                            bodyRange.sort.apply([ //sorts entire table based on the priority column
-                                {
-                                    key: priorityColumnIndex,
-                                    ascending: true
-                                }
-                            ])
-
-                            console.log("Priority & Sorting function is now finished!");
-
-                            // context.runtime.enableEvents = true;
-                            // console.log("Events are turned on");
-
-                        }).then(() => {
-                            eventsOn();
-                            console.log("Events: ON  →  turned on in the priorityGenerationAndSortation function, which I believe is an antiquated function that should not be used any longer. If you are seeing this, something has gone terribly wrong and you have somehow ended up in an alternate universe where this function was used. My condolances.");
-                            return;
-                        });
-
-                    });
+            function passwordHelper(password) {
+                if (null == password || password.trim() == "") {
+                let errorMessage = "Password is expected but not provided";
+                console.log(errorMessage);
                 };
+            };
 
-            //#endregion ------------------------------------------------------------------------------------------------------------------
+            async function passwordHandler() {
+                let settingName = "TheTestPasswordUsedByThisSnippet";
+                let savedPassword = Office.context.document.settings.get(settingName);
+                var testPassword;
+                if (null == savedPassword || savedPassword.trim() == "") {
+                //let item = document.getElementById("test-password");
+                    
+                testPassword = valPassword;
 
-//#endregion ----------------------------------------------------------------------------------------------------------------------------------
+                //let testPassword = item.hasAttribute("value") ? item.getAttribute("value") : null;
+                if (null != testPassword && testPassword.trim() != "") {
+                    // store test password for retrieval upon re-opening this workbook
+                    Office.context.document.settings.set(settingName, testPassword);
+                    await Office.context.document.settings.saveAsync();
+
+                    savedPassword = testPassword;
+                }
+                } else {
+                //document.getElementById("test-password").setAttribute("value", savedPassword);
+                testPassword = valPassword;
+                savedPassword = testPassword;
+                }
+
+                console.log("Test password is " + savedPassword);
+
+                return savedPassword;
+            }
+
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+
+    //#endregion -------------------------------------------------------------------------------------------------------------------------------------
+
+//#endregion -----------------------------------------------------------------------------------------------------------------------------------------
 
 
-async function handleChange(event) {
-    await Excel.run(async (context) => {
-        await context.sync();
-        console.log("Address of event: " + event.address);
-        // console.log("The change direction state of the event: " + event.changeDirectionState);
-        console.log("Change type of event: " + event.changeType);
-        console.log("The details of the event: " + event.details);
-        // console.log("Source of event: " + event.source);
-        // console.log("The trigger source of the event: " + event.triggerSource);
-        // console.log("The worrksheet ID of the event: " + event.worksheetId);
-        console.log("END OF ENTRY////////////////////////////////////////////////////////////////////////////////////");
-    }).catch(errorHandlerFunction);
-}

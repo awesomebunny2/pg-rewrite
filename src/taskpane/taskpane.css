@@ -4,6 +4,8 @@
 
 @import url("https://use.fontawesome.com/releases/v5.8.1/css/all.css");
 
+/* @import "xp.css/dist/XP.css"; */
+
 body, html {
     /* font-family: 'Roboto', sans-serif;     */
     font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
@@ -436,37 +438,232 @@ select {
 }
 
 #warning-fissh {
-    display:flex;
+    /* display:flex; */
     flex-direction:column;
     align-items: center;
     justify-content:center;
     padding: 20px 20px;
     width:80%;
-    /* height:50%; */
-    background-color:white;
+    min-height:20%;
+    /* background-color:white; */
+    background-color: #ece9d8;
+
+    box-shadow: inset -1px -1px #00138c, inset 1px 1px #0831d9, inset -2px -2px #001ea0, inset 2px 2px #166aee,
+    inset -3px -3px #003bda, inset 3px 3px #0855dd;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    padding: 0 0 3px 0;
+    -webkit-font-smoothing: antialiased;
+}
+
+#warning-title-bar {
+    display: flex;
+    /* flex-direction: row; */
+    font-family: "Trebuchet MS";
+    background: linear-gradient(
+        180deg,
+        rgba(9, 151, 255, 1) 0%,
+        rgba(0, 83, 238, 1) 8%,
+        rgba(0, 80, 238, 1) 40%,
+        rgba(0, 102, 255, 1) 88%,
+        rgba(0, 102, 255, 1) 93%,
+        rgba(0, 91, 255, 1) 95%,
+        rgba(0, 61, 215, 1) 96%,
+        rgba(0, 61, 215, 1) 100%
+    );
+    padding: 3px 5px 3px 3px;
+    border-top: 1px solid #0831d9;
+    border-left: 1px solid #0831d9;
+    border-right: 1px solid #001ea0;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 7px;
+    font-size: 13px;
+    text-shadow: 1px 1px #0f1089;
+    height: 32px;
+    justify-content: space-between;
+    align-items: center;
 }
 
 #warning-text {
+    /* flex-direction: row; */
     margin: 5px;
+    padding-left: 3px;
+    margin-right: 25%;
+    color: #fff;
+    letter-spacing: 0;
+    font-weight: 700;
+    text-shadow: 1px 1px #0f1089;
+}
+
+#close-xp {
+    min-width: 21px;
+    min-height: 21px;
+    margin-left: 2px;
+    box-sizing: border-box;
+    /* background: linear-gradient(180deg, #fff, #ecebe5 86%, #d8d0c4); */
+    background-repeat: no-repeat;
+    background-position: center;
+    box-shadow: none;
+    background-color: #0050ee;
+    transition: background 100ms;
+    border: none;
+    border-radius: 3px;
+    -webkit-font-smoothing: antialiased;
+}
+
+.title-bar-controls.buttons:active {
+    box-shadow: none !important;
+}
+.title-bar-controls.buttons:hover {
+    box-shadow: none !important;
+}
+.title-bar-controls.buttons:focus {
+    box-shadow: none !important;
+}
+
+button[aria-label="Close"] {
+    background-image: url("assets/close.svg");
+    /* background-color: red; */
+}
+
+button[aria-label="Close"]:hover {
+    background-image: url("assets/close-hover.svg");
+    /* background-color: purple; */
+
+}
+
+button[aria-label="Close"]:not(:disabled):active {
+    background-image: url("assets/close-active.svg");
+    /* background-color: green; */
+
 }
 
 #fissh-text {
+    font-family: Arial;
+    color: #222;
+    font-size: 18px;
     margin: 10px;
+    text-align: center;
 }
 
 #fissh-img {
+    display: flex;
     width: 75%;
     height: auto;
-    margin: 10px;
+    /* margin: 10px; */
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 25px;
+    margin-bottom: 25px;
 }
 
 #fissh-buttons {
-    margin-top: 30px;
+    justify-content: flex-end;
+    margin-top: 10px;
+    margin-bottom: 10px;
     text-align: center;
     width: 100%;
 }
 
+.dont {
+    min-height: 25px;
+    min-width: 25%;
+    margin-right: 2%;
+    margin-left: 2%;
+
+    background: linear-gradient(180deg, #fff, #ecebe5 86%, #d8d0c4);
+    font-family: "Pixelated MS Sans Serif", Arial;
+    -webkit-font-smoothing: antialiased;
+    font-size: 11px;
+    box-sizing: border-box;
+    border: 1px solid #003c74;
+    box-shadow: none;
+    border-radius: 3px;
+
+}
+
+.dont:active {
+    background: linear-gradient(180deg, #cdcac3, #e3e3db 8%, #e5e5de 94%, #f2f2f1);
+    box-shadow: none;
+}
+
+.dont:hover:active {
+    background: linear-gradient(180deg, #cdcac3, #e3e3db 8%, #e5e5de 94%, #f2f2f1);
+    box-shadow: inset -1px 1px #fff0cf, inset 1px 2px #fdd889, inset -2px 2px #fbc761, inset 2px -2px #e5a01a;
+    outline-offset: -4px;
+    outline: 1px dotted #000;
+}
+
+.dont:hover {
+    box-shadow: inset -1px 1px #fff0cf, inset 1px 2px #fdd889, inset -2px 2px #fbc761, inset 2px -2px #e5a01a;
+    background: linear-gradient(180deg, #fff, #ecebe5 86%, #d8d0c4);
+}
+
+.dont:focus {
+    box-shadow: inset -1px 1px #cee7ff, inset 1px 2px #98b8ea, inset -2px 2px #bcd4f6, inset 1px -1px #89ade4, inset 2px -2px #89ade4;
+    background: linear-gradient(180deg, #fff, #ecebe5 86%, #d8d0c4);
+    outline-offset: -4px;
+    outline: 1px dotted #000;
+}
+
+.dont:focus-visible {
+    border: 1px solid #003c74;
+    box-shadow: none;
+    border-radius: 3px;
+    background: linear-gradient(180deg, #fff, #ecebe5 86%, #d8d0c4);
+}
+
 .ok {
+    min-height: 25px;
+    min-width: 25%;
+    margin-right: 2%;
+    margin-left: 2%;
+
+    background: linear-gradient(180deg, #fff, #ecebe5 86%, #d8d0c4);
+    font-family: "Pixelated MS Sans Serif", Arial;
+    -webkit-font-smoothing: antialiased;
+    font-size: 11px;
+    box-sizing: border-box;
+    border: 1px solid #003c74;
+    box-shadow: none;
+    border-radius: 3px;
+
+}
+
+.ok:active {
+    background: linear-gradient(180deg, #cdcac3, #e3e3db 8%, #e5e5de 94%, #f2f2f1);
+    box-shadow: none;
+}
+
+.ok:hover:active {
+    background: linear-gradient(180deg, #cdcac3, #e3e3db 8%, #e5e5de 94%, #f2f2f1);
+    box-shadow: inset -1px 1px #fff0cf, inset 1px 2px #fdd889, inset -2px 2px #fbc761, inset 2px -2px #e5a01a;
+    outline-offset: -4px;
+    outline: 1px dotted #000;
+}
+
+.ok:hover {
+    box-shadow: inset -1px 1px #fff0cf, inset 1px 2px #fdd889, inset -2px 2px #fbc761, inset 2px -2px #e5a01a;
+    background: linear-gradient(180deg, #fff, #ecebe5 86%, #d8d0c4);
+}
+
+.ok:focus {
+    box-shadow: inset -1px 1px #cee7ff, inset 1px 2px #98b8ea, inset -2px 2px #bcd4f6, inset 1px -1px #89ade4, inset 2px -2px #89ade4;
+    background: linear-gradient(180deg, #fff, #ecebe5 86%, #d8d0c4);
+    outline-offset: -4px;
+    outline: 1px dotted #000;
+}
+
+.ok:focus-visible {
+    border: 1px solid #003c74;
+    box-shadow: none;
+    border-radius: 3px;
+    background: linear-gradient(180deg, #fff, #ecebe5 86%, #d8d0c4);
+}
+
+
+
+/* .ok {
     min-height: 30px;
     min-width: 15%;
     margin-right: 8%;
@@ -478,7 +675,7 @@ select {
     min-width: 15%;
     margin-right: 8%;
     margin-left: 8%;
-}
+} */
 
 #fissh-gif {
     display: none;
