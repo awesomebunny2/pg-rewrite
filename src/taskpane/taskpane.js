@@ -710,7 +710,85 @@
                         };
 
                         var hasRequest = noBlanksArr[0].includes("CREATIVE REQUEST") || noBlanksArr[0].includes("Creative Request") || 
-                        noBlanksArr[0].includes("ARTIST REQUEST") || noBlanksArr[0].includes("Artist Request");
+                        noBlanksArr[0].includes("ARTIST REQUEST") || noBlanksArr[0].includes("Artist Request")  || 
+                        noBlanksArr[0].includes("Urgent") || noBlanksArr[0].includes("Urgent!") || noBlanksArr[0].includes("Urgent!!") || 
+                        noBlanksArr[0].includes("URGENT") || noBlanksArr[0].includes("URGENT!") || noBlanksArr[0].includes("URGENT!!") ||
+
+                        noBlanksArr[0].includes("Urgent Art Request") || noBlanksArr[0].includes("Urgent Art Request!") || 
+                        noBlanksArr[0].includes("Urgent! Art Request") || noBlanksArr[0].includes("Urgent! Art Request!") ||
+                        noBlanksArr[0].includes("Urgent Art Request!!") || noBlanksArr[0].includes("Urgent!! Art Request") ||
+                        noBlanksArr[0].includes("Urgent! Art Request!!") || noBlanksArr[0].includes("Urgent!! Art Request!") ||
+                        noBlanksArr[0].includes("Urgent!! Art Request!!") || 
+                        
+                        noBlanksArr[0].includes("URGENT Art Request") || noBlanksArr[0].includes("URGENT Art Request!") || 
+                        noBlanksArr[0].includes("URGENT! Art Request") || noBlanksArr[0].includes("URGENT! Art Request!")
+                        noBlanksArr[0].includes("URGENT Art Request!!") || noBlanksArr[0].includes("URGENT!! Art Request") || 
+                        noBlanksArr[0].includes("URGENT! Art Request!!") || noBlanksArr[0].includes("URGENT!! Art Request!") || 
+                        noBlanksArr[0].includes("URGENT!! Art Request!!") ||
+
+                        noBlanksArr[0].includes("Urgent ART REQUEST") || noBlanksArr[0].includes("Urgent ART REQUEST!") || 
+                        noBlanksArr[0].includes("Urgent! ART REQUEST") || noBlanksArr[0].includes("Urgent! ART REQUEST!") ||
+                        noBlanksArr[0].includes("Urgent ART REQUEST!!") || noBlanksArr[0].includes("Urgent!! ART REQUEST") ||
+                        noBlanksArr[0].includes("Urgent! ART REQUEST!!") || noBlanksArr[0].includes("Urgent!! ART REQUEST!") ||
+                        noBlanksArr[0].includes("Urgent!! ART REQUEST!!") || 
+
+                        noBlanksArr[0].includes("URGENT ART REQUEST") || noBlanksArr[0].includes("URGENT ART REQUEST!") ||
+                        noBlanksArr[0].includes("URGENT! ART REQUEST") || noBlanksArr[0].includes("URGENT! ART REQUEST!") ||
+                        noBlanksArr[0].includes("URGENT ART REQUEST!!") || noBlanksArr[0].includes("URGENT!! ART REQUEST") ||
+                        noBlanksArr[0].includes("URGENT! ART REQUEST!!") || noBlanksArr[0].includes("URGENT!! ART REQUEST!") || 
+                        noBlanksArr[0].includes("URGENT!! ART REQUEST!!") ||
+
+
+
+                        noBlanksArr[0].includes("Urgent Artist Request") || noBlanksArr[0].includes("Urgent Artist Request!") || 
+                        noBlanksArr[0].includes("Urgent! Artist Request") || noBlanksArr[0].includes("Urgent! Artist Request!") ||
+                        noBlanksArr[0].includes("Urgent Artist Request!!") || noBlanksArr[0].includes("Urgent!! Artist Request") ||
+                        noBlanksArr[0].includes("Urgent! Artist Request!!") || noBlanksArr[0].includes("Urgent!! Artist Request!") ||
+                        noBlanksArr[0].includes("Urgent!! Artist Request!!") || 
+                        
+                        noBlanksArr[0].includes("URGENT Artist Request") || noBlanksArr[0].includes("URGENT Artist Request!") || 
+                        noBlanksArr[0].includes("URGENT! Artist Request") || noBlanksArr[0].includes("URGENT! Artist Request!")
+                        noBlanksArr[0].includes("URGENT Artist Request!!") || noBlanksArr[0].includes("URGENT!! Artist Request") || 
+                        noBlanksArr[0].includes("URGENT! Artist Request!!") || noBlanksArr[0].includes("URGENT!! Artist Request!") || 
+                        noBlanksArr[0].includes("URGENT!! Artist Request!!") ||
+
+                        noBlanksArr[0].includes("Urgent ARTIST REQUEST") || noBlanksArr[0].includes("Urgent ARTIST REQUEST!") || 
+                        noBlanksArr[0].includes("Urgent! ARTIST REQUEST") || noBlanksArr[0].includes("Urgent! ARTIST REQUEST!") ||
+                        noBlanksArr[0].includes("Urgent ARTIST REQUEST!!") || noBlanksArr[0].includes("Urgent!! ARTIST REQUEST") ||
+                        noBlanksArr[0].includes("Urgent! ARTIST REQUEST!!") || noBlanksArr[0].includes("Urgent!! ARTIST REQUEST!") ||
+                        noBlanksArr[0].includes("Urgent!! ARTIST REQUEST!!") || 
+
+                        noBlanksArr[0].includes("URGENT ARTIST REQUEST") || noBlanksArr[0].includes("URGENT ARTIST REQUEST!") ||
+                        noBlanksArr[0].includes("URGENT! ARTIST REQUEST") || noBlanksArr[0].includes("URGENT! ARTIST REQUEST!") ||
+                        noBlanksArr[0].includes("URGENT ARTIST REQUEST!!") || noBlanksArr[0].includes("URGENT!! ARTIST REQUEST") ||
+                        noBlanksArr[0].includes("URGENT! ARTIST REQUEST!!") || noBlanksArr[0].includes("URGENT!! ARTIST REQUEST!") || 
+                        noBlanksArr[0].includes("URGENT!! ARTIST REQUEST!!") ||
+
+                        
+
+                        noBlanksArr[0].includes("Urgent Creative Request") || noBlanksArr[0].includes("Urgent Creative Request!") || 
+                        noBlanksArr[0].includes("Urgent! Creative Request") || noBlanksArr[0].includes("Urgent! Creative Request!") ||
+                        noBlanksArr[0].includes("Urgent Creative Request!!") || noBlanksArr[0].includes("Urgent!! Creative Request") ||
+                        noBlanksArr[0].includes("Urgent! Creative Request!!") || noBlanksArr[0].includes("Urgent!! Creative Request!") ||
+                        noBlanksArr[0].includes("Urgent!! Creative Request!!") || 
+                        
+                        noBlanksArr[0].includes("URGENT Creative Request") || noBlanksArr[0].includes("URGENT Creative Request!") || 
+                        noBlanksArr[0].includes("URGENT! Creative Request") || noBlanksArr[0].includes("URGENT! Creative Request!")
+                        noBlanksArr[0].includes("URGENT Creative Request!!") || noBlanksArr[0].includes("URGENT!! Creative Request") || 
+                        noBlanksArr[0].includes("URGENT! Creative Request!!") || noBlanksArr[0].includes("URGENT!! Creative Request!") || 
+                        noBlanksArr[0].includes("URGENT!! Creative Request!!") ||
+
+                        noBlanksArr[0].includes("Urgent CREATIVE REQUEST") || noBlanksArr[0].includes("Urgent CREATIVE REQUEST!") || 
+                        noBlanksArr[0].includes("Urgent! CREATIVE REQUEST") || noBlanksArr[0].includes("Urgent! CREATIVE REQUEST!") ||
+                        noBlanksArr[0].includes("Urgent CREATIVE REQUEST!!") || noBlanksArr[0].includes("Urgent!! CREATIVE REQUEST") ||
+                        noBlanksArr[0].includes("Urgent! CREATIVE REQUEST!!") || noBlanksArr[0].includes("Urgent!! CREATIVE REQUEST!") ||
+                        noBlanksArr[0].includes("Urgent!! CREATIVE REQUEST!!") || 
+
+                        noBlanksArr[0].includes("URGENT CREATIVE REQUEST") || noBlanksArr[0].includes("URGENT CREATIVE REQUEST!") ||
+                        noBlanksArr[0].includes("URGENT! CREATIVE REQUEST") || noBlanksArr[0].includes("URGENT! CREATIVE REQUEST!") ||
+                        noBlanksArr[0].includes("URGENT CREATIVE REQUEST!!") || noBlanksArr[0].includes("URGENT!! CREATIVE REQUEST") ||
+                        noBlanksArr[0].includes("URGENT! CREATIVE REQUEST!!") || noBlanksArr[0].includes("URGENT!! CREATIVE REQUEST!") || 
+                        noBlanksArr[0].includes("URGENT!! CREATIVE REQUEST!!");
 
                         if (hasRequest == true) {
 
