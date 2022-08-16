@@ -764,7 +764,7 @@
                         noBlanksArr[0].includes("URGENT! ARTIST REQUEST!!") || noBlanksArr[0].includes("URGENT!! ARTIST REQUEST!") || 
                         noBlanksArr[0].includes("URGENT!! ARTIST REQUEST!!") ||
 
-                        
+
 
                         noBlanksArr[0].includes("Urgent Creative Request") || noBlanksArr[0].includes("Urgent Creative Request!") || 
                         noBlanksArr[0].includes("Urgent! Creative Request") || noBlanksArr[0].includes("Urgent! Creative Request!") ||
@@ -1944,6 +1944,7 @@
                             || changedColumnIndex == rowInfo.added.columnIndex 
                             || changedColumnIndex == rowInfo.startOverride.columnIndex 
                             || changedColumnIndex == rowInfo.workOverride.columnIndex 
+                            || changedColumnIndex == rowInfo.tags.columnIndex
                             || (changedColumnIndex == rowInfo.status.columnIndex //if status is adjusted & table is NOT a completed table & the status 
                             //is not moving the data to the completed table (saved for another if statement that handles moving data between tables)
                                 && completedTableChanged == false 
@@ -3263,7 +3264,7 @@
 
     //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
-    //#region TURN AROUND TIME FUNCTIONS & OFFICE HOURS ----------------------------------------------------------------------------------------------
+    //#region TURN AROUND TIME FUNCTIONS, SORTING, & OFFICE HOURS ------------------------------------------------------------------------------------
 
         //#region ADJUST PICKED UP / STARTED BY TURN AROUND TIME -------------------------------------------------------------------------------------
 
@@ -3309,58 +3310,87 @@
 
     //#endregion ---------------------------------------------------------------------------------------------------------------------------------
 
-    //#region ADJUST PROOF TO CLIENT TURN AROUND TIME --------------------------------------------------------------------------------------------
+        //#region ADJUST PROOF TO CLIENT TURN AROUND TIME --------------------------------------------------------------------------------------------
 
-        /**
-         * Adjusts the proof to client turn around time values
-         * @param {Object} rowInfo An object containing the values and column indexs of each cell in the changed row
-         * @param {Array} leTable An array of arrays containing all the info of the changed table
-         * @param {Date} lePickUpTime The date returned from the previous getPickUpTime function
-         * @param {Number} rowIndex The index number of the changed row (table level)
-         * @returns Date
-         */
-        function getProofToClientTime(rowInfo, leTable, lePickUpTime, rowIndex) {
+            /**
+             * Adjusts the proof to client turn around time values
+             * @param {Object} rowInfo An object containing the values and column indexs of each cell in the changed row
+             * @param {Array} leTable An array of arrays containing all the info of the changed table
+             * @param {Date} lePickUpTime The date returned from the previous getPickUpTime function
+             * @param {Number} rowIndex The index number of the changed row (table level)
+             * @returns Date
+             */
+            function getProofToClientTime(rowInfo, leTable, lePickUpTime, rowIndex) {
 
-            if (lePickUpTime == null) {
-                leTable[rowIndex][rowInfo.proofToClient.columnIndex] = "NO PRODUCT / PROJECT TYPE";
-                return null;
-            };
+                if (lePickUpTime == null) {
+                    leTable[rowIndex][rowInfo.proofToClient.columnIndex] = "NO PRODUCT / PROJECT TYPE";
+                    return null;
+                };
 
-            //if the request's status is a form of "Editing"...
-            if (
-                rowInfo.status.value == "Light Changes" 
-                || rowInfo.status.value == "Moderate Changes" 
-                || rowInfo.status.value == "Heavy Changes"
-            ) {
+                //if the request's status is a form of "Editing"...
+                if (
+                    rowInfo.status.value == "Light Changes" 
+                    || rowInfo.status.value == "Moderate Changes" 
+                    || rowInfo.status.value == "Heavy Changes"
+                ) {
 
-                //get the Changes coded variable from the Changes ID Data based on the value in the Status column of the changed row
-                var theChangesCode = changesIDData[rowInfo.status.value].changesCode;
-                // var snailsss = theChangesCode.changesCode;
+                    //get the Changes coded variable from the Changes ID Data based on the value in the Status column of the changed row
+                    var theChangesCode = changesIDData[rowInfo.status.value].changesCode;
+                    // var snailsss = theChangesCode.changesCode;
 
-                //gets the turn around time value from the Changes Data Table based on the product and status of the row
-                var proofToClient = changesData[rowInfo.product.value][theChangesCode];
+                    //gets the turn around time value from the Changes Data Table based on the product and status of the row
+                    var proofToClient = changesData[rowInfo.product.value][theChangesCode];
 
-                //Heavy Changes has creative review time factored into the table variables, so no need to calculate it
-                //Moderate and Light chnages will almost never need creative review
+                    //Heavy Changes has creative review time factored into the table variables, so no need to calculate it
+                    //Moderate and Light chnages will almost never need creative review
 
-                //finds the work override value of the changed row and adds it to the proofToClient variable
-                var artTurnAround = proofToClient + rowInfo.workOverride.value;
+                    //finds the work override value of the changed row and adds it to the proofToClient variable
+                    var artTurnAround = proofToClient + rowInfo.workOverride.value;
 
-                //need to create a new date variable, possibly in the Date of Last Edit column
+                    //need to create a new date variable, possibly in the Date of Last Edit column
 
-                //#region UPDATE DATE OF LAST EDIT -----------------------------------------------------------------------------------------------
+                    //#region UPDATE DATE OF LAST EDIT -----------------------------------------------------------------------------------------------
 
-                    //generate a new date and time based on the current date and time
-                    var dateOfLastEditTime = new Date();
-                    var dateOfLastEditTimeJS = JSDateToExcelDate(dateOfLastEditTime);
+                        //generate a new date and time based on the current date and time
+                        var dateOfLastEditTime = new Date();
+                        var dateOfLastEditTimeJS = JSDateToExcelDate(dateOfLastEditTime);
 
-                    //write current date and time to the Date of Last Edit position within the table array
-                    leTable[rowIndex][rowInfo.dateOfLastEdit.columnIndex] = dateOfLastEditTimeJS;
+                        //write current date and time to the Date of Last Edit position within the table array
+                        leTable[rowIndex][rowInfo.dateOfLastEdit.columnIndex] = dateOfLastEditTimeJS;
 
-                //#endregion ---------------------------------------------------------------------------------------------------------------------
+                    //#endregion ---------------------------------------------------------------------------------------------------------------------
 
-                //adds the adjusted turn around time to new Date of Last Edit date that was just generated and adjusts to be within office hours
-                var proofToClientOfficeHours = officeHours(dateOfLastEditTime, artTurnAround);
+                    //adds the adjusted turn around time to new Date of Last Edit date that was just generated and adjusts to be within office hours
+                    var proofToClientOfficeHours = officeHours(dateOfLastEditTime, artTurnAround);
+
+                    //converts date to excel date
+                    var excelProofToClientOfficeHours = Number(JSDateToExcelDate(proofToClientOfficeHours));
+
+                    //updates the proof to client turn around time value in the table array based on our calculations
+                    leTable[rowIndex][rowInfo.proofToClient.columnIndex] = excelProofToClientOfficeHours;
+
+                    return proofToClientOfficeHours;
+                };
+
+                //get the Project Type coded variable from the Project Type ID Data based on the value in the Project Type column of the changed row
+                var theProjectTypeCode = projectTypeIDData[rowInfo.projectType.value].projectTypeCode;
+
+                //returns turn around time value from the Proof to Client Turn Around Time table based on the Product column of the 
+                //changed row and the projetc type codeed variable
+                var proofToClient = proofToClientData[rowInfo.product.value][theProjectTypeCode];
+
+                //returns creative review process hours adjustment number from thhe creative review table based on 
+                //the Product column value of the changed row
+                var creativeReview = creativeProofData[rowInfo.product.value].creativeReviewProcess;
+
+                //adds the proof to client turn around time to the creative review time
+                var proofWithReview = proofToClient + creativeReview;
+
+                //finds the work override value of the changed row and adds it to the previous turn around time variable
+                var artTurnAround = proofWithReview + rowInfo.workOverride.value;
+
+                //adds the adjusted turn around time to the pickedUpStartedBy date and adjusts to be within office hours
+                var proofToClientOfficeHours = officeHours(lePickUpTime, artTurnAround);
 
                 //converts date to excel date
                 var excelProofToClientOfficeHours = Number(JSDateToExcelDate(proofToClientOfficeHours));
@@ -3369,497 +3399,527 @@
                 leTable[rowIndex][rowInfo.proofToClient.columnIndex] = excelProofToClientOfficeHours;
 
                 return proofToClientOfficeHours;
+
             };
 
-            //get the Project Type coded variable from the Project Type ID Data based on the value in the Project Type column of the changed row
-            var theProjectTypeCode = projectTypeIDData[rowInfo.projectType.value].projectTypeCode;
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
 
-            //returns turn around time value from the Proof to Client Turn Around Time table based on the Product column of the 
-            //changed row and the projetc type codeed variable
-            var proofToClient = proofToClientData[rowInfo.product.value][theProjectTypeCode];
-
-            //returns creative review process hours adjustment number from thhe creative review table based on 
-            //the Product column value of the changed row
-            var creativeReview = creativeProofData[rowInfo.product.value].creativeReviewProcess;
-
-            //adds the proof to client turn around time to the creative review time
-            var proofWithReview = proofToClient + creativeReview;
-
-            //finds the work override value of the changed row and adds it to the previous turn around time variable
-            var artTurnAround = proofWithReview + rowInfo.workOverride.value;
-
-            //adds the adjusted turn around time to the pickedUpStartedBy date and adjusts to be within office hours
-            var proofToClientOfficeHours = officeHours(lePickUpTime, artTurnAround);
-
-            //converts date to excel date
-            var excelProofToClientOfficeHours = Number(JSDateToExcelDate(proofToClientOfficeHours));
-
-            //updates the proof to client turn around time value in the table array based on our calculations
-            leTable[rowIndex][rowInfo.proofToClient.columnIndex] = excelProofToClientOfficeHours;
-
-            return proofToClientOfficeHours;
-
-        };
-
-    //#endregion ---------------------------------------------------------------------------------------------------------------------------------
-
-    //#region SORTING THE TABLE BY PICKED UP TURN AROUND TIME ------------------------------------------------------------------------------------
-
-        /**
-         * Sorts the table array by the values in leColumnIndex and then assigns updated priority numbers
-         * @param {Object} rowInfo An object containing the values and column indexs of each cell in the changed row
-         * @param {Array} leTable An array of arrays containing all the info of the changed table
-         * @param {Number} leColumnIndex The index number of the column that will be used for sorting the table
-         * @param {Array} changedRowValues The values of the changed row
-         * @returns Array
-         */
-        function leSorting(rowInfo, leTable, leColumnIndex, changedRowValues) {
-
-            //#region ASSIGNING VARIABLES --------------------------------------------------------------------------------------------------------
-
-                //a copy of the array containing all the table data that will be used for sorting
-                var leTableSorted = JSON.parse(JSON.stringify(leTable)); //creates a duplicate of original array to be used for 
-                //assigning the priority numbers, without having anything done to it affect oriignal array
-
-                var priorityColumnIndex = rowInfo.priority.columnIndex; //index of priority column
-
-                var pickedUpColumnIndex = rowInfo.pickedUpStartedBy.columnIndex;
-                var proofToClientColumnIndex = rowInfo.proofToClient.columnIndex;
-
-                var statusColumnIndex = rowInfo.status.columnIndex;
-
-                var tempTable = [];
-                var onHoldTable = [];
-                var awaitingChangesTable = [];
-
-            //#endregion -------------------------------------------------------------------------------------------------------------------------
-
-
-            //#region WITHHOLDS ITEMS NOT TO BE SORTED FROM TABLE ARRAY ----------------------------------------------------------------------------
-
-                for (var i = 0; i < leTableSorted.length; i++) { //for each row in the table...
-
-                    //removes invlaid requests from table and puts them in a temp table to be added back in after sorting
-                    if (
-                        leTableSorted[i][pickedUpColumnIndex] == "NO PRODUCT / PROJECT TYPE" 
-                        || leTableSorted[i][proofToClientColumnIndex] == "NO PRODUCT / PROJECT TYPE"
-                    ) {
-                        tempTable.push(leTableSorted[i]);
-                        leTableSorted.splice(i, 1);
-                        i = i - 1;
-                    //removes on hold requests from table and puts them in an on hold table to be added back in after sorting
-                    } else if (
-                        leTableSorted[i][statusColumnIndex] == "On Hold"
-                        ) { 
-                        onHoldTable.push(leTableSorted[i]);
-                        leTableSorted.splice(i, 1);
-                        i = i - 1;
-                    //removes awaiting changes requests from table and puts them in an awaiting changes table to be added back in after sorting
-                    } else if (
-                        leTableSorted[i][statusColumnIndex] == "At Client" 
-                        || leTableSorted[i][statusColumnIndex] == "In Review" 
-                        || leTableSorted[i][statusColumnIndex] == "Waiting On Info"
-                        ) {
-                        awaitingChangesTable.push(leTableSorted[i]);
-                        leTableSorted.splice(i, 1);
-                        i = i - 1;
-                    };
-                };
-
-            //#endregion -------------------------------------------------------------------------------------------------------------------------
-
-
-            //#region SORTS THE TABLE ARRAY ------------------------------------------------------------------------------------------------------
-
-                //sorts the parent array (a) by the number in the sub array (b) at index of the picked up column
-                //leTableSorted.sort(function(a,b){return a[leColumnIndex] > b[leColumnIndex]});
-                leTableSorted.sort((a, b) => (a[leColumnIndex] > b[leColumnIndex]) ? 1 : -1); //sorts
-
-            //#endregion --------------------------------------------------------------------------------------------------------------------------
-
-
-            //#region ADDS WITHHELD INFO BACK INTO THE TABLE AT THE BOTTOM -----------------------------------------------------------------------
-
-                //#region ADDED AT CLIENT, IN REVIEW, AND WAITING ON INFO FIRST ------------------------------------------------------------------
-
-                    if (awaitingChangesTable.length > 0) { //adds awaiting changes requests back into table at the bottom
-                        for (var i = 0; i < awaitingChangesTable.length; i++) {
-                            leTableSorted.push(awaitingChangesTable[i]);
-                            awaitingChangesTable.splice(i, 1);
-                            i = i - 1;
-                        };
-                    };
-
-                //#endregion ---------------------------------------------------------------------------------------------------------------------
-
-                //#region ADDS ON HOLD NEXT ------------------------------------------------------------------------------------------------------
-
-                    if (onHoldTable.length > 0) { //adds on hold requests back into table at the bottom, under awaiting changes requests
-                        for (var i = 0; i < onHoldTable.length; i++) {
-                            leTableSorted.push(onHoldTable[i]);
-                            onHoldTable.splice(i, 1);
-                            i = i - 1;
-                        };
-                    };
-
-                //#endregion ---------------------------------------------------------------------------------------------------------------------
-
-                //#region ADDS INVALID REQUEST AT THE VERY END -----------------------------------------------------------------------------------
-
-                    if (tempTable.length > 0) { //adds invalid requests back into table at the bottom, under on hold requests
-                        for (var i = 0; i < tempTable.length; i++) {
-                            leTableSorted.push(tempTable[i]);
-                            tempTable.splice(i, 1);
-                            i = i - 1;
-                        };
-                    };
-
-                //#endregion ---------------------------------------------------------------------------------------------------------------------
-
-            //#endregion -------------------------------------------------------------------------------------------------------------------------
-
-            //#region FINDS POST SORT INDEX NUMBER OF ROW ----------------------------------------------------------------------------------------
-
-                for (var j = 0; j < leTableSorted.length; j++) { //finds the post row sort index number
-                    for (var k = 0; k < leTableSorted[j].length; k++) {
-                        if (changedRowValues[k] !== leTableSorted[j][k]) {
-                            break;
-                        } else {
-                            var l = leTableSorted[j].length - 1;
-                            if (k == l) {
-                                rowIndexPostSort = j;
-                                //break;
-                            };
-                        };
-                    };
-                };
-
-            //#endregion -------------------------------------------------------------------------------------------------------------------------
-
-            //#region ASSIGN PRIORITY NUMBERS ----------------------------------------------------------------------------------------------------
-
-                //for each item in the sorted array of table values, assign updated priority numbers to the priority column index
-                for (var n = 0; n < leTableSorted.length; n++) {
-                    leTableSorted[n][priorityColumnIndex] = n + 1;
-                };
-
-            //#endregion -------------------------------------------------------------------------------------------------------------------------
-
-            return leTableSorted;
-
-        }
-
-    //#endregion ---------------------------------------------------------------------------------------------------------------------------------
-
-    //#region GENERATE OFFICE HOURS --------------------------------------------------------------------------------------------------------------
-
-        //#region OFFICE HOURS FUNCTION ----------------------------------------------------------------------------------------------------------
+        //#region SORTING THE TABLE BY PICKED UP TURN AROUND TIME ------------------------------------------------------------------------------------
 
             /**
-             * Adds adjustment hours to the date and adjusts to fit within office hours
-             * @param {Date} date the added date
-             * @param {Number} hoursToAdd The humber of adjustment hours to add to the added date
-             * @returns Date
+             * Sorts the table array by the values in leColumnIndex and then assigns updated priority numbers
+             * @param {Object} rowInfo An object containing the values and column indexs of each cell in the changed row
+             * @param {Array} leTable An array of arrays containing all the info of the changed table
+             * @param {Number} leColumnIndex The index number of the column that will be used for sorting the table
+             * @param {Array} changedRowValues The values of the changed row
+             * @returns Array
              */
-             function officeHours(date, hoursToAdd) {
+            function leSorting(rowInfo, leTable, leColumnIndex, changedRowValues) {
 
-                //#region FUNCTION VARIABLES -----------------------------------------------------------------------------------------------------
+                //#region ASSIGNING VARIABLES --------------------------------------------------------------------------------------------------------
 
-                    //date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
-                    //gets the day of the week
-                    var theDay = date.getDay();
-                    if (theDay == 0) {
-                        theDay = "Sunday"
-                    } else if (theDay == 1) {
-                        theDay = "Monday"
-                    } else if (theDay == 2) {
-                        theDay = "Tuesday"
-                    } else if (theDay == 3) {
-                        theDay = "Wednesday"
-                    } else if (theDay == 4) {
-                        theDay = "Thursday"
-                    } else if (theDay == 5) {
-                        theDay = "Friday"
-                    } else if (theDay == 6) {
-                        theDay = "Saturday"
+                    //a copy of the array containing all the table data that will be used for sorting
+                    var leTableSorted = JSON.parse(JSON.stringify(leTable)); //creates a duplicate of original array to be used for 
+                    //assigning the priority numbers, without having anything done to it affect oriignal array
+
+                    var priorityColumnIndex = rowInfo.priority.columnIndex; //index of priority column
+
+                    var pickedUpColumnIndex = rowInfo.pickedUpStartedBy.columnIndex;
+                    var proofToClientColumnIndex = rowInfo.proofToClient.columnIndex;
+
+                    var statusColumnIndex = rowInfo.status.columnIndex;
+                    
+                    var tagsColumnIndex = rowInfo.tags.columnIndex;
+
+                    var tempTable = [];
+                    var tagOrder = [0, 0, 0, 0, 0, 0, 0, 0];
+                    var tagItems = [0, 0, 0, 0, 0, 0, 0, 0];
+                    var onHoldTable = [];
+                    var awaitingChangesTable = [];
+
+                //#endregion -------------------------------------------------------------------------------------------------------------------------
+
+
+                //#region WITHHOLDS ITEMS NOT TO BE SORTED FROM TABLE ARRAY ----------------------------------------------------------------------------
+
+                    for (var i = 0; i < leTableSorted.length; i++) { //for each row in the table...
+
+                        //removes invlaid requests from table and puts them in a temp table to be added back in after sorting
+                        if (
+                            leTableSorted[i][pickedUpColumnIndex] == "NO PRODUCT / PROJECT TYPE" 
+                            || leTableSorted[i][proofToClientColumnIndex] == "NO PRODUCT / PROJECT TYPE"
+                        ) {
+                            tempTable.push(leTableSorted[i]);
+                            leTableSorted.splice(i, 1);
+                            i = i - 1;
+                        //removes on hold requests from table and puts them in an on hold table to be added back in after sorting
+                        } else if (
+                            leTableSorted[i][statusColumnIndex] == "On Hold"
+                            ) { 
+                            onHoldTable.push(leTableSorted[i]);
+                            leTableSorted.splice(i, 1);
+                            i = i - 1;
+                        //removes awaiting changes requests from table and puts them in an awaiting changes table to be added back in after sorting
+                        } else if (
+                            leTableSorted[i][statusColumnIndex] == "At Client" 
+                            || leTableSorted[i][statusColumnIndex] == "In Review" 
+                            || leTableSorted[i][statusColumnIndex] == "Waiting On Info"
+                            ) {
+                            awaitingChangesTable.push(leTableSorted[i]);
+                            leTableSorted.splice(i, 1);
+                            i = i - 1;
+                        };
+
                     };
 
-                    var adjustmentMinutes = hoursToAdd * 60; // 12.5 hours = 750 minutes
-                    var includesWeekends = false;
+                    
+                    for (var i = 0; i < leTableSorted.length; i++) {
 
-                    var current = new Date(date); //clone of the date variable that calculations will be made to
+                        //removes tagged projects from table and puts them in order in the tagsOrder array to be added back in after sorting
+                        if (leTableSorted[i][tagsColumnIndex] == "Priority 1") {
+                            tagOrder.splice(0, 1, leTableSorted[i]);
+                            //tagItems.push(leTableSorted[i]);
+                            leTableSorted.splice(i, 1);
+                            i = i - 1;
+                        } else if (leTableSorted[i][tagsColumnIndex] == "Priority 2") {
+                            tagOrder.splice(1, 1, leTableSorted[i]);
+                            //tagItems.push(leTableSorted[i]);
+                            leTableSorted.splice(i, 1);
+                            i = i - 1;
+                        } else if (leTableSorted[i][tagsColumnIndex] == "Priority 3") {
+                            tagOrder.splice(2, 1, leTableSorted[i]);
+                            //tagItems.push(leTableSorted[i]);
+                            leTableSorted.splice(i, 1);
+                            i = i - 1;
+                        } else if (leTableSorted[i][tagsColumnIndex] == "Priority 4") {
+                            tagOrder.splice(3, 1, leTableSorted[i]);
+                            //tagItems.push(leTableSorted[i]);
+                            leTableSorted.splice(i, 1);
+                            i = i - 1;
+                        } else if (leTableSorted[i][tagsColumnIndex] == "Priority 5") {
+                            tagOrder.splice(4, 1, leTableSorted[i]);
+                            //tagItems.push(leTableSorted[i]);
+                            leTableSorted.splice(i, 1);
+                            i = i - 1;
+                        } else if (leTableSorted[i][tagsColumnIndex] == "Priority 6") {
+                            tagOrder.splice(5, 1, leTableSorted[i]);
+                            //tagItems.push(leTableSorted[i]);
+                            leTableSorted.splice(i, 1);
+                            i = i - 1;
+                        } else if (leTableSorted[i][tagsColumnIndex] == "Priority 7") {
+                            tagOrder.splice(6, 1, leTableSorted[i]);
+                            //tagItems.push(leTableSorted[i]);
+                            leTableSorted.splice(i, 1);
+                            i = i - 1;
+                        } else if (leTableSorted[i][tagsColumnIndex] == "Priority 8") {
+                            tagOrder.splice(7, 1, leTableSorted[i]);
+                            //tagItems.push(leTableSorted[i]);
+                            leTableSorted.splice(i, 1);
+                            i = i - 1;
+                        }
+                        
+                    };
 
-                    //#region SET DATES WITH 0 TIME ----------------------------------------------------------------------------------------------
+                //#endregion -------------------------------------------------------------------------------------------------------------------------
 
-                        //set workDayStart date to = date, but have the time be 0 (will assign times to later)
-                        var workDayStart = new Date(date);
-                        workDayStart.setHours(0);
-                        workDayStart.setMinutes(0);
-                        workDayStart.setSeconds(0);
-                        workDayStart.setMilliseconds(0);
 
-                        //set workDayEnd date to = date, but have the time be 0 (will assign times to later)
-                        var workDayEnd = new Date(date);
-                        workDayEnd.setHours(0);
-                        workDayEnd.setMinutes(0);
-                        workDayEnd.setSeconds(0);
-                        workDayEnd.setMilliseconds(0);
+                //#region SORTS THE TABLE ARRAY ------------------------------------------------------------------------------------------------------
 
-                    //#endregion -----------------------------------------------------------------------------------------------------------------
+                    //sorts the parent array (a) by the number in the sub array (b) at index of the picked up column
+                    //leTableSorted.sort(function(a,b){return a[leColumnIndex] > b[leColumnIndex]});
+                    leTableSorted.sort((a, b) => (a[leColumnIndex] > b[leColumnIndex]) ? 1 : -1); //sorts
 
-                    //#region CREATE START TIME AND END TIME VARIABLES FOR THE DATE --------------------------------------------------------------
+                //#endregion --------------------------------------------------------------------------------------------------------------------------
 
-                        var weekdayVars = officeHoursData[theDay] //returns all the info for the weekday that date lands on
 
-                        //#region CREATE START TIME DATE -----------------------------------------------------------------------------------------
+                for (var z = 0; z < tagOrder.length; z++) {
+                    if (tagOrder[z] !== 0) {
+                        leTableSorted.splice(z, 0, tagOrder[z]);
+                    };
+                };
 
-                            //this varibale will have the correct start time but will still be using the ground 0 date for serial numbers. 
-                            //Will be adjusted up next
-                            var theStart = convertToDate(weekdayVars.startTime); //converts serial number to JSDate for start of work day
-                            //sets that date of theStart to be at ground 0 for JSDates
-                            theStart.setFullYear(1970);
-                            theStart.setMonth(0);
-                            theStart.setDate(1);
-                            //removes time zone offset to bring all dates to the same level
-                            theStart.setMinutes(theStart.getMinutes() - theStart.getTimezoneOffset());
-                            //gives us the milliseconds between 0 and this time
-                            var fartTime = theStart.getTime();
-                            workDayStart.setMilliseconds(fartTime); //adds the startTime to the correct date variable from eariler
+                //#region ADDS WITHHELD INFO BACK INTO THE TABLE AT THE BOTTOM -----------------------------------------------------------------------
 
-                        //#endregion -------------------------------------------------------------------------------------------------------------
+                    //#region ADDED AT CLIENT, IN REVIEW, AND WAITING ON INFO FIRST ------------------------------------------------------------------
 
-                        //#region CREATE END TIME DATE -------------------------------------------------------------------------------------------
+                        if (awaitingChangesTable.length > 0) { //adds awaiting changes requests back into table at the bottom
+                            for (var i = 0; i < awaitingChangesTable.length; i++) {
+                                leTableSorted.push(awaitingChangesTable[i]);
+                                awaitingChangesTable.splice(i, 1);
+                                i = i - 1;
+                            };
+                        };
 
-                            //this varibale will have the correct end time but will still be using the ground 0 date for serial numbers. 
-                            //Will be adjusted up next
-                            var theEnd = convertToDate(weekdayVars.endTime); //converts serial number to JSDate for end of work day
-                            //sets that date of theEnd to be at ground 0 for JSDates
-                            theEnd.setFullYear(1970);
-                            theEnd.setMonth(0);
-                            theEnd.setDate(1);
-                            //removes time zone offset to bring all dates to the same level
-                            theEnd.setMinutes(theEnd.getMinutes() - theEnd.getTimezoneOffset());
-                            //gives us the milliseconds between 0 and this time
-                            var shartTime = theEnd.getTime();
-                            workDayEnd.setMilliseconds(shartTime); //adds the endTime to the correct date variable from eariler
+                    //#endregion ---------------------------------------------------------------------------------------------------------------------
 
-                        //#endregion -------------------------------------------------------------------------------------------------------------
+                    //#region ADDS ON HOLD NEXT ------------------------------------------------------------------------------------------------------
 
-                    //#endregion -----------------------------------------------------------------------------------------------------------------
+                        if (onHoldTable.length > 0) { //adds on hold requests back into table at the bottom, under awaiting changes requests
+                            for (var i = 0; i < onHoldTable.length; i++) {
+                                leTableSorted.push(onHoldTable[i]);
+                                onHoldTable.splice(i, 1);
+                                i = i - 1;
+                            };
+                        };
 
-                //#endregion ---------------------------------------------------------------------------------------------------------------------
+                    //#endregion ---------------------------------------------------------------------------------------------------------------------
 
-                //#region WHILE ADJUSTMENT NUMBER REMAINS POSITIVE -------------------------------------------------------------------------------
+                    //#region ADDS INVALID REQUEST AT THE VERY END -----------------------------------------------------------------------------------
 
-                    while(adjustmentMinutes > 0) {
+                        if (tempTable.length > 0) { //adds invalid requests back into table at the bottom, under on hold requests
+                            for (var i = 0; i < tempTable.length; i++) {
+                                leTableSorted.push(tempTable[i]);
+                                tempTable.splice(i, 1);
+                                i = i - 1;
+                            };
+                        };
 
-                        //#region RECALCULATE START AND END TIMES IF DATE ADVANCES ---------------------------------------------------------------
+                    //#endregion ---------------------------------------------------------------------------------------------------------------------
 
-                            var currentInfo = shortDate(current);
-                            var dateInfo = shortDate(date);
+                //#endregion -------------------------------------------------------------------------------------------------------------------------
 
-                            // if (current.toLocaleDateString('en-US') !== date.toLocaleDateString('en-US')) { //if we go on into another day, 
-                            //recalculate start and end time dates
-                            //if (current.getDay() !== date.getDay()) { //if we go on into another day, recalculate start and end time dates
-                            if (currentInfo !== dateInfo) {
+                //#region FINDS POST SORT INDEX NUMBER OF ROW ----------------------------------------------------------------------------------------
 
-                                //gets the day of the week
-                                var theDay = current.getDay();
-                                if (theDay == 0) {
-                                    theDay = "Sunday"
-                                } else if (theDay == 1) {
-                                    theDay = "Monday"
-                                } else if (theDay == 2) {
-                                    theDay = "Tuesday"
-                                } else if (theDay == 3) {
-                                    theDay = "Wednesday"
-                                } else if (theDay == 4) {
-                                    theDay = "Thursday"
-                                } else if (theDay == 5) {
-                                    theDay = "Friday"
-                                } else if (theDay == 6) {
-                                    theDay = "Saturday"
+                    for (var j = 0; j < leTableSorted.length; j++) { //finds the post row sort index number
+                        for (var k = 0; k < leTableSorted[j].length; k++) {
+                            if (changedRowValues[k] !== leTableSorted[j][k]) {
+                                break;
+                            } else {
+                                var l = leTableSorted[j].length - 1;
+                                if (k == l) {
+                                    rowIndexPostSort = j;
+                                    //break;
                                 };
-
-                                //#region SET DATES WITH 0 TIME (CURRENT) ------------------------------------------------------------------------
-
-                                    //set workDayStart date to = current date, but have the time be 0 (will assign times to later)
-                                    var workDayStart = new Date(current);
-                                    workDayStart.setHours(0);
-                                    workDayStart.setMinutes(0);
-                                    workDayStart.setSeconds(0);
-                                    workDayStart.setMilliseconds(0);
-
-                                    //set workDayEnd date to = current date, but have the time be 0 (will assign times to later)
-                                    var workDayEnd = new Date(current);
-                                    workDayEnd.setHours(0);
-                                    workDayEnd.setMinutes(0);
-                                    workDayEnd.setSeconds(0);
-                                    workDayEnd.setMilliseconds(0);
-
-                                //#endregion -----------------------------------------------------------------------------------------------------
-
-                                //#region CREATE START TIME AND END TIME VARIABLES FOR THE DATE (CURRENT) ----------------------------------------
-
-                                    //gets start and end times of date's work day
-                                    weekdayVars = officeHoursData[theDay] //returns all the info for the weekday that date lands on
-
-                                    //#region CREATE START TIME DATE (CURRENT) -------------------------------------------------------------------
-
-                                        theStart = convertToDate(weekdayVars.startTime); //converts serial number to JSDate for start of work day
-                                        theStart.setFullYear(1970);
-                                        theStart.setMonth(0);
-                                        theStart.setDate(1);
-                                        //removes time zone offset to bring all dates to the same level
-                                        theStart.setMinutes(theStart.getMinutes() - theStart.getTimezoneOffset()); 
-                                        fartTime = theStart.getTime();
-                                        workDayStart.setMilliseconds(fartTime);
-
-                                    //#endregion -------------------------------------------------------------------------------------------------
-
-                                    //#region CREATE END TIME DATE (CURRENT) ---------------------------------------------------------------------
-
-                                        theEnd = convertToDate(weekdayVars.endTime); //converts serial number to JSDate for end of work day
-                                        theEnd.setFullYear(1970);
-                                        theEnd.setMonth(0);
-                                        theEnd.setDate(1);
-                                        //removes time zone offset to bring all dates to the same level
-                                        theEnd.setMinutes(theEnd.getMinutes() - theEnd.getTimezoneOffset()); 
-                                        shartTime = theEnd.getTime();
-                                        workDayEnd.setMilliseconds(shartTime);
-
-                                    //#endregion -------------------------------------------------------------------------------------------------
-
-                                //#endregion -----------------------------------------------------------------------------------------------------
-
                             };
-
-                        //#endregion -------------------------------------------------------------------------------------------------------------
-
-                        //#region INCREMENT ------------------------------------------------------------------------------------------------------
-
-                            //if current is still within the workday and not on a weekend, subtract 1 minute from the adjustment number
-                            if (current > workDayStart 
-                                && current < workDayEnd 
-                                && (includesWeekends ? current.getDay() !== 0 
-                                && current.getDay() !== 6 : true)) {
-                                    adjustmentMinutes--;
-                            };
-                            current.setTime(current.getTime() + 1000 * 60); //adds 1 minute to current time
-
-                        //#endregion -------------------------------------------------------------------------------------------------------------
-
+                        };
                     };
 
-                //#endregion ---------------------------------------------------------------------------------------------------------------------
+                //#endregion -------------------------------------------------------------------------------------------------------------------------
 
-                return current;
+                //#region ASSIGN PRIORITY NUMBERS ----------------------------------------------------------------------------------------------------
 
-            };
+                    //for each item in the sorted array of table values, assign updated priority numbers to the priority column index
+                    for (var n = 0; n < leTableSorted.length; n++) {
+                        leTableSorted[n][priorityColumnIndex] = n + 1;
+                    };
 
-        //#endregion -----------------------------------------------------------------------------------------------------------------------------
+                //#endregion -------------------------------------------------------------------------------------------------------------------------
 
-        //#region FUNCTIONS USED IN OFFICE HOURS -------------------------------------------------------------------------------------------------
+                return leTableSorted;
 
-            //#region SHORT DATE -----------------------------------------------------------------------------------------------------------------
+            }
 
-                /**
-                 * Takes the date, month, and year from the input and outputs it as month, date, year date object (or sting)
-                 * @param {Date} aDate A date object
-                 * @returns Date? Or maybe a String?
-                 */
-                function shortDate(aDate) {
-                    var day = aDate.getDate();
-                    var month = aDate.getMonth();
-                    var year = aDate.getFullYear();
-                    var output = `${month} ${day} ${year}`;
-                    return output;
-                };
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
 
-            //#endregion -------------------------------------------------------------------------------------------------------------------------
+        //#region GENERATE OFFICE HOURS --------------------------------------------------------------------------------------------------------------
 
-            //#region CONVERT DATE TO SERIAL -----------------------------------------------------------------------------------------------------
+            //#region OFFICE HOURS FUNCTION ----------------------------------------------------------------------------------------------------------
 
                 /**
-                 * Converts input date into serial number that excel can apply conditional formatting to
-                 * @param {Date} inDate A date variable
-                 * @returns String
-                 */
-                function JSDateToExcelDate(inDate) {
-                    var returnDateTime = 25569.0 + ((inDate.getTime() - (inDate.getTimezoneOffset() * 60 * 1000)) / (1000 * 60 * 60 * 24));
-                    //var returnDateTime = 25569.0 + ((inDate.getTime()) / (1000 * 60 * 60 * 24));
-                    return returnDateTime.toString().substr(0,20);
-                };
-
-            //#endregion -------------------------------------------------------------------------------------------------------------------------
-
-            //#region CONVERT SERIAL TO DATE -----------------------------------------------------------------------------------------------------
-
-                /**
-                 * Finds the value of Date Added in the changed row and converts it to be a date object in EST.
-                 * @param {Number} serial The serial number to be converted
+                 * Adds adjustment hours to the date and adjusts to fit within office hours
+                 * @param {Date} date the added date
+                 * @param {Number} hoursToAdd The humber of adjustment hours to add to the added date
                  * @returns Date
                  */
-                function convertToDate(serial) {
-                    var date = new Date(Math.round((serial - 25569)*86400*1000)); //convert serial number to date object
-                    date.setMinutes(date.getMinutes() + date.getTimezoneOffset()); //adjusting from GMT to EST (adds 4 hours)
-                    return date;
+                function officeHours(date, hoursToAdd) {
+
+                    //#region FUNCTION VARIABLES -----------------------------------------------------------------------------------------------------
+
+                        //date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+                        //gets the day of the week
+                        var theDay = date.getDay();
+                        if (theDay == 0) {
+                            theDay = "Sunday"
+                        } else if (theDay == 1) {
+                            theDay = "Monday"
+                        } else if (theDay == 2) {
+                            theDay = "Tuesday"
+                        } else if (theDay == 3) {
+                            theDay = "Wednesday"
+                        } else if (theDay == 4) {
+                            theDay = "Thursday"
+                        } else if (theDay == 5) {
+                            theDay = "Friday"
+                        } else if (theDay == 6) {
+                            theDay = "Saturday"
+                        };
+
+                        var adjustmentMinutes = hoursToAdd * 60; // 12.5 hours = 750 minutes
+                        var includesWeekends = false;
+
+                        var current = new Date(date); //clone of the date variable that calculations will be made to
+
+                        //#region SET DATES WITH 0 TIME ----------------------------------------------------------------------------------------------
+
+                            //set workDayStart date to = date, but have the time be 0 (will assign times to later)
+                            var workDayStart = new Date(date);
+                            workDayStart.setHours(0);
+                            workDayStart.setMinutes(0);
+                            workDayStart.setSeconds(0);
+                            workDayStart.setMilliseconds(0);
+
+                            //set workDayEnd date to = date, but have the time be 0 (will assign times to later)
+                            var workDayEnd = new Date(date);
+                            workDayEnd.setHours(0);
+                            workDayEnd.setMinutes(0);
+                            workDayEnd.setSeconds(0);
+                            workDayEnd.setMilliseconds(0);
+
+                        //#endregion -----------------------------------------------------------------------------------------------------------------
+
+                        //#region CREATE START TIME AND END TIME VARIABLES FOR THE DATE --------------------------------------------------------------
+
+                            var weekdayVars = officeHoursData[theDay] //returns all the info for the weekday that date lands on
+
+                            //#region CREATE START TIME DATE -----------------------------------------------------------------------------------------
+
+                                //this varibale will have the correct start time but will still be using the ground 0 date for serial numbers. 
+                                //Will be adjusted up next
+                                var theStart = convertToDate(weekdayVars.startTime); //converts serial number to JSDate for start of work day
+                                //sets that date of theStart to be at ground 0 for JSDates
+                                theStart.setFullYear(1970);
+                                theStart.setMonth(0);
+                                theStart.setDate(1);
+                                //removes time zone offset to bring all dates to the same level
+                                theStart.setMinutes(theStart.getMinutes() - theStart.getTimezoneOffset());
+                                //gives us the milliseconds between 0 and this time
+                                var fartTime = theStart.getTime();
+                                workDayStart.setMilliseconds(fartTime); //adds the startTime to the correct date variable from eariler
+
+                            //#endregion -------------------------------------------------------------------------------------------------------------
+
+                            //#region CREATE END TIME DATE -------------------------------------------------------------------------------------------
+
+                                //this varibale will have the correct end time but will still be using the ground 0 date for serial numbers. 
+                                //Will be adjusted up next
+                                var theEnd = convertToDate(weekdayVars.endTime); //converts serial number to JSDate for end of work day
+                                //sets that date of theEnd to be at ground 0 for JSDates
+                                theEnd.setFullYear(1970);
+                                theEnd.setMonth(0);
+                                theEnd.setDate(1);
+                                //removes time zone offset to bring all dates to the same level
+                                theEnd.setMinutes(theEnd.getMinutes() - theEnd.getTimezoneOffset());
+                                //gives us the milliseconds between 0 and this time
+                                var shartTime = theEnd.getTime();
+                                workDayEnd.setMilliseconds(shartTime); //adds the endTime to the correct date variable from eariler
+
+                            //#endregion -------------------------------------------------------------------------------------------------------------
+
+                        //#endregion -----------------------------------------------------------------------------------------------------------------
+
+                    //#endregion ---------------------------------------------------------------------------------------------------------------------
+
+                    //#region WHILE ADJUSTMENT NUMBER REMAINS POSITIVE -------------------------------------------------------------------------------
+
+                        while(adjustmentMinutes > 0) {
+
+                            //#region RECALCULATE START AND END TIMES IF DATE ADVANCES ---------------------------------------------------------------
+
+                                var currentInfo = shortDate(current);
+                                var dateInfo = shortDate(date);
+
+                                // if (current.toLocaleDateString('en-US') !== date.toLocaleDateString('en-US')) { //if we go on into another day, 
+                                //recalculate start and end time dates
+                                //if (current.getDay() !== date.getDay()) { //if we go on into another day, recalculate start and end time dates
+                                if (currentInfo !== dateInfo) {
+
+                                    //gets the day of the week
+                                    var theDay = current.getDay();
+                                    if (theDay == 0) {
+                                        theDay = "Sunday"
+                                    } else if (theDay == 1) {
+                                        theDay = "Monday"
+                                    } else if (theDay == 2) {
+                                        theDay = "Tuesday"
+                                    } else if (theDay == 3) {
+                                        theDay = "Wednesday"
+                                    } else if (theDay == 4) {
+                                        theDay = "Thursday"
+                                    } else if (theDay == 5) {
+                                        theDay = "Friday"
+                                    } else if (theDay == 6) {
+                                        theDay = "Saturday"
+                                    };
+
+                                    //#region SET DATES WITH 0 TIME (CURRENT) ------------------------------------------------------------------------
+
+                                        //set workDayStart date to = current date, but have the time be 0 (will assign times to later)
+                                        var workDayStart = new Date(current);
+                                        workDayStart.setHours(0);
+                                        workDayStart.setMinutes(0);
+                                        workDayStart.setSeconds(0);
+                                        workDayStart.setMilliseconds(0);
+
+                                        //set workDayEnd date to = current date, but have the time be 0 (will assign times to later)
+                                        var workDayEnd = new Date(current);
+                                        workDayEnd.setHours(0);
+                                        workDayEnd.setMinutes(0);
+                                        workDayEnd.setSeconds(0);
+                                        workDayEnd.setMilliseconds(0);
+
+                                    //#endregion -----------------------------------------------------------------------------------------------------
+
+                                    //#region CREATE START TIME AND END TIME VARIABLES FOR THE DATE (CURRENT) ----------------------------------------
+
+                                        //gets start and end times of date's work day
+                                        weekdayVars = officeHoursData[theDay] //returns all the info for the weekday that date lands on
+
+                                        //#region CREATE START TIME DATE (CURRENT) -------------------------------------------------------------------
+
+                                            theStart = convertToDate(weekdayVars.startTime); //converts serial number to JSDate for start of work day
+                                            theStart.setFullYear(1970);
+                                            theStart.setMonth(0);
+                                            theStart.setDate(1);
+                                            //removes time zone offset to bring all dates to the same level
+                                            theStart.setMinutes(theStart.getMinutes() - theStart.getTimezoneOffset()); 
+                                            fartTime = theStart.getTime();
+                                            workDayStart.setMilliseconds(fartTime);
+
+                                        //#endregion -------------------------------------------------------------------------------------------------
+
+                                        //#region CREATE END TIME DATE (CURRENT) ---------------------------------------------------------------------
+
+                                            theEnd = convertToDate(weekdayVars.endTime); //converts serial number to JSDate for end of work day
+                                            theEnd.setFullYear(1970);
+                                            theEnd.setMonth(0);
+                                            theEnd.setDate(1);
+                                            //removes time zone offset to bring all dates to the same level
+                                            theEnd.setMinutes(theEnd.getMinutes() - theEnd.getTimezoneOffset()); 
+                                            shartTime = theEnd.getTime();
+                                            workDayEnd.setMilliseconds(shartTime);
+
+                                        //#endregion -------------------------------------------------------------------------------------------------
+
+                                    //#endregion -----------------------------------------------------------------------------------------------------
+
+                                };
+
+                            //#endregion -------------------------------------------------------------------------------------------------------------
+
+                            //#region INCREMENT ------------------------------------------------------------------------------------------------------
+
+                                //if current is still within the workday and not on a weekend, subtract 1 minute from the adjustment number
+                                if (current > workDayStart 
+                                    && current < workDayEnd 
+                                    && (includesWeekends ? current.getDay() !== 0 
+                                    && current.getDay() !== 6 : true)) {
+                                        adjustmentMinutes--;
+                                };
+                                current.setTime(current.getTime() + 1000 * 60); //adds 1 minute to current time
+
+                            //#endregion -------------------------------------------------------------------------------------------------------------
+
+                        };
+
+                    //#endregion ---------------------------------------------------------------------------------------------------------------------
+
+                    return current;
+
                 };
 
-            //#endregion -------------------------------------------------------------------------------------------------------------------------
+            //#endregion -----------------------------------------------------------------------------------------------------------------------------
 
-            //#region ALL COLUMN VALUES ----------------------------------------------------------------------------------------------------------
+            //#region FUNCTIONS USED IN OFFICE HOURS -------------------------------------------------------------------------------------------------
 
-                /**
-                 * Returns an array of the all the values from a specific column in a table
-                 * @param {Array} tableValues An array of arrays containing all the data from the table
-                 * @param {Number} columnIndex Index number of the column we are trying to make an array of from its data
-                 * @returns Array
-                 */
-                function allColumnValues(tableValues, columnIndex) {
+                //#region SHORT DATE -----------------------------------------------------------------------------------------------------------------
 
-                    var PUTimeArr = [];
-
-                    for (var row of tableValues) { //for each row in the table
-                        var PUTurnAroundTime = row[columnIndex]; //get the item where the row and columnIndex values meet
-                        PUTimeArr.push(PUTurnAroundTime); //push this value to a new array
+                    /**
+                     * Takes the date, month, and year from the input and outputs it as month, date, year date object (or sting)
+                     * @param {Date} aDate A date object
+                     * @returns Date? Or maybe a String?
+                     */
+                    function shortDate(aDate) {
+                        var day = aDate.getDate();
+                        var month = aDate.getMonth();
+                        var year = aDate.getFullYear();
+                        var output = `${month} ${day} ${year}`;
+                        return output;
                     };
 
-                    return PUTimeArr;
+                //#endregion -------------------------------------------------------------------------------------------------------------------------
 
-                };
+                //#region CONVERT DATE TO SERIAL -----------------------------------------------------------------------------------------------------
 
-            //#endregion -------------------------------------------------------------------------------------------------------------------------
-
-            //#region FIND COLUMN INDEX ----------------------------------------------------------------------------------------------------------
-
-                /**
-                 * Returns index of a column name based on it's position in the header row
-                 * @param {Array} header An array of arrays containing all the headers in the table
-                 * @param {String} columnName The name of the column that we are trying to find an index number for
-                 * @returns Number
-                 */
-                function findColumnIndex(header, columnName) {
-                    var i = 0;
-                    var jelly;
-
-                    for (var column of header[0]) { //for each item in the header array
-                        //if the item matches the columnName input, return the value of i, otherwise increment i & continue through rest of array
-                        if (column == columnName) { 
-                            jelly = i;
-                            return jelly;
-                        }
-                        i++;
+                    /**
+                     * Converts input date into serial number that excel can apply conditional formatting to
+                     * @param {Date} inDate A date variable
+                     * @returns String
+                     */
+                    function JSDateToExcelDate(inDate) {
+                        var returnDateTime = 25569.0 + ((inDate.getTime() - (inDate.getTimezoneOffset() * 60 * 1000)) / (1000 * 60 * 60 * 24));
+                        //var returnDateTime = 25569.0 + ((inDate.getTime()) / (1000 * 60 * 60 * 24));
+                        return returnDateTime.toString().substr(0,20);
                     };
-                };
 
-            //#endregion -------------------------------------------------------------------------------------------------------------------------
+                //#endregion -------------------------------------------------------------------------------------------------------------------------
 
-        //#endregion -----------------------------------------------------------------------------------------------------------------------------
+                //#region CONVERT SERIAL TO DATE -----------------------------------------------------------------------------------------------------
 
-    //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+                    /**
+                     * Finds the value of Date Added in the changed row and converts it to be a date object in EST.
+                     * @param {Number} serial The serial number to be converted
+                     * @returns Date
+                     */
+                    function convertToDate(serial) {
+                        var date = new Date(Math.round((serial - 25569)*86400*1000)); //convert serial number to date object
+                        date.setMinutes(date.getMinutes() + date.getTimezoneOffset()); //adjusting from GMT to EST (adds 4 hours)
+                        return date;
+                    };
 
-//#endregion -------------------------------------------------------------------------------------------------------------------------------------
+                //#endregion -------------------------------------------------------------------------------------------------------------------------
+
+                //#region ALL COLUMN VALUES ----------------------------------------------------------------------------------------------------------
+
+                    /**
+                     * Returns an array of the all the values from a specific column in a table
+                     * @param {Array} tableValues An array of arrays containing all the data from the table
+                     * @param {Number} columnIndex Index number of the column we are trying to make an array of from its data
+                     * @returns Array
+                     */
+                    function allColumnValues(tableValues, columnIndex) {
+
+                        var PUTimeArr = [];
+
+                        for (var row of tableValues) { //for each row in the table
+                            var PUTurnAroundTime = row[columnIndex]; //get the item where the row and columnIndex values meet
+                            PUTimeArr.push(PUTurnAroundTime); //push this value to a new array
+                        };
+
+                        return PUTimeArr;
+
+                    };
+
+                //#endregion -------------------------------------------------------------------------------------------------------------------------
+
+                //#region FIND COLUMN INDEX ----------------------------------------------------------------------------------------------------------
+
+                    /**
+                     * Returns index of a column name based on it's position in the header row
+                     * @param {Array} header An array of arrays containing all the headers in the table
+                     * @param {String} columnName The name of the column that we are trying to find an index number for
+                     * @returns Number
+                     */
+                    function findColumnIndex(header, columnName) {
+                        var i = 0;
+                        var jelly;
+
+                        for (var column of header[0]) { //for each item in the header array
+                            //if the item matches the columnName input, return the value of i, otherwise increment i & continue through rest of array
+                            if (column == columnName) { 
+                                jelly = i;
+                                return jelly;
+                            }
+                            i++;
+                        };
+                    };
+
+                //#endregion -------------------------------------------------------------------------------------------------------------------------
+
+            //#endregion -----------------------------------------------------------------------------------------------------------------------------
+
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+
+    //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
     //#region MOVING DATA FUNCTIONS ------------------------------------------------------------------------------------------------------------------
 
