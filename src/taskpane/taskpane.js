@@ -3469,10 +3469,9 @@
                             leTableSorted.splice(i, 1);
                             i = i - 1;
                         };
-
                     };
 
-                    
+
                     for (var i = 0; i < leTableSorted.length; i++) {
 
                         //removes tagged projects from table and puts them in order in the tagsOrder array to be added back in after sorting
@@ -3992,6 +3991,7 @@
                 var proofToClientWorksheetColumn = rowInfoSorted.proofToClient.columnIndex + newTableStart;
                 var printDateWorksheetColumn = rowInfoSorted.printDate.columnIndex + newTableStart;
                 var groupWorksheetColumn = rowInfoSorted.group.columnIndex + newTableStart;
+                var tagsWorksheetColumn = rowInfoSorted.tags.columnIndex + newTableStart;
 
                 var pickedUpAddress = changedWorksheet.getCell(worksheetRowIndex, pickedUpWorksheetColumn);
                 var proofToClientAddress = changedWorksheet.getCell(worksheetRowIndex, proofToClientWorksheetColumn);
@@ -4044,33 +4044,93 @@
 
                     if (printDate == currentDateAbsolute) { //if current date = print date
 
-                        rowRangeSorted.format.font.color = "#C00000";
-                        rowRangeSorted.format.font.bold = true;
+                        // rowRangeSorted.format.font.color = "#C00000";
+                        // rowRangeSorted.format.font.bold = true;
+                        printDateAddress.format.fill.color = "#C00000";
+                        printDateAddress.format.font.color = "white";
+                        printDateAddress.format.font.bold = true;
+
+                        groupAddress.format.fill.color = "#C00000";
+                        groupAddress.format.font.color = "white";
+                        groupAddress.format.font.bold = true;
+
                         printDateAddress.format.horizontalAlignment = "center";
                         groupAddress.format.horizontalAlignment = "center";
+
+                        if (rowInfoSorted.tags.value !== "") {
+                            rowRangeSorted.format.font.color = "#ED7D31"; //#9BC2E6
+                            rowRangeSorted.format.font.bold = true;
+                            printDateAddress.format.font.color = "white";
+                            groupAddress.format.font.color = "white";
+                        };
 
                     } else if (((printDate - 1) == currentDateAbsolute)) { //if current date is the day before print date
 
-                        rowRangeSorted.format.font.color = "#C00000";
-                        rowRangeSorted.format.font.bold = true;
+                        // rowRangeSorted.format.font.color = "#C00000";
+                        // rowRangeSorted.format.font.bold = true;
+                        printDateAddress.format.fill.color = "#C00000";
+                        printDateAddress.format.font.color = "white";
+                        printDateAddress.format.font.bold = true;
+
+                        groupAddress.format.fill.color = "#C00000";
+                        groupAddress.format.font.color = "white";
+                        groupAddress.format.font.bold = true;
+
                         printDateAddress.format.horizontalAlignment = "center";
                         groupAddress.format.horizontalAlignment = "center";
+
+                        if (rowInfoSorted.tags.value !== "") {
+                            rowRangeSorted.format.font.color = "#ED7D31"; //#9BC2E6
+                            rowRangeSorted.format.font.bold = true;
+                            printDateAddress.format.font.color = "white";
+                            groupAddress.format.font.color = "white";
+                        };
                     
                         //if current date is in the same group lock week as print date (between 7-2 days before)
                     } else if (((printDate - 6) <= currentDateAbsolute) && ((printDate - 2) >= currentDateAbsolute)) { 
 
-                        rowRangeSorted.format.font.color = "#C00000";
-                        rowRangeSorted.format.font.bold = true;
+                        // rowRangeSorted.format.font.color = "#C00000";
+                        // rowRangeSorted.format.font.bold = true;
+                        printDateAddress.format.fill.color = "#C00000";
+                        printDateAddress.format.font.color = "white";
+                        printDateAddress.format.font.bold = true;
+
+                        groupAddress.format.fill.color = "#C00000";
+                        groupAddress.format.font.color = "white";
+                        groupAddress.format.font.bold = true;
+
                         printDateAddress.format.horizontalAlignment = "center";
                         groupAddress.format.horizontalAlignment = "center";
+
+                        if (rowInfoSorted.tags.value !== "") {
+                            rowRangeSorted.format.font.color = "#ED7D31"; //#9BC2E6
+                            rowRangeSorted.format.font.bold = true;
+                            printDateAddress.format.font.color = "white";
+                            groupAddress.format.font.color = "white";
+                        };
 
                     //if current date is in the week before group lock week (between 8-14 days before)
                     } else if (((printDate - 13) <= currentDateAbsolute) && ((printDate - 7) >= currentDateAbsolute)) { 
 
-                        rowRangeSorted.format.font.color = "70AD47";
-                        rowRangeSorted.format.font.bold = true;
+                        // rowRangeSorted.format.font.color = "#C00000";
+                        // rowRangeSorted.format.font.bold = true;
+                        printDateAddress.format.fill.color = "#548235";
+                        printDateAddress.format.font.color = "white";
+                        printDateAddress.format.font.bold = true;
+
+                        groupAddress.format.fill.color = "#548235";
+                        groupAddress.format.font.color = "white";
+                        groupAddress.format.font.bold = true;
+
                         printDateAddress.format.horizontalAlignment = "center";
                         groupAddress.format.horizontalAlignment = "center";
+
+                        if (rowInfoSorted.tags.value !== "") {
+                            rowRangeSorted.format.font.color = "#ED7D31"; //#9BC2E6
+                            rowRangeSorted.format.font.bold = true;
+                            printDateAddress.format.font.color = "white";
+                            groupAddress.format.font.color = "white";
+                        };
                         
                     } else if ((printDate < currentDateAbsolute) && (printDate !== 0)) { //if current date is after print date
 
@@ -4079,6 +4139,11 @@
                         rowRangeSorted.format.font.bold = true;
                         printDateAddress.format.horizontalAlignment = "center";
                         groupAddress.format.horizontalAlignment = "center";
+
+                        if (rowInfoSorted.tags.value !== "") {
+                            rowRangeSorted.format.font.color = "#ED7D31";
+                            //rowRangeSorted.format.font.bold = true;
+                        };
                         
                     } else { //set cell formatting to normal
 
@@ -4087,6 +4152,11 @@
                         rowRangeSorted.format.font.bold = false;
                         printDateAddress.format.horizontalAlignment = "center";
                         groupAddress.format.horizontalAlignment = "center";
+
+                        if (rowInfoSorted.tags.value !== "") {
+                            rowRangeSorted.format.font.color = "#ED7D31";
+                            rowRangeSorted.format.font.bold = true;
+                        };
                         
                     };
 
@@ -4097,7 +4167,12 @@
                         rowRangeSorted.format.font.bold = false;
                         printDateAddress.format.horizontalAlignment = "center";
                         groupAddress.format.horizontalAlignment = "center";
-                        
+
+                        if (rowInfoSorted.tags.value !== "") {
+                            rowRangeSorted.format.font.color = "#ED7D31";
+                            rowRangeSorted.format.font.bold = true;
+                        };
+                        FFFF00FFFF00FFFF00
                     };
 
                 //#endregion -------------------------------------------------------------------------------------------------------------------------
@@ -4111,6 +4186,11 @@
                         rowRangeSorted.format.font.bold = true;
                         printDateAddress.format.horizontalAlignment = "center";
                         groupAddress.format.horizontalAlignment = "center";
+
+                        if (rowInfoSorted.tags.value !== "") {
+                            rowRangeSorted.format.font.color = "#ED7D31";
+                            //rowRangeSorted.format.font.bold = true;
+                        };
                         
                     };
 
@@ -4127,6 +4207,11 @@
                             rowRangeSorted.format.font.bold = true;
                             printDateAddress.format.horizontalAlignment = "center";
                             groupAddress.format.horizontalAlignment = "center";
+
+                            if (rowInfoSorted.tags.value !== "") {
+                                rowRangeSorted.format.font.color = "#FFFF00"; //ED7D31
+                                //rowRangeSorted.format.font.bold = true; 
+                            }; 
                             
                         };
 
@@ -4138,6 +4223,11 @@
                             //pickedUpAddress.format.fill.color = "FFC000";
                             rowRangeSorted.format.fill.color = "FFC000";
                             rowRangeSorted.format.font.color = "black";
+
+                            if (rowInfoSorted.tags.value !== "") {
+                                rowRangeSorted.format.font.color = "#ED7D31";
+                                rowRangeSorted.format.font.bold = true;
+                            };
                         };
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
@@ -4149,6 +4239,11 @@
                             // proofToClientAddress.format.font.color = "white";
                             rowRangeSorted.format.fill.color = "FF0000";
                             rowRangeSorted.format.font.color = "white";
+
+                            if (rowInfoSorted.tags.value !== "") {
+                                rowRangeSorted.format.font.color = "#FFFF00";
+                                rowRangeSorted.format.font.bold = true;
+                            };
                         };
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
