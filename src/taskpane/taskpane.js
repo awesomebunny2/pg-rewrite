@@ -1,5 +1,59 @@
 //validation sheet password: fissh
 
+$(async () => { // Once the document is ready
+
+/**
+ * AUTO LOAD STUFFS
+ *
+ */
+    Office.addin.getStartupBehavior().then((curBehavior) => {
+        if (curBehavior !== "None") {
+            $("#auto-open").prop("checked", true)
+        } else {
+            $("#auto-open").prop("checked", false) 
+        }
+    });
+
+    $('#auto-open').change(function() {
+        if (this.checked == true) {
+            console.log("Turning auto-open ON!")
+            Office.addin.setStartupBehavior(Office.StartupBehavior.load);
+            console.log("Auto-open is ON!")
+        } else {
+            console.log("Turning auto-open OFF!")
+            Office.addin.setStartupBehavior(Office.StartupBehavior.none);
+            console.log("Auto-open is OFF!")
+        };
+    });
+
+    // Office.addin.setStartupBehavior(Office.StartupBehavior.load);
+    /*
+    let isAuto = Office.context.document.settings.get("Office.AutoShowTaskpaneWithDocument");
+
+    if (isAuto === true) {
+        $("#auto-open").prop("checked", true)
+    } else {
+        $("#auto-open").prop("checked", false) 
+    }
+
+    $('#auto-open').change(function() {
+        if (this.checked == true) {
+            console.log("Turning auto-open ON!")
+            Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", true);
+            Office.context.document.settings.saveAsync();
+            console.log("Auto-open is ON!")
+        } else {
+            console.log("Turning auto-open OFF!")
+            Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", false);
+            Office.context.document.settings.saveAsync();
+            console.log("Auto-open is OFF!")
+        };
+    });
+    */
+
+})
+
+
 //#region GLOBAL -------------------------------------------------------------------------------------------------------------------------------------
 
     //#region TEST SUBJECTS --------------------------------------------------------------------------------------------------------------------------
@@ -97,13 +151,19 @@
 
     Office.onReady((info) => {
 
+
         if (info.host === Office.PlatformType.OfficeOnline) {
             console.log("You're currently using the online version of Excel!")
         };
 
         if (info.host === Office.HostType.Excel) {
 
+
             Excel.run(async (context) => {
+
+
+
+
 
                 activationEvent = registerOnActivateHandler();
 
