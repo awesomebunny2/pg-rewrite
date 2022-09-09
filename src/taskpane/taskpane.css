@@ -1,13 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
-
-@import url("https://fonts.googleapis.com/css?family=Roboto:400,400i,700");
-
 @import url("https://use.fontawesome.com/releases/v5.8.1/css/all.css");
 
 /* @import "xp.css/dist/XP.css"; */
 
 body, html {
-    /* font-family: 'Roboto', sans-serif;     */
     font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
     margin: 0px;
     height: 100%;
@@ -141,6 +136,7 @@ h2 {
     box-sizing: border-box;
     align-items: center;
     text-overflow: ellipsis;
+    background-color: white;
 }
 
 .input-group .input-area:focus {
@@ -171,7 +167,7 @@ h2 {
     font-weight: 400;
     top: 6.5px;
     left: 13px;
-    background: #ffffff;
+    /* background: #ffffff; */
     transition: .1s;
 }
 
@@ -211,6 +207,11 @@ h2 {
 
 .label {
     font-size: 10pt;
+    max-height: 12pt;
+    white-space: nowrap;
+    width: calc(100% - 20px);
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* .bolder {
