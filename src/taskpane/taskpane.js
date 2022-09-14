@@ -1,57 +1,60 @@
 //validation sheet password: fissh
 
-$(async () => { // Once the document is ready
+Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", true);
+Office.context.document.settings.saveAsync();
 
-/**
- * AUTO LOAD STUFFS
- *
- */
-    Office.addin.getStartupBehavior().then((curBehavior) => {
-        if (curBehavior !== "None") {
-            $("#auto-open").prop("checked", true)
-        } else {
-            $("#auto-open").prop("checked", false) 
-        }
-    });
+// $(async () => { // Once the document is ready
 
-    $('#auto-open').change(function() {
-        if (this.checked == true) {
-            console.log("Turning auto-open ON!")
-            Office.addin.setStartupBehavior(Office.StartupBehavior.load);
-            console.log("Auto-open is ON!")
-        } else {
-            console.log("Turning auto-open OFF!")
-            Office.addin.setStartupBehavior(Office.StartupBehavior.none);
-            console.log("Auto-open is OFF!")
-        };
-    });
+// /**
+//  * AUTO LOAD STUFFS
+//  *
+//  */
+//     Office.addin.getStartupBehavior().then((curBehavior) => {
+//         if (curBehavior !== "None") {
+//             $("#auto-open").prop("checked", true)
+//         } else {
+//             $("#auto-open").prop("checked", false) 
+//         }
+//     });
 
-    // Office.addin.setStartupBehavior(Office.StartupBehavior.load);
-    /*
-    let isAuto = Office.context.document.settings.get("Office.AutoShowTaskpaneWithDocument");
+//     $('#auto-open').change(function() {
+//         if (this.checked == true) {
+//             console.log("Turning auto-open ON!")
+//             Office.addin.setStartupBehavior(Office.StartupBehavior.load);
+//             console.log("Auto-open is ON!")
+//         } else {
+//             console.log("Turning auto-open OFF!")
+//             Office.addin.setStartupBehavior(Office.StartupBehavior.none);
+//             console.log("Auto-open is OFF!")
+//         };
+//     });
 
-    if (isAuto === true) {
-        $("#auto-open").prop("checked", true)
-    } else {
-        $("#auto-open").prop("checked", false) 
-    }
+//     // Office.addin.setStartupBehavior(Office.StartupBehavior.load);
+    
+//     let isAuto = Office.context.document.settings.get("Office.AutoShowTaskpaneWithDocument");
 
-    $('#auto-open').change(function() {
-        if (this.checked == true) {
-            console.log("Turning auto-open ON!")
-            Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", true);
-            Office.context.document.settings.saveAsync();
-            console.log("Auto-open is ON!")
-        } else {
-            console.log("Turning auto-open OFF!")
-            Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", false);
-            Office.context.document.settings.saveAsync();
-            console.log("Auto-open is OFF!")
-        };
-    });
-    */
+//     if (isAuto === true) {
+//         $("#auto-open").prop("checked", true)
+//     } else {
+//         $("#auto-open").prop("checked", false) 
+//     }
 
-})
+//     $('#auto-open').change(function() {
+//         if (this.checked == true) {
+//             console.log("Turning auto-open ON!")
+//             Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", true);
+//             Office.context.document.settings.saveAsync();
+//             console.log("Auto-open is ON!")
+//         } else {
+//             console.log("Turning auto-open OFF!")
+//             Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", false);
+//             Office.context.document.settings.saveAsync();
+//             console.log("Auto-open is OFF!")
+//         };
+//     });
+
+
+// })
 
 
 //#region GLOBAL -------------------------------------------------------------------------------------------------------------------------------------
