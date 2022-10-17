@@ -1,7 +1,7 @@
 //validation sheet password: fissh
 
-Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", true);
-Office.context.document.settings.saveAsync();
+// Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", true);
+// Office.context.document.settings.saveAsync();
 
 // $(async () => { // Once the document is ready
 
@@ -1361,6 +1361,52 @@ Office.context.document.settings.saveAsync();
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
 
+                    // await context.sync();
+
+                    // //#region AUTO-GENERATE LOGO RECREATION LINE -------------------------------------------------------------------------------------
+
+                    //     //if product is a Logo Recreation, Logo Creation, Map Creation, Media Kit, or any Marco's Product, skip logo line generation
+                    //     if(productVal !== "logoRecreation" || productVal !== "logoCreation" || productVal !== "mapCreation"
+                    //     || productVal !== "mediaKit" || productVal !== "MPBTAC" || productVal !== "MPBTNO" || productVal !== "MPP"
+                    //     || productVal !== "MPPO2436" || productVal !== "MPPO3040" || productVal !== "MPCC" || productVal !== "MPCMS"
+                    //     || productVal !== "MPIS" || productVal !== "MPSCFS" || productVal !== "MPND" || productVal !== "MPPICMENU" 
+                    //     || productVal !== "MPCVDLAM" || productVal !== "MPC" || productVal !== "MPEXTWC2436AC" || productVal !== "MPEXTWC2436NO"
+                    //     || productVal !== "MPEXTWC3040AC" || productVal !== "MPEXTWC3040NO" || productVal !== "MPINTWC2436AC"
+                    //     || productVal !== "MPINTWC2436NO" || productVal !== "MPINTWC3040AC" || productVal !== "MPINTWC3040NO"
+                    //     || productVal !== "MPNutGuide") {
+                    //         //#region WRITE ARRAY ------------------------------------------------------------------------------------------------------------
+
+                    //             // Data to send to Table
+                    //             var writeLogo = [[
+                    //                 "", // 0 - Priority
+                    //                 designManagersVal, // 1 - Design Manager
+                    //                 queueVal, // 2 - Queue
+                    //                 tierVal, // 3 - Tier
+                    //                 subjectVal, // 4 - Subject
+                    //                 clientVal, // 5 - Client
+                    //                 locationVal, // 6 - Location
+                    //                 productVal, // 7 - Product
+                    //                 projectTypeVal, // 8 - Project Type
+                    //                 csmVal, // 9 - CSM
+                    //                 toSerial, // 10 - Added
+                    //                 printDateVal, // 11 - Print Data
+                    //                 groupVal, // 12 - Group
+                    //                 "", // 13 - Picked Up / Started By
+                    //                 "", // 14 - Proof to Client
+                    //                 "", // 15 - Date of Last Edit
+                    //                 tagsVal, // 16 - Tags
+                    //                 leStatus, // 17 - Status
+                    //                 codeVal, // 18 - Code
+                    //                 leArtist, // 19 - Artist
+                    //                 notes, // 20 - Notes
+                    //                 0, // 21 - Start Override
+                    //                 0 // 22 - Work Override
+                    //             ]];
+
+                    //         //#endregion ---------------------------------------------------------------------------------------------------------------------
+
+                    //     }
+
                 });
 
                 eventsOn();
@@ -1369,6 +1415,8 @@ Office.context.document.settings.saveAsync();
             };
 
         //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+
+    //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
     //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
