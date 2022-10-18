@@ -57,6 +57,7 @@
         var proofToClientData = {};
         var creativeProofData = {};
         var officeHoursData = {};
+        var tierLevelData = {};
         var changesData = {};
         var changesIDData = {};
         var printDateRefData = {};
@@ -65,6 +66,8 @@
         var changeEvent;
         var selectionEvent;
         var snailPoop = {};
+        var designManagersData = {};
+
         var rowIndexPostSort;
         var changedTable;
         var destinationTable;
@@ -115,11 +118,13 @@
                     var projectTypeIDTable = sheet.tables.getItem("ProjectTypeIDTable")
                     var pickedUpValTable = sheet.tables.getItem("PickupTurnaroundTime");
                     var proofToClientValTable = sheet.tables.getItem("ArtTurnaroundTime");
+                    var tierLevelValTable = sheet.tables.getItem("TierLevelsTable");
                     var creativeProofTable = sheet.tables.getItem("CreativeProofAdjust");
                     var officeHoursTable = sheet.tables.getItem("OfficeHours");
                     var changesDataTable = sheet.tables.getItem("ChangesData");
                     var changesIDTable = sheet.tables.getItem("ChangesIDTable");
                     var groupPrintDateRefTable = sheet.tables.getItem("dateTable");
+                    var designManagersTable = sheet.tables.getItem("DesignManagersTable");
                     var activeSheet = context.workbook.worksheets.getActiveWorksheet().load("worksheetId");
                     var activeProjectTable = activeSheet.tables.getItemAt(0);
                     var workbookName = context.workbook.load("name");
@@ -129,10 +134,12 @@
                     var projectTypeIDBodyRange = projectTypeIDTable.getDataBodyRange().load("values");
                     var pickedUpBodyRange = pickedUpValTable.getDataBodyRange().load("values");
                     var proofToClientBodyRange = proofToClientValTable.getDataBodyRange().load("values");
+                    var tierLevelBodyRange = tierLevelValTable.getDataBodyRange().load("values");
                     var creativeProofBodyRange = creativeProofTable.getDataBodyRange().load("values");
                     var officeHoursBodyRange = officeHoursTable.getDataBodyRange().load("values");
                     var changesDataBodyRange = changesDataTable.getDataBodyRange().load("values");
                     var changesIDBodyRange = changesIDTable.getDataBodyRange().load("values");
+                    var designManagersBodyRange = designManagersTable.getDataBodyRange().load("values");
                     var groupPrintDateRefRange = groupPrintDateRefTable.getDataBodyRange().load("values");
 
                 //#endregion -------------------------------------------------------------------------------------------------------------------------
@@ -171,6 +178,19 @@
                             // console.log(projectTypeIDData);
 
                         //#endregion -----------------------------------------------------------------------------------------------------------------
+
+                         //#region DESIGN MANAGERS DATA -----------------------------------------------------------
+
+                            var designManagersArr = designManagersBodyRange.values;
+
+                            for (var row of designManagersArr) {
+                                designManagersData[row[0].trim()] = {
+                                    "designManager":row[0],
+                                    "worksheetTabColor":row[1]
+                                };
+                            };
+
+                        //#endregion -----------------------------------------------------------------------------
 
                         //#region PICKED UP TURN AROUND TIME DATA ------------------------------------------------------------------------------------
 
@@ -215,6 +235,27 @@
                             //console.log(proofToClientData);
 
                         //#endregion -----------------------------------------------------------------------------------------------------------------
+
+
+                         //#region TIER LEVEL DATA ------------------------------------------------
+
+                            var tierLevelArr = tierLevelBodyRange.values;
+
+                            for (var row of tierLevelArr) {
+                                tierLevelData[row[0].trim()] = {
+                                "brandNewBuild":row[1],
+                                "brandNewBuildFromNatives":row[2],
+                                "brandNewBuildFromTemplate":row[3],
+                                "changesToExistingNatives":row[4],
+                                "specCheck":row[5],
+                                "weTransferUpload":row[6],
+                                "specialRequest":row[7],
+                                "other":row[8]
+                                };
+                            };
+
+                        //#endregion ------------------------------------------------------------------------------
+
 
                         //#region CREATIVE PROOF DATA ------------------------------------------------------------------------------------------------
 
@@ -1041,6 +1082,7 @@
                     //#region LOAD VALUES ------------------------------------------------------------------------------------------------------------
 
                         var sheet = context.workbook.worksheets.getActiveWorksheet().load("name");
+                        sheet.load("tabColor");
                         //updating this variable to work for the changedTable will not work since the taskpane doesn't trigger an onchanged event 
                         //until afterward
                         var sheetTable = sheet.tables.getItemAt(0).load("name"); //this is fine since the user will only ever be adding new projects 
@@ -1168,10 +1210,33 @@
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
 
+                    if ((designManagersVal == "" || designManagersVal == null) && (sheet.name !== "Unassigned Projects") && (sheet.name !== "Validation")) {
+
+                        var sheetTabColor = sheet.tabColor;
+
+                        var theDesignManager = "";
+
+                        if (sheetTabColor == designManagersData.Emily.worksheetTabColor) {
+                            theDesignManager = "Emily";
+                        } else if (sheetTabColor == designManagersData.Peter.worksheetTabColor) {
+                            theDesignManager = "Peter";
+                        } else if (sheetTabColor == designManagersData.Luke.worksheetTabColor) {
+                            theDesignManager = "Luke";
+                        };
+
+                        write[0][tableRowInfo.designManager.columnIndex] = theDesignManager;
+
+                    };
+
                     //#region GENERATE PICKED UP / TURN AROUND TIME VALUE ----------------------------------------------------------------------------
 
                         //get the Project Type Coded variable from the Project Type ID Data based on the returned Project Type from the taskpane
                         var theProjectTypeCode = projectTypeIDData[projectTypeVal].projectTypeCode;
+
+                        if((tierVal == "" || tierVal == null) && (sheet.name !== "Validation")) {
+                            var defaultTier = tierLevelData[productVal][theProjectTypeCode];
+                            write[0][tableRowInfo.tier.columnIndex] = defaultTier;
+                        };
 
                         //returns turn around time value from the PickedUp Turn Around Time table based on the product and project type values
                         var pickedUpTurnAroundTime = pickupData[productVal][theProjectTypeCode];
@@ -1800,6 +1865,16 @@
 
                             //#endregion -------------------------------------------------------------------------------------------------------------
 
+                            // if (changeType == "RowInserted") {
+                            //     console.log("tsk tsk tsk...Don't forget the 7th commandment of the Art Queue Add-In:");
+                            //     console.log('"Thou shalt submit all requests to thy own sheet by means of the Add A Project taskpane. Manually adding rows of info to thyn sheet is forbidden."');
+                            //     console.log("It's a simple mistake, but make sure not to do it again.");
+                            //     rowRange.delete("Up");
+                            //     // eventsOn();
+                            //     // console.log("Events: ON  →  triggered after a row was manually inserted into the sheet by the user, followed by the swift removal of said row and a slap on the wrist.");
+                            //     return;
+                            // };
+
                             //#region FINDS IF CHANGE WAS MADE TO THE UNASSIGNED PROJECTS TABLE OR NOT -----------------------------------------------
 
                                 var isUnassigned;
@@ -1929,6 +2004,12 @@
                                 completedTableChanged, rowRange, completedTable);
 
                         };
+
+                        // var statusMove = false;
+
+                        // if (rowInfo.status.value == "Completed" || rowInfo.status.value == "Cancelled") {
+                        //     statusMove = true;
+                        // };
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
 
