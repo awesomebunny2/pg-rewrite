@@ -2291,9 +2291,70 @@
                                     } else if (rowInfo.artist.value == "Joey") {
                                         destinationTable = joeyTable;
                                         destinationTableName = joeyTableName.name;
-                                        destinationRows = joeyTab3534a8;00;00000000;00000000;00000000;0000000000000020;com.apple.app-sandbox.read-write;01;01000007;0000000074ba4790;16;/users/matthewcalvert/library/cloudstorage/onedrive-mailshark/merge_products/other-variable-projects/postcards/prestige-european-auto/2022-08/flattened-2-color-fix.pdf    ‰   ˛ˇˇˇ                    ¸        @      @  0                  |         å         ¿         †         ∞          Ï      0         ¿  `      ¿          ¿  p      –         Ä  P        ÄD      _ß/Users/matthewcalvert/Library/CloudStorage/OneDrive-MailShark/Merge_Products/Other-Variable-Projects/Postcards/Prestige-European-Auto/2022-08/FLATTENED-2-Color-Fix.pdfH:ï∂ü9UƒA”è  îïñO–book–    0                                   ¥               Users        matthewcalvert       Library      CloudStorage     OneDrive-MailShark       Merge_Products       Other-Variable-Projects 	     Postcards        Prestige-European-Auto       2022-08      FLATTENED-1-Color-Fix.pdf   ,            8   H   \   x   ê   ∞   ƒ   ‰   Ù        7∏
-          ⁄À          ·À          ór         „Âªr         Ñ}≈r         5>s         ’®≈r         ú∫t         §!∫t         LG∫t    ,     L  \  l  |  å  ú  ¨  º  Ã  ‹  Ï        AƒU9ï^ê                                	            ı     	  file:///     Macintosh HD      0à>Ô         Aƒ@‡   $     F76374A9-E285-4CFD-8164-1BD6FC6AF277     Å      Ô                  /              NSURLDocumentIdentifierKey       so Y    015b69824759d3b2606869514dc2168cf1b66650887a5d1080e6971f2d9cee7b;00;00000000;00000000;00000000;0000000000000020;com.apple.app-sandbox.read-write;01;01000007;0000000074ba474c;16;/users/matthewcalvert/library/cloudstorage/onedrive-mailshark/merge_products/other-variable-projects/postcards/prestige-european-auto/2022-08/flattened-1-color-fix.pdf    ‰   ˛ˇˇˇ                    ¸        @      @  0                  |         å         ¿         †         ∞          Ï      0         ¿  `      ¿          ¿  p      –         Ä  P        ÄD      _ß/Users/matthewcalvert/Library/CloudStorage/OneDrive-MailShark/Merge_Products/Other-Variable-Projects/Postcards/Prestige-European-Auto/2022-08/FLATTENED-1-Color-Fix.pdfHpÏóñ9UƒA”è  òôöO¿book¿    0                                   §               Users        matthewcalvert       Library      CloudStorage     OneDrive-MailShark       Merge_Products       Other-Variable-Projects 	     Postcards        Prestige-European-Auto       2022-08      BLEEDS NO CROPS2.pdf,            8   H   \   x   ê   ∞   ƒ   ‰   Ù        7∏
-          ⁄À          ·À          ór         „Âªr         Ñ}≈r         5>s         ’®≈r         ú∫t         §!∫t         âF∫t    ,     D  T  d  t  Ñ  î  §  ¥  ƒ  ‘  ‰        AƒU9ró+/                                	            ı     	  file:///     Macintosh HD      0à>Ô         Aƒ@‡   $     F76374A9-E285-4CFD-8164-1BD6FC6AF277     Å      Ô                  /              NSURLDocumentIdentifierKey       qo T    2a565ecfb41a090b79f709314b544bda4656be32cb6c86423f4244a54f52567f;00;00000000;00000000;00000000;0000000000000020;com.apple.app-sandbox.read-write;01;01000007;0000000074ba4689;16;/users/matthewcalvert/library/cloudstorage/onedrive-mailshark/merge_products/other-variable-projects/postcards/prestige-european-auto/2022-08/bleeds no crops2.pdf ‰   ˛ˇˇˇ                    Ù        8      @  (                  t         Ñ         ∏         ò         ®          ‰      0         ¿  X      ¿          ¿  h      –         Ä  H       Ä<      _¢/Users/matthewcalvert/Library/CloudStorage/OneDrive-MailShark/Merge_Products/Other-Variable-Projects/Postcards/Prestige-European-Auto/2022-08/BLEEDS NO CROPS2.pdfHøbGw9UƒA”è  úùûO∏book∏    0              atestFunctionEverWritten(destHead, name, destRowValues, destTable, destRowInfo, 0)
+                                        destinationRows = joeyTableRows.items;
+                                        destinationTableRange = joeyRange;
+                                        destinationHeader = joeyHeader;
+                                    } else if (rowInfo.artist.value == "Jordan") {
+                                        destinationTable = jordanTable;
+                                        destinationTableName = jordanTableName.name;
+                                        destinationRows = jordanTableRows.items;
+                                        destinationTableRange = jordanRange;
+                                        destinationHeader = jordanHeader;
+                                    } else if (rowInfo.artist.value == "Todd") {
+                                        destinationTable = toddTable;
+                                        destinationTableName = toddTableName.name;
+                                        destinationRows = toddTableRows.items;
+                                        destinationTableRange = toddRange;
+                                        destinationHeader = toddHeader;
+                                    } else if (rowInfo.artist.value == "Kristen") {
+                                        destinationTable = kristenTable;
+                                        destinationTableName = kristenTableName.name;
+                                        destinationRows = kristenTableRows.items;
+                                        destinationTableRange = kristenRange;
+                                        destinationHeader = kristenHeader;
+                                    } else {
+                                        destinationTable = null;
+                                        destinationTableName = null;
+                                        destinationRows = null;
+                                        destinationTableRange = null;
+                                        destinationHeader = null;
+                                    };
+
+                                    //For the time being, I am recreating the variables from the changed table to work with the destination table.
+                                    //I am replacing the changed row index with 0 since, at this point, there is no changed row in the destination 
+                                    //table. We just need these values to essentially return the index number of the columns we want from the 
+                                    //destination table in future functions.
+
+                                    //if any destination variables are null, do not evaluate further destination variables & objects
+                                    if (destinationTable == null 
+                                        || destinationTableName == null 
+                                        || destinationRows == null 
+                                        || destinationTableRange == null 
+                                        || destinationHeader == null
+                                    ) {
+
+                                        console.log("I actually don't need any of these destination table variables!");
+
+                                    } else { 
+
+                                        var destinationRange = destinationTableRange.values;
+
+                                        if (destinationRows.length == 0) {
+                                            var destRowValues = destinationRange;
+                                        } else {
+                                            var destRowValues = destinationRows[0].values;
+                                        };
+
+                                        var destTableName = destinationTableName;
+
+                                        var destTable = JSON.parse(JSON.stringify(destinationRange));
+
+                                        var destHead = destinationHeader.values;
+
+                                        var destRowInfo = new Object();
+
+                                        for (var name of destHead[0]) {
+                                            theGreatestFunctionEverWritten(destHead, name, destRowValues, destTable, destRowInfo, 0)
                                         };
 
                                     };
