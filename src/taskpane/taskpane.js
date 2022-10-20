@@ -1277,28 +1277,31 @@
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
 
-                    if ((designManagersVal == "" || designManagersVal == null)
-                    &&
-                    (sheet.name !== "Unassigned Projects") && (sheet.name !== "Validation")) {
+                    //#region AUTO-FILL DESIGN MANAGERS ----------------------------------------------------------------------------------------------
 
-                        var sheetTabColor = sheet.tabColor;
+                        if ((designManagersVal == "" || designManagersVal == null)
+                        &&
+                        (sheet.name !== "Unassigned Projects") && (sheet.name !== "Validation")) {
 
-                        var theDesignManager = "";
+                            var sheetTabColor = sheet.tabColor;
 
-                        if (sheetTabColor == designManagersData.Emily.worksheetTabColor) {
-                            theDesignManager = "Emily";
-                        } else if (sheetTabColor == designManagersData.Peter.worksheetTabColor) {
-                            theDesignManager = "Peter";
-                        } else if (sheetTabColor == designManagersData.Luke.worksheetTabColor) {
-                            theDesignManager = "Luke";
+                            var theDesignManager = "";
+
+                            if (sheetTabColor == designManagersData.Emily.worksheetTabColor) {
+                                theDesignManager = "Emily";
+                            } else if (sheetTabColor == designManagersData.Peter.worksheetTabColor) {
+                                theDesignManager = "Peter";
+                            } else if (sheetTabColor == designManagersData.Luke.worksheetTabColor) {
+                                theDesignManager = "Luke";
+                            };
+
+                            write[0][tableRowInfo.designManager.columnIndex] = theDesignManager;
+
                         };
 
-                        write[0][tableRowInfo.designManager.columnIndex] = theDesignManager;
+                    //#endregion ---------------------------------------------------------------------------------------------------------------------
 
-                    };
-
-
-                    //#region GENERATE PICKED UP / TURN AROUND TIME VALUE ----------------------------------------------------------------------------
+                    //#region AUTO-FILL TIER ---------------------------------------------------------------------------------------------------------
 
                         //get the Project Type Coded variable from the Project Type ID Data based on the returned Project Type from the taskpane
                         var theProjectTypeCode = projectTypeIDData[projectTypeVal].projectTypeCode;
@@ -1308,6 +1311,9 @@
                             write[0][tableRowInfo.tier.columnIndex] = defaultTier;
                         };
 
+                    //#endregion ---------------------------------------------------------------------------------------------------------------------
+
+                    //#region GENERATE PICKED UP / TURN AROUND TIME VALUE ----------------------------------------------------------------------------
 
                         //returns turn around time value from the PickedUp Turn Around Time table based on the product and project type values
                         var pickedUpTurnAroundTime = pickupData[productVal][theProjectTypeCode];
@@ -1389,7 +1395,7 @@
                         var tablePickedUpColumnIndex = tableRowInfo.pickedUpStartedBy.columnIndex;
                         var tableProofToClientColumnIndex = tableRowInfo.proofToClient.columnIndex;
 
-                        rangeOfTable[tableRowIndex] = write[0];
+                        rangeOfTable[tableRowIndex] = write[0]; //writes content to the excel table
 
                         if (leSheetName == "Unassigned Projects") {
                             var gee = leSorting(tableRowInfo, rangeOfTable, tablePickedUpColumnIndex, write[0]);
@@ -1434,51 +1440,193 @@
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
 
-                    // await context.sync();
+                    await context.sync();
 
-                    // //#region AUTO-GENERATE LOGO RECREATION LINE ----------------------------------------------------------------------------------
+                    var xyz = 12;
 
-                    //     //if product is a Logo Recreation, Logo Creation, Map Creation, Media Kit, or any Marco's Product, skip logo line generation
-                    //     if(productVal !== "logoRecreation" || productVal !== "logoCreation" || productVal !== "mapCreation"
-                    //     || productVal !== "mediaKit" || productVal !== "MPBTAC" || productVal !== "MPBTNO" || productVal !== "MPP"
-                    //     || productVal !== "MPPO2436" || productVal !== "MPPO3040" || productVal !== "MPCC" || productVal !== "MPCMS"
-                    //     || productVal !== "MPIS" || productVal !== "MPSCFS" || productVal !== "MPND" || productVal !== "MPPICMENU" 
-                    //     || productVal !== "MPCVDLAM" || productVal !== "MPC" || productVal !== "MPEXTWC2436AC" || productVal !== "MPEXTWC2436NO"
-                    //     || productVal !== "MPEXTWC3040AC" || productVal !== "MPEXTWC3040NO" || productVal !== "MPINTWC2436AC"
-                    //     || productVal !== "MPINTWC2436NO" || productVal !== "MPINTWC3040AC" || productVal !== "MPINTWC3040NO"
-                    //     || productVal !== "MPNutGuide") {
-                    //         //#region WRITE ARRAY -------------------------------------------------------------------------------------------------
+                    if (xyz == 12) {
+                        console.log("Wow, that stinks");
+                    };
 
-                    //             // Data to send to Table
-                    //             var writeLogo = [[
-                    //                 "", // 0 - Priority
-                    //                 designManagersVal, // 1 - Design Manager
-                    //                 queueVal, // 2 - Queue
-                    //                 tierVal, // 3 - Tier
-                    //                 subjectVal, // 4 - Subject
-                    //                 clientVal, // 5 - Client
-                    //                 locationVal, // 6 - Location
-                    //                 productVal, // 7 - Product
-                    //                 projectTypeVal, // 8 - Project Type
-                    //                 csmVal, // 9 - CSM
-                    //                 toSerial, // 10 - Added
-                    //                 printDateVal, // 11 - Print Data
-                    //                 groupVal, // 12 - Group
-                    //                 "", // 13 - Picked Up / Started By
-                    //                 "", // 14 - Proof to Client
-                    //                 "", // 15 - Date of Last Edit
-                    //                 tagsVal, // 16 - Tags
-                    //                 leStatus, // 17 - Status
-                    //                 codeVal, // 18 - Code
-                    //                 leArtist, // 19 - Artist
-                    //                 notes, // 20 - Notes
-                    //                 0, // 21 - Start Override
-                    //                 0 // 22 - Work Override
-                    //             ]];
 
-                    //         //#endregion ----------------------------------------------------------------------------------------------------------
+                    var shouldAutoLogo = true;
 
-                    //     }
+                    //if product is a Logo Recreation, Logo Creation, Map Creation, Media Kit, or any Marco's Product, skip logo line generation
+                    // || productVal !== "Marco's Nutritional Guide - MPNutGuide") {
+
+                    var excludeAutoLogo = ["Logo Recreation", "Logo Creation", "Map Creation", "Media Kit", 
+                    "Marco's 6.8 Box Topper A La Carte - MPBTAC", "Marco's 6.8 Box Topper National Offer - MPBTNO", "Marco's 8.5x11 Poster - MPP", 
+                    "Marco's 24x36 Poster - MPPO2436", "Marco's 30x40 Poster - MPPO3040", "Marco's Counter Card - MPCC", 
+                    "Marco's Door Stickers - MPCMS", "Marco's Interior Sticker - MPIS", "Marco's Floor Stickers - MPSCFS", 
+                    "Marco's Napkin Dispenser Insert - MPND", "Marco's Laminated Menu - MPPICMENU", "Marco's Laminated Sign - MPCVDLAM", 
+                    "Marco's 8.5x11 Window Cling - MPC", "Marco's 24x36 Exterior Window Cling A La Carte - MPEXTWC2436AC", 
+                    "Marco's 24x36 Exterior Window Cling National Offer - MPEXTWC2436NO", 
+                    "Marco's 30x40 Exterior Window Cling A La Carte - MPEXTWC3040AC", 
+                    "Marco's 30x40 Exterior Window Cling National Offer - MPEXTWC3040NO", 
+                    "Marco's 24x36 Interior Window Cling A La Carte - MPINTWC2436AC", 
+                    "Marco's 24x36 Interior Window Cling National Offer - MPINTWC2436NO", 
+                    "Marco's 30x40 Interior Window Cling A La Carte - MPINTWC3040AC", 
+                    "Marco's 30x40 Interior Window Cling National Offer - MPINTWC3040NO", "Marco's Nutritional Guide - MPNutGuide"];
+
+                    //#region AUTO-GENERATE LOGO RECREATION LINE -------------------------------------------------------------------------------------
+
+                        for (var item of excludeAutoLogo) {
+                            if (productVal == item) {
+                                shouldAutoLogo = false;
+                            };
+                        };
+
+                        console.log("farts");
+
+                        if (shouldAutoLogo == true) {
+
+                            sheetTable.rows.add(null);
+                            var reSheetTableRows = sheetTable.rows.load("items");
+                            var reSheetTableRange = sheetTable.getDataBodyRange().load("values");
+
+
+                            await context.sync();
+
+
+                            var newTableRowIndex = sheetTable.rows.count - 1;
+                            var newTableRowItems = reSheetTableRows.items;
+                            var newRangeOfTable = reSheetTableRange.values
+                            var newRowValuesOfTable = newTableRowItems[newTableRowIndex].values;
+
+                            var newTableRowInfo = new Object();
+
+                            for (var name of headerOfTable[0]) {
+                                theGreatestFunctionEverWritten(headerOfTable, name, newRowValuesOfTable, newRangeOfTable, 
+                                newTableRowInfo, newTableRowIndex);
+                            };
+
+                            //#region WRITE ARRAY ----------------------------------------------------------------------------------------------------
+
+                                // Data to send to Table
+                                var writeLogo = [[
+                                    "", // 0 - Priority
+                                    theDesignManager, // 1 - Design Manager
+                                    queueVal, // 2 - Queue
+                                    defaultTier, // 3 - Tier
+                                    subjectVal, // 4 - Subject
+                                    clientVal, // 5 - Client
+                                    locationVal, // 6 - Location
+                                    "Logo Recreation", // 7 - Product
+                                    projectTypeVal, // 8 - Project Type
+                                    csmVal, // 9 - CSM
+                                    toSerial, // 10 - Added
+                                    printDateVal, // 11 - Print Data
+                                    groupVal, // 12 - Group
+                                    excelPickupOfficeHours, // 13 - Picked Up / Started By
+                                    "", // 14 - Proof to Client
+                                    "", // 15 - Date of Last Edit
+                                    tagsVal, // 16 - Tags
+                                    "Logo Status TBD", // 17 - Status
+                                    codeVal, // 18 - Code
+                                    leArtist, // 19 - Artist
+                                    notes, // 20 - Notes
+                                    0, // 21 - Start Override
+                                    0 // 22 - Work Override
+                                ]];
+
+                            //#endregion -------------------------------------------------------------------------------------------------------------
+
+                            //use same pick up time because the logo should be assigned at the same time the product is
+
+                            //will need the art turn around time to be the end of the work day on the group print date
+                            var thePrintDate = new Date(printDateVal);
+
+                            var datePrint = thePrintDate.getDate();
+                            var monthPrint = thePrintDate.getMonth();
+                            var yearPrint = thePrintDate.getFullYear();
+
+                            var printDateDOW = thePrintDate.getDay();
+
+                            if (printDateDOW == 0) {
+                                printDateDOW = "Sunday"
+                            } else if (printDateDOW == 1) {
+                                printDateDOW = "Monday"
+                            } else if (printDateDOW == 2) {
+                                printDateDOW = "Tuesday"
+                            } else if (printDateDOW == 3) {
+                                printDateDOW = "Wednesday"
+                            } else if (printDateDOW == 4) {
+                                printDateDOW = "Thursday"
+                            } else if (printDateDOW == 5) {
+                                printDateDOW = "Friday"
+                            } else if (printDateDOW == 6) {
+                                printDateDOW = "Saturday"
+                            };
+
+                            var groupWeekdayVars = officeHoursData[printDateDOW];
+
+                            var endOfGroupDay = convertToDate(groupWeekdayVars.endTime);
+
+                            endOfGroupDay.setFullYear(yearPrint);
+                            endOfGroupDay.setMonth(monthPrint);
+                            endOfGroupDay.setDate(datePrint);
+
+                            console.log(endOfGroupDay);
+
+                            var groupDateExcel = Number(JSDateToExcelDate(endOfGroupDay));
+
+                            writeLogo[0][tableRowInfo.proofToClient.columnIndex] = groupDateExcel;
+
+                            //this edit will need to be made also to the table changed event so that when the group is changed for these specific 
+                            //requests, the art turn around time will also auto-updated accordingly.
+
+                            //#region SORT THE TABLE, AGAIN ------------------------------------------------------------------------------------------
+
+                                newRangeOfTable[newTableRowIndex] = writeLogo[0]; //writes content to the excel table
+
+                                if (leSheetName == "Unassigned Projects") {
+                                    var geePee = leSorting(newTableRowInfo, newRangeOfTable, tablePickedUpColumnIndex, writeLogo[0]);
+                                } else {
+                                    var geePee = leSorting(newTableRowInfo, newRangeOfTable, tableProofToClientColumnIndex, writeLogo[0]);
+                                };
+            
+                                reSheetTableRange.values = geePee;
+        
+                                console.log("Logo Recreation line has been automatically added to the table successfully!")
+
+                            //#endregion -------------------------------------------------------------------------------------------------------------
+
+
+                            //#region APPLY CONDITIONAL FORMATTING -----------------------------------------------------------------------------------
+
+                                var newReSheetTableRows = sheetTable.rows.load("items");
+                                var newReSheetTableRange = sheetTable.getDataBodyRange().load("values");
+
+                                await context.sync();
+
+                                for (var n = 0; n < newRangeOfTable.length; n++) {
+
+                                    var newReTableRowItems = newReSheetTableRows.items;
+
+                                    var newReRangeOfTable = newReSheetTableRange.values;
+
+                                    var newReRowValuesOfTable = newReTableRowItems[n].values;
+
+                                    var newReRowRange = newReSheetTableRows.getItemAt(n).getRange();
+
+                                    var newReTableRowInfo = new Object();
+
+                                    for (var name of headerOfTable[0]) {
+                                        theGreatestFunctionEverWritten(headerOfTable, name, newReRowValuesOfTable, newReRangeOfTable, 
+                                        newReTableRowInfo, n);
+                                    };
+
+                                    conditionalFormatting(newReTableRowInfo, 0, sheet, n, false, newReRowRange, null);
+
+                                };
+
+                            //#endregion -------------------------------------------------------------------------------------------------------------
+
+                        } else {
+                            console.log("Product does not need a logo recreation, so no extra line was generated for this project.")
+                        };
+                        
+                    //#endregion ---------------------------------------------------------------------------------------------------------------------
 
                 });
 
@@ -2117,6 +2265,100 @@
                             conditionalFormatting(rowInfo, tableStart, changedWorksheet, changedRowTableIndex, 
                                 completedTableChanged, rowRange, completedTable);
 
+
+                            var groupPrintChangedTableRows = changedTable.rows.load("items");
+                            var groupPrintBodyValues = changedTable.getDataBodyRange().load("values");
+
+
+                            await context.sync();
+
+
+                            //#region IF PRODUCT IS A LOGO RECREATION AND HAS A LOGO SPECIFIFC STATUS, UPDATE TURN AROUND TIME -----------------------
+
+                                //if product is a logo recreation AND it has any of the three main recreation statuses (used spcifically for 
+                                //when a logo is being recreated based on another project), do the following...
+                                if (rowInfo.product.value == "Logo Recreation" && (rowInfo.status.value == "Logo Status TBD" 
+                                || rowInfo.status.value == "Logo Needs Recreating" || rowInfo.status.value == "Logo Needs Uploading")) {
+
+
+                                    var groupPrintTabledSorted = groupPrintBodyValues.values;
+                                    var groupPrintTableRowsSorted = groupPrintChangedTableRows.items;
+
+                                    // for (var Q = 0; Q < leTable.length; Q++) {
+
+                                        var groupPrintRowRangeSorted = groupPrintChangedTableRows.getItemAt(changedRowTableIndex).getRange();
+        
+                                        var groupPrintRowValuesSorted = groupPrintTableRowsSorted[changedRowTableIndex].values;
+        
+                                        var groupPrintRowInfo = new Object();
+        
+                                        for (var name of head[0]) {
+                                            theGreatestFunctionEverWritten(head, name, groupPrintRowValuesSorted, leTable, groupPrintRowInfo, changedRowTableIndex);
+                                        };
+
+                                    // };
+
+                                    var groupPrintProofToClient = getProofToClientTime(groupPrintRowInfo, leTable, 0, changedRowTableIndex);
+
+                                    // bodyRange.values = leTable;
+
+                                    var groupPrintChangedRowValues = leTable[changedRowTableIndex];
+
+                                    if (changedTable.id == unassignedTable.id) {
+                                        leTable = leSorting(groupPrintRowInfo, leTable, pickedUpColumnIndex, groupPrintChangedRowValues);
+                                    };
+                                    if (changedTable.id !== unassignedTable.id && completedTableChanged == false) {
+                                        leTable = leSorting(groupPrintRowInfo, leTable, proofToClientColumnIndex, groupPrintChangedRowValues);
+                                    };
+
+                                    bodyRange.values = leTable;
+
+        
+
+
+                                    // var thePrintDateUpdated = convertToDate(groupPrintRowInfo.printDate.value)
+                                    // var updatedPrintDate = new Date(thePrintDateUpdated);
+                                    // var updatedDatePrint = updatedPrintDate.getDate();
+                                    // var updatedMonthPrint = updatedPrintDate.getMonth();
+                                    // var updatedYearPrint = updatedPrintDate.getFullYear();
+
+                                    // var updatedPrintDateDOW = updatedPrintDate.getDay();
+
+                                    // if (updatedPrintDateDOW == 0) {
+                                    //     updatedPrintDateDOW = "Sunday"
+                                    // } else if (updatedPrintDateDOW == 1) {
+                                    //     updatedPrintDateDOW = "Monday"
+                                    // } else if (updatedPrintDateDOW == 2) {
+                                    //     updatedPrintDateDOW = "Tuesday"
+                                    // } else if (updatedPrintDateDOW == 3) {
+                                    //     updatedPrintDateDOW = "Wednesday"
+                                    // } else if (updatedPrintDateDOW == 4) {
+                                    //     updatedPrintDateDOW = "Thursday"
+                                    // } else if (updatedPrintDateDOW == 5) {
+                                    //     updatedPrintDateDOW = "Friday"
+                                    // } else if (updatedPrintDateDOW == 6) {
+                                    //     updatedPrintDateDOW = "Saturday"
+                                    // };
+
+                                    // var updatedWeekdayVars = officeHoursData[updatedPrintDateDOW];
+
+                                    // var updatedGroupEndOfDay = convertToDate(updatedWeekdayVars.endTime);
+
+                                    // updatedGroupEndOfDay.setFullYear(updatedYearPrint);
+                                    // updatedGroupEndOfDay.setMonth(updatedMonthPrint);
+                                    // updatedGroupEndOfDay.setDate(updatedDatePrint);
+
+                                    // console.log(updatedGroupEndOfDay);
+
+                                    // var updatedGroupDateExcel = Number(JSDateToExcelDate(updatedGroupEndOfDay));
+
+                                    // leTable[changedRowTableIndex][rowInfo.proofToClient.columnIndex] = updatedGroupDateExcel;
+                                    //bodyRange.values = leTable;
+
+                                };
+
+                            //#endregion -------------------------------------------------------------------------------------------------------------
+
                         };
 
                         // var statusMove = false;
@@ -2146,7 +2388,61 @@
                                 && statusMove == false)
                         ) {
 
-                            console.log("I will update the turn around times, priority numbers, and sort the sheet before turning events back on!")
+                            console.log("I will update the turn around times, priority numbers, and sort the sheet before turning events back on!");
+
+
+                            //#region REMOVE LOGO RECREATION LINE WHEN STATUS IS SET TO "NO LOGO RECREATION NEEDED" ----------------------------------
+                                
+                                if (changedColumnIndex == rowInfo.status.columnIndex && rowInfo.product.value == "Logo Recreation" 
+                                && rowInfo.status.value == "No Logo Recreation Needed") {
+
+                                    removeRow(eventArgs);
+
+                                    await context.sync();
+
+                                    if (changedTable.id == unassignedTable.id) {
+                                        leTable = leSorting(rowInfo, leTable, pickedUpColumnIndex, rowValues[0]);
+                                    };
+                                    if (changedTable.id !== unassignedTable.id && completedTableChanged == false) {
+                                        leTable = leSorting(rowInfo, leTable, proofToClientColumnIndex, rowValues[0]);
+                                    };
+        
+                                    bodyRange.values = leTable;
+        
+                                    await context.sync();
+        
+                                    var newChangedTableRows = changedTable.rows;
+                                    newChangedTableRows.load("items");
+        
+                                    await context.sync();
+        
+                                    var tableRows = changedTableRows.items; //loads all the changed table's rows
+        
+                                    for (var m = 0; m < leTable.length; m++) {
+        
+                                        var rowRangeSorted = newChangedTableRows.getItemAt(m).getRange();
+        
+                                        var rowValuesSorted = tableRows[m].values;
+        
+                                        var rowInfoSorted = new Object();
+        
+                                        for (var name of head[0]) {
+                                            theGreatestFunctionEverWritten(head, name, rowValuesSorted, leTable, rowInfoSorted, m);
+                                        };
+        
+                                        conditionalFormatting(rowInfoSorted, tableStart, changedWorksheet, m, 
+                                            completedTableChanged, rowRangeSorted, null);
+        
+                                    };
+        
+                                    // eventsOn();
+                                    // console.log("Events: ON  →  turned on after a row was deleted within the onTableChanged function!");
+        
+                                    //return;
+
+                                };
+
+                            //#endregion -------------------------------------------------------------------------------------------------------------
 
                             //adjusts picked up / started by turn around time
                             var lePickUpTime = getPickUpTime(rowInfo, leTable, changedRowTableIndex);
@@ -2892,7 +3188,22 @@
                     //#region CONDITIONAL FORMATTING HANDLER -----------------------------------------------------------------------------------------
 
                         //only do the following if the change was not made to a Print Date or Group column
-                        if (changedColumnIndex !== rowInfo.printDate.columnIndex || changedColumnIndex !== rowInfo.group.columnIndex) {
+                        if (
+                                (changedColumnIndex !== rowInfo.printDate.columnIndex || //change not made to Print Date column
+                                    (changedColumnIndex == rowInfo.printDate.columnIndex //or if change is made to Print Date column...
+                                        && rowInfo.product.value == "Logo Recreation" //...& is a logo recreation product...
+                                        && (rowInfo.status.value == "Logo Status TBD" || rowInfo.status.value == "Logo Needes Recreating"
+                                        || rowInfo.status.value == "Logo Needs Uploading") //...has a logo recreation status
+                                    )
+                                ) || //OR
+                                (changedColumnIndex !== rowInfo.group.columnIndex || //change not made to Group column
+                                    (changedColumnIndex == rowInfo.group.columnIndex //or if change is made to group column...
+                                        && rowInfo.product.value == "Logo Recreation" //...& is a logo recreation product...
+                                        && (rowInfo.status.value == "Logo Status TBD" || rowInfo.status.value == "Logo Needes Recreating"
+                                        || rowInfo.status.value == "Logo Needs Uploading") //...has a logo recreation status
+                                    )
+                                )
+                            ) {
 
                             //Applys different values to the variables if data is moving between tables (more details below):
 
@@ -3482,8 +3793,13 @@
                 //changed row and the projetc type codeed variable
                 var pickedUpTurnAroundTime = pickupData[rowInfo.product.value][theProjectTypeCode];
 
-                //finds the start override value of the changed row and adds it to the previous turn around time variable
-                var pickedUpHours = pickedUpTurnAroundTime + rowInfo.startOverride.value;
+                if (rowInfo.status.value == "Light Changes" || rowInfo.status.value == "Moderate Changes" || rowInfo.status.value == "Heavy Changes") {
+                    //do not add start override to picked up turn around time
+                    var pickedUpHours = pickedUpTurnAroundTime;
+                } else {
+                    //finds the start override value of the changed row and adds it to the previous turn around time variable
+                    var pickedUpHours = pickedUpTurnAroundTime + rowInfo.startOverride.value;
+                };
 
                 //finds the added date/time serial of the changed row and converts it to a date
                 var addedDate = convertToDate(rowInfo.added.value);
@@ -3534,13 +3850,13 @@
                     //gets the turn around time value from the Changes Data Table based on the product and status of the row
                     var proofToClient = changesData[rowInfo.product.value][theChangesCode];
 
-                    //Heavy Changes has creative review time factored into the table variables, so no need to calculate it
-                    //Moderate and Light chnages will almost never need creative review
-
-                    //finds the work override value of the changed row and adds it to the proofToClient variable
-                    var artTurnAround = proofToClient + rowInfo.workOverride.value;
-
-                    //need to create a new date variable, possibly in the Date of Last Edit column
+                    if (rowInfo.status.value == "Light Changes" || rowInfo.status.value == "Moderate Changes" || rowInfo.status.value == "Heavy Changes") {
+                        //do not add work override to proof to client turn around time
+                        var artTurnAround = proofToClient;
+                    } else {
+                        //finds the work override value of the changed row and adds it to the proofToClient variable
+                        var artTurnAround = proofToClient + rowInfo.workOverride.value;
+                    };
 
                     //#region UPDATE DATE OF LAST EDIT -----------------------------------------------------------------------------------------------
 
@@ -3563,36 +3879,90 @@
                     leTable[rowIndex][rowInfo.proofToClient.columnIndex] = excelProofToClientOfficeHours;
 
                     return proofToClientOfficeHours;
-                };
 
-                //get the Project Type coded variable from the Project Type ID Data based on the value in the Project Type column of the changed row
-                var theProjectTypeCode = projectTypeIDData[rowInfo.projectType.value].projectTypeCode;
+               
+                //#region IF PRODUCT IS A LOGO RECREATION AND HAS A LOGO SPECIFIFC STATUS, UPDATE TURN AROUND TIME -----------------------------------
 
-                //returns turn around time value from the Proof to Client Turn Around Time table based on the Product column of the 
-                //changed row and the projetc type codeed variable
-                var proofToClient = proofToClientData[rowInfo.product.value][theProjectTypeCode];
+                    //if product is a logo recreation AND it has any of the three main recreation statuses (used spcifically for 
+                    //when a logo is being recreated based on another project), do the following...
+                    } else if (rowInfo.product.value == "Logo Recreation" && (rowInfo.status.value == "Logo Status TBD" 
+                    || rowInfo.status.value == "Logo Needs Recreating" || rowInfo.status.value == "Logo Needs Uploading")) {
 
-                //returns creative review process hours adjustment number from thhe creative review table based on 
-                //the Product column value of the changed row
-                var creativeReview = creativeProofData[rowInfo.product.value].creativeReviewProcess;
+                        var thePrintDateUpdated = convertToDate(rowInfo.printDate.value)
+                        var updatedPrintDate = new Date(thePrintDateUpdated);
+                        var updatedDatePrint = updatedPrintDate.getDate();
+                        var updatedMonthPrint = updatedPrintDate.getMonth();
+                        var updatedYearPrint = updatedPrintDate.getFullYear();
 
-                //adds the proof to client turn around time to the creative review time
-                var proofWithReview = proofToClient + creativeReview;
+                        var updatedPrintDateDOW = updatedPrintDate.getDay();
 
-                //finds the work override value of the changed row and adds it to the previous turn around time variable
-                var artTurnAround = proofWithReview + rowInfo.workOverride.value;
+                        if (updatedPrintDateDOW == 0) {
+                            updatedPrintDateDOW = "Sunday"
+                        } else if (updatedPrintDateDOW == 1) {
+                            updatedPrintDateDOW = "Monday"
+                        } else if (updatedPrintDateDOW == 2) {
+                            updatedPrintDateDOW = "Tuesday"
+                        } else if (updatedPrintDateDOW == 3) {
+                            updatedPrintDateDOW = "Wednesday"
+                        } else if (updatedPrintDateDOW == 4) {
+                            updatedPrintDateDOW = "Thursday"
+                        } else if (updatedPrintDateDOW == 5) {
+                            updatedPrintDateDOW = "Friday"
+                        } else if (updatedPrintDateDOW == 6) {
+                            updatedPrintDateDOW = "Saturday"
+                        };
 
-                //adds the adjusted turn around time to the pickedUpStartedBy date and adjusts to be within office hours
-                var proofToClientOfficeHours = officeHours(lePickUpTime, artTurnAround);
+                        var updatedWeekdayVars = officeHoursData[updatedPrintDateDOW];
 
-                //converts date to excel date
-                var excelProofToClientOfficeHours = Number(JSDateToExcelDate(proofToClientOfficeHours));
+                        var updatedGroupEndOfDay = convertToDate(updatedWeekdayVars.endTime);
 
-                //updates the proof to client turn around time value in the table array based on our calculations
-                leTable[rowIndex][rowInfo.proofToClient.columnIndex] = excelProofToClientOfficeHours;
+                        updatedGroupEndOfDay.setFullYear(updatedYearPrint);
+                        updatedGroupEndOfDay.setMonth(updatedMonthPrint);
+                        updatedGroupEndOfDay.setDate(updatedDatePrint);
 
-                return proofToClientOfficeHours;
+                        console.log(updatedGroupEndOfDay);
 
+                        var updatedGroupDateExcel = Number(JSDateToExcelDate(updatedGroupEndOfDay));
+
+                        leTable[rowIndex][rowInfo.proofToClient.columnIndex] = updatedGroupDateExcel;
+                        
+                        return updatedGroupDateExcel;
+
+                //#endregion -------------------------------------------------------------------------------------------------------------------------
+
+
+                    } else {
+
+
+                        //get the Project Type coded variable from the Project Type ID Data based on value in the Project Type column of changed row
+                        var theProjectTypeCode = projectTypeIDData[rowInfo.projectType.value].projectTypeCode;
+
+                        //returns turn around time value from the Proof to Client Turn Around Time table based on the Product column of the 
+                        //changed row and the projetc type codeed variable
+                        var proofToClient = proofToClientData[rowInfo.product.value][theProjectTypeCode];
+
+                        //returns creative review process hours adjustment number from thhe creative review table based on 
+                        //the Product column value of the changed row
+                        var creativeReview = creativeProofData[rowInfo.product.value].creativeReviewProcess;
+
+                        //adds the proof to client turn around time to the creative review time
+                        var proofWithReview = proofToClient + creativeReview;
+
+                        //finds the work override value of the changed row and adds it to the previous turn around time variable
+                        var artTurnAround = proofWithReview + rowInfo.workOverride.value;
+
+                        //adds the adjusted turn around time to the pickedUpStartedBy date and adjusts to be within office hours
+                        var proofToClientOfficeHours = officeHours(lePickUpTime, artTurnAround);
+
+                        //converts date to excel date
+                        var excelProofToClientOfficeHours = Number(JSDateToExcelDate(proofToClientOfficeHours));
+
+                        //updates the proof to client turn around time value in the table array based on our calculations
+                        leTable[rowIndex][rowInfo.proofToClient.columnIndex] = excelProofToClientOfficeHours;
+
+                        return proofToClientOfficeHours;
+
+                    };
             };
 
         //#endregion ---------------------------------------------------------------------------------------------------------------------------------
@@ -4620,6 +4990,57 @@
         return;
 
     };
+
+//#endregion -------------------------------------------------------------------------------------------------------------------------------------
+
+//#region REMOVE ROW ---------------------------------------------------------------------------------------------------------------------------------
+
+        /**
+         * Removes current row from table
+         * @param {Object} eventArgs The event arguments, which are details about the event that was triggered
+         */
+         async function removeRow(eventArgs) {
+        
+            await Excel.run(async (context) => {
+
+                var changedWorksheet = context.workbook.worksheets.getItem(eventArgs.worksheetId).load("name");
+
+                //Returns tableId of the table where the event occured
+                var changedTable = context.workbook.tables.getItem(eventArgs.tableId).load("name"); 
+
+                var changedTableRows = changedTable.rows;
+
+                var changedAddress = changedWorksheet.getRange(eventArgs.address);
+                changedAddress.load("columnIndex");
+                changedAddress.load("rowIndex");
+
+                await context.sync();
+
+                var changedRowIndex = changedAddress.rowIndex; //index of the row where the change was made (on a worksheet level)
+
+                // if (eventArgs.changeType == "RowDeleted") {
+                //     var changedRowTableIndex = 0;
+                // } else {
+                //     var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
+                // };
+            
+                var changedRowTableIndex = changedRowIndex - 1; //adjusts index number for table level (-1 to skip header row)
+            
+                var rowRange = changedTableRows.getItemAt(changedRowTableIndex).getRange();
+
+                rowRange.delete("Up");
+
+                console.log("A logo Recreation row has been removed");
+
+                // eventsOn();
+                // console.log(`Events: ON  →  triggered after a row was manually inserted into the sheet by the user, 
+                // followed by the swift removal of said row and a slap on the wrist.`);
+                
+                return;
+
+            });
+
+        };
 
 //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
