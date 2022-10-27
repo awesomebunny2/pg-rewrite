@@ -2397,6 +2397,11 @@
                                 && rowInfo.status.value == "No Logo Recreation Needed") {
 
                                     removeRow(eventArgs);
+                                    myRow.delete();
+                                    leTable.splice(changedRowTableIndex, 1);
+
+                                    bodyRange = changedTable.getDataBodyRange().load("values");
+
 
                                     await context.sync();
 
@@ -2410,6 +2415,8 @@
                                     bodyRange.values = leTable;
         
                                     await context.sync();
+
+                                    console.log("How bout dat soup, man??");
         
                                     var newChangedTableRows = changedTable.rows;
                                     newChangedTableRows.load("items");
@@ -2418,7 +2425,7 @@
         
                                     var tableRows = changedTableRows.items; //loads all the changed table's rows
         
-                                    for (var m = 0; m < leTable.length; m++) {
+                                    for (var m = 0; m < tableRows.length; m++) {
         
                                         var rowRangeSorted = newChangedTableRows.getItemAt(m).getRange();
         
@@ -2435,10 +2442,10 @@
         
                                     };
         
-                                    // eventsOn();
-                                    // console.log("Events: ON  →  turned on after a row was deleted within the onTableChanged function!");
+                                    eventsOn();
+                                    console.log("Events: ON  →  turned on after a row was deleted within the onTableChanged function!");
         
-                                    //return;
+                                    return;
 
                                 };
 
