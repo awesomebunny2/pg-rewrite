@@ -203,16 +203,14 @@ h2 {
     color: #8d8d8d;
     position: absolute;
     font-weight: 400;
-    top: 7.75px;
+    top: 6px;
     left: 13px;
     background: #ffffff;
     transition: .1s;
-    /** Chrome */
-    @media screen and (-webkit-min-device-pixel-ratio:0) and (min-resolution:.001dpcm) {
-        .chrome {
-            top: 6px;
-        }
-    }
+}
+
+.safari-style {
+    top: 7.75px !important;
 }
 
 .input-group .input-area:valid + .label {

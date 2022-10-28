@@ -1,4 +1,22 @@
 //validation sheet password: fissh
+$(() => {
+
+    console.log("DOCUMENT IS LOADED BABY 🚀🌕🔥")
+
+    // Pushing some label text up if they are on chrome...
+    // var isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
+    var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+    // Add a style for safari
+    if (isSafari === true) {
+
+        console.log("THIS IS SAFARI ADDING CLASS!")
+        $("label").addClass("safari-style");
+    }
+
+    console.log("ARE WE USING SAFARI!!??!?!??!?!?!?!", isSafari);
+});
+
 
 // Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", true);
 // Office.context.document.settings.saveAsync();
@@ -157,9 +175,18 @@
 //#region ON READY -----------------------------------------------------------------------------------------------------------------------------------
 
     Office.onReady((info) => {
+        
+        console.log("⚠️ INFO HOST AND PLATFORM TYPE:")
+        console.log(info)
+        // console.log(Office.PlatformType)
+        
+        if (info.platform === "Mac") {
+            // THIS IS ON THE DESKTOP
+            console.log("You are probably using the Desktop version of Excel on a Mac")
+            $("label").addClass("safari-style");
 
-
-        if (info.host === Office.PlatformType.OfficeOnline) {
+        } else if (info.platform === "OfficeOnline") {
+            // THIS IS THE ONLINE
             console.log("You're currently using the online version of Excel!")
         };
 
@@ -2248,6 +2275,8 @@
 
                                 leTable[changedRowTableIndex][rowInfo.group.columnIndex] = matchGroup;
                                 bodyRange.values = leTable;
+
+                                console.log("Group Letter was updated to match the Print Date!");
                             }
 
                             //update the print date if the group letter is changed
@@ -2260,14 +2289,20 @@
                                 leTable[changedRowTableIndex][rowInfo.printDate.columnIndex] = matchPrintDate;
                                 leTable[changedRowTableIndex][rowInfo.group.columnIndex] = groupUppercase;
                                 bodyRange.values = leTable;
+
+                                console.log("Print Date was updated to match the Group Letter!")
                             };
 
                             conditionalFormatting(rowInfo, tableStart, changedWorksheet, changedRowTableIndex, 
                                 completedTableChanged, rowRange, completedTable);
 
+                            console.log("Conditional Formatting was applied to the Group/Print Date");
+
 
                             var groupPrintChangedTableRows = changedTable.rows.load("items");
                             var groupPrintBodyValues = changedTable.getDataBodyRange().load("values");
+
+                            console.log("The table's data body ranfe was re-evaluated");
 
 
                             await context.sync();
@@ -2397,12 +2432,12 @@
                                 && rowInfo.status.value == "No Logo Recreation Needed") {
 
                                     myRow.delete();
-                                    console.log("row was deleted from table, affective after context.sync()");
+                                    // console.log("row was deleted from table, affective after context.sync()");
                                     leTable.splice(changedRowTableIndex, 1);
-                                    console.log("row removed from leTable array");
+                                    // console.log("row removed from leTable array");
 
                                     bodyRange = changedTable.getDataBodyRange().load("values");
-                                    console.log("bodyRange has been evaluated");
+                                    // console.log("bodyRange has been evaluated");
 
 
                                     await context.sync();
@@ -2413,11 +2448,11 @@
                                     if (changedTable.id !== unassignedTable.id && completedTableChanged == false) {
                                         leTable = leSorting(rowInfo, leTable, proofToClientColumnIndex, rowValues[0]);
                                     };
-                                    console.log("leTable has been resorted");
+                                    // console.log("leTable has been resorted");
         
                                     bodyRange.values = leTable;
 
-                                    console.log("bodyRange has now been updated to the sorted table");
+                                    // console.log("bodyRange has now been updated to the sorted table");
         
                                     await context.sync();
 
@@ -2445,7 +2480,7 @@
                                         conditionalFormatting(rowInfoSorted, tableStart, changedWorksheet, m, 
                                             completedTableChanged, rowRangeSorted, null);
 
-                                        console.log("Conditional formatting was applied to row " + m);
+                                        // console.log("Conditional formatting was applied to row " + m);
         
                                     };
         
