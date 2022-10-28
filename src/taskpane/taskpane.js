@@ -2396,11 +2396,13 @@
                                 if (changedColumnIndex == rowInfo.status.columnIndex && rowInfo.product.value == "Logo Recreation" 
                                 && rowInfo.status.value == "No Logo Recreation Needed") {
 
-                                    removeRow(eventArgs);
                                     myRow.delete();
+                                    console.log("row was deleted from table, affective after context.sync()");
                                     leTable.splice(changedRowTableIndex, 1);
+                                    console.log("row removed from leTable array");
 
                                     bodyRange = changedTable.getDataBodyRange().load("values");
+                                    console.log("bodyRange has been evaluated");
 
 
                                     await context.sync();
@@ -2411,8 +2413,11 @@
                                     if (changedTable.id !== unassignedTable.id && completedTableChanged == false) {
                                         leTable = leSorting(rowInfo, leTable, proofToClientColumnIndex, rowValues[0]);
                                     };
+                                    console.log("leTable has been resorted");
         
                                     bodyRange.values = leTable;
+
+                                    console.log("bodyRange has now been updated to the sorted table");
         
                                     await context.sync();
 
@@ -2439,6 +2444,8 @@
         
                                         conditionalFormatting(rowInfoSorted, tableStart, changedWorksheet, m, 
                                             completedTableChanged, rowRangeSorted, null);
+
+                                        console.log("Conditional formatting was applied to row " + m);
         
                                     };
         
