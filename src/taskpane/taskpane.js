@@ -158,7 +158,8 @@ $(() => {
         var previousSelectionObj = {
             tableId: "",
             address: "",
-            rowIndex: ""
+            rowIndex: "",
+            columnIndex: ""
         };
         var didTableChangeFire = false;
         var deactivationEvent;
@@ -1461,6 +1462,8 @@ $(() => {
                                 theGreatestFunctionEverWritten(headerOfTable, name, newRowValuesOfTable, newRangeOfTable, newTableRowInfo, m);
                             };
 
+                            console.log("ConForm is about to trigger for when a project is added to the sheet through the taskpane");
+
                             conditionalFormatting(newTableRowInfo, 0, sheet, m, false, newRowRange, null);
 
                         };
@@ -1643,6 +1646,8 @@ $(() => {
                                         newReTableRowInfo, n);
                                     };
 
+                                    console.log("ConForm is about to trigger for when the logo recreation line is auto-generated");
+
                                     conditionalFormatting(newReTableRowInfo, 0, sheet, n, false, newReRowRange, null);
 
                                 };
@@ -1681,11 +1686,16 @@ $(() => {
                 var activeWorksheetTables = theActiveWorksheet.tables.load("items/count");
 
                 var currentRange = theActiveWorksheet.getRange(eventArgs.address);
+                currentRange.load("columnIndex");
                 var currentRow = currentRange.getRow();
+
+                var changeType = eventArgs.changeType;
 
                 await context.sync();
 
                 var activeWorksheetTablesCount = activeWorksheetTables.count;
+
+                var previousColumn = currentRange.columnIndex;
 
                 //if user has made a selection prior to the current selection without triggering a reload, the previousSelectionObj should 
                 //have arguments that will bring the user into this function to load in variables to handle the previous row highlighting
@@ -1743,7 +1753,7 @@ $(() => {
                 var selectedTable = context.workbook.tables.getItem(eventArgs.tableId).load("name");
 
                 var range = context.workbook.getSelectedRange();
-                range.load(['address', 'values', 'rowIndex']);
+                range.load(['address', 'values', 'rowIndex', 'columnIndex']);
 
                 var selectedTableRows = selectedTable.rows.load("items");
                 var selectedTableRowsCount = selectedTable.rows.load("count");
@@ -1763,6 +1773,7 @@ $(() => {
 
                     //applies border to selected row
                     var rI = range.rowIndex;
+                    var cI = range.columnIndex;
 
                     if (rI == 0) {
                         //previousTable = undefined;
@@ -1796,9 +1807,42 @@ $(() => {
                             theGreatestFunctionEverWritten(headTwo, name, zeRowValues, newLeTable, rowInfoSorted, previousRowIndex);
                         }
 
+                        // console.log("farts");
+                        // console.log(rowInfoSorted.group.value);
+                        // console.log(rowInfoSorted.printDate.value);
 
-                        conditionalFormatting(rowInfoSorted, tableStart, previousWorksheet, previousRowIndex, 
-                            completedTableChanged, previousSelectionRange, null);
+                        if (previousSelectionObj.columnIndex == rowInfoSorted.group.columnIndex) {
+                            var groupUppercase = rowInfoSorted.group.value.toUpperCase();
+                            var matchPrintDate = groupRefData[groupUppercase].printDate;
+                            if (matchPrintDate == undefined) {
+                                matchPrintDate = "N/A";
+                            };
+                            // newLeTable[changedRowTableIndex][rowInfoSorted.printDate.columnIndex] = matchPrintDate;
+                            // newLeTable[changedRowTableIndex][rowInfoSorted.group.columnIndex] = groupUppercase;
+
+                            rowInfoSorted.printDate.value = matchPrintDate;
+
+                            console.log("Print Date in the Previosu Selection Obj Row Info Sorted value was updated to match Group Letter!")
+                        };
+          
+
+                        // if (previousSelectionObj.columnIndex == rowInfoSorted.group.columnIndex
+                        //     || previousSelectionObj.columnIndex == rowInfoSorted.printDate.columnIndex) {
+                        //     console.log("A group letter or print date was updated, so the row highlight will refrain from updating the row colors");
+                        //     return;
+                        // }
+
+                        // if (Number(previousColumn) !== Number(rowInfoSorted.printDate.columnIndex) || Number(previousColumn) !== Number(rowInfoSorted.group.columnIndex)) {
+
+                        // if (previousSelectionObj.columnIndex !== rowInfoSorted.group.columnIndex
+                        //     && previousSelectionObj.columnIndex !== rowInfoSorted.printDate.columnIndex) {
+
+                            console.log("ConForm is about to trigger for when a row selection highlight changes");
+
+                            conditionalFormatting(rowInfoSorted, tableStart, previousWorksheet, previousRowIndex, 
+                                completedTableChanged, previousSelectionRange, null);
+                        // };
+
                     };
 
                     if (rI !== 0) {
@@ -1810,6 +1854,8 @@ $(() => {
                         previousSelectionObj.address = eventArgs.address;
             
                         previousSelectionObj.rowIndex = rI;
+
+                        previousSelectionObj.columnIndex = cI;
                     };
 
                 } else { //if the selection address is not a part of a table AND there is a previous selection still highlighted...
@@ -1830,6 +1876,7 @@ $(() => {
                         }
 
 
+                        console.log("ConForm is about to trigger for when a row selection highlight changes");
                         conditionalFormatting(rowInfoSorted, tableStart, previousWorksheet, previousRowIndex, 
                             completedTableChanged, previousSelectionRange, null);
                     };
@@ -2236,6 +2283,8 @@ $(() => {
                                     theGreatestFunctionEverWritten(head, name, rowValuesSorted, leTable, rowInfoSorted, m);
                                 };
 
+                                console.log("ConForm is about to trigger for when a row gets deleted from the sheet");
+
                                 conditionalFormatting(rowInfoSorted, tableStart, changedWorksheet, m, completedTableChanged, rowRangeSorted, null);
 
                             };
@@ -2277,7 +2326,7 @@ $(() => {
                                 bodyRange.values = leTable;
 
                                 console.log("Group Letter was updated to match the Print Date!");
-                            }
+                            };
 
                             //update the print date if the group letter is changed
                             if (changedColumnIndex == rowInfo.group.columnIndex) {
@@ -2293,16 +2342,32 @@ $(() => {
                                 console.log("Print Date was updated to match the Group Letter!")
                             };
 
-                            conditionalFormatting(rowInfo, tableStart, changedWorksheet, changedRowTableIndex, 
+                            var newChangedTableRows = changedTable.rows.load("items");
+
+                            await context.sync();
+
+                            var newTableRows = newChangedTableRows.items;
+
+                            var newRowValues = newTableRows[changedRowTableIndex].values;
+
+                            var newRowInfo = new Object(); //object that will contain the values and column indexs of every item in the changed row
+
+                            for (var name of head[0]) { //for each header item in the head array...
+                                theGreatestFunctionEverWritten(head, name, newRowValues, leTable, newRowInfo, changedRowTableIndex);
+                            };
+
+                            console.log("ConForm is about to trigger for when the print date or group was updated");
+
+                            conditionalFormatting(newRowInfo, tableStart, changedWorksheet, changedRowTableIndex, 
                                 completedTableChanged, rowRange, completedTable);
 
                             console.log("Conditional Formatting was applied to the Group/Print Date");
 
 
-                            var groupPrintChangedTableRows = changedTable.rows.load("items");
-                            var groupPrintBodyValues = changedTable.getDataBodyRange().load("values");
+                            // var groupPrintChangedTableRows = changedTable.rows.load("items");
+                            // var groupPrintBodyValues = changedTable.getDataBodyRange().load("values");
 
-                            console.log("The table's data body ranfe was re-evaluated");
+                            // console.log("The table's data body ranfe was re-evaluated");
 
 
                             await context.sync();
@@ -2476,9 +2541,12 @@ $(() => {
                                         for (var name of head[0]) {
                                             theGreatestFunctionEverWritten(head, name, rowValuesSorted, leTable, rowInfoSorted, m);
                                         };
+
+                                        conesole.log("About to trigger ConForm for Logo Recreation line being removed!");
         
                                         conditionalFormatting(rowInfoSorted, tableStart, changedWorksheet, m, 
                                             completedTableChanged, rowRangeSorted, null);
+
 
                                         // console.log("Conditional formatting was applied to row " + m);
         
@@ -3238,18 +3306,20 @@ $(() => {
 
                         //only do the following if the change was not made to a Print Date or Group column
                         if (
-                                (changedColumnIndex !== rowInfo.printDate.columnIndex || //change not made to Print Date column
-                                    (changedColumnIndex == rowInfo.printDate.columnIndex //or if change is made to Print Date column...
-                                        && rowInfo.product.value == "Logo Recreation" //...& is a logo recreation product...
-                                        && (rowInfo.status.value == "Logo Status TBD" || rowInfo.status.value == "Logo Needes Recreating"
-                                        || rowInfo.status.value == "Logo Needs Uploading") //...has a logo recreation status
-                                    )
-                                ) || //OR
-                                (changedColumnIndex !== rowInfo.group.columnIndex || //change not made to Group column
-                                    (changedColumnIndex == rowInfo.group.columnIndex //or if change is made to group column...
-                                        && rowInfo.product.value == "Logo Recreation" //...& is a logo recreation product...
-                                        && (rowInfo.status.value == "Logo Status TBD" || rowInfo.status.value == "Logo Needes Recreating"
-                                        || rowInfo.status.value == "Logo Needs Uploading") //...has a logo recreation status
+                                (
+                                    //change not made to Print Date column or Group column
+                                    (changedColumnIndex !== rowInfo.printDate.columnIndex && changedColumnIndex !== rowInfo.group.columnIndex) 
+                                    || //OR
+                                    (
+                                        //change is made to Print Date or Group columns AND...
+                                        (changedColumnIndex == rowInfo.printDate.columnIndex || changedColumnIndex !== rowInfo.group.columnIndex) 
+                                        && (
+                                            rowInfo.product.value == "Logo Recreation" //...& is a logo recreation product AND...
+                                            && (
+                                                rowInfo.status.value == "Logo Status TBD" || rowInfo.status.value == "Logo Needes Recreating"
+                                                || rowInfo.status.value == "Logo Needs Uploading"
+                                            )
+                                        ) //...has a logo recreation status
                                     )
                                 )
                             ) {
@@ -3318,6 +3388,8 @@ $(() => {
                                 for (var name of head[0]) {
                                     theGreatestFunctionEverWritten(head, name, rowValuesSorted, leTableSorted, rowInfoSorted, m);
                                 };
+
+                                console.log("ConForm is about to trigger to recolor the whole sheet!");
                                 conditionalFormatting(rowInfoSorted, newTableStart, newChangedWorksheet, m, 
                                     completedTableChanged, rowRangeSorted, destTable);
                             };
@@ -3463,6 +3535,7 @@ $(() => {
                                     //will need to run conditional formatting function next
                                     await context.sync();
 
+                                    console.log("ConForm is about to trigger for the activition handler (so for the taskpane reloading");
                                     conditionalFormatting(rowInfoSorted, tableStart, theWorksheet, iRow, completedTableChanged, rowRange, null)
                                 };
                             };
@@ -3609,6 +3682,7 @@ $(() => {
                                     //will need to run conditional formatting function next
                                     await context.sync();
 
+                                    console.log("ConForm is about to trigger for the whole sheet because the user moved to a new worksheet");
                                     conditionalFormatting(oldRowInfoSorted, oldTableStart, theOldWorksheet, 
                                         aRow, oldCompletedTableChanged, oldRowRange, null)
                                 };
@@ -4609,6 +4683,7 @@ $(() => {
                 var proofToClientAddress = changedWorksheet.getCell(worksheetRowIndex, proofToClientWorksheetColumn);
 
                 var printDate = Math.trunc(rowInfoSorted.printDate.value);
+                // console.log(convertToDate(printDate));
                 var currentDateAbsolute = Math.trunc(toSerial);
 
                 var printDateAddress = changedWorksheet.getCell(worksheetRowIndex, printDateWorksheetColumn);
@@ -4923,6 +4998,9 @@ $(() => {
 
                 //#endregion -------------------------------------------------------------------------------------------------------------------------
 
+                // console.log(groupAddress.format.fill.color)
+                // console.log(groupAddress.format.font.color);
+                // console.log(groupAddress.format.font.bold);
             };
 
         };
