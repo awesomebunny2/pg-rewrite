@@ -5052,14 +5052,26 @@ $(() => {
 
         //#endregion ---------------------------------------------------------------------------------------------------------------------------------
 
-        function logoInsertHighlighting (rowInfo, rowRange, printDateAddress, groupAddress, input) {
-            if (rowInfo.product.value == input) {
-                rowRange.format.font.color = "#ED7D31"; //#9BC2E6
-                rowRange.format.font.bold = true;
-                printDateAddress.format.font.color = "white";
-                groupAddress.format.font.color = "white";
+        //#region LOGO INSERT HIGHLIGHT FUNCTION -----------------------------------------------------------------------------------------------------
+
+            /**
+             * Determines wheather or not the row is a logo recreation row with the proper status to get the orange text highlight
+             * @param {Object} rowInfo An object containing the values and column indexs of each cell in the changed row
+             * @param {Range} rowRange The range of the changed row
+             * @param {Range} printDateAddress The cell address of the print date
+             * @param {Range} groupAddress The cell address of the group
+             * @param {String} input The qualifying status that will award the row an orange text highlight
+             */
+            function logoInsertHighlighting (rowInfo, rowRange, printDateAddress, groupAddress, input) {
+                if (rowInfo.product.value == "Logo Recreation" && rowInfo.status.value == input) {
+                    rowRange.format.font.color = "#ED7D31"; //#9BC2E6
+                    rowRange.format.font.bold = true;
+                    printDateAddress.format.font.color = "white";
+                    groupAddress.format.font.color = "white";
+                };
             };
-        };
+
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
 
     //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
