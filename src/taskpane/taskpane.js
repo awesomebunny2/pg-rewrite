@@ -4652,357 +4652,413 @@ $(() => {
 
     //#region CONDITIONAL FORMATTING -----------------------------------------------------------------------------------------------------------------
 
-        /**
-         * Applys all the row colors and other visual formatting when data is updated
-         * @param {Object} rowInfoSorted An object containing the values and column index numbers for each cell of the changed row
-         * @param {Number} newTableStart A number signifying the starting position of the table (0 means it's the first table in the sheet)
-         * @param {Object} changedWorksheet The changed worksheet
-         * @param {Number} rowIndexPostSort A number signifying the row index of the changed row AFTER sorting
-         * @param {Boolean} completedTableChanged If the current table is a Completed table, this returns true
-         * @param {Range} rowRangeSorted The range of the changed row AFTER sorting
-         * @param {Array} destTable An array of arrays containing all the info in the destination table
-         */
-         function conditionalFormatting(rowInfoSorted, newTableStart, changedWorksheet, 
-            rowIndexPostSort, completedTableChanged, rowRangeSorted, destTable) {
+        //#region MAIN CONDITIONAL FORMATTING FUNCTION -----------------------------------------------------------------------------------------------
+            /**
+             * Applys all the row colors and other visual formatting when data is updated
+             * @param {Object} rowInfoSorted An object containing the values and column index numbers for each cell of the changed row
+             * @param {Number} newTableStart A number signifying the starting position of the table (0 means it's the first table in the sheet)
+             * @param {Object} changedWorksheet The changed worksheet
+             * @param {Number} rowIndexPostSort A number signifying the row index of the changed row AFTER sorting
+             * @param {Boolean} completedTableChanged If the current table is a Completed table, this returns true
+             * @param {Range} rowRangeSorted The range of the changed row AFTER sorting
+             * @param {Array} destTable An array of arrays containing all the info in the destination table
+             */
+            function conditionalFormatting(rowInfoSorted, newTableStart, changedWorksheet, 
+                rowIndexPostSort, completedTableChanged, rowRangeSorted, destTable) {
 
-            //#region DEFINING VARIABLES -------------------------------------------------------------------------------------------------------------
+                //#region DEFINING VARIABLES ---------------------------------------------------------------------------------------------------------
 
-                var now = new Date();
-                var justNowDate = now.getDate();
-                var toSerial = Number(JSDateToExcelDate(now));
+                    var now = new Date();
+                    var justNowDate = now.getDate();
+                    var toSerial = Number(JSDateToExcelDate(now));
 
-                var worksheetRowIndex = rowIndexPostSort + 1; //adjusts index post table sort to work on worksheet level
+                    var worksheetRowIndex = rowIndexPostSort + 1; //adjusts index post table sort to work on worksheet level
 
-                var pickedUpWorksheetColumn = rowInfoSorted.pickedUpStartedBy.columnIndex + newTableStart;
-                var proofToClientWorksheetColumn = rowInfoSorted.proofToClient.columnIndex + newTableStart;
-                var printDateWorksheetColumn = rowInfoSorted.printDate.columnIndex + newTableStart;
-                var groupWorksheetColumn = rowInfoSorted.group.columnIndex + newTableStart;
-                var tagsWorksheetColumn = rowInfoSorted.tags.columnIndex + newTableStart;
+                    var pickedUpWorksheetColumn = rowInfoSorted.pickedUpStartedBy.columnIndex + newTableStart;
+                    var proofToClientWorksheetColumn = rowInfoSorted.proofToClient.columnIndex + newTableStart;
+                    var printDateWorksheetColumn = rowInfoSorted.printDate.columnIndex + newTableStart;
+                    var groupWorksheetColumn = rowInfoSorted.group.columnIndex + newTableStart;
+                    var tagsWorksheetColumn = rowInfoSorted.tags.columnIndex + newTableStart;
 
-                var pickedUpAddress = changedWorksheet.getCell(worksheetRowIndex, pickedUpWorksheetColumn);
-                var proofToClientAddress = changedWorksheet.getCell(worksheetRowIndex, proofToClientWorksheetColumn);
+                    var pickedUpAddress = changedWorksheet.getCell(worksheetRowIndex, pickedUpWorksheetColumn);
+                    var proofToClientAddress = changedWorksheet.getCell(worksheetRowIndex, proofToClientWorksheetColumn);
 
-                var printDate = Math.trunc(rowInfoSorted.printDate.value);
-                // console.log(convertToDate(printDate));
-                var currentDateAbsolute = Math.trunc(toSerial);
+                    var printDate = Math.trunc(rowInfoSorted.printDate.value);
+                    // console.log(convertToDate(printDate));
+                    var currentDateAbsolute = Math.trunc(toSerial);
 
-                var printDateAddress = changedWorksheet.getCell(worksheetRowIndex, printDateWorksheetColumn);
-                var groupAddress = changedWorksheet.getCell(worksheetRowIndex, groupWorksheetColumn);
+                    var printDateAddress = changedWorksheet.getCell(worksheetRowIndex, printDateWorksheetColumn);
+                    var groupAddress = changedWorksheet.getCell(worksheetRowIndex, groupWorksheetColumn);
 
-            //#endregion -----------------------------------------------------------------------------------------------------------------------------
-
-            //#region CLEAR COMPLETED TABLE FORMATTING IF IT WAS CHANGED -----------------------------------------------------------------------------
-
-                //if completed table was changed, clear formatting and do not do any other formatting rules
-                if (completedTableChanged == true && destTable == null) {
-                    rowRangeSorted.format.fill.clear();
-                    rowRangeSorted.format.font.color = "black";
-                    rowRangeSorted.format.font.bold = false;
-
-            //#endregion -----------------------------------------------------------------------------------------------------------------------------
-
-            } else {
-
-                //#region ALL ENTRIES USE CONSISTENT FONT STYLING ------------------------------------------------------------------------------------
-
-                    rowRangeSorted.format.font.name = "Calibri";
-                    rowRangeSorted.format.font.size = 12;
-                    rowRangeSorted.format.font.color = "#000000";
-                    rowRangeSorted.format.font.bold = false;
+                    var logoRecreationStatus = ["Logo Status TBD", "Logo Needs Recreating", "Logo Needs Uploading", "No Logo Recreation Needed"];
 
                 //#endregion -------------------------------------------------------------------------------------------------------------------------
 
-                //#region REMOVE INVALID HIGHLIGHTING IF NO LONGER INVALID ---------------------------------------------------------------------------
+                //#region CLEAR COMPLETED TABLE FORMATTING IF IT WAS CHANGED -------------------------------------------------------------------------
 
-                    if (
-                        rowInfoSorted.pickedUpStartedBy.value !== "NO PRODUCT / PROJECT TYPE" 
-                        || rowInfoSorted.proofToClient.value !== "NO PRODUCT / PROJECT TYPE"
-                    ) {
-
-                        rowRangeSorted.format.fill.clear();
-                        pickedUpAddress.format.font.bold = false;
-                        proofToClientAddress.format.font.bold = false;
-
-                    };
-
-                //#endregion -------------------------------------------------------------------------------------------------------------------------
-
-                //#region GROUP & PRINT DATE FORMATTING ----------------------------------------------------------------------------------------------
-
-                    if (printDate == currentDateAbsolute) { //if current date = print date
-
-                        // rowRangeSorted.format.font.color = "#C00000";
-                        // rowRangeSorted.format.font.bold = true;
-                        printDateAddress.format.fill.color = "#C00000";
-                        printDateAddress.format.font.color = "white";
-                        printDateAddress.format.font.bold = true;
-
-                        groupAddress.format.fill.color = "#C00000";
-                        groupAddress.format.font.color = "white";
-                        groupAddress.format.font.bold = true;
-
-                        printDateAddress.format.horizontalAlignment = "center";
-                        groupAddress.format.horizontalAlignment = "center";
-
-                        if (rowInfoSorted.tags.value !== "") {
-                            rowRangeSorted.format.font.color = "#ED7D31"; //#9BC2E6
-                            rowRangeSorted.format.font.bold = true;
-                            printDateAddress.format.font.color = "white";
-                            groupAddress.format.font.color = "white";
-                        };
-
-                    } else if (((printDate - 1) == currentDateAbsolute)) { //if current date is the day before print date
-
-                        // rowRangeSorted.format.font.color = "#C00000";
-                        // rowRangeSorted.format.font.bold = true;
-                        printDateAddress.format.fill.color = "#C00000";
-                        printDateAddress.format.font.color = "white";
-                        printDateAddress.format.font.bold = true;
-
-                        groupAddress.format.fill.color = "#C00000";
-                        groupAddress.format.font.color = "white";
-                        groupAddress.format.font.bold = true;
-
-                        printDateAddress.format.horizontalAlignment = "center";
-                        groupAddress.format.horizontalAlignment = "center";
-
-                        if (rowInfoSorted.tags.value !== "") {
-                            rowRangeSorted.format.font.color = "#ED7D31"; //#9BC2E6
-                            rowRangeSorted.format.font.bold = true;
-                            printDateAddress.format.font.color = "white";
-                            groupAddress.format.font.color = "white";
-                        };
-                    
-                        //if current date is in the same group lock week as print date (between 7-2 days before)
-                    } else if (((printDate - 6) <= currentDateAbsolute) && ((printDate - 2) >= currentDateAbsolute)) { 
-
-                        // rowRangeSorted.format.font.color = "#C00000";
-                        // rowRangeSorted.format.font.bold = true;
-                        printDateAddress.format.fill.color = "#C00000";
-                        printDateAddress.format.font.color = "white";
-                        printDateAddress.format.font.bold = true;
-
-                        groupAddress.format.fill.color = "#C00000";
-                        groupAddress.format.font.color = "white";
-                        groupAddress.format.font.bold = true;
-
-                        printDateAddress.format.horizontalAlignment = "center";
-                        groupAddress.format.horizontalAlignment = "center";
-
-                        if (rowInfoSorted.tags.value !== "") {
-                            rowRangeSorted.format.font.color = "#ED7D31"; //#9BC2E6
-                            rowRangeSorted.format.font.bold = true;
-                            printDateAddress.format.font.color = "white";
-                            groupAddress.format.font.color = "white";
-                        };
-
-                    //if current date is in the week before group lock week (between 8-14 days before)
-                    } else if (((printDate - 13) <= currentDateAbsolute) && ((printDate - 7) >= currentDateAbsolute)) { 
-
-                        // rowRangeSorted.format.font.color = "#C00000";
-                        // rowRangeSorted.format.font.bold = true;
-                        printDateAddress.format.fill.color = "#548235";
-                        printDateAddress.format.font.color = "white";
-                        printDateAddress.format.font.bold = true;
-
-                        groupAddress.format.fill.color = "#548235";
-                        groupAddress.format.font.color = "white";
-                        groupAddress.format.font.bold = true;
-
-                        printDateAddress.format.horizontalAlignment = "center";
-                        groupAddress.format.horizontalAlignment = "center";
-
-                        if (rowInfoSorted.tags.value !== "") {
-                            rowRangeSorted.format.font.color = "#ED7D31"; //#9BC2E6
-                            rowRangeSorted.format.font.bold = true;
-                            printDateAddress.format.font.color = "white";
-                            groupAddress.format.font.color = "white";
-                        };
-                        
-                    } else if ((printDate < currentDateAbsolute) && (printDate !== 0)) { //if current date is after print date
-
-                        rowRangeSorted.format.fill.color = "black";
-                        rowRangeSorted.format.font.color = "white";
-                        rowRangeSorted.format.font.bold = true;
-                        printDateAddress.format.horizontalAlignment = "center";
-                        groupAddress.format.horizontalAlignment = "center";
-
-                        if (rowInfoSorted.tags.value !== "") {
-                            rowRangeSorted.format.font.color = "#ED7D31";
-                            //rowRangeSorted.format.font.bold = true;
-                        };
-                        
-                    } else { //set cell formatting to normal
-
+                    //if completed table was changed, clear formatting and do not do any other formatting rules
+                    if (completedTableChanged == true && destTable == null) {
                         rowRangeSorted.format.fill.clear();
                         rowRangeSorted.format.font.color = "black";
                         rowRangeSorted.format.font.bold = false;
-                        printDateAddress.format.horizontalAlignment = "center";
-                        groupAddress.format.horizontalAlignment = "center";
 
-                        if (rowInfoSorted.tags.value !== "") {
-                            rowRangeSorted.format.font.color = "#ED7D31";
-                            rowRangeSorted.format.font.bold = true;
-                        };
-                        
-                    };
+                //#endregion -------------------------------------------------------------------------------------------------------------------------
 
-                    if (rowInfoSorted.group.value == "N/A") { //if group column in blank
+                } else {
 
-                        rowRangeSorted.format.fill.clear();
-                        rowRangeSorted.format.font.color = "black";
+                    //#region ALL ENTRIES USE CONSISTENT FONT STYLING --------------------------------------------------------------------------------
+
+                        rowRangeSorted.format.font.name = "Calibri";
+                        rowRangeSorted.format.font.size = 12;
+                        rowRangeSorted.format.font.color = "#000000";
                         rowRangeSorted.format.font.bold = false;
-                        printDateAddress.format.horizontalAlignment = "center";
-                        groupAddress.format.horizontalAlignment = "center";
 
-                        if (rowInfoSorted.tags.value !== "") {
-                            rowRangeSorted.format.font.color = "#ED7D31";
-                            rowRangeSorted.format.font.bold = true;
+                    //#endregion ---------------------------------------------------------------------------------------------------------------------
+
+                    //#region REMOVE INVALID HIGHLIGHTING IF NO LONGER INVALID -----------------------------------------------------------------------
+
+                        if (
+                            rowInfoSorted.pickedUpStartedBy.value !== "NO PRODUCT / PROJECT TYPE" 
+                            || rowInfoSorted.proofToClient.value !== "NO PRODUCT / PROJECT TYPE"
+                        ) {
+
+                            rowRangeSorted.format.fill.clear();
+                            pickedUpAddress.format.font.bold = false;
+                            proofToClientAddress.format.font.bold = false;
+
                         };
-                        FFFF00FFFF00FFFF00
-                    };
 
-                //#endregion -------------------------------------------------------------------------------------------------------------------------
+                    //#endregion ---------------------------------------------------------------------------------------------------------------------
 
-                //#region IF STATUS IS WORKING -------------------------------------------------------------------------------------------------------
+                    //#region GROUP & PRINT DATE FORMATTING ------------------------------------------------------------------------------------------
 
-                    if (rowInfoSorted.status.value == "Working") {
+                        if (printDate == currentDateAbsolute) { //if current date = print date
 
-                        rowRangeSorted.format.fill.color = "#FFE699";
-                        rowRangeSorted.format.font.color = "#9C5700";
-                        rowRangeSorted.format.font.bold = true;
-                        printDateAddress.format.horizontalAlignment = "center";
-                        groupAddress.format.horizontalAlignment = "center";
+                            // rowRangeSorted.format.font.color = "#C00000";
+                            // rowRangeSorted.format.font.bold = true;
+                            printDateAddress.format.fill.color = "#FFBBB8"; //light red
+                            printDateAddress.format.font.color = "black";
+                            printDateAddress.format.font.bold = true;
 
-                        if (rowInfoSorted.tags.value !== "") {
-                            rowRangeSorted.format.font.color = "#ED7D31";
-                            //rowRangeSorted.format.font.bold = true;
-                        };
+                            groupAddress.format.fill.color = "#FFBBB8"; //light red
+                            groupAddress.format.font.color = "black";
+                            groupAddress.format.font.bold = true;
+
+                            printDateAddress.format.horizontalAlignment = "center";
+                            groupAddress.format.horizontalAlignment = "center";
+
+                            // if (rowInfoSorted.tags.value !== "") {
+                            //     rowRangeSorted.format.font.color = "#ED7D31"; //#9BC2E6
+                            //     rowRangeSorted.format.font.bold = true;
+                            //     printDateAddress.format.font.color = "white";
+                            //     groupAddress.format.font.color = "white";
+                            // };
+
+                            for (var leStatus in logoRecreationStatus) {
+                                logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus);
+                            };
+
+                        } else if (((printDate - 1) == currentDateAbsolute)) { //if current date is the day before print date
+
+                            // rowRangeSorted.format.font.color = "#C00000";
+                            // rowRangeSorted.format.font.bold = true;
+                            printDateAddress.format.fill.color = "#FFBBB8"; //light red
+                            printDateAddress.format.font.color = "black";
+                            printDateAddress.format.font.bold = true;
+
+                            groupAddress.format.fill.color = "#FFBBB8"; //light red
+                            groupAddress.format.font.color = "black";
+                            groupAddress.format.font.bold = true;
+
+                            printDateAddress.format.horizontalAlignment = "center";
+                            groupAddress.format.horizontalAlignment = "center";
+
+                            // if (rowInfoSorted.tags.value !== "") {
+                            //     rowRangeSorted.format.font.color = "#ED7D31"; //#9BC2E6
+                            //     rowRangeSorted.format.font.bold = true;
+                            //     printDateAddress.format.font.color = "white";
+                            //     groupAddress.format.font.color = "white";
+                            // };
+
+                            for (var leStatus in logoRecreationStatus) {
+                                logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus);
+                            };
                         
-                    };
+                            //if current date is in the same group lock week as print date (between 7-2 days before)
+                        } else if (((printDate - 6) <= currentDateAbsolute) && ((printDate - 2) >= currentDateAbsolute)) { 
 
-                //#endregion -------------------------------------------------------------------------------------------------------------------------
+                            // rowRangeSorted.format.font.color = "#C00000";
+                            // rowRangeSorted.format.font.bold = true;
+                            printDateAddress.format.fill.color = "#FFBBB8"; //light red
+                            printDateAddress.format.font.color = "black";
+                            printDateAddress.format.font.bold = true;
 
-                //#region OVERDUE HIGHLIGHTING -------------------------------------------------------------------------------------------------------
+                            groupAddress.format.fill.color = "#FFBBB8"; //light red
+                            groupAddress.format.font.color = "black";
+                            groupAddress.format.font.bold = true;
 
-                    //#region PRINT DATE OVERDUE (OUTSIDE OF GROUP & PRINT REGION BECAUSE IT NEEDS TO OVERRIDE WORKING STATUS) -----------------------
+                            printDateAddress.format.horizontalAlignment = "center";
+                            groupAddress.format.horizontalAlignment = "center";
 
-                        if ((printDate < currentDateAbsolute) && (printDate !== 0)) { //if current date is after print date
+                            // if (rowInfoSorted.tags.value !== "") {
+                            //     rowRangeSorted.format.font.color = "#ED7D31"; //#9BC2E6
+                            //     rowRangeSorted.format.font.bold = true;
+                            //     printDateAddress.format.font.color = "white";
+                            //     groupAddress.format.font.color = "white";
+                            // };
 
-                            rowRangeSorted.format.fill.color = "black";
-                            rowRangeSorted.format.font.color = "white";
+                            for (var leStatus in logoRecreationStatus) {
+                                logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus);
+                            };
+
+                        //if current date is in the week before group lock week (between 8-14 days before)
+                        } else if (((printDate - 13) <= currentDateAbsolute) && ((printDate - 7) >= currentDateAbsolute)) { 
+
+                            // rowRangeSorted.format.font.color = "#C00000";
+                            // rowRangeSorted.format.font.bold = true;
+                            printDateAddress.format.fill.color = "#A9D08E"; //light green
+                            printDateAddress.format.font.color = "black";
+                            printDateAddress.format.font.bold = true;
+
+                            groupAddress.format.fill.color = "#A9D08E"; //light green
+                            groupAddress.format.font.color = "black";
+                            groupAddress.format.font.bold = true;
+
+                            printDateAddress.format.horizontalAlignment = "center";
+                            groupAddress.format.horizontalAlignment = "center";
+
+                            // if (rowInfoSorted.tags.value !== "") {
+                            //     rowRangeSorted.format.font.color = "#ED7D31"; //#9BC2E6
+                            //     rowRangeSorted.format.font.bold = true;
+                            //     printDateAddress.format.font.color = "white";
+                            //     groupAddress.format.font.color = "white";
+                            // };
+
+                            for (var leStatus in logoRecreationStatus) {
+                                logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus);
+                            };
+                            
+                        } else if ((printDate < currentDateAbsolute) && (printDate !== 0)) { //if current date is after print date
+
+                            printDateAddress.format.fill.color = "black";
+                            printDateAddress.format.font.color = "white";
+                            printDateAddress.format.font.bold = true;
+
+                            groupAddress.format.fill.color = "black";
+                            groupAddress.format.font.color = "white";
+                            groupAddress.format.font.bold = true;
+
+                            printDateAddress.format.horizontalAlignment = "center";
+                            groupAddress.format.horizontalAlignment = "center";
+
+                            // if (rowInfoSorted.tags.value !== "") {
+                            //     rowRangeSorted.format.font.color = "#ED7D31";
+                            //     //rowRangeSorted.format.font.bold = true;
+                            // };
+
+                            for (var leStatus in logoRecreationStatus) {
+                                logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus);
+                            };
+                            
+                        } else { //set cell formatting to normal
+
+                            rowRangeSorted.format.fill.clear();
+                            rowRangeSorted.format.font.color = "black";
+                            rowRangeSorted.format.font.bold = false;
+                            printDateAddress.format.horizontalAlignment = "center";
+                            groupAddress.format.horizontalAlignment = "center";
+
+                            // if (rowInfoSorted.tags.value !== "") {
+                            //     rowRangeSorted.format.font.color = "#ED7D31";
+                            //     rowRangeSorted.format.font.bold = true;
+                            // };
+
+                            for (var leStatus in logoRecreationStatus) {
+                                logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus);
+                            };
+                            
+                        };
+
+                        if (rowInfoSorted.group.value == "N/A") { //if group column in blank
+
+                            rowRangeSorted.format.fill.clear();
+                            rowRangeSorted.format.font.color = "black";
+                            rowRangeSorted.format.font.bold = false;
+                            printDateAddress.format.horizontalAlignment = "center";
+                            groupAddress.format.horizontalAlignment = "center";
+
+                            // if (rowInfoSorted.tags.value !== "") {
+                            //     rowRangeSorted.format.font.color = "#ED7D31";
+                            //     rowRangeSorted.format.font.bold = true;
+                            // };
+
+                            for (var leStatus in logoRecreationStatus) {
+                                logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus);
+                            };
+
+                        };
+
+                    //#endregion ---------------------------------------------------------------------------------------------------------------------
+
+                    //#region IF STATUS IS WORKING ---------------------------------------------------------------------------------------------------
+
+                        if (rowInfoSorted.status.value == "Working") {
+
+                            rowRangeSorted.format.fill.color = "#FFE699";
+                            rowRangeSorted.format.font.color = "#9C5700";
                             rowRangeSorted.format.font.bold = true;
                             printDateAddress.format.horizontalAlignment = "center";
                             groupAddress.format.horizontalAlignment = "center";
 
-                            if (rowInfoSorted.tags.value !== "") {
-                                rowRangeSorted.format.font.color = "#FFFF00"; //ED7D31
-                                //rowRangeSorted.format.font.bold = true; 
-                            }; 
+                            // if (rowInfoSorted.tags.value !== "") {
+                            //     rowRangeSorted.format.font.color = "#ED7D31";
+                            //     //rowRangeSorted.format.font.bold = true;
+                            // };
                             
                         };
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
 
-                    //#region PICKED UP / STARTED BY OVERDUE -----------------------------------------------------------------------------------------
+                    //#region OVERDUE HIGHLIGHTING ---------------------------------------------------------------------------------------------------
 
-                        if (toSerial > rowInfoSorted.pickedUpStartedBy.value && changedWorksheet.name == "Unassigned Projects") {
-                            //pickedUpAddress.format.fill.color = "FFC000";
-                            rowRangeSorted.format.fill.color = "FFC000";
-                            rowRangeSorted.format.font.color = "black";
+                        //#region PRINT DATE OVERDUE (OUTSIDE OF GROUP & PRINT REGION BECAUSE IT NEEDS TO OVERRIDE WORKING STATUS) -------------------
 
-                            if (rowInfoSorted.tags.value !== "") {
-                                rowRangeSorted.format.font.color = "#ED7D31";
-                                rowRangeSorted.format.font.bold = true;
-                            };
-                        };
+                            if ((printDate < currentDateAbsolute) && (printDate !== 0)) { //if current date is after print date
 
-                    //#endregion ---------------------------------------------------------------------------------------------------------------------
+                                printDateAddress.format.fill.color = "black";
+                                printDateAddress.format.font.color = "white";
+                                printDateAddress.format.font.bold = true;
 
-                    //#region PROOF TO CLIENT OVERDUE ------------------------------------------------------------------------------------------------
+                                groupAddress.format.fill.color = "black";
+                                groupAddress.format.font.color = "white";
+                                groupAddress.format.font.bold = true;
 
-                        if (toSerial > rowInfoSorted.proofToClient.value && changedWorksheet.name !== "Unassigned Projects") {
-                            // proofToClientAddress.format.fill.color = "FF0000";
-                            // proofToClientAddress.format.font.color = "white";
-                            rowRangeSorted.format.fill.color = "FF0000";
-                            rowRangeSorted.format.font.color = "white";
+                                printDateAddress.format.horizontalAlignment = "center";
+                                groupAddress.format.horizontalAlignment = "center";
 
-                            if (rowInfoSorted.tags.value !== "") {
-                                rowRangeSorted.format.font.color = "#FFFF00";
-                                rowRangeSorted.format.font.bold = true;
-                            };
-                        };
+                                // if (rowInfoSorted.tags.value !== "") {
+                                //     rowRangeSorted.format.font.color = "#ED7D31";
+                                //     //rowRangeSorted.format.font.bold = true;
+                                // };
 
-                    //#endregion ---------------------------------------------------------------------------------------------------------------------
-
-                //#endregion -------------------------------------------------------------------------------------------------------------------------
-
-                //#region STATUS OVERRIDE FORMATTING (FINAL SAY) -------------------------------------------------------------------------------------
-
-                    //#region ON HOLD STATUS ---------------------------------------------------------------------------------------------------------
+                                for (var leStatus in logoRecreationStatus) {
+                                    logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus);
+                                };
                                 
-                        if (rowInfoSorted.status.value == "On Hold") {
-                            rowRangeSorted.format.fill.color = "#BFBFBF";
-                            rowRangeSorted.format.font.color = "#000000";
-                            rowRangeSorted.format.font.bold = false;
+                            };
+
+                        //#endregion -----------------------------------------------------------------------------------------------------------------
+
+                        //#region PICKED UP / STARTED BY OVERDUE -------------------------------------------------------------------------------------
+
+                            if (toSerial > rowInfoSorted.pickedUpStartedBy.value && changedWorksheet.name == "Unassigned Projects") {
+                                //pickedUpAddress.format.fill.color = "FFC000";
+                                rowRangeSorted.format.fill.color = "FFC000";
+                                rowRangeSorted.format.font.color = "black";
+
+                                // if (rowInfoSorted.tags.value !== "") {
+                                //     rowRangeSorted.format.font.color = "#ED7D31";
+                                //     rowRangeSorted.format.font.bold = true;
+                                // };
+                            };
+
+                        //#endregion -----------------------------------------------------------------------------------------------------------------
+
+                        //#region PROOF TO CLIENT OVERDUE --------------------------------------------------------------------------------------------
+
+                            if (toSerial > rowInfoSorted.proofToClient.value && changedWorksheet.name !== "Unassigned Projects") {
+                                // proofToClientAddress.format.fill.color = "FF0000";
+                                // proofToClientAddress.format.font.color = "white";
+                                rowRangeSorted.format.fill.color = "FF0000";
+                                rowRangeSorted.format.font.color = "white";
+
+                                // if (rowInfoSorted.tags.value !== "") {
+                                //     rowRangeSorted.format.font.color = "#FFFF00";
+                                //     rowRangeSorted.format.font.bold = true;
+                                // };
+                            };
+
+                        //#endregion -----------------------------------------------------------------------------------------------------------------
+
+                    //#endregion ---------------------------------------------------------------------------------------------------------------------
+
+                    //#region STATUS OVERRIDE FORMATTING (FINAL SAY) ---------------------------------------------------------------------------------
+
+                        //#region ON HOLD STATUS -----------------------------------------------------------------------------------------------------
+                                    
+                            if (rowInfoSorted.status.value == "On Hold") {
+                                rowRangeSorted.format.fill.color = "#BFBFBF";
+                                rowRangeSorted.format.font.color = "#000000";
+                                rowRangeSorted.format.font.bold = false;
+                            };
+
+                        //#endregion -----------------------------------------------------------------------------------------------------------------
+
+                        //#region IN REVIEW STATUS ---------------------------------------------------------------------------------------------------
+
+                            if (rowInfoSorted.status.value == "In Review") {
+                                rowRangeSorted.format.fill.clear()
+                                rowRangeSorted.format.font.color = "#757171";
+                                rowRangeSorted.format.font.bold = false;
+                            };
+
+                        //#endregion -----------------------------------------------------------------------------------------------------------------
+
+                        //#region AT CLIENT STATUS ---------------------------------------------------------------------------------------------------
+
+                            if (rowInfoSorted.status.value == "At Client") {
+                                rowRangeSorted.format.fill.clear()
+                                rowRangeSorted.format.font.color = "#757171";
+                                rowRangeSorted.format.font.bold = false;
+                            };
+
+                        //#endregion -----------------------------------------------------------------------------------------------------------------
+
+                        //#region WAITING ON INFO STATUS ---------------------------------------------------------------------------------------------
+
+                            if (rowInfoSorted.status.value == "Waiting On Info") {
+                                rowRangeSorted.format.fill.clear()
+                                rowRangeSorted.format.font.color = "#757171";
+                                rowRangeSorted.format.font.bold = false;
+                            };
+
+                        //#endregion -----------------------------------------------------------------------------------------------------------------
+
+                    //#endregion ---------------------------------------------------------------------------------------------------------------------
+
+                    //#region ADD INVALID HIGHLIGHTING IF INVALID ------------------------------------------------------------------------------------
+
+                        if (
+                            rowInfoSorted.pickedUpStartedBy.value == "NO PRODUCT / PROJECT TYPE" 
+                            || rowInfoSorted.proofToClient.value == "NO PRODUCT / PROJECT TYPE"
+                        ) {
+
+                            rowRangeSorted.format.fill.color = "FFC5BB";
+                            pickedUpAddress.format.font.bold = true;
+                            proofToClientAddress.format.font.bold = true;
+                            // pickedUpAddress.format.fill.color = "FFC5BB";
+                            // proofToClientAddress.format.fill.color = "FFC5BB";
+
                         };
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
 
-                    //#region IN REVIEW STATUS -------------------------------------------------------------------------------------------------------
+                    // console.log(groupAddress.format.fill.color)
+                    // console.log(groupAddress.format.font.color);
+                    // console.log(groupAddress.format.font.bold);
+                };
 
-                        if (rowInfoSorted.status.value == "In Review") {
-                            rowRangeSorted.format.fill.clear()
-                            rowRangeSorted.format.font.color = "#757171";
-                            rowRangeSorted.format.font.bold = false;
-                        };
-
-                    //#endregion ---------------------------------------------------------------------------------------------------------------------
-
-                    //#region AT CLIENT STATUS -------------------------------------------------------------------------------------------------------
-
-                        if (rowInfoSorted.status.value == "At Client") {
-                            rowRangeSorted.format.fill.clear()
-                            rowRangeSorted.format.font.color = "#757171";
-                            rowRangeSorted.format.font.bold = false;
-                        };
-
-                    //#endregion ---------------------------------------------------------------------------------------------------------------------
-
-                    //#region WAITING ON INFO STATUS -------------------------------------------------------------------------------------------------
-
-                        if (rowInfoSorted.status.value == "Waiting On Info") {
-                            rowRangeSorted.format.fill.clear()
-                            rowRangeSorted.format.font.color = "#757171";
-                            rowRangeSorted.format.font.bold = false;
-                        };
-
-                    //#endregion ---------------------------------------------------------------------------------------------------------------------
-
-                //#endregion -------------------------------------------------------------------------------------------------------------------------
-
-                //#region ADD INVALID HIGHLIGHTING IF INVALID ----------------------------------------------------------------------------------------
-
-                    if (
-                        rowInfoSorted.pickedUpStartedBy.value == "NO PRODUCT / PROJECT TYPE" 
-                        || rowInfoSorted.proofToClient.value == "NO PRODUCT / PROJECT TYPE"
-                    ) {
-
-                        rowRangeSorted.format.fill.color = "FFC5BB";
-                        pickedUpAddress.format.font.bold = true;
-                        proofToClientAddress.format.font.bold = true;
-                        // pickedUpAddress.format.fill.color = "FFC5BB";
-                        // proofToClientAddress.format.fill.color = "FFC5BB";
-
-                    };
-
-                //#endregion -------------------------------------------------------------------------------------------------------------------------
-
-                // console.log(groupAddress.format.fill.color)
-                // console.log(groupAddress.format.font.color);
-                // console.log(groupAddress.format.font.bold);
             };
 
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+
+        function logoInsertHighlighting (rowInfo, rowRange, printDateAddress, groupAddress, input) {
+            if (rowInfo.product.value == input) {
+                rowRange.format.font.color = "#ED7D31"; //#9BC2E6
+                rowRange.format.font.bold = true;
+                printDateAddress.format.font.color = "white";
+                groupAddress.format.font.color = "white";
+            };
         };
 
     //#endregion -------------------------------------------------------------------------------------------------------------------------------------
@@ -5120,7 +5176,7 @@ $(() => {
 
 //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
-//#region REMOVE ROW ---------------------------------------------------------------------------------------------------------------------------------
+    //#region REMOVE ROW -----------------------------------------------------------------------------------------------------------------------------
 
         /**
          * Removes current row from table
@@ -5169,7 +5225,7 @@ $(() => {
 
         };
 
-//#endregion -------------------------------------------------------------------------------------------------------------------------------------
+    //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
     //#region HANDLING ILLEGAL ROW INSERTS -----------------------------------------------------------------------------------------------------------
 
