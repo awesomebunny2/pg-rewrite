@@ -21,58 +21,61 @@ $(() => {
 // Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", true);
 // Office.context.document.settings.saveAsync();
 
-// $(async () => { // Once the document is ready
+$(async () => { // Once the document is ready
 
-// /**
-//  * AUTO LOAD STUFFS
-//  *
-//  */
-//     Office.addin.getStartupBehavior().then((curBehavior) => {
-//         if (curBehavior !== "None") {
-//             $("#auto-open").prop("checked", true)
-//         } else {
-//             $("#auto-open").prop("checked", false) 
-//         }
-//     });
+/**
+ * AUTO LOAD STUFFS
+ *
+ */
+    Office.addin.getStartupBehavior().then((curBehavior) => {
+        if (curBehavior !== "None") {
+            $("#auto-open").prop("checked", true)
+        } else {
+            $("#auto-open").prop("checked", false) 
+        }
+    });
 
-//     $('#auto-open').change(function() {
-//         if (this.checked == true) {
-//             console.log("Turning auto-open ON!")
-//             Office.addin.setStartupBehavior(Office.StartupBehavior.load);
-//             console.log("Auto-open is ON!")
-//         } else {
-//             console.log("Turning auto-open OFF!")
-//             Office.addin.setStartupBehavior(Office.StartupBehavior.none);
-//             console.log("Auto-open is OFF!")
-//         };
-//     });
+    $('#auto-open').change(function() {
+        if (this.checked == true) {
+            console.log("Turning auto-open ON!")
+            Office.addin.setStartupBehavior(Office.StartupBehavior.load);
+            console.log("Auto-open is ON!")
+        } else {
+            console.log("Turning auto-open OFF!")
+            Office.addin.setStartupBehavior(Office.StartupBehavior.none);
+            console.log("Auto-open is OFF!")
+        };
+    });
 
-//     // Office.addin.setStartupBehavior(Office.StartupBehavior.load);
+    Office.addin.setStartupBehavior(Office.StartupBehavior.load);
     
-//     let isAuto = Office.context.document.settings.get("Office.AutoShowTaskpaneWithDocument");
+    let isAuto = Office.context.document.settings.get("Office.AutoShowTaskpaneWithDocument");
 
-//     if (isAuto === true) {
-//         $("#auto-open").prop("checked", true)
-//     } else {
-//         $("#auto-open").prop("checked", false) 
-//     }
-
-//     $('#auto-open').change(function() {
-//         if (this.checked == true) {
-//             console.log("Turning auto-open ON!")
-//             Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", true);
-//             Office.context.document.settings.saveAsync();
-//             console.log("Auto-open is ON!")
-//         } else {
-//             console.log("Turning auto-open OFF!")
-//             Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", false);
-//             Office.context.document.settings.saveAsync();
-//             console.log("Auto-open is OFF!")
-//         };
-//     });
+    // let isAuto = Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", true);
 
 
-// })
+    if (isAuto === true) {
+        $("#auto-open").prop("checked", true)
+    } else {
+        $("#auto-open").prop("checked", false) 
+    }
+
+    $('#auto-open').change(function() {
+        if (this.checked == true) {
+            console.log("Turning auto-open ON!")
+            Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", true);
+            Office.context.document.settings.saveAsync();
+            console.log("Auto-open is ON!")
+        } else {
+            console.log("Turning auto-open OFF!")
+            Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", false);
+            Office.context.document.settings.saveAsync();
+            console.log("Auto-open is OFF!")
+        };
+    });
+
+
+});
 
 
 //#region GLOBAL -------------------------------------------------------------------------------------------------------------------------------------
@@ -4734,6 +4737,10 @@ $(() => {
 
                         if (printDate == currentDateAbsolute) { //if current date = print date
 
+                            logoRecreationStatus.forEach(
+                                leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
+                            );
+
                             // rowRangeSorted.format.font.color = "#C00000";
                             // rowRangeSorted.format.font.bold = true;
                             printDateAddress.format.fill.color = "#FFBBB8"; //light red
@@ -4753,13 +4760,13 @@ $(() => {
                             //     printDateAddress.format.font.color = "white";
                             //     groupAddress.format.font.color = "white";
                             // };
-
-                            for (var leStatus in logoRecreationStatus) {
-                                logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus);
-                            };
 
                         } else if (((printDate - 1) == currentDateAbsolute)) { //if current date is the day before print date
 
+                            logoRecreationStatus.forEach(
+                                leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
+                            );
+
                             // rowRangeSorted.format.font.color = "#C00000";
                             // rowRangeSorted.format.font.bold = true;
                             printDateAddress.format.fill.color = "#FFBBB8"; //light red
@@ -4780,13 +4787,17 @@ $(() => {
                             //     groupAddress.format.font.color = "white";
                             // };
 
-                            for (var leStatus in logoRecreationStatus) {
-                                logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus);
-                            };
+                            // for (var leStatus in logoRecreationStatus) {
+                            //     logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus);
+                            // };
                         
                             //if current date is in the same group lock week as print date (between 7-2 days before)
                         } else if (((printDate - 6) <= currentDateAbsolute) && ((printDate - 2) >= currentDateAbsolute)) { 
 
+                            logoRecreationStatus.forEach(
+                                leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
+                            );
+
                             // rowRangeSorted.format.font.color = "#C00000";
                             // rowRangeSorted.format.font.bold = true;
                             printDateAddress.format.fill.color = "#FFBBB8"; //light red
@@ -4807,12 +4818,12 @@ $(() => {
                             //     groupAddress.format.font.color = "white";
                             // };
 
-                            for (var leStatus in logoRecreationStatus) {
-                                logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus);
-                            };
-
                         //if current date is in the week before group lock week (between 8-14 days before)
                         } else if (((printDate - 13) <= currentDateAbsolute) && ((printDate - 7) >= currentDateAbsolute)) { 
+
+                            logoRecreationStatus.forEach(
+                                leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
+                            );
 
                             // rowRangeSorted.format.font.color = "#C00000";
                             // rowRangeSorted.format.font.bold = true;
@@ -4833,12 +4844,12 @@ $(() => {
                             //     printDateAddress.format.font.color = "white";
                             //     groupAddress.format.font.color = "white";
                             // };
-
-                            for (var leStatus in logoRecreationStatus) {
-                                logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus);
-                            };
                             
                         } else if ((printDate < currentDateAbsolute) && (printDate !== 0)) { //if current date is after print date
+
+                            logoRecreationStatus.forEach(
+                                leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
+                            );
 
                             printDateAddress.format.fill.color = "black";
                             printDateAddress.format.font.color = "white";
@@ -4855,10 +4866,6 @@ $(() => {
                             //     rowRangeSorted.format.font.color = "#ED7D31";
                             //     //rowRangeSorted.format.font.bold = true;
                             // };
-
-                            for (var leStatus in logoRecreationStatus) {
-                                logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus);
-                            };
                             
                         } else { //set cell formatting to normal
 
@@ -4873,9 +4880,9 @@ $(() => {
                             //     rowRangeSorted.format.font.bold = true;
                             // };
 
-                            for (var leStatus in logoRecreationStatus) {
-                                logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus);
-                            };
+                            logoRecreationStatus.forEach(
+                                leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
+                            );
                             
                         };
 
@@ -4892,9 +4899,9 @@ $(() => {
                             //     rowRangeSorted.format.font.bold = true;
                             // };
 
-                            for (var leStatus in logoRecreationStatus) {
-                                logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus);
-                            };
+                            logoRecreationStatus.forEach(
+                                leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
+                            );
 
                         };
 
@@ -4941,9 +4948,9 @@ $(() => {
                                 //     //rowRangeSorted.format.font.bold = true;
                                 // };
 
-                                for (var leStatus in logoRecreationStatus) {
-                                    logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus);
-                                };
+                                logoRecreationStatus.forEach(
+                                    leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
+                                );
                                 
                             };
 
@@ -5066,8 +5073,8 @@ $(() => {
                 if (rowInfo.product.value == "Logo Recreation" && rowInfo.status.value == input) {
                     rowRange.format.font.color = "#ED7D31"; //#9BC2E6
                     rowRange.format.font.bold = true;
-                    printDateAddress.format.font.color = "white";
-                    groupAddress.format.font.color = "white";
+                    // printDateAddress.format.font.color = "white";
+                    // groupAddress.format.font.color = "white";
                 };
             };
 
