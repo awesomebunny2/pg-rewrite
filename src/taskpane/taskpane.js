@@ -4169,7 +4169,7 @@ $(async () => { // Once the document is ready
                             //tagItems.push(leTableSorted[i]);
                             leTableSorted.splice(i, 1);
                             i = i - 1;
-                        } else if (leTableSorted[i][tagsColumnIndex] == "Priority 2") {
+                        } else if (leTableSorted[i][tagsColumnIndex] == "Priority 2") { //farts
                             tagOrder.splice(1, 1, leTableSorted[i]);
                             //tagItems.push(leTableSorted[i]);
                             leTableSorted.splice(i, 1);
