@@ -882,3 +882,39 @@ button[aria-label="Close"]:not(:disabled):active {
     vertical-align: middle;
     align-items: center;
 }
+
+#checkbox-area {
+    display:flex;
+    flex-direction: row;
+    column-count: 2;
+    column-gap: 7px;
+    align-items: center;
+    justify-content: center;
+    /* background-color:#F4F4F4; */
+    min-height:25px;
+    width:100%;
+    /* margin-top: auto; */
+}
+
+/* #auto-open {
+
+}
+
+.checkbox-text {
+    display: flex;
+    flex-direction: row;
+} */
+
+#checkbox {
+    display: flex;
+}
+
+#auto-open {
+    vertical-align: middle;
+}
+
+.checkbox-text {
+    font-size: 9pt;
+    font-weight: 400;
+    font-style: italic;
+}
