@@ -136,7 +136,6 @@ $(async () => { // Once the document is ready
         var creativeProofData = {};
         var officeHoursData = {};
         var tierLevelData = {};
-
         var changesData = {};
         var changesIDData = {};
         var printDateRefData = {};
@@ -214,14 +213,12 @@ $(async () => { // Once the document is ready
                     var pickedUpValTable = sheet.tables.getItem("PickupTurnaroundTime");
                     var proofToClientValTable = sheet.tables.getItem("ArtTurnaroundTime");
                     var tierLevelValTable = sheet.tables.getItem("TierLevelsTable");
-
                     var creativeProofTable = sheet.tables.getItem("CreativeProofAdjust");
                     var officeHoursTable = sheet.tables.getItem("OfficeHours");
                     var changesDataTable = sheet.tables.getItem("ChangesData");
                     var changesIDTable = sheet.tables.getItem("ChangesIDTable");
                     var groupPrintDateRefTable = sheet.tables.getItem("dateTable");
                     var designManagersTable = sheet.tables.getItem("DesignManagersTable");
-
                     var activeSheet = context.workbook.worksheets.getActiveWorksheet().load("worksheetId");
                     var activeProjectTable = activeSheet.tables.getItemAt(0);
                     var workbookName = context.workbook.load("name");
@@ -232,13 +229,11 @@ $(async () => { // Once the document is ready
                     var pickedUpBodyRange = pickedUpValTable.getDataBodyRange().load("values");
                     var proofToClientBodyRange = proofToClientValTable.getDataBodyRange().load("values");
                     var tierLevelBodyRange = tierLevelValTable.getDataBodyRange().load("values");
-
                     var creativeProofBodyRange = creativeProofTable.getDataBodyRange().load("values");
                     var officeHoursBodyRange = officeHoursTable.getDataBodyRange().load("values");
                     var changesDataBodyRange = changesDataTable.getDataBodyRange().load("values");
                     var changesIDBodyRange = changesIDTable.getDataBodyRange().load("values");
                     var designManagersBodyRange = designManagersTable.getDataBodyRange().load("values");
-
                     var groupPrintDateRefRange = groupPrintDateRefTable.getDataBodyRange().load("values");
 
                 //#endregion -------------------------------------------------------------------------------------------------------------------------
@@ -1180,7 +1175,6 @@ $(async () => { // Once the document is ready
 
                         var sheet = context.workbook.worksheets.getActiveWorksheet().load("name");
                         sheet.load("tabColor");
-
                         //updating this variable to work for the changedTable will not work since the taskpane doesn't trigger an onchanged event 
                         //until afterward
                         var sheetTable = sheet.tables.getItemAt(0).load("name"); //this is fine since the user will only ever be adding new projects 
