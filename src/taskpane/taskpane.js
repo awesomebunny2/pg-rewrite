@@ -57,7 +57,7 @@ $( async () => {
      //console.log("The document setting for auto open taskpane is: " + isAuto);
  
  
-
+    //  Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", false);
  
     //  $('#auto-open').change(function() {
     //      if (this.checked == true) {
