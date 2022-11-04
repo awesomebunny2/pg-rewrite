@@ -29,10 +29,12 @@ $(async () => { // Once the document is ready
  */
     Office.addin.getStartupBehavior().then((curBehavior) => {
         if (curBehavior !== "None") {
-            $("#auto-open").prop("checked", true)
+            $("#auto-open").prop("checked", true);
+            //console.log("Checkbox is checked!");
         } else {
-            $("#auto-open").prop("checked", false) 
-        }
+            $("#auto-open").prop("checked", false);
+            //console.log("Checkbox is not checked...");
+        };
     });
 
     $('#auto-open').change(function() {
@@ -52,6 +54,8 @@ $(async () => { // Once the document is ready
     let isAuto = Office.context.document.settings.get("Office.AutoShowTaskpaneWithDocument");
 
     // let isAuto = Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", true);
+
+    //console.log("The document setting for auto open taskpane is: " + isAuto);
 
 
     if (isAuto === true) {
