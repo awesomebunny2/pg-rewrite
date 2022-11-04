@@ -1,5 +1,5 @@
 //validation sheet password: fissh
-$(() => {
+$( async () => {
 
     console.log("DOCUMENT IS LOADED BABY 🚀🌕🔥")
 
@@ -15,71 +15,69 @@ $(() => {
     }
 
     console.log("ARE WE USING SAFARI!!??!?!??!?!?!?!", isSafari);
-});
 
-
-// Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", true);
-// Office.context.document.settings.saveAsync();
-
-$(async () => { // Once the document is ready
-
-/**
- * AUTO LOAD STUFFS
- *
- */
-    Office.addin.getStartupBehavior().then((curBehavior) => {
-        if (curBehavior !== "None") {
-            $("#auto-open").prop("checked", true);
-            //console.log("Checkbox is checked!");
-        } else {
-            $("#auto-open").prop("checked", false);
-            //console.log("Checkbox is not checked...");
-        };
-    });
-
-    $('#auto-open').change(function() {
-        if (this.checked == true) {
-            console.log("Turning auto-open ON!")
-            Office.addin.setStartupBehavior(Office.StartupBehavior.load);
-            console.log("Auto-open is ON!")
-        } else {
-            console.log("Turning auto-open OFF!")
-            Office.addin.setStartupBehavior(Office.StartupBehavior.none);
-            console.log("Auto-open is OFF!")
-        };
-    });
-
-    Office.addin.setStartupBehavior(Office.StartupBehavior.load);
-    
-    let isAuto = Office.context.document.settings.get("Office.AutoShowTaskpaneWithDocument");
-
-    // let isAuto = Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", true);
-
-    //console.log("The document setting for auto open taskpane is: " + isAuto);
-
-
-    if (isAuto === true) {
+    //  Office.addin.setStartupBehavior(Office.StartupBehavior.load);
+    let behavior = await Office.addin.getStartupBehavior()
+    console.log("BEHAVIOR", behavior)
+    if (behavior === "Load") {
         $("#auto-open").prop("checked", true)
     } else {
         $("#auto-open").prop("checked", false) 
     }
 
-    $('#auto-open').change(function() {
-        if (this.checked == true) {
-            console.log("Turning auto-open ON!")
-            Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", true);
-            Office.context.document.settings.saveAsync();
-            console.log("Auto-open is ON!")
-        } else {
-            console.log("Turning auto-open OFF!")
-            Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", false);
-            Office.context.document.settings.saveAsync();
-            console.log("Auto-open is OFF!")
-        };
-    });
+     // Office.addin.getStartupBehavior().then((curBehavior) => {
+     //     if (curBehavior !== "None") {
+     //         $("#auto-open").prop("checked", true);
+     //         //console.log("Checkbox is checked!");
+     //     } else {
+     //         $("#auto-open").prop("checked", false);
+     //         //console.log("Checkbox is not checked...");
+     //     };
+     // });
+ 
+     $('#auto-open').change(function() {
+         if (this.checked == true) {
+             console.log("Turning auto-open ON!")
+             Office.addin.setStartupBehavior(Office.StartupBehavior.load);
+             console.log("Auto-open is ON!")
+         } else {
+             console.log("Turning auto-open OFF!")
+             Office.addin.setStartupBehavior(Office.StartupBehavior.none);
+             console.log("Auto-open is OFF!")
+         };
+     });
+ 
 
+    // let isAuto = Office.context.document.settings.get("Office.AutoShowTaskpaneWithDocument");
+    // let isAuto
+
+    
+     // let isAuto = Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", true);
+ 
+     //console.log("The document setting for auto open taskpane is: " + isAuto);
+ 
+ 
+
+ 
+    //  $('#auto-open').change(function() {
+    //      if (this.checked == true) {
+    //          console.log("Turning auto-open ON!")
+    //          Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", true);
+    //          Office.context.document.settings.saveAsync();
+    //          console.log("Auto-open is ON!")
+    //      } else {
+    //          console.log("Turning auto-open OFF!")
+    //          Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", false);
+    //          Office.context.document.settings.saveAsync();
+    //          console.log("Auto-open is OFF!")
+    //      };
+    //  });
 
 });
+
+
+// Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", true);
+// Office.context.document.settings.saveAsync();
 
 
 //#region GLOBAL -------------------------------------------------------------------------------------------------------------------------------------
