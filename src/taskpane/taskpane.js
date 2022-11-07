@@ -5175,6 +5175,9 @@ $( async () => {
                         ) {
 
                             rowRangeSorted.format.fill.color = "FFC5BB";
+                            rowRangeSorted.format.font.color = "black";
+                            rowRangeSorted.format.font.bold = false;
+
                             pickedUpAddress.format.font.bold = true;
                             proofToClientAddress.format.font.bold = true;
                             // pickedUpAddress.format.fill.color = "FFC5BB";
