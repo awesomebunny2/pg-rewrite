@@ -4761,7 +4761,16 @@ $( async () => {
 
                     var logoRecreationStatus = ["Logo Status TBD", "Logo Needs Recreating", "Logo Needs Uploading", "No Logo Recreation Needed"];
 
+                    console.log(changedWorksheet.name);
+
                 //#endregion -------------------------------------------------------------------------------------------------------------------------
+
+                if (changedWorksheet.name == "Unassigned Projects" && rowInfoSorted.subject.value == "TEMPORARY DATA VALIDATION PLACEHOLDER") {
+                    rowRangeSorted.format.fill.color = "#BFBFBF";
+                    rowRangeSorted.format.font.color = "#808080";
+
+                    return;
+                };
 
                 //#region CLEAR COMPLETED TABLE FORMATTING IF IT WAS CHANGED -------------------------------------------------------------------------
 
@@ -4948,6 +4957,10 @@ $( async () => {
 
                             
                         } else { //set cell formatting to normal
+
+                            if (changedWorksheet.name == "Unassigned Projects" && rowInfoSorted.subject.value == "Test for Artist Data Validation") {
+                                return;
+                            };
 
                             rowRangeSorted.format.fill.clear();
                             rowRangeSorted.format.font.color = "black";
