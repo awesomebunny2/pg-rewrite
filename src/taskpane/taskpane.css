@@ -29,17 +29,68 @@ h2 {
 }
 
 #page-header {
+    /* display:flex;
+    flex-direction: row;
+    column-count: 2;
+    column-gap: 12px;
+    align-items: center;
+    justify-content: center; */
+    background-color:#F4F4F4;
+    /* min-height:85px; */
+    width:100%;
+    /* margin-top: auto; */
+    /* position: fixed; */
+}
+
+#page-heading {
     display:flex;
     flex-direction: row;
     column-count: 2;
     column-gap: 12px;
     align-items: center;
     justify-content: center;
-    background-color:#F4F4F4;
-    min-height:85px;
+    /* min-height:55px; */
+
     width:100%;
-    margin-top: auto;
-    /* position: fixed; */
+    margin-top: 15px;
+}
+
+#cheat-sheet-toggle {
+    display: flex;
+    min-height: 25px;
+}
+
+.cs-text {
+    background: none;
+    border: none;
+    margin: auto;
+    font-size: 8pt;
+    font-style: oblique;
+    text-align: center;
+    color:#0050ee;
+    text-decoration: underline;
+}
+
+.cs-text:hover {
+    background: none;
+    border: none;
+    margin: auto;
+    font-size: 8pt;
+    font-style: oblique;
+    text-align: center;
+    color:rgba(0, 198, 238, 0.89);
+    text-decoration: underline;
+}
+
+.cs-text:active {
+    background: none;
+    border: none;
+    margin: auto;
+    font-size: 8pt;
+    font-style: oblique;
+    text-align: center;
+    color:#7900ee;
+    text-decoration: underline;
 }
 
 .custom-header {
@@ -923,3 +974,24 @@ button[aria-label="Close"]:not(:disabled):active {
     font-weight: 400;
     font-style: italic;
 }
+
+#color-cheat-sheet {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background-color: rgba(0,0,0,.7);
+    z-index: 1000;
+}
+
+#cheat-sheet-window {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 20px;
+    width: 80%;
+    background-color: white;
+}
+

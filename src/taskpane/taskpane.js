@@ -1128,6 +1128,14 @@ $( async () => {
                     showElement("#na-ah-ah", "hide");
                 });
 
+                $(".cs-text").on("click", function() {
+                    showElement("#color-cheat-sheet", "show");
+                });
+
+                $("#cs-back").on("click", function() {
+                    showElement("#color-cheat-sheet", "hide");
+                });
+
         //#endregion ---------------------------------------------------------------------------------------------------------------------------------
 
     //#endregion -------------------------------------------------------------------------------------------------------------------------------------
@@ -5109,6 +5117,7 @@ $( async () => {
                                 // proofToClientAddress.format.font.color = "white";
                                 rowRangeSorted.format.fill.color = "FF0000";
                                 rowRangeSorted.format.font.color = "white";
+                                rowRangeSorted.format.font.bold = true;
 
                                 // if (rowInfoSorted.tags.value !== "") {
                                 //     rowRangeSorted.format.font.color = "#FFFF00";
