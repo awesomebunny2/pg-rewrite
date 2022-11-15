@@ -976,7 +976,7 @@ button[aria-label="Close"]:not(:disabled):active {
 }
 
 #color-cheat-sheet {
-    display: flex;
+    display: none;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -1010,10 +1010,18 @@ button[aria-label="Close"]:not(:disabled):active {
 }
 
 #cs-heading {
-    font-size: 18pt;
+    font-size: 17.5pt;
     font-weight: 900;
     color: #022A42;
     padding: 0px 8px;
+}
+
+.cfcs {
+    display: inline-block !important;
+}
+
+.cfcs-break {
+    display: none !important;
 }
 
 #deform {
@@ -1090,6 +1098,13 @@ button[aria-label="Close"]:not(:disabled):active {
     .row {
       flex-direction: column;
       align-items: center;
+    }
+    .cfcs {
+        display: none !important;
+    }
+    
+    .cfcs-break {
+        display: inline-block !important;
     }
   }
 
@@ -1331,14 +1346,31 @@ button[aria-label="Close"]:not(:disabled):active {
     display: none !important;
 }
 
-@media (min-width: 545px) {
-    br {
-        content: ' '
-    }
-    br:after {
-        content: ' '
-    }
+.rsh {
+    display: inline-block !important;
 }
+
+.rsh-break {
+    display: none !important;
+}
+
+.twp {
+    display: inline-block !important;
+}
+
+.twp-break {
+    display: none !important;
+}
+
+.wip {
+    display: inline-block !important;
+}
+
+.wip-break {
+    display: none !important;
+}
+
+
 
 /* @media only screen and (min-width: 305px) and (max-width: 545px) {
     .wrh {
@@ -1351,7 +1383,49 @@ button[aria-label="Close"]:not(:disabled):active {
 
 } */
 
-@media (max-width: 305px) {
+@media (max-width: 582px) and (min-width: 391px) {
+    .rsh {
+        display: none !important;
+    }
+    
+    .rsh-break {
+        display: inline-block !important;
+    }
+
+}
+
+@media (max-width: 573px) and (min-width: 391px){
+    .twp {
+        display: none !important;
+    }
+    
+    .twp-break {
+        display: inline-block !important;
+    }
+
+}
+
+@media (min-width: 545px) {
+    br {
+        content: ' '
+    }
+    br:after {
+        content: ' '
+    }
+}
+
+@media (max-width: 520px) and (min-width: 391px){
+    .wip {
+        display: none !important;
+    }
+    
+    .wip-break {
+        display: inline-block !important;
+    }
+
+}
+
+@media (max-width: 305px){
     .tch {
         display: none !important;
     }
@@ -1362,7 +1436,7 @@ button[aria-label="Close"]:not(:disabled):active {
 
 }
 
-@media (max-width: 305px) {
+@media (max-width: 305px){
     .wrh {
         display: none !important;
     }
@@ -1372,4 +1446,17 @@ button[aria-label="Close"]:not(:disabled):active {
     }
 
 }
+
+@media (max-width: 296px) {
+    .twp {
+        display: none !important;
+    }
+    
+    .twp-break {
+        display: inline-block !important;
+    }
+
+}
+
+
 
