@@ -1136,6 +1136,30 @@ $( async () => {
                     showElement("#color-cheat-sheet", "hide");
                 });
 
+                $( ".collapsible" ).click(function() {
+                    $(this).next().slideToggle("fast");
+                
+                
+                    const isPlus = $(this).find("i").hasClass("fa-plus")
+                
+                    if (isPlus) {
+                        $(this).find("i")
+                            .removeClass("fa-plus")
+                            .addClass("fa-minus")
+                            $(this).addClass("expanded");
+                
+                    } else {
+                        $(this).find("i")
+                            .removeClass("fa-minus")
+                            .addClass("fa-plus")
+
+                            setTimeout(() => {
+                                $(this).removeClass("expanded");
+                            }, 200)
+                    };
+                    
+                });
+
         //#endregion ---------------------------------------------------------------------------------------------------------------------------------
 
     //#endregion -------------------------------------------------------------------------------------------------------------------------------------

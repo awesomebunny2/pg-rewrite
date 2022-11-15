@@ -40,6 +40,7 @@ h2 {
     width:100%;
     /* margin-top: auto; */
     /* position: fixed; */
+    padding: 12px 0px;
 }
 
 #page-heading {
@@ -50,9 +51,8 @@ h2 {
     align-items: center;
     justify-content: center;
     /* min-height:55px; */
-
     width:100%;
-    margin-top: 15px;
+    /* margin: 17px 0px; */
 }
 
 #cheat-sheet-toggle {
@@ -976,13 +976,16 @@ button[aria-label="Close"]:not(:disabled):active {
 }
 
 #color-cheat-sheet {
-    display: none;
+    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     position: absolute;
     top: 0; right: 0; bottom: 0; left: 0;
     background-color: rgba(0,0,0,.7);
     z-index: 1000;
+    width: 100%;
+    height: 100%;
 }
 
 #cheat-sheet-window {
@@ -990,9 +993,384 @@ button[aria-label="Close"]:not(:disabled):active {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 20px 20px;
-    width: 80%;
+    /* padding: 20px 20px; */
+    width: 90%;
+    /* height: 90%; */
     background-color: white;
+    overflow: scroll;
+    background-color: #F4F4F4;
+    margin: 20px 0px;
+}
+
+#cheat-sheet-title-bar {
+    background-color: #F4F4F4;
+    width: 100%;
+    text-align: center;
+    /* margin-bottom: 7px; */
+}
+
+#cs-heading {
+    font-size: 18pt;
+    font-weight: 900;
+    color: #022A42;
+    padding: 0px 8px;
+}
+
+#deform {
+    display:flex;
+    flex-direction:column;
+    flex: 1;
+    background-color: white;
+    width:100%;
+    overflow: scroll;
+    padding-top: 6px;
+    margin-bottom: auto;
+    align-items: center;
+}
+
+#cs-section {
+    border: 4px solid royalblue;
+    outline: none;
+    border-radius: 5px;
+    width: 90%;
+    margin: 20px 0px;
+    /* background-color: rgba(218, 218, 218, 0.491); */
+    /* padding-bottom: 15px; */
+    /* height: 150px; */
+}
+
+#cs-section-title {
+    display: inline-block;
+    background: white;
+    top: -12px;
+    position: relative;
+    /* width: calc(100% - 202px); */
+    padding: 0 8px;
+    left: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin: auto;
+    font-size: 12pt;
+}
+
+.color-sheet-mini {
+    /* width: 90%; */
+    /* column-count: 2;  */
+    column-gap: 15px;
+    align-self: center;
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    margin-left: auto;
+    margin-right: auto;
+    /* margin-top: 7px; */
+    margin-bottom: 12px;
+    padding: 0px 15px;
+    /* align-items: center; */
+}
+
+.button-collection {
+    width:100%;
+    margin: 7px 0px;
+    /* padding: 10px; */
+}
+
+.row {
+    display: flex;
+    /* flex-direction:column;
+    align-items: center; */
+    width: 100%;
+    column-count: 2;
+    column-gap: 15px;
+    /* padding-bottom: 15px; */
+}
+
+  @media only screen and (max-width: 390px) {
+    .row {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+
+/* Style the button that is used to open and close the collapsible content */
+/* .expand-a-band {
+    width: 100%;
+  } */
+
+  .collapsible {
+    background-color: #eee;
+    color: #444;
+    cursor: pointer;
+    padding: 8px;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 9.5pt;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: row;
+    border-style: solid;
+    border-color: #ccc7c7c2;
+    border-width: thin;
+    /* border-top-left-radius: 10px;
+    border-top-right-radius: 10px; */
+  }
+
+  .collapsible > i {
+    /* margin-left:8px; */
+    justify-content: center;
+  }
+
+  .collapsible-label {
+    width: calc(100% - 25px);
+  }
+
+  .collapsible-icon {
+    width: 25px;
+    text-align: center;
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+
+  /* .fa-solid {
+    float: right;
+  } */
+
+  /* .collapsible {
+    background-color: #eee;
+    color: #444;
+    cursor: pointer;
+    padding: 8px;
+    width: 100%;
+    border: none;
+    text-align: center;
+    outline: none;
+    font-size: 13px;
+  } */
+  
+  /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+  .active, .collapsible:hover {
+    background-color: rgba(214, 211, 211, 0.389);
+  }
+  
+  /* Style the collapsible content. Note: hidden by default */
+  .content {
+    padding: 8px 12px;
+    display: none;
+    overflow: hidden;
+    background-color: #f1f1f1;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-style: solid;
+    border-color: #ccc7c7c2;
+    border-width: thin;
+    font-size: 10pt;
+    hyphens: none;
+    margin: 0px;
+  }
+
+  /* .auto-logo {
+    background-color: #f1f1f1;
+    border-style: solid;
+    border-color: #ccc7c7c2;
+    border-width: thin;
+
+  } */
+
+  .collapse-content {
+    margin: 0px;
+    font-weight: 400;
+    font-style: italic;
+    line-height: 14pt;
+  }
+
+    /*content: '\02795'; /* Unicode character for "plus" sign (+) */
+    /* margin-left: 5px; */
+
+  /* .collapsible:after {
+    content: '\02795';
+    font-size: 13px;
+    color: white;
+    float: right;
+  } */
+  
+  /* .active:after {
+    content: "\2796"; /* Unicode character for "minus" sign (-) */
+  /* } */
+
+  .proof-overdue {
+    background-color: #fb1c0b;
+    color: white;
+    font-weight: bolder;
+  }
+
+  .active, .proof-overdue:hover {
+    background-color: #c15850;
+  }
+
+  .working {
+    background-color: #fde699;
+    color: #9C5700;
+    font-weight: bolder;
+  }
+
+  .active, .working:hover {
+    background-color: #ddcf9fbb;
+  }
+
+  .selection-highlight {
+    background-color: #F5D9FF;
+    color: black;
+    font-weight: 400;
+  }
+
+  .active, .selection-highlight:hover {
+    background-color: #d1badacf;
+  }
+
+  .invalid-project {
+    background-color: #FFB7A8;
+    color: black;
+    font-weight: 400;
+  }
+
+  .active, .invalid-project:hover {
+    background-color: #deafa5d5;
+  }
+
+  .auto-generated-logo {
+    background-color: white;
+    color: #ED7D31;
+    font-weight: bolder;
+  }
+
+  .this-week {
+    background-color: #FFBBB8;
+    color: black;
+    font-weight: bolder;
+  }
+
+  .active, .this-week:hover {
+    background-color: #d7aeacce;
+  }
+
+  .next-week {
+    background-color: #A9D08E;
+    color: black;
+    font-weight: bolder;
+  }
+
+  .active, .next-week:hover {
+    background-color: #9db68de2;
+  }
+
+  .print-group-past {
+    background-color: black;
+    color: white;
+    font-weight: bolder;
+  }
+
+  .active, .print-group-past:hover {
+    background-color: rgba(44, 44, 44, 0.794);
+  }
+
+  .very-urgent-tag {
+    background-color: white;
+    color: #C00000;
+    font-weight: bolder;
+  }
+
+  .urgent-tag {
+    background-color: white;
+    color: #BF8F00;
+    font-weight: bolder;
+  }
+
+  .semi-urgent-tag {
+    background-color: white;
+    color: #548235;
+    font-weight: bolder;
+  }
+
+  .eventual-tag {
+    background-color: white;
+    color: #7030A0;
+    font-weight: bolder;
+  }
+
+
+  .expanded {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-bottom: none;
+    /* transition: 0s; */
+  }
+
+
+#cheat-sheet-back-button {
+    width: 25%;
+    margin: 20px 0px;
+}
+
+.wrh {
+    display: inline-block !important;
+}
+
+.wrh-break {
+    display: none !important;
+}
+
+.tch {
+    display: inline-block !important;
+}
+
+.tch-break {
+    display: none !important;
+}
+
+@media (min-width: 545px) {
+    br {
+        content: ' '
+    }
+    br:after {
+        content: ' '
+    }
+}
+
+/* @media only screen and (min-width: 305px) and (max-width: 545px) {
+    .wrh {
+        display: none !important;
+    }
+    
+    .wrh-break {
+        display: inline-block !important;
+    }
+
+} */
+
+@media (max-width: 305px) {
+    .tch {
+        display: none !important;
+    }
+    
+    .tch-break {
+        display: inline-block !important;
+    }
+
+}
+
+@media (max-width: 305px) {
+    .wrh {
+        display: none !important;
+    }
+    
+    .wrh-break {
+        display: inline-block !important;
+    }
+
 }
 
 #whole-row {

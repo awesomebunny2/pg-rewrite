@@ -92,28 +92,204 @@
   <div id="color-cheat-sheet">
     <div id="cheat-sheet-window">
       <div id="cheat-sheet-title-bar">
-        <h3 id="cs-heading">Color Formatting Cheat Sheet</h3>
+        <h3 id="cs-heading">Color Formatting Cheat&nbsp;Sheet</h3>
           <!-- <button id="close-xp" aria-label="Close" src="assets/close.svg"></button> -->
         <!-- <div class="title-bar-controls">
           <button id="close-xp" aria-label="Close" src="assets/close.svg"></button>
         </div> -->
       </div>
-      <div id="whole-row">
-        <h4 id="whole-row-highlights">Whole Row Highlights</h4>
-        <div class="color-sheet-mini">
-          <button type="button" class="collapsible">Open Collapsible</button>
-            <div class="content">
-              <p>Lorem ipsum...</p>
-            </div>
+
+      <div id="deform">
+        <div id="cs-section">
+          <h4 id="cs-section-title" class="wrh">Whole Row Highlights</h4>
+          <h4 id="cs-section-title" class="wrh-break">Whole Row <br>Highlights</h4>
+          <div class="color-sheet-mini">
+              <div class="row">
+                <div class="button-collection">
+                  <div class="collapsible proof-overdue">
+                    <span class="collapsible-label">Proof to Client Overdue</span>
+                    <span class="collapsible-icon">
+                    <i class="fa-solid fa-plus"></i>
+                    </span>
+                  </div>
+                  <div class="content">
+                      <p class="collapse-content">If the value in the Proof to Client column is less than the current time, this row is highlighted in red to show the urgecy of getting this project out to the client ASAP</p>
+                  </div>
+                </div>
+    
+                <div class="button-collection">
+                  <div class="collapsible working">
+                    <span class="collapsible-label">Working on Initial&nbsp;Proof</span>
+                    <span class="collapsible-icon">
+                    <i class="fa-solid fa-plus"></i>
+                    </span>
+                  </div>
+                  <div class="content">
+                      <p class="collapse-content">When the first proof for a piece is actively being worked on and has the "Working" status in the Status column</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="button-collection">
+                  <div class="collapsible selection-highlight">
+                    <span class="collapsible-label">Row Selection Highlight</span>
+                    <span class="collapsible-icon">
+                    <i class="fa-solid fa-plus"></i>
+                    </span>
+                  </div>
+                  <div class="content">
+                      <p class="collapse-content">Highlights the whole row you are currently selecting for ease of navigation</p>
+                  </div>
+                </div>
+    
+                <div class="button-collection">
+                  <div class="collapsible invalid-project">
+                    <span class="collapsible-label">Invalid Product /&nbsp;Project&nbsp;Type</span>
+                    <span class="collapsible-icon">
+                    <i class="fa-solid fa-plus"></i>
+                    </span>
+                  </div>
+                  <div class="content">
+                      <p class="collapse-content">For items that are missing or have an invalid value in the product or project type columns. These Rows are bumped to the bottom of the table</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="button-collection">
+                  <div class="collapsible auto-generated-logo">
+                    <span class="collapsible-label">Auto-Generated Logo Recreation&nbsp;Project</span>
+                    <span class="collapsible-icon">
+                    <i class="fa-solid fa-plus"></i>
+                    </span>
+                  </div>
+                  <div class="content">
+                      <p class="collapse-content">Rows that are auto-gerneated logo recreations tied to another project the artist is working on have this formatting to help them stand out from the normal projects</p>
+                  </div>
+                </div>
+              </div>
+
+
+          </div>
+
+        </div>
+
+        <div id="cs-section">
+          <h4 id="cs-section-title">Print Date / Group <br /> Column Highlights</h4>
+          <div class="color-sheet-mini">
+              <div class="row">
+                <div class="button-collection">
+                  <div class="collapsible this-week">
+                    <span class="collapsible-label">In This Week's Print&nbsp;Group</span>
+                    <span class="collapsible-icon">
+                    <i class="fa-solid fa-plus"></i>
+                    </span>
+                  </div>
+                  <div class="content">
+                      <p class="collapse-content">Project is currently in this week's print group</p>
+                  </div>
+                </div>
+    
+                <div class="button-collection">
+                  <div class="collapsible next-week">
+                    <span class="collapsible-label">In Next Week's Print&nbsp;Group</span>
+                    <span class="collapsible-icon">
+                    <i class="fa-solid fa-plus"></i>
+                    </span>
+                  </div>
+                  <div class="content">
+                      <p class="collapse-content">Project is currently in next week's print group</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="button-collection">
+                  <div class="collapsible print-group-past">
+                    <span class="collapsible-label">Print Group Past - Needs&nbsp;Updating</span>
+                    <span class="collapsible-icon">
+                    <i class="fa-solid fa-plus"></i>
+                    </span>
+                  </div>
+                  <div class="content">
+                      <p class="collapse-content">The print group for this project has passed and needs to be updated to reflect the new print group in dot net</p>
+                  </div>
+                </div>
+              </div>
+
+
+          </div>
+
+        </div>
+
+        <div id="cs-section">
+          <h4 id="cs-section-title" class="tch">Tag Column Highlights</h4>
+          <h4 id="cs-section-title" class="tch-break">Tag Column <br>Highlights</h4>
+          <div class="color-sheet-mini">
+              <div class="row">
+                <div class="button-collection">
+                  <div class="collapsible very-urgent-tag">
+                    <span class="collapsible-label">VERY URGENT</span>
+                    <span class="collapsible-icon">
+                    <i class="fa-solid fa-plus"></i>
+                    </span>
+                  </div>
+                  <div class="content">
+                      <p class="collapse-content">Items marked with the "VERY URGENT" tag are sorted at the top of the user's table</p>
+                  </div>
+                </div>
+    
+                <div class="button-collection">
+                  <div class="collapsible urgent-tag">
+                    <span class="collapsible-label">URGENT</span>
+                    <span class="collapsible-icon">
+                    <i class="fa-solid fa-plus"></i>
+                    </span>
+                  </div>
+                  <div class="content">
+                      <p class="collapse-content">Items marked with the "URGENT" tag are sorted at the top of the user's table, but below any projects marked with the "VERY URGENT" tag</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="button-collection">
+                  <div class="collapsible semi-urgent-tag">
+                    <span class="collapsible-label">SEMI-URGENT</span>
+                    <span class="collapsible-icon">
+                    <i class="fa-solid fa-plus"></i>
+                    </span>
+                  </div>
+                  <div class="content">
+                      <p class="collapse-content">Items marked with the "SEMI-URGENT" tag are sorted at the top of the user's table, but below any projects marked with the "VERY URGENT" & "URGENT" tags</p>
+                  </div>
+                </div>
+    
+                <div class="button-collection">
+                  <div class="collapsible eventual-tag">
+                    <span class="collapsible-label">EVENTUAL</span>
+                    <span class="collapsible-icon">
+                    <i class="fa-solid fa-plus"></i>
+                    </span>
+                  </div>
+                  <div class="content">
+                      <p class="collapse-content">Items marked with the "EVENTUAL" tag are sorted at the bottom of the user's table, but above any projects with the statuses of "In Review", "At Client", or "On Hold"</p>
+                  </div>
+                </div>
+              </div>
+
+
+          </div>
+
         </div>
 
       </div>
-        <p id="some-text">farts in a sheet</p>
-        <!-- <img id="fissh-img" src="/assets/fissh.png" alt="fissh"> -->
-        <div id="cheat-sheet-back-button">
-          <button id="cs-back" class="back">Back</button>
-        </div>
+
+      <div id="cheat-sheet-back-button">
+        <button id="cs-back" class="back butt">BACK</button>
       </div>
+    </div>
     </div>
   </div>
   <!-- <div id="fissh-gif">
@@ -281,6 +457,10 @@
         </div>
   
         <p class="checkbox-text">Auto-open add-in with this document</p>
+
+        <!-- <div id="cheat-sheet-toggle">
+          <button class="cs-text">Color Formatting Cheat Sheet</button>
+        </div> -->
         
       </div>
 
@@ -288,17 +468,7 @@
 
     </div>
 
-    <!-- <div id="checkbox-area">
-
-      <div id="checkbox">
-        <input type="checkbox" id="auto-open"/>
-      </div>
-
-      <p class="checkbox-text">Auto-open add-in with this document</p>
-
-    </div> -->
-
-    <p id="version">Version 0.4.3.1</p>
+    <p id="version">Version 0.4.3.2</p>
 
   </div>
 
