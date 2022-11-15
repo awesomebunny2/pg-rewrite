@@ -653,6 +653,9 @@ $( async () => {
 
                     var groupDateRefValues = groupDateRefRange.values;
 
+                    console.log("The Group Date Ref Values are:");
+                    console.log(groupDateRefValues[2][3]);
+
                     $("#print-date").empty();
                     $("#print-date").append($("<option disabled selected hidden></option>").val("").text(""));
                     $("#group").empty();
@@ -1072,6 +1075,13 @@ $( async () => {
                     removeWarningClass("#client", "#warning2");
                     removeWarningClass("#product", "#warning3");
                     removeWarningClass("#project-type", "#warning4");
+
+                    if ($("#print-date").val() == "") {
+                        console.log("farts in a sheet");
+                        $("#print-date").val(groupDateRefValues[2][3]);
+                        $("#group").val(groupDateRefValues[2][6]);
+                    };
+
                     await addAProjectEvents().catch(err => {
                         console.log(err);
                         showMessage(err, "show");
@@ -1699,8 +1709,6 @@ $( async () => {
             };
 
         //#endregion ---------------------------------------------------------------------------------------------------------------------------------
-
-    //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
     //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
@@ -2429,11 +2437,27 @@ $( async () => {
 
                                     // };
 
-                                    var groupPrintProofToClient = getProofToClientTime(groupPrintRowInfo, leTable, 0, changedRowTableIndex);
+                                    if (changedTableName == "UnassignedProjects") {
 
-                                    groupPrintRowInfo.proofToClient.value = groupPrintProofToClient;
+                                        var groupPrintPickUpTime = getPickUpTime(groupPrintRowInfo, leTable, changedRowTableIndex, changedTableName);
 
-                                    var groupPrintChangedRowValues = leTable[changedRowTableIndex];
+                                        var groupPrintProofToClient = getProofToClientTime(groupPrintRowInfo, leTable, groupPrintPickUpTime, changedRowTableIndex);
+
+                                        groupPrintRowInfo.pickedUpStartedBy.value = groupPrintPickUpTime;
+
+                                        groupPrintRowInfo.proofToClient.value = groupPrintProofToClient;
+
+                                        var groupPrintChangedRowValues = leTable[changedRowTableIndex];
+
+                                    } else {
+
+                                        var groupPrintProofToClient = getProofToClientTime(groupPrintRowInfo, leTable, 0, changedRowTableIndex);
+
+                                        groupPrintRowInfo.proofToClient.value = groupPrintProofToClient;
+
+                                        var groupPrintChangedRowValues = leTable[changedRowTableIndex];
+
+                                    };
 
                                     if (changedTable.id == unassignedTable.id) {
                                         leTable = leSorting(groupPrintRowInfo, leTable, pickedUpColumnIndex, groupPrintChangedRowValues);
@@ -2626,7 +2650,7 @@ $( async () => {
                             //#endregion -------------------------------------------------------------------------------------------------------------
 
                             //adjusts picked up / started by turn around time
-                            var lePickUpTime = getPickUpTime(rowInfo, leTable, changedRowTableIndex);
+                            var lePickUpTime = getPickUpTime(rowInfo, leTable, changedRowTableIndex, changedTableName);
 
                             //adjusts proof to client turn around time
                             var leProofToClientTime = getProofToClientTime(rowInfo, leTable, lePickUpTime, changedRowTableIndex);
@@ -3964,43 +3988,97 @@ $( async () => {
              * @param {Object} rowInfo An object containing the values and column indexs of each cell in the changed row
              * @param {Array} leTable An array of arrays containing all the info of the changed table
              * @param {Number} rowIndex The index number of the changed row (table level)
+             * @param {String} changedTableName The name of the changed table
              * @returns Date
              */
-             function getPickUpTime(rowInfo, leTable, rowIndex) {
+             function getPickUpTime(rowInfo, leTable, rowIndex, changedTableName) {
 
                 if (rowInfo.product.value == "" || rowInfo.projectType.value == "") {
                     leTable[rowIndex][rowInfo.pickedUpStartedBy.columnIndex] = "NO PRODUCT / PROJECT TYPE";
                     return null;
-                };
+                
+                //#region IF PRODUCT IS A LOGO RECREATION AND HAS A LOGO SPECIFIFC STATUS, UPDATE TURN AROUND TIME -----------------------------------
 
-                //get the Project Type coded variable from the Project Type ID Data based on the value in Project Type column of the changed row
-                var theProjectTypeCode = projectTypeIDData[rowInfo.projectType.value].projectTypeCode;
+                    //if product is a logo recreation AND it has any of the three main recreation statuses (used spcifically for 
+                    //when a logo is being recreated based on another project), do the following...
+                    } else if (changedTableName == "UnassignedProjects" && (rowInfo.product.value == "Logo Recreation" && 
+                    (rowInfo.status.value == "Logo Status TBD" || rowInfo.status.value == "Logo Needs Recreating" 
+                    || rowInfo.status.value == "Logo Needs Uploading"))) {
 
-                //returns turn around time value from the Pickup Turn Around Time table based on the Product column of the 
-                //changed row and the projetc type codeed variable
-                var pickedUpTurnAroundTime = pickupData[rowInfo.product.value][theProjectTypeCode];
+                        var thePrintDateUpdated = convertToDate(rowInfo.printDate.value)
+                        var updatedPrintDate = new Date(thePrintDateUpdated);
+                        var updatedDatePrint = updatedPrintDate.getDate();
+                        var updatedMonthPrint = updatedPrintDate.getMonth();
+                        var updatedYearPrint = updatedPrintDate.getFullYear();
 
-                if (rowInfo.status.value == "Light Changes" || rowInfo.status.value == "Moderate Changes" || rowInfo.status.value == "Heavy Changes") {
-                    //do not add start override to picked up turn around time
-                    var pickedUpHours = pickedUpTurnAroundTime;
+                        var updatedPrintDateDOW = updatedPrintDate.getDay();
+
+                        if (updatedPrintDateDOW == 0) {
+                            updatedPrintDateDOW = "Sunday"
+                        } else if (updatedPrintDateDOW == 1) {
+                            updatedPrintDateDOW = "Monday"
+                        } else if (updatedPrintDateDOW == 2) {
+                            updatedPrintDateDOW = "Tuesday"
+                        } else if (updatedPrintDateDOW == 3) {
+                            updatedPrintDateDOW = "Wednesday"
+                        } else if (updatedPrintDateDOW == 4) {
+                            updatedPrintDateDOW = "Thursday"
+                        } else if (updatedPrintDateDOW == 5) {
+                            updatedPrintDateDOW = "Friday"
+                        } else if (updatedPrintDateDOW == 6) {
+                            updatedPrintDateDOW = "Saturday"
+                        };
+
+                        var updatedWeekdayVars = officeHoursData[updatedPrintDateDOW];
+
+                        var updatedGroupEndOfDay = convertToDate(updatedWeekdayVars.endTime);
+
+                        updatedGroupEndOfDay.setFullYear(updatedYearPrint);
+                        updatedGroupEndOfDay.setMonth(updatedMonthPrint);
+                        updatedGroupEndOfDay.setDate(updatedDatePrint);
+
+                        console.log(updatedGroupEndOfDay);
+
+                        var updatedGroupDateExcel = Number(JSDateToExcelDate(updatedGroupEndOfDay));
+
+                        leTable[rowIndex][rowInfo.pickedUpStartedBy.columnIndex] = updatedGroupDateExcel;
+                        
+                        return updatedGroupDateExcel;
+
+                //#endregion -------------------------------------------------------------------------------------------------------------------------
+
                 } else {
-                    //finds the start override value of the changed row and adds it to the previous turn around time variable
-                    var pickedUpHours = pickedUpTurnAroundTime + rowInfo.startOverride.value;
+
+                    //get the Project Type coded variable from the Project Type ID Data based on the value in Project Type column of the changed row
+                    var theProjectTypeCode = projectTypeIDData[rowInfo.projectType.value].projectTypeCode;
+
+                    //returns turn around time value from the Pickup Turn Around Time table based on the Product column of the 
+                    //changed row and the projetc type codeed variable
+                    var pickedUpTurnAroundTime = pickupData[rowInfo.product.value][theProjectTypeCode];
+
+                    if (rowInfo.status.value == "Light Changes" || rowInfo.status.value == "Moderate Changes" || rowInfo.status.value == "Heavy Changes") {
+                        //do not add start override to picked up turn around time
+                        var pickedUpHours = pickedUpTurnAroundTime;
+                    } else {
+                        //finds the start override value of the changed row and adds it to the previous turn around time variable
+                        var pickedUpHours = pickedUpTurnAroundTime + rowInfo.startOverride.value;
+                    };
+
+                    //finds the added date/time serial of the changed row and converts it to a date
+                    var addedDate = convertToDate(rowInfo.added.value);
+
+                    //adds the adjusted turn around time to the added date and adjusts to be within office hours
+                    var pickupOfficeHours = officeHours(addedDate, pickedUpHours);
+
+                    //converts date to excel date
+                    var excelPickupOfficeHours = Number(JSDateToExcelDate(pickupOfficeHours));
+
+                    //updates the pickedup turn around time value in the table array based on our calculations
+                    leTable[rowIndex][rowInfo.pickedUpStartedBy.columnIndex] = excelPickupOfficeHours;
+
+                    return pickupOfficeHours;
+
                 };
-
-                //finds the added date/time serial of the changed row and converts it to a date
-                var addedDate = convertToDate(rowInfo.added.value);
-
-                //adds the adjusted turn around time to the added date and adjusts to be within office hours
-                var pickupOfficeHours = officeHours(addedDate, pickedUpHours);
-
-                //converts date to excel date
-                var excelPickupOfficeHours = Number(JSDateToExcelDate(pickupOfficeHours));
-
-                //updates the pickedup turn around time value in the table array based on our calculations
-                leTable[rowIndex][rowInfo.pickedUpStartedBy.columnIndex] = excelPickupOfficeHours;
-
-                return pickupOfficeHours;
 
             };
 
@@ -4154,7 +4232,7 @@ $( async () => {
 
         //#endregion ---------------------------------------------------------------------------------------------------------------------------------
 
-        //#region SORTING THE TABLE BY PICKED UP TURN AROUND TIME ------------------------------------------------------------------------------------
+        //#region LE SORTING -------------------------------------------------------------------------------------------------------------------------
 
             /**
              * Sorts the table array by the values in leColumnIndex and then assigns updated priority numbers
