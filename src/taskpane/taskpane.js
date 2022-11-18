@@ -172,6 +172,8 @@ $( async () => {
         var valPassword = "fissh";
         var dennisHere = false;
 
+        var selectionTrigger = false;
+
     //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
 //#endregion -----------------------------------------------------------------------------------------------------------------------------------------
@@ -928,6 +930,32 @@ $( async () => {
                         noBlanksArr[0].includes("URGENT! CREATIVE REQUEST!!") || noBlanksArr[0].includes("URGENT!! CREATIVE REQUEST!") || 
                         noBlanksArr[0].includes("URGENT!! CREATIVE REQUEST!!");
 
+
+
+                        noBlanksArr[0].includes("Urgent Creative Review") || noBlanksArr[0].includes("Urgent Creative Review!") || 
+                        noBlanksArr[0].includes("Urgent! Creative Review") || noBlanksArr[0].includes("Urgent! Creative Review!") ||
+                        noBlanksArr[0].includes("Urgent Creative Review!!") || noBlanksArr[0].includes("Urgent!! Creative Review") ||
+                        noBlanksArr[0].includes("Urgent! Creative Review!!") || noBlanksArr[0].includes("Urgent!! Creative Review!") ||
+                        noBlanksArr[0].includes("Urgent!! Creative Review!!") || 
+                        
+                        noBlanksArr[0].includes("URGENT Creative Review") || noBlanksArr[0].includes("URGENT Creative Review!") || 
+                        noBlanksArr[0].includes("URGENT! Creative Review") || noBlanksArr[0].includes("URGENT! Creative Review!")
+                        noBlanksArr[0].includes("URGENT Creative Review!!") || noBlanksArr[0].includes("URGENT!! Creative Review") || 
+                        noBlanksArr[0].includes("URGENT! Creative Review!!") || noBlanksArr[0].includes("URGENT!! Creative Review!") || 
+                        noBlanksArr[0].includes("URGENT!! Creative Review!!") ||
+
+                        noBlanksArr[0].includes("Urgent CREATIVE REVIEW") || noBlanksArr[0].includes("Urgent CREATIVE REVIEW!") || 
+                        noBlanksArr[0].includes("Urgent! CREATIVE REVIEW") || noBlanksArr[0].includes("Urgent! CREATIVE REVIEW!") ||
+                        noBlanksArr[0].includes("Urgent CREATIVE REVIEW!!") || noBlanksArr[0].includes("Urgent!! CREATIVE REVIEW") ||
+                        noBlanksArr[0].includes("Urgent! CREATIVE REVIEW!!") || noBlanksArr[0].includes("Urgent!! CREATIVE REVIEW!") ||
+                        noBlanksArr[0].includes("Urgent!! CREATIVE REVIEW!!") || 
+
+                        noBlanksArr[0].includes("URGENT CREATIVE REVIEW") || noBlanksArr[0].includes("URGENT CREATIVE REVIEW!") ||
+                        noBlanksArr[0].includes("URGENT! CREATIVE REVIEW") || noBlanksArr[0].includes("URGENT! CREATIVE REVIEW!") ||
+                        noBlanksArr[0].includes("URGENT CREATIVE REVIEW!!") || noBlanksArr[0].includes("URGENT!! CREATIVE REVIEW") ||
+                        noBlanksArr[0].includes("URGENT! CREATIVE REVIEW!!") || noBlanksArr[0].includes("URGENT!! CREATIVE REVIEW!") || 
+                        noBlanksArr[0].includes("URGENT!! CREATIVE REVIEW!!");
+
                         if (hasRequest == true) {
 
                             noBlanksArr.shift();
@@ -1230,6 +1258,12 @@ $( async () => {
                         var sheetTableHeader = sheetTable.getHeaderRowRange().load("values");
                         context.runtime.load("enableEvents");
 
+                        var leValSheet = context.workbook.worksheets.getItem("Validation");
+
+                        var groupDateRefTable = leValSheet.tables.getItem("dateTable");
+                        var groupDateRefRange = groupDateRefTable.getDataBodyRange().load("values");
+
+
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
 
                     //#region GET INPUT FROM TASKPANE ------------------------------------------------------------------------------------------------
@@ -1513,12 +1547,6 @@ $( async () => {
 
                     await context.sync();
 
-                    var xyz = 12;
-
-                    if (xyz == 12) {
-                        console.log("Wow, that stinks");
-                    };
-
 
                     var shouldAutoLogo = true;
 
@@ -1588,7 +1616,7 @@ $( async () => {
                                     toSerial, // 10 - Added
                                     printDateVal, // 11 - Print Data
                                     groupVal, // 12 - Group
-                                    excelPickupOfficeHours, // 13 - Picked Up / Started By
+                                    "", // 13 - Picked Up / Started By
                                     "", // 14 - Proof to Client
                                     "", // 15 - Date of Last Edit
                                     tagsVal, // 16 - Tags
@@ -1603,6 +1631,36 @@ $( async () => {
                             //#endregion -------------------------------------------------------------------------------------------------------------
 
                             //use same pick up time because the logo should be assigned at the same time the product is
+
+                            var groupDateRefValues = groupDateRefRange.values;
+
+
+                            if (printDateVal == undefined) {
+                                printDateVal = groupDateRefValues[2][3];
+                                printDateVal = convertToDate(printDateVal);
+                                printDateVal = formatDate(printDateVal);
+
+                                function formatDate(date) {
+                                    var d = new Date(date),
+                                    month = '' + (d.getMonth() + 1),
+                                    day = '' + d.getDate(),
+                                    year = d.getFullYear();
+                                    year = year.toString().substr(-2);
+                                
+                                    // if (month.length < 2) 
+                                    //     month = '0' + month;
+                                    // if (day.length < 2) 
+                                    //     day = '0' + day;
+                                
+                                    return [month, day, year].join('/');
+                                };
+
+                                writeLogo[0][tableRowInfo.printDate.columnIndex] = printDateVal;
+
+                                groupVal = groupDateRefValues[2][6];
+                                writeLogo[0][tableRowInfo.group.columnIndex] = groupVal;
+
+                            };
 
                             //will need the art turn around time to be the end of the work day on the group print date
                             var thePrintDate = new Date(printDateVal);
@@ -1640,6 +1698,8 @@ $( async () => {
                             console.log(endOfGroupDay);
 
                             var groupDateExcel = Number(JSDateToExcelDate(endOfGroupDay));
+
+                            writeLogo[0][tableRowInfo.pickedUpStartedBy.columnIndex] = groupDateExcel;
 
                             writeLogo[0][tableRowInfo.proofToClient.columnIndex] = groupDateExcel;
 
@@ -1735,6 +1795,8 @@ $( async () => {
                 var activeWorksheetTablesCount = activeWorksheetTables.count;
 
                 var previousColumn = currentRange.columnIndex;
+
+                selectionTrigger = true;
 
                 //if user has made a selection prior to the current selection without triggering a reload, the previousSelectionObj should 
                 //have arguments that will bring the user into this function to load in variables to handle the previous row highlighting
@@ -1863,6 +1925,14 @@ $( async () => {
 
                             console.log("Print Date in the Previosu Selection Obj Row Info Sorted value was updated to match Group Letter!")
                         };
+
+                        // if (previousSelectionObj.columnIndex !== rowInfoSorted.added.columnIndex) {
+
+                            console.log("ConForm is about to trigger for when a row selection highlight changes");
+
+                            conditionalFormatting(rowInfoSorted, tableStart, previousWorksheet, previousRowIndex, 
+                                completedTableChanged, previousSelectionRange, null);
+                        // };
           
 
                         // if (previousSelectionObj.columnIndex == rowInfoSorted.group.columnIndex
@@ -1876,10 +1946,10 @@ $( async () => {
                         // if (previousSelectionObj.columnIndex !== rowInfoSorted.group.columnIndex
                         //     && previousSelectionObj.columnIndex !== rowInfoSorted.printDate.columnIndex) {
 
-                            console.log("ConForm is about to trigger for when a row selection highlight changes");
+                            // console.log("ConForm is about to trigger for when a row selection highlight changes");
 
-                            conditionalFormatting(rowInfoSorted, tableStart, previousWorksheet, previousRowIndex, 
-                                completedTableChanged, previousSelectionRange, null);
+                            // conditionalFormatting(rowInfoSorted, tableStart, previousWorksheet, previousRowIndex, 
+                            //     completedTableChanged, previousSelectionRange, null);
                         // };
 
                     };
@@ -1895,6 +1965,11 @@ $( async () => {
                         previousSelectionObj.rowIndex = rI;
 
                         previousSelectionObj.columnIndex = cI;
+
+                        //NEED TO GET VALUE OF CHANGED ROW AND ASSIGN IT TO NEW VARIABLE IN PREVIOUSSELECTIONOBJ so that it can be used to 
+                        //overwrite the added value before conditional formatting is applied in selection highlight function (this function, but later)
+
+                        //context.workbook.getItemAt(rI, )
                     };
 
                 } else { //if the selection address is not a part of a table AND there is a previous selection still highlighted...
@@ -1914,11 +1989,18 @@ $( async () => {
                             theGreatestFunctionEverWritten(headTwo, name, zeRowValues, newLeTable, rowInfoSorted, previousRowIndex);
                         }
 
+                        // if (previousSelectionObj.columnIndex !== rowInfoSorted.added.columnIndex) {
+                            // console.log("ConForm is about to trigger for when a row selection highlight changes");
+                            // conditionalFormatting(rowInfoSorted, tableStart, previousWorksheet, previousRowIndex, 
+                            //     completedTableChanged, previousSelectionRange, null);
+                        // };
 
                         console.log("ConForm is about to trigger for when a row selection highlight changes");
                         conditionalFormatting(rowInfoSorted, tableStart, previousWorksheet, previousRowIndex, 
                             completedTableChanged, previousSelectionRange, null);
                     };
+
+                    selectionTrigger = false;
 
                 }
 
@@ -3391,6 +3473,11 @@ $( async () => {
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
 
                     //#region CONDITIONAL FORMATTING HANDLER -----------------------------------------------------------------------------------------
+
+                        // if (changedColumnIndex == rowInfo.added.columnIndex) { //change was made to added column
+                        //     console.log("Preventing conditional formatting on whole table level since it will be handled on the selection highlight level");
+                        //     return;
+                        // };
 
                         //only do the following if the change was not made to a Print Date or Group column
                         if (
@@ -4870,8 +4957,6 @@ $( async () => {
                     var tagsAddress = changedWorksheet.getCell(worksheetRowIndex, tagsWorksheetColumn);
 
                     var logoRecreationStatus = ["Logo Status TBD", "Logo Needs Recreating", "Logo Needs Uploading", "No Logo Recreation Needed"];
-
-                    console.log(changedWorksheet.name);
 
                 //#endregion -------------------------------------------------------------------------------------------------------------------------
 
