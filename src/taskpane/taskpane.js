@@ -142,6 +142,8 @@ $( async () => {
         var changesIDData = {};
         var printDateRefData = {};
         var groupRefData = {};
+        var newMoverData = {};
+        var newMoverGroupData = {};
         var loop = true;
         var changeEvent;
         var selectionEvent;
@@ -223,6 +225,7 @@ $( async () => {
                     var changesIDTable = sheet.tables.getItem("ChangesIDTable");
                     var groupPrintDateRefTable = sheet.tables.getItem("dateTable");
                     var designManagersTable = sheet.tables.getItem("DesignManagersTable");
+                    var newMoversTable = sheet.tables.getItem("NewMoverTable");
                     var activeSheet = context.workbook.worksheets.getActiveWorksheet().load("worksheetId");
                     var activeProjectTable = activeSheet.tables.getItemAt(0);
                     var workbookName = context.workbook.load("name");
@@ -239,10 +242,13 @@ $( async () => {
                     var changesIDBodyRange = changesIDTable.getDataBodyRange().load("values");
                     var designManagersBodyRange = designManagersTable.getDataBodyRange().load("values");
                     var groupPrintDateRefRange = groupPrintDateRefTable.getDataBodyRange().load("values");
+                    var newMoverBodyRange = newMoversTable.getDataBodyRange().load("values");
 
                 //#endregion -------------------------------------------------------------------------------------------------------------------------
 
-                await context.sync()
+                await context.sync();
+
+                console.log("Can I get a cheese puff???");
 
                     //#region GRABBING DATA FROM VALIDATION AND WRITING TO CODE ----------------------------------------------------------------------
 
@@ -258,7 +264,7 @@ $( async () => {
                                 };
                             };
 
-                            // console.log(productIDData);
+                            console.log(productIDData);
 
                         //#endregion -----------------------------------------------------------------------------------------------------------------
 
@@ -432,17 +438,24 @@ $( async () => {
                                     (aNewDate.getFullYear() % 100)].join('/');
 
                                 printDateRefData[formattedPrintDate] = {
-                                "basedOnNow":row[0],
-                                "yearBasedOnNow":row[1],
-                                "weekBasedOnNow":row[2],
-                                "printDate":formattedPrintDate,
-                                "weekday":row[4],
-                                "adjust":row[5],
-                                "group":row[6]
+                                    "basedOnNow":row[0],
+                                    "yearBasedOnNow":row[1],
+                                    "weekBasedOnNow":row[2],
+                                    "printDate":formattedPrintDate,
+                                    "weekday":row[4],
+                                    "adjust":row[5],
+                                    "group":row[6]
                                 };
                             };
 
-                            //console.log(proofToClientData);
+                            console.log(printDateRefData);
+
+                            // const index = printDateRefData.map(object => object.printDate).indexOf("11/23/22");
+
+                            // var index = printDateRefData[Object.keys(printDateRefData)[2]];
+
+
+                            // console.log(index);
 
                         //#endregion -----------------------------------------------------------------------------------------------------------------
 
@@ -485,6 +498,71 @@ $( async () => {
                             };
 
                             //console.log(proofToClientData);
+
+                        //#endregion -----------------------------------------------------------------------------------------------------------------
+
+                        //#region NEW MOVER PRINT DATE DATA ------------------------------------------------------------------------------------------
+
+                            var newMoverArr = newMoverBodyRange.values;
+                            // console.log(changesDataArr);
+
+                            for (var row of newMoverArr) {
+                                var serialNMPrint = row[1];
+                                var formattedNMPrintDate = convertToDate(serialNMPrint);
+                                var aNewNMDate = new Date(formattedNMPrintDate);
+                                //converts the date into a simplifed format for dropdown: mm/dd/yy
+                                formattedNMPrintDate = [('' + (aNewNMDate.getMonth() + 1)).slice(-2),
+                                    ('' + aNewNMDate.getDate()).slice(-2),
+                                    (aNewNMDate.getFullYear() % 100)].join('/');
+
+                                newMoverData[formattedNMPrintDate] = {
+                                    "beginningOfMonth":row[0],
+                                    "newMoverDate":row[1],
+                                    "newMoverGroup":row[2],
+                                };
+                            };
+
+                            console.log("The New Mover Print Date Data is: ");
+                            console.log(newMoverData);
+
+                        //#endregion -----------------------------------------------------------------------------------------------------------------
+
+                        //#region NEW MOVER GROUP DATA -----------------------------------------------------------------------------------------------
+
+                            var newMoverGroupArr = newMoverBodyRange.values;
+                            // console.log(proofToClientArr);
+
+                            var nMGArr = [];
+
+                            for (var row of newMoverGroupArr) { //for each row in the newMoverTable...
+
+                                var xx = row[2]; //the group letter of the current row
+
+                                var isNMGroupAlreadyPresent = false;
+
+                                for (var yy of nMGArr) { //for each element in gArr...
+                                    if (yy == xx) { //if an element from gArr = the current row group letter, then isGroupAlreadyPresent is true
+                                        isNMGroupAlreadyPresent = true;
+                                    };
+                                };
+
+                                //if group letter is not already in the data, create the object and properties for the row
+                                if (isNMGroupAlreadyPresent == false) {
+
+                                    newMoverGroupData[row[2].trim()] = {
+                                        "beginningOfMonth":row[0],
+                                        "newMoverDate":row[1],
+                                        "newMoverGroup":row[2],
+                                    };
+
+                                    nMGArr.push(xx); //pushes the group letter of the current row into the gArr for further calculations
+
+                                };
+
+                            };
+
+                            console.log("The New Mover Group Data is: ");
+                            console.log(newMoverGroupData);
 
                         //#endregion -----------------------------------------------------------------------------------------------------------------
 
@@ -689,6 +767,7 @@ $( async () => {
                         };
 
                         if (y == 0) { // Meaning, it's not there yet, because it's length count is 0
+                            // var groupOption = `<option generated-group="${row[6]}">${row[6]}</option>`;
                             $("#group").append(option);
                         };
                     });
@@ -1022,6 +1101,70 @@ $( async () => {
             //#endregion -----------------------------------------------------------------------------------------------------------------------------
 
         //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+
+        $("#product").change(() => newMoverGroupPrint());
+
+        async function newMoverGroupPrint() {
+
+            await Excel.run(async (context) => {
+
+                //#region LOAD VALUES ----------------------------------------------------------------------------------------------------------------
+
+                    var sheet = context.workbook.worksheets.getItem("Validation");
+                    var newMoverTable = sheet.tables.getItem("NewMoverTable");
+                    var newMoverDataRange = newMoverTable.getDataBodyRange().load("values");
+
+                //#endregion -------------------------------------------------------------------------------------------------------------------------
+
+                await context.sync();
+
+                var product = $("#product").val();
+
+                if (product == "New Mover") {
+                    console.log("The product is a new mover, so new group and print dates need to be populated in the dropdowns");
+
+                    //newMoverData && newMoverGroupData
+
+                    var newMoverRefValues = newMoverDataRange.values
+
+
+                    $("#print-date").empty();
+                    $("#print-date").append($("<option disabled selected hidden></option>").val("").text(""));
+                    $("#group").empty();
+                    $("#group").append($("<option disabled selected hidden></option>").val("").text(""));
+
+                    newMoverRefValues.forEach(function(row) {
+
+                        // Add an option to the select box
+                        var option = `<option beginning-of-month="${row[0]}" new-mover-date="${row[1]}" new-mover-group="${row[2]}">${row[2]}</option>`;
+
+                        var xxx = $(`#print-date > option[new-mover-date="${row[1]}"]`).length;
+                        var yyy = $(`#group > option[new-mover-group="${row[2]}"]`).length;
+
+
+                        if (xxx == 0) { // Meaning, it's not there yet, because it's length count is 0
+                            var leDate = convertToDate(`${row[1]}`);
+
+                            var d = new Date(leDate);
+
+                            //converts the date into a simplifed format for dropdown: mm/dd/yy
+                            leDate = [('' + (d.getMonth() + 1)).slice(-2), ('' + d.getDate()).slice(-2), (d.getFullYear() % 100)].join('/');
+
+                            //create proper html formatting for option to be added to select box
+                            var printDateOption = `<option print-date-convert="${leDate}">${leDate}</option>`;
+
+                            $("#print-date").append(printDateOption);
+                        };
+
+                        if (yyy == 0) { // Meaning, it's not there yet, because it's length count is 0
+                            $("#group").append(option);
+                        };
+                    });
+                };
+
+            });
+            
+        };
 
         //#region AUTO POPULATED PRINT DATE BASED ON GROUP -------------------------------------------------------------------------------------------
 
@@ -1416,6 +1559,20 @@ $( async () => {
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
 
+                    //#region IF NO PRINT DATE / GROUP, AUTO-FILL PRINT DATE & GROUP WITH CURRENT PRINT DATE -----------------------------------------
+
+                        if (printDateVal == undefined) {
+                            printDateVal = "";
+
+                            write[0][tableRowInfo.printDate.columnIndex] = printDateVal;
+
+                            groupVal = "";
+                            write[0][tableRowInfo.group.columnIndex] = groupVal;
+
+                        };
+
+                    //#endregion ---------------------------------------------------------------------------------------------------------------------
+
                     //#region GENERATE PICKED UP / TURN AROUND TIME VALUE ----------------------------------------------------------------------------
 
                         //returns turn around time value from the PickedUp Turn Around Time table based on the product and project type values
@@ -1635,25 +1792,10 @@ $( async () => {
                             var groupDateRefValues = groupDateRefRange.values;
 
 
-                            if (printDateVal == undefined) {
+                            if (printDateVal == undefined || printDateVal == "") {
                                 printDateVal = groupDateRefValues[2][3];
                                 printDateVal = convertToDate(printDateVal);
                                 printDateVal = formatDate(printDateVal);
-
-                                function formatDate(date) {
-                                    var d = new Date(date),
-                                    month = '' + (d.getMonth() + 1),
-                                    day = '' + d.getDate(),
-                                    year = d.getFullYear();
-                                    year = year.toString().substr(-2);
-                                
-                                    // if (month.length < 2) 
-                                    //     month = '0' + month;
-                                    // if (day.length < 2) 
-                                    //     day = '0' + day;
-                                
-                                    return [month, day, year].join('/');
-                                };
 
                                 writeLogo[0][tableRowInfo.printDate.columnIndex] = printDateVal;
 
@@ -1913,17 +2055,19 @@ $( async () => {
                         // console.log(rowInfoSorted.printDate.value);
 
                         if (previousSelectionObj.columnIndex == rowInfoSorted.group.columnIndex) {
-                            var groupUppercase = rowInfoSorted.group.value.toUpperCase();
-                            var matchPrintDate = groupRefData[groupUppercase].printDate;
-                            if (matchPrintDate == undefined) {
-                                matchPrintDate = "N/A";
+                            if (rowInfoSorted.group.value !== "") {
+                                var groupUppercase = rowInfoSorted.group.value.toUpperCase();
+                                var matchPrintDate = groupRefData[groupUppercase].printDate;
+                                if (matchPrintDate == undefined) {
+                                    matchPrintDate = "N/A";
+                                };
+                                // newLeTable[changedRowTableIndex][rowInfoSorted.printDate.columnIndex] = matchPrintDate;
+                                // newLeTable[changedRowTableIndex][rowInfoSorted.group.columnIndex] = groupUppercase;
+    
+                                rowInfoSorted.printDate.value = matchPrintDate;
+    
+                                console.log("Print Date in the Previosu Selection Obj Row Info Sorted value was updated to match Group Letter!")
                             };
-                            // newLeTable[changedRowTableIndex][rowInfoSorted.printDate.columnIndex] = matchPrintDate;
-                            // newLeTable[changedRowTableIndex][rowInfoSorted.group.columnIndex] = groupUppercase;
-
-                            rowInfoSorted.printDate.value = matchPrintDate;
-
-                            console.log("Print Date in the Previosu Selection Obj Row Info Sorted value was updated to match Group Letter!")
                         };
 
                         // if (previousSelectionObj.columnIndex !== rowInfoSorted.added.columnIndex) {
@@ -4935,6 +5079,7 @@ $( async () => {
                     var now = new Date();
                     var justNowDate = now.getDate();
                     var toSerial = Number(JSDateToExcelDate(now));
+                    var formattedDate = formatDate(now);
 
                     var worksheetRowIndex = rowIndexPostSort + 1; //adjusts index post table sort to work on worksheet level
 
@@ -4948,8 +5093,21 @@ $( async () => {
                     var proofToClientAddress = changedWorksheet.getCell(worksheetRowIndex, proofToClientWorksheetColumn);
 
                     var printDate = Math.trunc(rowInfoSorted.printDate.value);
+                    // printDate = convertToDate(printDate);
+                    // printDate = formatDate(printDate);
                     // console.log(convertToDate(printDate));
-                    var currentDateAbsolute = Math.trunc(toSerial);
+                    // var currentDateAbsolute = Math.trunc(toSerial);
+
+                    // var thePrintDate = Number(JSDateToExcelDate(printDate));
+                    printDate = convertToDate(printDate);
+                    printDate = Number(JSDateToExcelDate(printDate));
+
+
+                    // var datePrint = thePrintDate.getDate();
+                    // var monthPrint = thePrintDate.getMonth();
+                    // var yearPrint = thePrintDate.getFullYear();
+
+                    // var printDateDOW = thePrintDate.getDay();
 
                     var printDateAddress = changedWorksheet.getCell(worksheetRowIndex, printDateWorksheetColumn);
                     var groupAddress = changedWorksheet.getCell(worksheetRowIndex, groupWorksheetColumn);
@@ -4957,6 +5115,35 @@ $( async () => {
                     var tagsAddress = changedWorksheet.getCell(worksheetRowIndex, tagsWorksheetColumn);
 
                     var logoRecreationStatus = ["Logo Status TBD", "Logo Needs Recreating", "Logo Needs Uploading", "No Logo Recreation Needed"];
+
+                    var lastWeeksPrintDate = printDateRefData[Object.keys(printDateRefData)[1]].printDate;
+                    lastWeeksPrintDate = new Date(lastWeeksPrintDate);
+                    lastWeeksPrintDate = Number(JSDateToExcelDate(lastWeeksPrintDate));
+
+                    var thisWeeksPrintDate = printDateRefData[Object.keys(printDateRefData)[2]].printDate;
+                    thisWeeksPrintDate = new Date(thisWeeksPrintDate);
+                    thisWeeksPrintDate = Number(JSDateToExcelDate(thisWeeksPrintDate));
+
+                    var nextWeeksPrintDate = printDateRefData[Object.keys(printDateRefData)[3]].printDate;
+                    nextWeeksPrintDate = new Date(nextWeeksPrintDate);
+                    nextWeeksPrintDate = Number(JSDateToExcelDate(nextWeeksPrintDate));
+
+               
+
+
+                    // if (printDate == thisWeeksPrintDate) {
+                    //     console.log("This line is in this week's print group!");
+                    // } else if (snelly > fartDate) {
+                    //     console.log("This line is in next week's print group!");
+                    // } else if (snelly < fartDate) {
+                    //     console.log("This line was in a previous print group!");
+                    // };
+                    
+
+                    // console.log(thisWeeksPrintDate.printDate);
+
+                   
+
 
                 //#endregion -------------------------------------------------------------------------------------------------------------------------
 
@@ -5003,199 +5190,275 @@ $( async () => {
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
 
-                    //#region GROUP & PRINT DATE FORMATTING ------------------------------------------------------------------------------------------
 
-                        if (printDate == currentDateAbsolute) { //if current date = print date
+                    //#region NEW GROUP & PRINT DATE FORMATTING --------------------------------------------------------------------------------------
 
-                            logoRecreationStatus.forEach(
-                                leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
-                            );
+                        //#region IN THIS WEEK'S PRINT GROUP -----------------------------------------------------------------------------------------
 
-                            // rowRangeSorted.format.font.color = "#C00000";
-                            // rowRangeSorted.format.font.bold = true;
-                            printDateAddress.format.fill.color = "#FFBBB8"; //light red
-                            printDateAddress.format.font.color = "black";
-                            printDateAddress.format.font.bold = true;
+                            if (printDate <= thisWeeksPrintDate && printDate > lastWeeksPrintDate) { //this week's print group
 
-                            groupAddress.format.fill.color = "#FFBBB8"; //light red
-                            groupAddress.format.font.color = "black";
-                            groupAddress.format.font.bold = true;
+                                logoRecreationStatus.forEach(
+                                    leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
+                                );
 
-                            printDateAddress.format.horizontalAlignment = "center";
-                            groupAddress.format.horizontalAlignment = "center";
+                                // rowRangeSorted.format.font.color = "#C00000";
+                                // rowRangeSorted.format.font.bold = true;
+                                printDateAddress.format.fill.color = "#FFBBB8"; //light red
+                                printDateAddress.format.font.color = "black";
+                                printDateAddress.format.font.bold = true;
 
-                            // if (rowInfoSorted.tags.value !== "") {
-                            //     rowRangeSorted.format.font.color = "#ED7D31"; //#9BC2E6
-                            //     rowRangeSorted.format.font.bold = true;
-                            //     printDateAddress.format.font.color = "white";
-                            //     groupAddress.format.font.color = "white";
-                            // };
+                                groupAddress.format.fill.color = "#FFBBB8"; //light red
+                                groupAddress.format.font.color = "black";
+                                groupAddress.format.font.bold = true;
 
-                            console.log("Print Date & Group cells were colored red");
+                                printDateAddress.format.horizontalAlignment = "center";
+                                groupAddress.format.horizontalAlignment = "center";
 
-                        } else if (((printDate - 1) == currentDateAbsolute)) { //if current date is the day before print date
+                                // if (rowInfoSorted.tags.value !== "") {
+                                //     rowRangeSorted.format.font.color = "#ED7D31"; //#9BC2E6
+                                //     rowRangeSorted.format.font.bold = true;
+                                //     printDateAddress.format.font.color = "white";
+                                //     groupAddress.format.font.color = "white";
+                                // };
 
-                            logoRecreationStatus.forEach(
-                                leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
-                            );
+                                console.log("Print Date & Group cells were colored red");
 
-                            // rowRangeSorted.format.font.color = "#C00000";
-                            // rowRangeSorted.format.font.bold = true;
-                            printDateAddress.format.fill.color = "#FFBBB8"; //light red
-                            printDateAddress.format.font.color = "black";
-                            printDateAddress.format.font.bold = true;
-
-                            groupAddress.format.fill.color = "#FFBBB8"; //light red
-                            groupAddress.format.font.color = "black";
-                            groupAddress.format.font.bold = true;
-
-                            printDateAddress.format.horizontalAlignment = "center";
-                            groupAddress.format.horizontalAlignment = "center";
-
-                            // if (rowInfoSorted.tags.value !== "") {
-                            //     rowRangeSorted.format.font.color = "#ED7D31"; //#9BC2E6
-                            //     rowRangeSorted.format.font.bold = true;
-                            //     printDateAddress.format.font.color = "white";
-                            //     groupAddress.format.font.color = "white";
-                            // };
-
-                            // for (var leStatus in logoRecreationStatus) {
-                            //     logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus);
-                            // };
-
-                            console.log("Print Date & Group cells were colored red");
-
-                        
-                            //if current date is in the same group lock week as print date (between 7-2 days before)
-                        } else if (((printDate - 6) <= currentDateAbsolute) && ((printDate - 2) >= currentDateAbsolute)) { 
-
-                            logoRecreationStatus.forEach(
-                                leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
-                            );
-
-                            // rowRangeSorted.format.font.color = "#C00000";
-                            // rowRangeSorted.format.font.bold = true;
-                            printDateAddress.format.fill.color = "#FFBBB8"; //light red
-                            printDateAddress.format.font.color = "black";
-                            printDateAddress.format.font.bold = true;
-
-                            groupAddress.format.fill.color = "#FFBBB8"; //light red
-                            groupAddress.format.font.color = "black";
-                            groupAddress.format.font.bold = true;
-
-                            printDateAddress.format.horizontalAlignment = "center";
-                            groupAddress.format.horizontalAlignment = "center";
-
-                            // if (rowInfoSorted.tags.value !== "") {
-                            //     rowRangeSorted.format.font.color = "#ED7D31"; //#9BC2E6
-                            //     rowRangeSorted.format.font.bold = true;
-                            //     printDateAddress.format.font.color = "white";
-                            //     groupAddress.format.font.color = "white";
-                            // };
-
-                            console.log("Print Date & Group cells were colored red");
-
-
-                        //if current date is in the week before group lock week (between 8-14 days before)
-                        } else if (((printDate - 13) <= currentDateAbsolute) && ((printDate - 7) >= currentDateAbsolute)) { 
-
-                            logoRecreationStatus.forEach(
-                                leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
-                            );
-
-                            // rowRangeSorted.format.font.color = "#C00000";
-                            // rowRangeSorted.format.font.bold = true;
-                            printDateAddress.format.fill.color = "#A9D08E"; //light green
-                            printDateAddress.format.font.color = "black";
-                            printDateAddress.format.font.bold = true;
-
-                            groupAddress.format.fill.color = "#A9D08E"; //light green
-                            groupAddress.format.font.color = "black";
-                            groupAddress.format.font.bold = true;
-
-                            printDateAddress.format.horizontalAlignment = "center";
-                            groupAddress.format.horizontalAlignment = "center";
-
-                            // if (rowInfoSorted.tags.value !== "") {
-                            //     rowRangeSorted.format.font.color = "#ED7D31"; //#9BC2E6
-                            //     rowRangeSorted.format.font.bold = true;
-                            //     printDateAddress.format.font.color = "white";
-                            //     groupAddress.format.font.color = "white";
-                            // };
-
-                            console.log("Print Date & Group cells were colored green");
-
-                            
-                        } else if ((printDate < currentDateAbsolute) && (printDate !== 0)) { //if current date is after print date
-
-                            logoRecreationStatus.forEach(
-                                leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
-                            );
-
-                            printDateAddress.format.fill.color = "black";
-                            printDateAddress.format.font.color = "white";
-                            printDateAddress.format.font.bold = true;
-
-                            groupAddress.format.fill.color = "black";
-                            groupAddress.format.font.color = "white";
-                            groupAddress.format.font.bold = true;
-
-                            printDateAddress.format.horizontalAlignment = "center";
-                            groupAddress.format.horizontalAlignment = "center";
-
-                            // if (rowInfoSorted.tags.value !== "") {
-                            //     rowRangeSorted.format.font.color = "#ED7D31";
-                            //     //rowRangeSorted.format.font.bold = true;
-                            // };
-
-                            console.log("Print Date & Group cells were colored black");
-
-                            
-                        } else { //set cell formatting to normal
-
-                            if (changedWorksheet.name == "Unassigned Projects" && rowInfoSorted.subject.value == "Test for Artist Data Validation") {
-                                return;
                             };
 
-                            rowRangeSorted.format.fill.clear();
-                            rowRangeSorted.format.font.color = "black";
-                            rowRangeSorted.format.font.bold = false;
-                            printDateAddress.format.horizontalAlignment = "center";
-                            groupAddress.format.horizontalAlignment = "center";
+                        //#endregion -----------------------------------------------------------------------------------------------------------------
 
-                            // if (rowInfoSorted.tags.value !== "") {
-                            //     rowRangeSorted.format.font.color = "#ED7D31";
-                            //     rowRangeSorted.format.font.bold = true;
-                            // };
+                        //#region IN NEXT WEEK'S PRINT GROUP -----------------------------------------------------------------------------------------
 
-                            console.log("Color formatting was removed from row");
+                            if (printDate > thisWeeksPrintDate && printDate <= nextWeeksPrintDate) { //next week's print group
 
-                            logoRecreationStatus.forEach(
-                                leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
-                            );
+                                logoRecreationStatus.forEach(
+                                    leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
+                                );
+
+                                // rowRangeSorted.format.font.color = "#C00000";
+                                // rowRangeSorted.format.font.bold = true;
+                                printDateAddress.format.fill.color = "#A9D08E"; //light green
+                                printDateAddress.format.font.color = "black";
+                                printDateAddress.format.font.bold = true;
+
+                                groupAddress.format.fill.color = "#A9D08E"; //light green
+                                groupAddress.format.font.color = "black";
+                                groupAddress.format.font.bold = true;
+
+                                printDateAddress.format.horizontalAlignment = "center";
+                                groupAddress.format.horizontalAlignment = "center";
+
+                                // if (rowInfoSorted.tags.value !== "") {
+                                //     rowRangeSorted.format.font.color = "#ED7D31"; //#9BC2E6
+                                //     rowRangeSorted.format.font.bold = true;
+                                //     printDateAddress.format.font.color = "white";
+                                //     groupAddress.format.font.color = "white";
+                                // };
+
+                                console.log("Print Date & Group cells were colored green");
+
+                            };
+
+                        //#endregion -----------------------------------------------------------------------------------------------------------------
+
+                        /*If past print group, print date and group columns are highlighted in black with white bold text. This is applied further
+                        down, since I wanted this format to overwrite the "Working" status highlight if that was also applied to a line.*/
+
+                    //#endregion ---------------------------------------------------------------------------------------------------------------------
+
+                    //#region OLD GROUP & PRINT DATE FORMATTING --------------------------------------------------------------------------------------
+
+                        // if (printDate == currentDateAbsolute) { //if current date = print date
+
+                        //     logoRecreationStatus.forEach(
+                        //         leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
+                        //     );
+
+                        //     // rowRangeSorted.format.font.color = "#C00000";
+                        //     // rowRangeSorted.format.font.bold = true;
+                        //     printDateAddress.format.fill.color = "#FFBBB8"; //light red
+                        //     printDateAddress.format.font.color = "black";
+                        //     printDateAddress.format.font.bold = true;
+
+                        //     groupAddress.format.fill.color = "#FFBBB8"; //light red
+                        //     groupAddress.format.font.color = "black";
+                        //     groupAddress.format.font.bold = true;
+
+                        //     printDateAddress.format.horizontalAlignment = "center";
+                        //     groupAddress.format.horizontalAlignment = "center";
+
+                        //     // if (rowInfoSorted.tags.value !== "") {
+                        //     //     rowRangeSorted.format.font.color = "#ED7D31"; //#9BC2E6
+                        //     //     rowRangeSorted.format.font.bold = true;
+                        //     //     printDateAddress.format.font.color = "white";
+                        //     //     groupAddress.format.font.color = "white";
+                        //     // };
+
+                        //     console.log("Print Date & Group cells were colored red");
+
+                        // } else if (((printDate - 1) == currentDateAbsolute)) { //if current date is the day before print date
+
+                        //     logoRecreationStatus.forEach(
+                        //         leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
+                        //     );
+
+                        //     // rowRangeSorted.format.font.color = "#C00000";
+                        //     // rowRangeSorted.format.font.bold = true;
+                        //     printDateAddress.format.fill.color = "#FFBBB8"; //light red
+                        //     printDateAddress.format.font.color = "black";
+                        //     printDateAddress.format.font.bold = true;
+
+                        //     groupAddress.format.fill.color = "#FFBBB8"; //light red
+                        //     groupAddress.format.font.color = "black";
+                        //     groupAddress.format.font.bold = true;
+
+                        //     printDateAddress.format.horizontalAlignment = "center";
+                        //     groupAddress.format.horizontalAlignment = "center";
+
+                        //     // if (rowInfoSorted.tags.value !== "") {
+                        //     //     rowRangeSorted.format.font.color = "#ED7D31"; //#9BC2E6
+                        //     //     rowRangeSorted.format.font.bold = true;
+                        //     //     printDateAddress.format.font.color = "white";
+                        //     //     groupAddress.format.font.color = "white";
+                        //     // };
+
+                        //     // for (var leStatus in logoRecreationStatus) {
+                        //     //     logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus);
+                        //     // };
+
+                        //     console.log("Print Date & Group cells were colored red");
+
+                        
+                        //     //if current date is in the same group lock week as print date (between 7-2 days before)
+                        // } else if (((printDate - 6) <= currentDateAbsolute) && ((printDate - 2) >= currentDateAbsolute)) { 
+
+                        //     logoRecreationStatus.forEach(
+                        //         leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
+                        //     );
+
+                        //     // rowRangeSorted.format.font.color = "#C00000";
+                        //     // rowRangeSorted.format.font.bold = true;
+                        //     printDateAddress.format.fill.color = "#FFBBB8"; //light red
+                        //     printDateAddress.format.font.color = "black";
+                        //     printDateAddress.format.font.bold = true;
+
+                        //     groupAddress.format.fill.color = "#FFBBB8"; //light red
+                        //     groupAddress.format.font.color = "black";
+                        //     groupAddress.format.font.bold = true;
+
+                        //     printDateAddress.format.horizontalAlignment = "center";
+                        //     groupAddress.format.horizontalAlignment = "center";
+
+                        //     // if (rowInfoSorted.tags.value !== "") {
+                        //     //     rowRangeSorted.format.font.color = "#ED7D31"; //#9BC2E6
+                        //     //     rowRangeSorted.format.font.bold = true;
+                        //     //     printDateAddress.format.font.color = "white";
+                        //     //     groupAddress.format.font.color = "white";
+                        //     // };
+
+                        //     console.log("Print Date & Group cells were colored red");
+
+
+                        // //if current date is in the week before group lock week (between 8-14 days before)
+                        // } else if (((printDate - 13) <= currentDateAbsolute) && ((printDate - 7) >= currentDateAbsolute)) { 
+
+                        //     logoRecreationStatus.forEach(
+                        //         leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
+                        //     );
+
+                        //     // rowRangeSorted.format.font.color = "#C00000";
+                        //     // rowRangeSorted.format.font.bold = true;
+                        //     printDateAddress.format.fill.color = "#A9D08E"; //light green
+                        //     printDateAddress.format.font.color = "black";
+                        //     printDateAddress.format.font.bold = true;
+
+                        //     groupAddress.format.fill.color = "#A9D08E"; //light green
+                        //     groupAddress.format.font.color = "black";
+                        //     groupAddress.format.font.bold = true;
+
+                        //     printDateAddress.format.horizontalAlignment = "center";
+                        //     groupAddress.format.horizontalAlignment = "center";
+
+                        //     // if (rowInfoSorted.tags.value !== "") {
+                        //     //     rowRangeSorted.format.font.color = "#ED7D31"; //#9BC2E6
+                        //     //     rowRangeSorted.format.font.bold = true;
+                        //     //     printDateAddress.format.font.color = "white";
+                        //     //     groupAddress.format.font.color = "white";
+                        //     // };
+
+                        //     console.log("Print Date & Group cells were colored green");
+
                             
-                        };
+                        // } else if ((printDate < currentDateAbsolute) && (printDate !== 0)) { //if current date is after print date
 
-                        if (rowInfoSorted.group.value == "N/A") { //if group column in blank
+                        //     logoRecreationStatus.forEach(
+                        //         leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
+                        //     );
 
-                            rowRangeSorted.format.fill.clear();
-                            rowRangeSorted.format.font.color = "black";
-                            rowRangeSorted.format.font.bold = false;
-                            printDateAddress.format.horizontalAlignment = "center";
-                            groupAddress.format.horizontalAlignment = "center";
+                        //     printDateAddress.format.fill.color = "black";
+                        //     printDateAddress.format.font.color = "white";
+                        //     printDateAddress.format.font.bold = true;
 
-                            // if (rowInfoSorted.tags.value !== "") {
-                            //     rowRangeSorted.format.font.color = "#ED7D31";
-                            //     rowRangeSorted.format.font.bold = true;
-                            // };
+                        //     groupAddress.format.fill.color = "black";
+                        //     groupAddress.format.font.color = "white";
+                        //     groupAddress.format.font.bold = true;
 
-                            console.log("Color formatting was removed from row");
+                        //     printDateAddress.format.horizontalAlignment = "center";
+                        //     groupAddress.format.horizontalAlignment = "center";
 
-                            logoRecreationStatus.forEach(
-                                leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
-                            );
+                        //     // if (rowInfoSorted.tags.value !== "") {
+                        //     //     rowRangeSorted.format.font.color = "#ED7D31";
+                        //     //     //rowRangeSorted.format.font.bold = true;
+                        //     // };
 
-                        };
+                        //     console.log("Print Date & Group cells were colored black");
+
+                            
+                        // } else { //set cell formatting to normal
+
+                        //     if (changedWorksheet.name == "Unassigned Projects" && rowInfoSorted.subject.value == "Test for Artist Data Validation") {
+                        //         return;
+                        //     };
+
+                        //     rowRangeSorted.format.fill.clear();
+                        //     rowRangeSorted.format.font.color = "black";
+                        //     rowRangeSorted.format.font.bold = false;
+                        //     printDateAddress.format.horizontalAlignment = "center";
+                        //     groupAddress.format.horizontalAlignment = "center";
+
+                        //     // if (rowInfoSorted.tags.value !== "") {
+                        //     //     rowRangeSorted.format.font.color = "#ED7D31";
+                        //     //     rowRangeSorted.format.font.bold = true;
+                        //     // };
+
+                        //     console.log("Color formatting was removed from row");
+
+                        //     logoRecreationStatus.forEach(
+                        //         leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
+                        //     );
+                            
+                        // };
+
+                        // if (rowInfoSorted.group.value == "N/A") { //if group column in blank
+
+                        //     rowRangeSorted.format.fill.clear();
+                        //     rowRangeSorted.format.font.color = "black";
+                        //     rowRangeSorted.format.font.bold = false;
+                        //     printDateAddress.format.horizontalAlignment = "center";
+                        //     groupAddress.format.horizontalAlignment = "center";
+
+                        //     // if (rowInfoSorted.tags.value !== "") {
+                        //     //     rowRangeSorted.format.font.color = "#ED7D31";
+                        //     //     rowRangeSorted.format.font.bold = true;
+                        //     // };
+
+                        //     console.log("Color formatting was removed from row");
+
+                        //     logoRecreationStatus.forEach(
+                        //         leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
+                        //     );
+
+                        // };
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
 
@@ -5252,7 +5515,9 @@ $( async () => {
 
                         //#region PRINT DATE OVERDUE (OUTSIDE OF GROUP & PRINT REGION BECAUSE IT NEEDS TO OVERRIDE WORKING STATUS) -------------------
 
-                            if ((printDate < currentDateAbsolute) && (printDate !== 0)) { //if current date is after print date
+                            // if ((printDate < currentDateAbsolute) && (printDate !== 0)) { //if current date is after print date
+                            if (printDate <= lastWeeksPrintDate && printDate !== 0) { //previous print group
+
 
                                 printDateAddress.format.fill.color = "black";
                                 printDateAddress.format.font.color = "white";
@@ -5412,6 +5677,30 @@ $( async () => {
                     // printDateAddress.format.font.color = "white";
                     // groupAddress.format.font.color = "white";
                 };
+            };
+
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+
+        //#region FORMAT DATE ------------------------------------------------------------------------------------------------------------------------
+
+            /**
+             * Take a date and formats it to be a string in the mm/dd/yy format
+             * @param {Date} date A date variable
+             * @returns String
+             */
+            function formatDate(date) {
+                var d = new Date(date),
+                month = '' + (d.getMonth() + 1),
+                day = '' + d.getDate(),
+                year = d.getFullYear();
+                year = year.toString().substr(-2);
+            
+                // if (month.length < 2) 
+                //     month = '0' + month;
+                // if (day.length < 2) 
+                //     day = '0' + day;
+            
+                return [month, day, year].join('/');
             };
 
         //#endregion ---------------------------------------------------------------------------------------------------------------------------------
