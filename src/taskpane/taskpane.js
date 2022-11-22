@@ -1120,7 +1120,7 @@ $( async () => {
 
                 var product = $("#product").val();
 
-                if (product == "New Mover") {
+                if (product == "New Mover" || product == "Plastic New Mover" || product == "Birthday Postcard") {
                     console.log("The product is a new mover, so new group and print dates need to be populated in the dropdowns");
 
                     //newMoverData && newMoverGroupData
@@ -1171,6 +1171,9 @@ $( async () => {
             $("#group").change(() => tryCatch(groupToPrintLink));
 
             function groupToPrintLink() {
+
+                var product = $("#product").val();
+
                 var group = $("#group").val();
 
                 if (group.length == 0) {
@@ -1182,7 +1185,12 @@ $( async () => {
                     var theGroup = group.trim();
 
                     try {
-                        var printDateMatch = groupRefData[theGroup].printDate;
+
+                        if (product == "New Mover" || product == "Plastic New Mover" || product == "Birthday Postcard") {
+                            var printDateMatch = newMoverGroupData[theGroup].newMoverDate;
+                        } else {
+                            var printDateMatch = groupRefData[theGroup].printDate;
+                        }
                         var formattedPrintDateMatch = convertToDate(printDateMatch);
                         var leNewDate = new Date(formattedPrintDateMatch);
                         //converts the date into a simplifed format for dropdown: mm/dd/yy
@@ -1203,6 +1211,9 @@ $( async () => {
             $("#print-date").change(() => tryCatch(printToGroupLink));
 
             function printToGroupLink() {
+
+                var product = $("#product").val();
+
                 var lePrintDate = $("#print-date").val();
 
                 if (lePrintDate.length == 0) {
@@ -1214,7 +1225,11 @@ $( async () => {
                     var thePrintDate = lePrintDate.trim();
 
                     try {
-                        var groupMatch = printDateRefData[thePrintDate].group;
+                        if (product == "New Mover" || product == "Plastic New Mover" || product == "Birthday Postcard") {
+                            var groupMatch = newMoverData[thePrintDate].newMoverGroup;
+                        } else {
+                            var groupMatch = printDateRefData[thePrintDate].group;
+                        };
                         $("#group").val(groupMatch);
                     } catch (e) {
                         console.log("Error with print date autofill based on group letter input. Please debug to resolve.")
@@ -2054,10 +2069,22 @@ $( async () => {
                         // console.log(rowInfoSorted.group.value);
                         // console.log(rowInfoSorted.printDate.value);
 
+                        var deGroup = rowInfoSorted.group.value;
+
+                        var isNMGroup = deGroup.includes("NM");
+
                         if (previousSelectionObj.columnIndex == rowInfoSorted.group.columnIndex) {
                             if (rowInfoSorted.group.value !== "") {
                                 var groupUppercase = rowInfoSorted.group.value.toUpperCase();
-                                var matchPrintDate = groupRefData[groupUppercase].printDate;
+
+                                if (rowInfoSorted.product.value == "New Mover" || rowInfoSorted.product.value == "Plastic New Mover" 
+                                || rowInfoSorted.product.value == "Birthday Postcard" 
+                                || (rowInfoSorted.product.value == "Logo Recreation" && isNMGroup == true)) {
+                                    var matchPrintDate = newMoverGroupData[groupUppercase].newMoverDate;
+                                } else {
+                                    var matchPrintDate = groupRefData[groupUppercase].printDate;
+                                };
+
                                 if (matchPrintDate == undefined) {
                                     matchPrintDate = "N/A";
                                 };
@@ -2567,45 +2594,95 @@ $( async () => {
 
                         if ((changedColumnIndex == rowInfo.printDate.columnIndex) || (changedColumnIndex == rowInfo.group.columnIndex)) {
 
-                            //update group letter if the print date is changed
-                            if (changedColumnIndex == rowInfo.printDate.columnIndex) {
+                            var daGroup = rowInfo.group.value;
 
-                                var formattedDate = convertToDate(rowInfo.printDate.value);
-                                var newerDate = new Date(formattedDate);
-                                formattedDate = [
-                                    ('' + (newerDate.getMonth() + 1)).slice(-2), 
-                                    ('' + newerDate.getDate()).slice(-2), 
-                                    (newerDate.getFullYear() % 100)
-                                ].join('/');
+                            var isNMGroupToo = daGroup.includes("NM");
 
-                                try {
-                                    var matchGroup = printDateRefData[formattedDate].group;
-                                }
-                                catch (e) {
-                                    if (matchGroup == undefined) {
-                                        matchGroup = "N/A";
+                            if (changedColumnIndex == rowInfo.printDate.columnIndex 
+                                && (rowInfo.product.value == "New Mover" 
+                                || rowInfo.product.value == "Plastic New Mover" 
+                                || rowInfo.product.value == "Birthday Postcard"
+                                || (rowInfo.product.value == "Logo Recreation" && isNMGroupToo == true))) { //update group letter to New Mover 
+                                //variation if print date is changed
+
+                                    var formattedDate = convertToDate(rowInfo.printDate.value);
+                                    var newerDate = new Date(formattedDate);
+                                    formattedDate = [
+                                        ('' + (newerDate.getMonth() + 1)).slice(-2), 
+                                        ('' + newerDate.getDate()).slice(-2), 
+                                        (newerDate.getFullYear() % 100)
+                                    ].join('/');
+    
+                                    try {
+                                        var matchGroup = newMoverData[formattedDate].newMoverGroup;
+                                    }
+                                    catch (e) {
+                                        if (matchGroup == undefined) {
+                                            matchGroup = "N/A";
+                                        };
                                     };
+    
+                                    leTable[changedRowTableIndex][rowInfo.group.columnIndex] = matchGroup;
+                                    bodyRange.values = leTable;
+    
+                                    console.log("Group Letter was updated to match the Print Date!");
+
+                                } else if (changedColumnIndex == rowInfo.group.columnIndex 
+                                    && (rowInfo.product.value == "New Mover" 
+                                    || rowInfo.product.value == "Plastic New Mover" 
+                                    || rowInfo.product.value == "Birthday Postcard"
+                                    || (rowInfo.product.value == "Logo Recreation" && isNMGroupToo == true))) { //update print date to New Mover 
+                                    //variation if group letter is changed
+
+                                    var groupUppercase = rowInfo.group.value.toUpperCase();
+                                    var matchPrintDate = newMoverGroupData[groupUppercase].newMoverDate;
+                                    if (matchPrintDate == undefined) {
+                                        matchPrintDate = "N/A";
+                                    };
+                                    leTable[changedRowTableIndex][rowInfo.printDate.columnIndex] = matchPrintDate;
+                                    leTable[changedRowTableIndex][rowInfo.group.columnIndex] = groupUppercase;
+                                    bodyRange.values = leTable;
+
+                                    console.log("Print Date was updated to match the Group Letter!")
+                                
+                                
+                                }else if (changedColumnIndex == rowInfo.printDate.columnIndex) { //update group letter if the print date is changed
+
+                                    var formattedDate = convertToDate(rowInfo.printDate.value);
+                                    var newerDate = new Date(formattedDate);
+                                    formattedDate = [
+                                        ('' + (newerDate.getMonth() + 1)).slice(-2), 
+                                        ('' + newerDate.getDate()).slice(-2), 
+                                        (newerDate.getFullYear() % 100)
+                                    ].join('/');
+
+                                    try {
+                                        var matchGroup = printDateRefData[formattedDate].group;
+                                    }
+                                    catch (e) {
+                                        if (matchGroup == undefined) {
+                                            matchGroup = "N/A";
+                                        };
+                                    };
+
+                                    leTable[changedRowTableIndex][rowInfo.group.columnIndex] = matchGroup;
+                                    bodyRange.values = leTable;
+
+                                    console.log("Group Letter was updated to match the Print Date!");
+
+                                } else if (changedColumnIndex == rowInfo.group.columnIndex) { //update the print date if the group letter is changed
+
+                                    var groupUppercase = rowInfo.group.value.toUpperCase();
+                                    var matchPrintDate = groupRefData[groupUppercase].printDate;
+                                    if (matchPrintDate == undefined) {
+                                        matchPrintDate = "N/A";
+                                    };
+                                    leTable[changedRowTableIndex][rowInfo.printDate.columnIndex] = matchPrintDate;
+                                    leTable[changedRowTableIndex][rowInfo.group.columnIndex] = groupUppercase;
+                                    bodyRange.values = leTable;
+
+                                    console.log("Print Date was updated to match the Group Letter!")
                                 };
-
-                                leTable[changedRowTableIndex][rowInfo.group.columnIndex] = matchGroup;
-                                bodyRange.values = leTable;
-
-                                console.log("Group Letter was updated to match the Print Date!");
-                            };
-
-                            //update the print date if the group letter is changed
-                            if (changedColumnIndex == rowInfo.group.columnIndex) {
-                                var groupUppercase = rowInfo.group.value.toUpperCase();
-                                var matchPrintDate = groupRefData[groupUppercase].printDate;
-                                if (matchPrintDate == undefined) {
-                                    matchPrintDate = "N/A";
-                                };
-                                leTable[changedRowTableIndex][rowInfo.printDate.columnIndex] = matchPrintDate;
-                                leTable[changedRowTableIndex][rowInfo.group.columnIndex] = groupUppercase;
-                                bodyRange.values = leTable;
-
-                                console.log("Print Date was updated to match the Group Letter!")
-                            };
 
                             var newChangedTableRows = changedTable.rows.load("items");
 
@@ -5223,13 +5300,13 @@ $( async () => {
 
                                 console.log("Print Date & Group cells were colored red");
 
-                            };
+                            }
 
                         //#endregion -----------------------------------------------------------------------------------------------------------------
 
                         //#region IN NEXT WEEK'S PRINT GROUP -----------------------------------------------------------------------------------------
 
-                            if (printDate > thisWeeksPrintDate && printDate <= nextWeeksPrintDate) { //next week's print group
+                            else if (printDate > thisWeeksPrintDate && printDate <= nextWeeksPrintDate) { //next week's print group
 
                                 logoRecreationStatus.forEach(
                                     leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
@@ -5257,6 +5334,36 @@ $( async () => {
 
                                 console.log("Print Date & Group cells were colored green");
 
+                            }
+
+                        //#endregion -----------------------------------------------------------------------------------------------------------------
+
+                        //#region MORE THAN 2 WEEKS OUT ----------------------------------------------------------------------------------------------
+
+                            else { //set cell formatting to normal
+
+                                if (changedWorksheet.name == "Unassigned Projects" 
+                                && rowInfoSorted.subject.value == "Test for Artist Data Validation") {
+                                    return;
+                                };
+    
+                                rowRangeSorted.format.fill.clear();
+                                rowRangeSorted.format.font.color = "black";
+                                rowRangeSorted.format.font.bold = false;
+                                printDateAddress.format.horizontalAlignment = "center";
+                                groupAddress.format.horizontalAlignment = "center";
+    
+                                // if (rowInfoSorted.tags.value !== "") {
+                                //     rowRangeSorted.format.font.color = "#ED7D31";
+                                //     rowRangeSorted.format.font.bold = true;
+                                // };
+    
+                                console.log("Color formatting was removed from row");
+    
+                                logoRecreationStatus.forEach(
+                                    leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
+                                );
+                                    
                             };
 
                         //#endregion -----------------------------------------------------------------------------------------------------------------
