@@ -733,8 +733,8 @@ $( async () => {
 
                     var groupDateRefValues = groupDateRefRange.values;
 
-                    console.log("The Group Date Ref Values are:");
-                    console.log(groupDateRefValues[2][3]);
+                    // console.log("The Group Date Ref Values are:");
+                    // console.log(groupDateRefValues[2][3]);
 
                     $("#print-date").empty();
                     $("#print-date").append($("<option disabled selected hidden></option>").val("").text(""));
@@ -1087,7 +1087,8 @@ $( async () => {
                                 console.log("Product is undefined...");
                             } else {
                                 $("#product").val(updatedProduct).removeClass("grey-sel");
-                                console.log(`You matched ${updatedProduct}!`)
+                                console.log(`You matched ${updatedProduct}!`);
+                                newMoverGroupPrint();
                             }
 
                         } catch (e) {
@@ -1111,14 +1112,23 @@ $( async () => {
                 //#region LOAD VALUES ----------------------------------------------------------------------------------------------------------------
 
                     var sheet = context.workbook.worksheets.getItem("Validation");
+                    var groupDateRefTable = sheet.tables.getItem("dateTable");
                     var newMoverTable = sheet.tables.getItem("NewMoverTable");
+                    var groupDateRefRange = groupDateRefTable.getDataBodyRange().load("values");
                     var newMoverDataRange = newMoverTable.getDataBodyRange().load("values");
 
                 //#endregion -------------------------------------------------------------------------------------------------------------------------
 
                 await context.sync();
 
+                var groupDateRefValues = groupDateRefRange.values;
+
                 var product = $("#product").val();
+
+                $("#print-date").empty();
+                $("#print-date").append($("<option disabled selected hidden></option>").val("").text(""));
+                $("#group").empty();
+                $("#group").append($("<option disabled selected hidden></option>").val("").text(""));
 
                 if (product == "New Mover" || product == "Plastic New Mover" || product == "Birthday Postcard") {
                     console.log("The product is a new mover, so new group and print dates need to be populated in the dropdowns");
@@ -1126,12 +1136,6 @@ $( async () => {
                     //newMoverData && newMoverGroupData
 
                     var newMoverRefValues = newMoverDataRange.values
-
-
-                    $("#print-date").empty();
-                    $("#print-date").append($("<option disabled selected hidden></option>").val("").text(""));
-                    $("#group").empty();
-                    $("#group").append($("<option disabled selected hidden></option>").val("").text(""));
 
                     newMoverRefValues.forEach(function(row) {
 
@@ -1160,6 +1164,55 @@ $( async () => {
                             $("#group").append(option);
                         };
                     });
+
+                    var printDateConvert = convertToDate(newMoverRefValues[1][1]);
+                    var dd = new Date(printDateConvert);
+                    //converts the date into a simplifed format for dropdown: mm/dd/yy
+                    printDateConvert = [('' + (dd.getMonth() + 1)).slice(-2), ('' + dd.getDate()).slice(-2), (dd.getFullYear() % 100)].join('/');
+
+                    $("#print-date").val(printDateConvert);
+                    $("#group").val(newMoverRefValues[1][2]);
+
+                } else {
+
+                    groupDateRefValues.forEach(function(row) {
+
+                        // Add an option to the select box
+                        var option = `<option based-on-now="${row[0]}" year-based-on-now="${row[1]}" 
+                        week-based-on-now="${row[2]}" print-date="${row[3]}" weekday="${row[4]}" adjust="${row[5]}" 
+                        group="${row[6]}">${row[6]}</option>`;
+
+                        var x = $(`#print-date > option[print-date="${row[3]}"]`).length;
+                        var y = $(`#group > option[group="${row[6]}"]`).length;
+
+
+                        if (x == 0) { // Meaning, it's not there yet, because it's length count is 0
+                            var leDate = convertToDate(`${row[3]}`);
+
+                            var d = new Date(leDate);
+
+                            //converts the date into a simplifed format for dropdown: mm/dd/yy
+                            leDate = [('' + (d.getMonth() + 1)).slice(-2), ('' + d.getDate()).slice(-2), (d.getFullYear() % 100)].join('/');
+
+                            //create proper html formatting for option to be added to select box
+                            var printDateOption = `<option print-date-convert="${leDate}">${leDate}</option>`;
+
+                            $("#print-date").append(printDateOption);
+                        };
+
+                        if (y == 0) { // Meaning, it's not there yet, because it's length count is 0
+                            // var groupOption = `<option generated-group="${row[6]}">${row[6]}</option>`;
+                            $("#group").append(option);
+                        };
+                    });
+
+                    var printDateConvert = convertToDate(groupDateRefValues[2][3]);
+                    var dd = new Date(printDateConvert);
+                    //converts the date into a simplifed format for dropdown: mm/dd/yy
+                    printDateConvert = [('' + (dd.getMonth() + 1)).slice(-2), ('' + dd.getDate()).slice(-2), (dd.getFullYear() % 100)].join('/');
+                    $("#print-date").val(printDateConvert);
+                    $("#group").val(groupDateRefValues[2][6]);
+
                 };
 
             });
