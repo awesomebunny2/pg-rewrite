@@ -866,7 +866,27 @@ button[aria-label="Close"]:not(:disabled):active {
     z-index: 1000;
 }
 
+#product-group-update {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background-color: rgba(0,0,0,.7);
+    z-index: 1000;
+}
+
 #na-ah-ah-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 20px;
+    width: 80%;
+    background-color: white;
+}
+
+#product-group-update-window {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -880,6 +900,11 @@ button[aria-label="Close"]:not(:disabled):active {
     margin: 5px;
 }
 
+.yellow {
+    background-color: yellow;
+    color: black;
+}
+
 #na-ah-ah-text {
     /* margin: 10px; */
     /* background-color:rgba(37, 18, 18, 0.245); */
@@ -890,6 +915,26 @@ button[aria-label="Close"]:not(:disabled):active {
     margin-top: 0px;
     margin-bottom: 5px;
     font-weight: bold;
+}
+
+#new-mover-to-normal {
+    display: flex;
+}
+
+#normal-to-new-mover {
+    display: none;
+}
+
+.p-text {
+    /* margin: 10px; */
+    /* background-color:rgba(37, 18, 18, 0.245); */
+    padding: 10px;
+    font-size: 11pt;
+    /* font-style: italic; */
+    text-align: center;
+    margin-top: 0px;
+    margin-bottom: 5px;
+    font-weight: 500;
 }
 
 #na-ah-ah-buttons {
