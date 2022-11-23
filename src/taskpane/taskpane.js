@@ -184,6 +184,8 @@ $( async () => {
             address: ""
         };
 
+        // var productGroupPrintTrigger;
+
     //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
 //#endregion -----------------------------------------------------------------------------------------------------------------------------------------
@@ -1452,23 +1454,34 @@ $( async () => {
             });
 
 
-            $("#submit-too").on("click", async function submitFunction() {
+            // $("#submit-too").on("click", async function submitFunction() {
 
-                // if ($("#new-print-date").val() == "") {
-                //     // console.log("farts in a sheet");
-                //     $("#print-date").val(groupDateRefValues[2][3]);
-                //     $("#group").val(groupDateRefValues[2][6]);
-                // };
+            //     // if ($("#new-print-date").val() == "") {
+            //     //     // console.log("farts in a sheet");
+            //     //     $("#print-date").val(groupDateRefValues[2][3]);
+            //     //     $("#group").val(groupDateRefValues[2][6]);
+            //     // };
 
-                // await updatePrintGroup().catch(err => {
-                //     console.log(err);
-                //     showMessage(err, "show");
-                // });
+            //     // await updatePrintGroup().catch(err => {
+            //     //     console.log(err);
+            //     //     showMessage(err, "show");
+            //     // });
 
-                return {
-                    newPrintDate: $("#new-print-date").val(),
-                    newGroup: $("#new-group").val()
-                }
+            //     return {
+            //         newPrintDate: $("#new-print-date").val(),
+            //         newGroup: $("#new-group").val()
+            //     }
+
+            // });
+
+            $("#submit-too").on("click", () => {
+
+                var newPrintDate = $("#new-print-date").val();
+                var newGroup = $("#new-group").val();
+
+                writeAndRedo(newPrintDate, newGroup);
+
+                showElement("#product-group-update", "hide");
 
             });
 
@@ -3066,20 +3079,38 @@ $( async () => {
 
                         //if any of these columns are changed (all columns that can potentially affect turn around times), 
                         //turn around times will be adjusted and the table will be sorted
-                        if (changedColumnIndex == rowInfo.pickedUpStartedBy.columnIndex 
-                            || changedColumnIndex == rowInfo.proofToClient.columnIndex 
-                            || changedColumnIndex == rowInfo.priority.columnIndex 
-                            || changedColumnIndex == rowInfo.product.columnIndex 
-                            || changedColumnIndex == rowInfo.projectType.columnIndex 
-                            || changedColumnIndex == rowInfo.added.columnIndex 
-                            || changedColumnIndex == rowInfo.startOverride.columnIndex 
-                            || changedColumnIndex == rowInfo.workOverride.columnIndex 
-                            || changedColumnIndex == rowInfo.tags.columnIndex
+                        const rowInfoConditions = [
+                            rowInfo.pickedUpStartedBy.columnIndex,
+                            rowInfo.proofToClient.columnIndex,
+                            rowInfo.priority.columnIndex,
+                            rowInfo.product.columnIndex,
+                            rowInfo.projectType.columnIndex,
+                            rowInfo.added.columnIndex,
+                            rowInfo.startOverride.columnIndex,
+                            rowInfo.workOverride.columnIndex,
+                            rowInfo.tags.columnIndex
+                        ];
+
+                        if (rowInfoConditions.includes(changedColumnIndex)
                             || (changedColumnIndex == rowInfo.status.columnIndex //if status is adjusted & table is NOT a completed table & the status 
                             //is not moving the data to the completed table (saved for another if statement that handles moving data between tables)
                                 && completedTableChanged == false 
                                 && statusMove == false)
                         ) {
+                        // if (changedColumnIndex == rowInfo.pickedUpStartedBy.columnIndex 
+                        //     || changedColumnIndex == rowInfo.proofToClient.columnIndex 
+                        //     || changedColumnIndex == rowInfo.priority.columnIndex 
+                        //     || changedColumnIndex == rowInfo.product.columnIndex 
+                        //     || changedColumnIndex == rowInfo.projectType.columnIndex 
+                        //     || changedColumnIndex == rowInfo.added.columnIndex 
+                        //     || changedColumnIndex == rowInfo.startOverride.columnIndex 
+                        //     || changedColumnIndex == rowInfo.workOverride.columnIndex 
+                        //     || changedColumnIndex == rowInfo.tags.columnIndex
+                        //     || (changedColumnIndex == rowInfo.status.columnIndex //if status is adjusted & table is NOT a completed table & the status 
+                        //     //is not moving the data to the completed table (saved for another if statement that handles moving data between tables)
+                        //         && completedTableChanged == false 
+                        //         && statusMove == false)
+                        // ) {
 
                             console.log("I will update the turn around times, priority numbers, and sort the sheet before turning events back on!");
 
@@ -3087,16 +3118,35 @@ $( async () => {
 
                             //if the product was changed and the value was changed from a normal product to a new mover product, 
                             //update the group/print date variables
+                            const specialProducts = [
+                                "New Mover",
+                                "Plastic New Mover",
+                                "Birthday Postcard",
+                                "Logo Recreation",
+                            ]
+
+
                             if (changedColumnIndex == rowInfo.product.columnIndex 
-                                && (eventArgs.details.valueBefore !== "New Mover" 
-                                || eventArgs.details.valueBefore !== "Plastic New Mover" 
-                                || eventArgs.details.valueBefore !== "Birthday Postcard"
-                                || (eventArgs.details.valueBefore !== "Logo Recreation" 
-                                || (eventArgs.details.valueBefore == "Logo Recreation" && isNMGroupToo !== true)))
-                                && (eventArgs.details.valueAfter == "New Mover" 
-                                || eventArgs.details.valueAfter == "Plastic New Mover" 
-                                || eventArgs.details.valueAfter == "Birthday Postcard"
+                                && (!specialProducts.includes(eventArgs.details.valueBefore) // Does not include
+                                || (eventArgs.details.valueBefore == "Logo Recreation" && isNMGroupToo !== true))
+                                && (specialProducts.includes(eventArgs.details.valueAfter) // Does include
                                 || (eventArgs.details.valueAfter == "Logo Recreation" && isNMGroupToo == true))) { //update group letter to New Mover 
+
+
+
+
+                                    // if (changedColumnIndex == rowInfo.product.columnIndex 
+                                    //     && (eventArgs.details.valueBefore !== "New Mover" 
+                                    //     || eventArgs.details.valueBefore !== "Plastic New Mover" 
+                                    //     || eventArgs.details.valueBefore !== "Birthday Postcard"
+                                    //     || (eventArgs.details.valueBefore !== "Logo Recreation" 
+                                    //     || (eventArgs.details.valueBefore == "Logo Recreation" && isNMGroupToo !== true)))
+                                    //     && (eventArgs.details.valueAfter == "New Mover" 
+                                    //     || eventArgs.details.valueAfter == "Plastic New Mover" 
+                                    //     || eventArgs.details.valueAfter == "Birthday Postcard"
+                                    //     || (eventArgs.details.valueAfter == "Logo Recreation" && isNMGroupToo == true))) { //update group letter to New Mover 
+
+
                                 //variation if print date is changed
                                     
                                     showElement("#product-group-update", "show");
@@ -3105,69 +3155,98 @@ $( async () => {
                                         newMoverGroupPrintVariation(rowInfo.product.value);
                                     };
 
-                                    var submitFunction = await $("#submit-too").on("click", async function() {
+                                    // var submitFunction = await $("#submit-too").on("click", async function() {
+                                    // $("#submit-too").on("click", () => {
 
-                                        await Excel.run(async (context) => {
+                                    //     var newPrintDate = $("#new-print-date").val();
+                                    //     var newGroup = $("#new-group").val();
 
-                                            var newPrintDate = $("#new-print-date").val();
-                                            var newGroup = $("#new-group").val();
-    
-                                            console.log("wow a smelly rat");
-    
-                                            var savedRowInfo = previousInfo.rowInfo;
-                                            var savedLeTable = previousInfo.leTable;
-                                            var savedChangedTable = previousInfo.changedTable;
-                                            var savedChangedWorksheet = previousInfo.changedWorksheet;
-                                            var savedAddress = previousInfo.address;
-    
-                                            var newChangedTable = context.workbook.tables.getItem(savedChangedTable).load("name");
-                                            var newBodyRange = newChangedTable.getDataBodyRange().load("values");
-                                            // var newHeaderRange = newChangedTable.getHeaderRowRange().load("values");
-                                            // var newStartOfTable = newChangedTable.getRange().load("columnIndex");
-                                            var newChangedWorksheet = context.workbook.worksheets.getItem(savedChangedWorksheet).load("name");
-                                            // var newWorksheetTables = newChangedWorksheet.tables;
-                                            var newChangedAddress = newChangedWorksheet.getRange(savedAddress);
-                                            newChangedAddress.load("columnIndex");
-                                            newChangedAddress.load("rowIndex");
+                                    //     writeAndRedo(newPrintDate, newGroup);
 
-                                            var newChangedTableRows = newChangedTable.rows;
-                                            newChangedTableRows.load("items");
-    
-                                            await context.sync();
+                                    //     showElement("#product-group-update", "hide");
 
-                                            // if (newChangedWorksheet.name == "Unassigned Projects") {
-                                            //     var newCompletedTable = null;
-                                            // } else {
-                                            //     var newCompletedTable = newWorksheetTables.getItemAt(1);
-                                            // };
+                                    // });
 
-                                            var newChangedRowIndex = newChangedAddress.rowIndex;
-                                            var newChangedRowTableIndex = newChangedRowIndex - 1;
+
+                                    // async function writeAndRedo(newPrintDate, newGroup) {
+
+                                    //     await Excel.run(async (context) => {
+
     
-                                            savedLeTable[newChangedRowTableIndex][savedRowInfo.printDate.columnIndex] = newPrintDate;
-                                            savedLeTable[newChangedRowTableIndex][savedRowInfo.group.columnIndex] = newGroup;
-                                            newBodyRange.values = savedLeTable;
+                                    //         console.log("wow a smelly rat");
+    
+                                    //         var savedRowInfo = previousInfo.rowInfo;
+                                    //         var savedLeTable = previousInfo.leTable;
+                                    //         var savedChangedTable = previousInfo.changedTable;
+                                    //         var savedChangedWorksheet = previousInfo.changedWorksheet;
+                                    //         var savedAddress = previousInfo.address;
+    
+                                    //         var newChangedTable = context.workbook.tables.getItem(savedChangedTable).load("name");
+                                    //         var newBodyRange = newChangedTable.getDataBodyRange().load("values");
+                                    //         var newHeaderRange = newChangedTable.getHeaderRowRange().load("values");
+                                    //         var newStartOfTable = newChangedTable.getRange().load("columnIndex");
+                                    //         var newChangedWorksheet = context.workbook.worksheets.getItem(savedChangedWorksheet).load("name");
+                                    //         var newWorksheetTables = newChangedWorksheet.tables;
+                                    //         var newChangedAddress = newChangedWorksheet.getRange(savedAddress);
+                                    //         newChangedAddress.load("columnIndex");
+                                    //         newChangedAddress.load("rowIndex");
+
+                                    //         var newChangedTableRows = newChangedTable.rows;
+                                    //         newChangedTableRows.load("items");
+    
+                                    //         await context.sync();
+
+                                    //         if (newChangedWorksheet.name == "Unassigned Projects") {
+                                    //             var newCompletedTable = null;
+                                    //         } else {
+                                    //             var newCompletedTable = newWorksheetTables.getItemAt(1);
+                                    //         };
+
+                                    //         var newChangedRowIndex = newChangedAddress.rowIndex;
+                                    //         var newChangedRowTableIndex = newChangedRowIndex - 1;
+                                    //         var changedTableRowItems = newChangedTableRows.items;
+                                    //         var zeHead = newHeaderRange.values;
+    
+                                    //         savedLeTable[newChangedRowTableIndex][savedRowInfo.printDate.columnIndex] = newPrintDate;
+                                    //         savedLeTable[newChangedRowTableIndex][savedRowInfo.group.columnIndex] = newGroup;
+                                    //         newBodyRange.values = savedLeTable;
         
-                                            // var zeNewTableStart = newStartOfTable.columnIndex;
-                                            // var newChangedTableName = newChangedTable.name;
-                                            // var newCompletedTableChanged = newChangedTableName.includes("Completed");
-                                            // var newRowRange = newChangedTableRows.getItemAt(newChangedRowTableIndex).getRange();
+                                    //         var zeNewTableStart = newStartOfTable.columnIndex;
+                                    //         var newChangedTableName = newChangedTable.name;
+                                    //         var newCompletedTableChanged = newChangedTableName.includes("Completed");
+                                    //         var newRowRange = newChangedTableRows.getItemAt(newChangedRowTableIndex).getRange();
 
-                                            await context.sync();
+                                    //         await context.sync();
 
-                                            console.log("a fart in the hand is a whale on the land");
+                                    //         console.log("a fart in the hand is a whale on the land");
 
-                                            // conditionalFormatting(savedRowInfo, zeNewTableStart, newChangedWorksheet, newChangedRowTableIndex, newCompletedTableChanged, newRowRange, newCompletedTable);
+                                    //         for (var p = 0; p < savedLeTable.length; p++) {
 
-                                            // console.log("Something is stinky in here");
+                                    //             var newRowRange = newChangedTableRows.getItemAt(p).getRange();
 
-                                            showElement("#product-group-update", "hide");
-                                            location.reload();
+                                    //             var newRowValues = changedTableRowItems[p].values;
+                
+                                    //             var zeRowInfo = new Object();
+                
+                                    //             for (var zeName of zeHead[0]) {
+                                    //                 theGreatestFunctionEverWritten(zeHead, zeName, newRowValues, savedLeTable, zeRowInfo, p);
+                                    //             };
+                                    //             conditionalFormatting(savedRowInfo, zeNewTableStart, newChangedWorksheet, newChangedRowTableIndex, newCompletedTableChanged, newRowRange, newCompletedTable);
+                                    //         }
+
+                                        
+
+                                    //         console.log("Something is stinky in here");
+
+                                    //         // productGroupPrintTrigger = true;
+
+                                    //         // showElement("#product-group-update", "hide");
+                                    //         //location.reload();
 
     
-                                        });
+                                    //     });
     
-                                    });
+                                    // };
 
                                         
                                         // leTable[changedRowTableIndex][rowInfo.printDate.columnIndex] = submitFunction.newPrintDate;
@@ -4275,6 +4354,13 @@ $( async () => {
                                     console.log("ConForm is about to trigger for the activition handler (so for the taskpane reloading");
                                     conditionalFormatting(rowInfoSorted, tableStart, theWorksheet, iRow, completedTableChanged, rowRange, null)
                                 };
+
+                                // console.log("gee a bee");
+
+                                // if (productGroupPrintTrigger == true) {
+                                //     console.log("I returned TRUEEEEEEEEEEE");
+                                //     productGroupPrintTrigger = false;
+                                // };
                             };
                         };
                     };
@@ -6452,4 +6538,84 @@ $( async () => {
 
 //#endregion -----------------------------------------------------------------------------------------------------------------------------------------
 
+
+async function writeAndRedo(newPrintDate, newGroup) {
+
+    await Excel.run(async (context) => {
+
+
+        console.log("wow a smelly rat");
+
+        var savedRowInfo = previousInfo.rowInfo;
+        var savedLeTable = previousInfo.leTable;
+        var savedChangedTable = previousInfo.changedTable;
+        var savedChangedWorksheet = previousInfo.changedWorksheet;
+        var savedAddress = previousInfo.address;
+
+        var newChangedTable = context.workbook.tables.getItem(savedChangedTable).load("name");
+        var newBodyRange = newChangedTable.getDataBodyRange().load("values");
+        var newHeaderRange = newChangedTable.getHeaderRowRange().load("values");
+        var newStartOfTable = newChangedTable.getRange().load("columnIndex");
+        var newChangedWorksheet = context.workbook.worksheets.getItem(savedChangedWorksheet).load("name");
+        var newWorksheetTables = newChangedWorksheet.tables;
+        var newChangedAddress = newChangedWorksheet.getRange(savedAddress);
+        newChangedAddress.load("columnIndex");
+        newChangedAddress.load("rowIndex");
+
+        var newChangedTableRows = newChangedTable.rows;
+        newChangedTableRows.load("items");
+
+        await context.sync();
+
+        if (newChangedWorksheet.name == "Unassigned Projects") {
+            var newCompletedTable = null;
+        } else {
+            var newCompletedTable = newWorksheetTables.getItemAt(1);
+        };
+
+        var newChangedRowIndex = newChangedAddress.rowIndex;
+        var newChangedRowTableIndex = newChangedRowIndex - 1;
+        var changedTableRowItems = newChangedTableRows.items;
+        var zeHead = newHeaderRange.values;
+
+        savedLeTable[newChangedRowTableIndex][savedRowInfo.printDate.columnIndex] = newPrintDate;
+        savedLeTable[newChangedRowTableIndex][savedRowInfo.group.columnIndex] = newGroup;
+        newBodyRange.values = savedLeTable;
+
+        // var zeNewTableStart = newStartOfTable.columnIndex;
+        // var newChangedTableName = newChangedTable.name;
+        // var newCompletedTableChanged = newChangedTableName.includes("Completed");
+        // var newRowRange = newChangedTableRows.getItemAt(newChangedRowTableIndex).getRange();
+
+        // await context.sync();
+
+        // console.log("a fart in the hand is a whale on the land");
+
+        // for (var p = 0; p < savedLeTable.length; p++) {
+
+        //     var newRowRange = newChangedTableRows.getItemAt(p).getRange();
+
+        //     var newRowValues = changedTableRowItems[p].values;
+
+        //     var zeRowInfo = new Object();
+
+        //     for (var zeName of zeHead[0]) {
+        //         theGreatestFunctionEverWritten(zeHead, zeName, newRowValues, savedLeTable, zeRowInfo, p);
+        //     };
+        //     conditionalFormatting(savedRowInfo, zeNewTableStart, newChangedWorksheet, newChangedRowTableIndex, newCompletedTableChanged, newRowRange, newCompletedTable);
+        // }
+
+    
+
+        console.log("Something is stinky in here");
+
+        // productGroupPrintTrigger = true;
+
+        // showElement("#product-group-update", "hide");
+        //location.reload();
+
+
+    });
+
+};
 
