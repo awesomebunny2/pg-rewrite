@@ -1230,7 +1230,7 @@ $( async () => {
         };
 
 
-        async function newMoverGroupPrintVariation(product) {
+        async function newMoverGroupPrintVariation(product, nmOrNo) {
 
             await Excel.run(async (context) => {
 
@@ -1250,10 +1250,18 @@ $( async () => {
 
                 var groupDateRefValues = groupDateRefRange.values;
 
-                $("#new-print-date").empty();
-                $("#new-print-date").append($("<option disabled selected hidden></option>").val("").text(""));
-                $("#new-group").empty();
-                $("#new-group").append($("<option disabled selected hidden></option>").val("").text(""));
+                if (nmOrNo == true) {
+                    var printDateInput = "#nm-print-date";
+                    var groupInput = "#nm-group";
+                } else {
+                    var printDateInput = "#normal-print-date";
+                    var groupInput = "#normal-group";
+                }
+
+                $(printDateInput).empty();
+                $(printDateInput).append($("<option disabled selected hidden></option>").val("").text(""));
+                $(groupInput).empty();
+                $(groupInput).append($("<option disabled selected hidden></option>").val("").text(""));
 
                 if (product == "New Mover" || product == "Plastic New Mover" || product == "Birthday Postcard") {
                     console.log("The product is a new mover, so new group and print dates need to be populated in the dropdowns");
@@ -1267,8 +1275,8 @@ $( async () => {
                         // Add an option to the select box
                         var option = `<option beginning-of-month="${row[0]}" new-mover-date="${row[1]}" new-mover-group="${row[2]}">${row[2]}</option>`;
 
-                        var xxx = $(`#new-print-date > option[new-mover-date="${row[1]}"]`).length;
-                        var yyy = $(`#new-group > option[new-mover-group="${row[2]}"]`).length;
+                        var xxx = $(`${printDateInput} > option[new-mover-date="${row[1]}"]`).length;
+                        var yyy = $(`${groupInput} > option[new-mover-group="${row[2]}"]`).length;
 
 
                         if (xxx == 0) { // Meaning, it's not there yet, because it's length count is 0
@@ -1280,13 +1288,13 @@ $( async () => {
                             leDate = [('' + (d.getMonth() + 1)).slice(-2), ('' + d.getDate()).slice(-2), (d.getFullYear() % 100)].join('/');
 
                             //create proper html formatting for option to be added to select box
-                            var printDateOption = `<option new-print-date-convert="${leDate}">${leDate}</option>`;
+                            var printDateOption = `<option ${printDateInput}-convert="${leDate}">${leDate}</option>`;
 
-                            $("#new-print-date").append(printDateOption);
+                            $(printDateInput).append(printDateOption);
                         };
 
                         if (yyy == 0) { // Meaning, it's not there yet, because it's length count is 0
-                            $("#new-group").append(option);
+                            $(groupInput).append(option);
                         };
                     });
 
@@ -1295,8 +1303,8 @@ $( async () => {
                     //converts the date into a simplifed format for dropdown: mm/dd/yy
                     printDateConvert = [('' + (dd.getMonth() + 1)).slice(-2), ('' + dd.getDate()).slice(-2), (dd.getFullYear() % 100)].join('/');
 
-                    $("#new-print-date").val(printDateConvert);
-                    $("#new-group").val(newMoverRefValues[1][2]);
+                    $(printDateInput).val(printDateConvert);
+                    $(groupInput).val(newMoverRefValues[1][2]);
 
                 } else {
 
@@ -1307,8 +1315,8 @@ $( async () => {
                         week-based-on-now="${row[2]}" print-date="${row[3]}" weekday="${row[4]}" adjust="${row[5]}" 
                         group="${row[6]}">${row[6]}</option>`;
 
-                        var x = $(`#new-print-date > option[print-date="${row[3]}"]`).length;
-                        var y = $(`#new-group > option[group="${row[6]}"]`).length;
+                        var x = $(`${printDateInput} > option[print-date="${row[3]}"]`).length;
+                        var y = $(`${groupInput} > option[group="${row[6]}"]`).length;
 
 
                         if (x == 0) { // Meaning, it's not there yet, because it's length count is 0
@@ -1320,14 +1328,14 @@ $( async () => {
                             leDate = [('' + (d.getMonth() + 1)).slice(-2), ('' + d.getDate()).slice(-2), (d.getFullYear() % 100)].join('/');
 
                             //create proper html formatting for option to be added to select box
-                            var printDateOption = `<option new-print-date-convert="${leDate}">${leDate}</option>`;
+                            var printDateOption = `<option ${printDateInput}-convert="${leDate}">${leDate}</option>`;
 
-                            $("#new-print-date").append(printDateOption);
+                            $(printDateInput).append(printDateOption);
                         };
 
                         if (y == 0) { // Meaning, it's not there yet, because it's length count is 0
                             // var groupOption = `<option generated-group="${row[6]}">${row[6]}</option>`;
-                            $("#new-group").append(option);
+                            $(groupInput).append(option);
                         };
                     });
 
@@ -1335,8 +1343,8 @@ $( async () => {
                     var dd = new Date(printDateConvert);
                     //converts the date into a simplifed format for dropdown: mm/dd/yy
                     printDateConvert = [('' + (dd.getMonth() + 1)).slice(-2), ('' + dd.getDate()).slice(-2), (dd.getFullYear() % 100)].join('/');
-                    $("#new-print-date").val(printDateConvert);
-                    $("#new-group").val(groupDateRefValues[2][6]);
+                    $(printDateInput).val(printDateConvert);
+                    $(groupInput).val(groupDateRefValues[2][6]);
 
                 };
 
@@ -1384,6 +1392,76 @@ $( async () => {
 
         //#endregion ---------------------------------------------------------------------------------------------------------------------------------
 
+        //#region AUTO POPULATED PRINT DATE BASED ON GROUP -------------------------------------------------------------------------------------------
+
+            $("#nm-group").change(() => tryCatch(nmGroupToPrintLink));
+
+            function nmGroupToPrintLink() {
+
+                var group = $("#nm-group").val();
+
+                if (group.length == 0) {
+
+                    $("#nm-print-date").val("");
+
+                } else {
+
+                    var theGroup = group.trim();
+
+                    try {
+
+                        var printDateMatch = newMoverGroupData[theGroup].newMoverDate;
+    
+                        var formattedPrintDateMatch = convertToDate(printDateMatch);
+                        var leNewDate = new Date(formattedPrintDateMatch);
+                        //converts the date into a simplifed format for dropdown: mm/dd/yy
+                        formattedPrintDateMatch = [('' + (leNewDate.getMonth() + 1)).slice(-2), ('' + leNewDate.getDate()).slice(-2), 
+                        (leNewDate.getFullYear() % 100)].join('/');
+                        $("#nm-print-date").val(formattedPrintDateMatch);
+                    } catch (e) {
+                        console.log("Error with print date autofill based on group letter input. Please debug to resolve.")
+                    };
+
+                };
+            };
+
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+
+        //#region AUTO POPULATED PRINT DATE BASED ON GROUP -------------------------------------------------------------------------------------------
+
+            $("#normal-group").change(() => tryCatch(normalGroupToPrintLink));
+
+            function normalGroupToPrintLink() {
+
+                var group = $("#normal-group").val();
+
+                if (group.length == 0) {
+
+                    $("#normal-print-date").val("");
+
+                } else {
+
+                    var theGroup = group.trim();
+
+                    try {
+
+                        var printDateMatch = groupRefData[theGroup].printDate;
+
+                        var formattedPrintDateMatch = convertToDate(printDateMatch);
+                        var leNewDate = new Date(formattedPrintDateMatch);
+                        //converts the date into a simplifed format for dropdown: mm/dd/yy
+                        formattedPrintDateMatch = [('' + (leNewDate.getMonth() + 1)).slice(-2), ('' + leNewDate.getDate()).slice(-2), 
+                        (leNewDate.getFullYear() % 100)].join('/');
+                        $("#normal-print-date").val(formattedPrintDateMatch);
+                    } catch (e) {
+                        console.log("Error with print date autofill based on group letter input. Please debug to resolve.")
+                    };
+
+                };
+            };
+
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+
         //#region AUTO POPULATE GROUP BASED ON PRINT DATE --------------------------------------------------------------------------------------------
 
             $("#print-date").change(() => tryCatch(printToGroupLink));
@@ -1409,6 +1487,66 @@ $( async () => {
                             var groupMatch = printDateRefData[thePrintDate].group;
                         };
                         $("#group").val(groupMatch);
+                    } catch (e) {
+                        console.log("Error with print date autofill based on group letter input. Please debug to resolve.")
+                    };
+
+                };
+            };
+
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+
+        //#region AUTO POPULATE GROUP BASED ON PRINT DATE --------------------------------------------------------------------------------------------
+
+            $("#nm-print-date").change(() => tryCatch(nmPrintToGroupLink));
+
+            function nmPrintToGroupLink() {
+
+                var lePrintDate = $("#nm-print-date").val();
+
+                if (lePrintDate.length == 0) {
+
+                    $("#nm-group").val("");
+
+                } else {
+
+                    var thePrintDate = lePrintDate.trim();
+
+                    try {
+                        
+                        var groupMatch = newMoverData[thePrintDate].newMoverGroup;
+                    
+                        $("#nm-group").val(groupMatch);
+                    } catch (e) {
+                        console.log("Error with print date autofill based on group letter input. Please debug to resolve.")
+                    };
+
+                };
+            };
+
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
+
+        //#region AUTO POPULATE GROUP BASED ON PRINT DATE --------------------------------------------------------------------------------------------
+
+            $("#normal-print-date").change(() => tryCatch(normalPrintToGroupLink));
+
+            function normalPrintToGroupLink() {
+
+                var lePrintDate = $("#normal-print-date").val();
+
+                if (lePrintDate.length == 0) {
+
+                    $("#normal-group").val("");
+
+                } else {
+
+                    var thePrintDate = lePrintDate.trim();
+
+                    try {
+                 
+                        var groupMatch = printDateRefData[thePrintDate].group;
+
+                        $("#normal-group").val(groupMatch);
                     } catch (e) {
                         console.log("Error with print date autofill based on group letter input. Please debug to resolve.")
                     };
@@ -1476,12 +1614,27 @@ $( async () => {
 
             $("#submit-too").on("click", () => {
 
-                var newPrintDate = $("#new-print-date").val();
-                var newGroup = $("#new-group").val();
+                if ($("#nm-group").is(":hidden")) {
+                    var newPrintDate = $("#normal-print-date").val();
+                    var newGroup = $("#normal-group").val();
+                };
 
+                if ($("#normal-group").is(":hidden")) {
+                    var newPrintDate = $("#nm-print-date").val();
+                    var newGroup = $("#nm-group").val();
+                };
+        
                 writeAndRedo(newPrintDate, newGroup);
 
                 showElement("#product-group-update", "hide");
+
+                $("#nm-print-date").val("");
+
+                $("#nm-group").val("");
+
+                $("#normal-print-date").val("");
+
+                $("#normal-group").val("");
 
             });
 
@@ -3132,168 +3285,57 @@ $( async () => {
                                 && (specialProducts.includes(eventArgs.details.valueAfter) // Does include
                                 || (eventArgs.details.valueAfter == "Logo Recreation" && isNMGroupToo == true))) { //update group letter to New Mover 
 
-
-
-
-                                    // if (changedColumnIndex == rowInfo.product.columnIndex 
-                                    //     && (eventArgs.details.valueBefore !== "New Mover" 
-                                    //     || eventArgs.details.valueBefore !== "Plastic New Mover" 
-                                    //     || eventArgs.details.valueBefore !== "Birthday Postcard"
-                                    //     || (eventArgs.details.valueBefore !== "Logo Recreation" 
-                                    //     || (eventArgs.details.valueBefore == "Logo Recreation" && isNMGroupToo !== true)))
-                                    //     && (eventArgs.details.valueAfter == "New Mover" 
-                                    //     || eventArgs.details.valueAfter == "Plastic New Mover" 
-                                    //     || eventArgs.details.valueAfter == "Birthday Postcard"
-                                    //     || (eventArgs.details.valueAfter == "Logo Recreation" && isNMGroupToo == true))) { //update group letter to New Mover 
-
-
-                                //variation if print date is changed
-                                    
+                                    showElement("#new-mover-to-normal", "hide");
+                                    showElement("#normal-group", "hide");
+                                    showElement("#normal-group-label", "hide");
+                                    showElement("#normal-print-date", "hide");
+                                    showElement("#normal-print-date-label", "hide");
                                     showElement("#product-group-update", "show");
+                                    showElement("#normal-to-new-mover", "show");
+                                    showElement("#nm-group", "show");
+                                    showElement("#nm-group-label", "show");
+                                    showElement("#nm-print-date", "show");
+                                    showElement("#nm-print-date-label", "show");
 
-                                    if ($("#new-print-date").val() == "") {
-                                        newMoverGroupPrintVariation(rowInfo.product.value);
+                                    var nmOrNo = true;
+
+                                    if ($("#nm-print-date").val() == "" || $("#nm-print-date").val() == null) {
+                                        newMoverGroupPrintVariation(rowInfo.product.value, nmOrNo);
                                     };
 
-                                    // var submitFunction = await $("#submit-too").on("click", async function() {
-                                    // $("#submit-too").on("click", () => {
-
-                                    //     var newPrintDate = $("#new-print-date").val();
-                                    //     var newGroup = $("#new-group").val();
-
-                                    //     writeAndRedo(newPrintDate, newGroup);
-
-                                    //     showElement("#product-group-update", "hide");
-
-                                    // });
-
-
-                                    // async function writeAndRedo(newPrintDate, newGroup) {
-
-                                    //     await Excel.run(async (context) => {
-
-    
-                                    //         console.log("wow a smelly rat");
-    
-                                    //         var savedRowInfo = previousInfo.rowInfo;
-                                    //         var savedLeTable = previousInfo.leTable;
-                                    //         var savedChangedTable = previousInfo.changedTable;
-                                    //         var savedChangedWorksheet = previousInfo.changedWorksheet;
-                                    //         var savedAddress = previousInfo.address;
-    
-                                    //         var newChangedTable = context.workbook.tables.getItem(savedChangedTable).load("name");
-                                    //         var newBodyRange = newChangedTable.getDataBodyRange().load("values");
-                                    //         var newHeaderRange = newChangedTable.getHeaderRowRange().load("values");
-                                    //         var newStartOfTable = newChangedTable.getRange().load("columnIndex");
-                                    //         var newChangedWorksheet = context.workbook.worksheets.getItem(savedChangedWorksheet).load("name");
-                                    //         var newWorksheetTables = newChangedWorksheet.tables;
-                                    //         var newChangedAddress = newChangedWorksheet.getRange(savedAddress);
-                                    //         newChangedAddress.load("columnIndex");
-                                    //         newChangedAddress.load("rowIndex");
-
-                                    //         var newChangedTableRows = newChangedTable.rows;
-                                    //         newChangedTableRows.load("items");
-    
-                                    //         await context.sync();
-
-                                    //         if (newChangedWorksheet.name == "Unassigned Projects") {
-                                    //             var newCompletedTable = null;
-                                    //         } else {
-                                    //             var newCompletedTable = newWorksheetTables.getItemAt(1);
-                                    //         };
-
-                                    //         var newChangedRowIndex = newChangedAddress.rowIndex;
-                                    //         var newChangedRowTableIndex = newChangedRowIndex - 1;
-                                    //         var changedTableRowItems = newChangedTableRows.items;
-                                    //         var zeHead = newHeaderRange.values;
-    
-                                    //         savedLeTable[newChangedRowTableIndex][savedRowInfo.printDate.columnIndex] = newPrintDate;
-                                    //         savedLeTable[newChangedRowTableIndex][savedRowInfo.group.columnIndex] = newGroup;
-                                    //         newBodyRange.values = savedLeTable;
-        
-                                    //         var zeNewTableStart = newStartOfTable.columnIndex;
-                                    //         var newChangedTableName = newChangedTable.name;
-                                    //         var newCompletedTableChanged = newChangedTableName.includes("Completed");
-                                    //         var newRowRange = newChangedTableRows.getItemAt(newChangedRowTableIndex).getRange();
-
-                                    //         await context.sync();
-
-                                    //         console.log("a fart in the hand is a whale on the land");
-
-                                    //         for (var p = 0; p < savedLeTable.length; p++) {
-
-                                    //             var newRowRange = newChangedTableRows.getItemAt(p).getRange();
-
-                                    //             var newRowValues = changedTableRowItems[p].values;
-                
-                                    //             var zeRowInfo = new Object();
-                
-                                    //             for (var zeName of zeHead[0]) {
-                                    //                 theGreatestFunctionEverWritten(zeHead, zeName, newRowValues, savedLeTable, zeRowInfo, p);
-                                    //             };
-                                    //             conditionalFormatting(savedRowInfo, zeNewTableStart, newChangedWorksheet, newChangedRowTableIndex, newCompletedTableChanged, newRowRange, newCompletedTable);
-                                    //         }
-
-                                        
-
-                                    //         console.log("Something is stinky in here");
-
-                                    //         // productGroupPrintTrigger = true;
-
-                                    //         // showElement("#product-group-update", "hide");
-                                    //         //location.reload();
-
-    
-                                    //     });
-    
-                                    // };
-
-                                        
-                                        // leTable[changedRowTableIndex][rowInfo.printDate.columnIndex] = submitFunction.newPrintDate;
-                                        // leTable[changedRowTableIndex][rowInfo.group.columnIndex] = submitFunction.newGroup;
-                                        // bodyRange.values = leTable;
-                                   
-
-                                    //WAIT for user to click submit-too button
-
-                                    //On submit, returns this element:
-                                    // return {
-                                    //  newPrintDate: $("#new-print-date").val(),
-                                    //  newGroup: $("#new-group").val()
-                                    // };
-
-                                    // leTable[changedRowTableIndex][rowInfo.printDate.columnIndex] = submitFunction.newPrintDate;
-                                    // leTable[changedRowTableIndex][rowInfo.group.columnIndex] = submitFunction.newGroup;
-                                    // bodyRange.values = leTable;
-
-                                };
-
-                                // };
-
-                                // async function updatePrintGroup(rowInfo, changedRowIndex) {
-                                //     console.log("updatePrintGroup was fired!");
-
-                                //     await Excel.run(async (context) => {
-                                //         var newPrintDateVal = $("#new-print-date").val();
-                                //         var newGroupVal = $("#new-group").val();
-                                //     })
-                                // }
+                                };                        
 
 
                             //if the product was changed and the value was changed from a new mover product to a normal product, 
                             //update the group/print date variables
+                            
                             if (changedColumnIndex == rowInfo.product.columnIndex 
-                                && (eventArgs.details.valueBefore == "New Mover" 
-                                || eventArgs.details.valueBefore == "Plastic New Mover" 
-                                || eventArgs.details.valueBefore == "Birthday Postcard"
+                                && (specialProducts.includes(eventArgs.details.valueBefore) // Does include
                                 || (eventArgs.details.valueBefore == "Logo Recreation" && isNMGroupToo == true))
-                                && (eventArgs.details.valueAfter !== "New Mover" 
-                                || eventArgs.details.valueAfter !== "Plastic New Mover" 
-                                || eventArgs.details.valueAfter !== "Birthday Postcard"
-                                || (eventArgs.details.valueAfter !== "Logo Recreation" 
-                                || (eventArgs.details.valueAfter == "Logo Recreation" && isNMGroupToo !== true)))) { //update group letter to New Mover 
-                                //variation if print date is changed
+                                && (!specialProducts.includes(eventArgs.details.valueAfter) // Does not include
+                                || (eventArgs.details.valueAfter == "Logo Recreation" && isNMGroupToo !== true))) { //update group letter to New Mover 
+
+                       
                                     console.log("Stinky Pete");
+
+                                    showElement("#normal-to-new-mover", "hide");
+                                    showElement("#nm-group", "hide");
+                                    showElement("#nm-group-label", "hide");
+                                    showElement("#nm-print-date", "hide");
+                                    showElement("#nm-print-date-label", "hide");
+                                    showElement("#product-group-update", "show");
+                                    showElement("#new-mover-to-normal", "show");
+                                    showElement("#normal-group", "show");
+                                    showElement("#normal-group-label", "show");
+                                    showElement("#normal-print-date", "show");
+                                    showElement("#normal-print-date-label", "show");
+
+                                    var nmOrNo = false;
+
+                                    if ($("#normal-print-date").val() == "" || $("#normal-print-date").val() == null) {
+                                        newMoverGroupPrintVariation(rowInfo.product.value, nmOrNo);
+                                    };
+
                                 };
 
                             //#region REMOVE LOGO RECREATION LINE WHEN STATUS IS SET TO "NO LOGO RECREATION NEEDED" ----------------------------------
@@ -6613,6 +6655,11 @@ async function writeAndRedo(newPrintDate, newGroup) {
 
         // showElement("#product-group-update", "hide");
         //location.reload();
+
+        eventsOn();
+        console.log("Events: ON  →  turned on after a row was deleted within the onTableChanged function!");
+
+        return;
 
 
     });

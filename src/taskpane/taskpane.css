@@ -901,8 +901,9 @@ button[aria-label="Close"]:not(:disabled):active {
 }
 
 .yellow {
-    background-color: yellow;
-    color: black;
+    background-color: #515151; /*#022A42  rgba(255, 159, 0, 0.95)*/
+    color: white;
+    margin-bottom: 5px;
 }
 
 #na-ah-ah-text {
@@ -918,7 +919,7 @@ button[aria-label="Close"]:not(:disabled):active {
 }
 
 #new-mover-to-normal {
-    display: flex;
+    display: none;
 }
 
 #normal-to-new-mover {
@@ -935,6 +936,50 @@ button[aria-label="Close"]:not(:disabled):active {
     margin-top: 0px;
     margin-bottom: 5px;
     font-weight: 500;
+}
+
+.top-margin {
+    margin-top: 5px;
+}
+
+#nm-group {
+    display: none;
+}
+
+#nm-group-label {
+    display: none;
+}
+
+#normal-group {
+    display: none;
+}
+
+#normal-group-label {
+    display: none;
+}
+
+#nm-print-date {
+    display: none;
+}
+
+#nm-print-date-label {
+    display: none;
+}
+
+#normal-print-date {
+    display: none;
+}
+
+#normal-print-date-label {
+    display: none;
+}
+
+.wide-area {
+    width: 100%;
+}
+
+#submit-too {
+    width: 50%;
 }
 
 #na-ah-ah-buttons {

@@ -100,26 +100,38 @@
         </h2>
       </header>
       <p id="new-mover-to-normal" class="p-text">It looks like you updated a product that uses the New Mover monthly print dates in your table to a product that uses the normal weekly print dates. Please select a new print date for your product from the updated options below.</p>
-      <p id="normal-to-new-mover" class="p-text">It looks like you updated a product that uses the New Mover monthly print dates in your table to a product that uses the normal weekly print dates. Please select a new print date for your product from the updated options below.</p>
-      <div class="main dos">
+      <p id="normal-to-new-mover" class="p-text">It looks like you updated a product that uses the normal weekly print dates in your table to a New Mover product that uses monthly print dates. Please select a new print date for your product from the updated options below.</p>
+      <div class="main dos top-margin">
         <div class="mini">
           <div class="input-group split">
-            <select id="new-group" required class="sel input-area-select">
+            <select id="nm-group" required class="sel input-area-select">
               <option></option>
             </select>
-            <label for="new-group" class="label unselectable">Group</label>
+            <label for="nm-group" id="nm-group-label" class="label unselectable">Group</label>
+
+            <select id="normal-group" required class="sel input-area-select">
+              <option></option>
+            </select>
+            <label for="normal-group" id="normal-group-label" class="label unselectable">Group</label>
+
             <p class="warning"></p>
           </div>
           <div class="input-group split">
-            <select id="new-print-date" required class="sel input-area-select">
+            <select id="nm-print-date" required class="sel input-area-select">
               <option></option>
             </select>
-            <label for="new-print-date" class="label unselectable">Print Date</label>
+            <label for="nm-print-date" id="nm-print-date-label" class="label unselectable">Print Date</label>
+
+            <select id="normal-print-date" required class="sel input-area-select">
+              <option></option>
+            </select>
+            <label for="normal-print-date" id="normal-print-date-label" class="label unselectable">Print Date</label>
+
             <p class="warning"></p>
           </div>
         </div>
       </div>
-      <div class="main dos">
+      <!-- <div class="main uno">
         <div class="mini">
           <div class="buttons">
             <div class="bottom-buttons">
@@ -132,7 +144,13 @@
             </div>
           </div>
         </div>
+      </div> -->
+      <div class="wide-area">
+        <div class="bottom-buttons">
+          <button type="submit" id="submit-too" class="butt">SUBMIT</button>
+        </div>
       </div>
+
     </div>
   </div>
 
