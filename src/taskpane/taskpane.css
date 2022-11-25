@@ -534,6 +534,10 @@ select :hover {
     font-size: 10pt;
     font-style: italic;
     text-align: center;
+    max-width: 100%;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    margin-top: 0;
 }
 
 #reload-message-text {

@@ -1,4 +1,6 @@
 //validation sheet password: fissh
+var fish = "FISH";
+
 $( async () => {
 
     console.log("DOCUMENT IS LOADED BABY 🚀🌕🔥")
@@ -439,7 +441,7 @@ $( async () => {
                             // console.log(proofToClientArr);
 
                             for (var row of printDateRefArr) {
-                                var serialPrint = row[3];
+                                var serialPrint = row[7];
                                 var formattedPrintDate = convertToDate(serialPrint);
                                 var aNewDate = new Date(formattedPrintDate);
                                 //converts the date into a simplifed format for dropdown: mm/dd/yy
@@ -451,10 +453,12 @@ $( async () => {
                                     "basedOnNow":row[0],
                                     "yearBasedOnNow":row[1],
                                     "weekBasedOnNow":row[2],
-                                    "printDate":formattedPrintDate,
+                                    "printDate":row[3],
                                     "weekday":row[4],
                                     "adjust":row[5],
-                                    "group":row[6]
+                                    "group":row[6],
+                                    "currentPrintDate":formattedPrintDate,
+                                    "currentGroup":row[8]
                                 };
                             };
 
@@ -478,7 +482,7 @@ $( async () => {
 
                             for (var row of groupRefArr) { //for each row in the dateTable...
 
-                                var x = row[6]; //the group letter of the current row
+                                var x = row[8]; //the group letter of the current row
 
                                 var isGroupAlreadyPresent = false;
 
@@ -491,14 +495,16 @@ $( async () => {
                                 //if group letter is not already in the data, create the object and properties for the row
                                 if (isGroupAlreadyPresent == false) {
 
-                                    groupRefData[row[6].trim()] = {
+                                    groupRefData[row[8]] = {
                                         "basedOnNow":row[0],
                                         "yearBasedOnNow":row[1],
                                         "weekBasedOnNow":row[2],
                                         "printDate":row[3],
                                         "weekday":row[4],
                                         "adjust":row[5],
-                                        "group":row[6]
+                                        "group":row[6],
+                                        "currentPrintDate":row[7],
+                                        "currentGroup":row[8]
                                     };
 
                                     gArr.push(x); //pushes the group letter of the current row into the gArr for further calculations
@@ -517,7 +523,7 @@ $( async () => {
                             // console.log(changesDataArr);
 
                             for (var row of newMoverArr) {
-                                var serialNMPrint = row[1];
+                                var serialNMPrint = row[3];
                                 var formattedNMPrintDate = convertToDate(serialNMPrint);
                                 var aNewNMDate = new Date(formattedNMPrintDate);
                                 //converts the date into a simplifed format for dropdown: mm/dd/yy
@@ -529,6 +535,8 @@ $( async () => {
                                     "beginningOfMonth":row[0],
                                     "newMoverDate":row[1],
                                     "newMoverGroup":row[2],
+                                    "currentNewMoverPrint":row[3],
+                                    "currentNewMoverGroup":row[4]
                                 };
                             };
 
@@ -546,7 +554,7 @@ $( async () => {
 
                             for (var row of newMoverGroupArr) { //for each row in the newMoverTable...
 
-                                var xx = row[2]; //the group letter of the current row
+                                var xx = row[4]; //the group letter of the current row
 
                                 var isNMGroupAlreadyPresent = false;
 
@@ -559,10 +567,12 @@ $( async () => {
                                 //if group letter is not already in the data, create the object and properties for the row
                                 if (isNMGroupAlreadyPresent == false) {
 
-                                    newMoverGroupData[row[2].trim()] = {
+                                    newMoverGroupData[row[4]] = {
                                         "beginningOfMonth":row[0],
                                         "newMoverDate":row[1],
                                         "newMoverGroup":row[2],
+                                        "currentNewMoverPrint":row[3],
+                                        "currentNewMoverGroup":row[4]
                                     };
 
                                     nMGArr.push(xx); //pushes the group letter of the current row into the gArr for further calculations
@@ -756,14 +766,14 @@ $( async () => {
                         // Add an option to the select box
                         var option = `<option based-on-now="${row[0]}" year-based-on-now="${row[1]}" 
                         week-based-on-now="${row[2]}" print-date="${row[3]}" weekday="${row[4]}" adjust="${row[5]}" 
-                        group="${row[6]}">${row[6]}</option>`;
+                        group="${row[6]}" current-print-date="${row[7]}" current-group="${row[8]}">${row[8]}</option>`;
 
-                        var x = $(`#print-date > option[print-date="${row[3]}"]`).length;
-                        var y = $(`#group > option[group="${row[6]}"]`).length;
+                        var x = $(`#print-date > option[current-print-date="${row[7]}"]`).length;
+                        var y = $(`#group > option[current-group="${row[8]}"]`).length;
 
 
                         if (x == 0) { // Meaning, it's not there yet, because it's length count is 0
-                            var leDate = convertToDate(`${row[3]}`);
+                            var leDate = convertToDate(`${row[7]}`);
 
                             var d = new Date(leDate);
 
@@ -1150,14 +1160,15 @@ $( async () => {
                     newMoverRefValues.forEach(function(row) {
 
                         // Add an option to the select box
-                        var option = `<option beginning-of-month="${row[0]}" new-mover-date="${row[1]}" new-mover-group="${row[2]}">${row[2]}</option>`;
+                        var option = `<option beginning-of-month="${row[0]}" new-mover-date="${row[1]}" new-mover-group="${row[2]}" 
+                        current-new-mover-print="${row[3]}" current-new-mover-group="${row[4]}">${row[4]}</option>`;
 
-                        var xxx = $(`#print-date > option[new-mover-date="${row[1]}"]`).length;
-                        var yyy = $(`#group > option[new-mover-group="${row[2]}"]`).length;
+                        var xxx = $(`#print-date > option[current-new-mover-print="${row[3]}"]`).length;
+                        var yyy = $(`#group > option[current-new-mover-group="${row[4]}"]`).length;
 
 
                         if (xxx == 0) { // Meaning, it's not there yet, because it's length count is 0
-                            var leDate = convertToDate(`${row[1]}`);
+                            var leDate = convertToDate(`${row[3]}`);
 
                             var d = new Date(leDate);
 
@@ -1175,13 +1186,13 @@ $( async () => {
                         };
                     });
 
-                    var printDateConvert = convertToDate(newMoverRefValues[1][1]);
+                    var printDateConvert = convertToDate(newMoverRefValues[1][3]);
                     var dd = new Date(printDateConvert);
                     //converts the date into a simplifed format for dropdown: mm/dd/yy
                     printDateConvert = [('' + (dd.getMonth() + 1)).slice(-2), ('' + dd.getDate()).slice(-2), (dd.getFullYear() % 100)].join('/');
 
                     $("#print-date").val(printDateConvert);
-                    $("#group").val(newMoverRefValues[1][2]);
+                    $("#group").val(newMoverRefValues[1][4]);
 
                 } else {
 
@@ -1190,14 +1201,14 @@ $( async () => {
                         // Add an option to the select box
                         var option = `<option based-on-now="${row[0]}" year-based-on-now="${row[1]}" 
                         week-based-on-now="${row[2]}" print-date="${row[3]}" weekday="${row[4]}" adjust="${row[5]}" 
-                        group="${row[6]}">${row[6]}</option>`;
+                        group="${row[6]}" current-print-date="${row[7]}" current-group="${row[8]}">${row[8]}</option>`;
 
-                        var x = $(`#print-date > option[print-date="${row[3]}"]`).length;
-                        var y = $(`#group > option[group="${row[6]}"]`).length;
+                        var x = $(`#print-date > option[current-print-date="${row[7]}"]`).length;
+                        var y = $(`#group > option[current-group="${row[8]}"]`).length;
 
 
                         if (x == 0) { // Meaning, it's not there yet, because it's length count is 0
-                            var leDate = convertToDate(`${row[3]}`);
+                            var leDate = convertToDate(`${row[7]}`);
 
                             var d = new Date(leDate);
 
@@ -1216,12 +1227,12 @@ $( async () => {
                         };
                     });
 
-                    var printDateConvert = convertToDate(groupDateRefValues[2][3]);
+                    var printDateConvert = convertToDate(groupDateRefValues[2][7]);
                     var dd = new Date(printDateConvert);
                     //converts the date into a simplifed format for dropdown: mm/dd/yy
                     printDateConvert = [('' + (dd.getMonth() + 1)).slice(-2), ('' + dd.getDate()).slice(-2), (dd.getFullYear() % 100)].join('/');
                     $("#print-date").val(printDateConvert);
-                    $("#group").val(groupDateRefValues[2][6]);
+                    $("#group").val(groupDateRefValues[2][8]);
 
                 };
 
@@ -1273,14 +1284,15 @@ $( async () => {
                     newMoverRefValues.forEach(function(row) {
 
                         // Add an option to the select box
-                        var option = `<option beginning-of-month="${row[0]}" new-mover-date="${row[1]}" new-mover-group="${row[2]}">${row[2]}</option>`;
+                        var option = `<option beginning-of-month="${row[0]}" new-mover-date="${row[1]}" new-mover-group="${row[2]}" 
+                        current-new-mover-print="${row[3]}" current-new-mover-group="${row[4]}">${row[4]}</option>`;
 
-                        var xxx = $(`${printDateInput} > option[new-mover-date="${row[1]}"]`).length;
-                        var yyy = $(`${groupInput} > option[new-mover-group="${row[2]}"]`).length;
+                        var xxx = $(`${printDateInput} > option[current-new-mover-print="${row[3]}"]`).length;
+                        var yyy = $(`${groupInput} > option[current-new-mover-group="${row[4]}"]`).length;
 
 
                         if (xxx == 0) { // Meaning, it's not there yet, because it's length count is 0
-                            var leDate = convertToDate(`${row[1]}`);
+                            var leDate = convertToDate(`${row[3]}`);
 
                             var d = new Date(leDate);
 
@@ -1298,13 +1310,13 @@ $( async () => {
                         };
                     });
 
-                    var printDateConvert = convertToDate(newMoverRefValues[1][1]);
+                    var printDateConvert = convertToDate(newMoverRefValues[1][3]);
                     var dd = new Date(printDateConvert);
                     //converts the date into a simplifed format for dropdown: mm/dd/yy
                     printDateConvert = [('' + (dd.getMonth() + 1)).slice(-2), ('' + dd.getDate()).slice(-2), (dd.getFullYear() % 100)].join('/');
 
                     $(printDateInput).val(printDateConvert);
-                    $(groupInput).val(newMoverRefValues[1][2]);
+                    $(groupInput).val(newMoverRefValues[1][4]);
 
                 } else {
 
@@ -1313,14 +1325,14 @@ $( async () => {
                         // Add an option to the select box
                         var option = `<option based-on-now="${row[0]}" year-based-on-now="${row[1]}" 
                         week-based-on-now="${row[2]}" print-date="${row[3]}" weekday="${row[4]}" adjust="${row[5]}" 
-                        group="${row[6]}">${row[6]}</option>`;
+                        group="${row[6]}" current-print-date="${row[7]}" current-group="${row[8]}">${row[8]}</option>`;
 
-                        var x = $(`${printDateInput} > option[print-date="${row[3]}"]`).length;
-                        var y = $(`${groupInput} > option[group="${row[6]}"]`).length;
+                        var x = $(`${printDateInput} > option[current-print-date="${row[7]}"]`).length;
+                        var y = $(`${groupInput} > option[current-group="${row[8]}"]`).length;
 
 
                         if (x == 0) { // Meaning, it's not there yet, because it's length count is 0
-                            var leDate = convertToDate(`${row[3]}`);
+                            var leDate = convertToDate(`${row[7]}`);
 
                             var d = new Date(leDate);
 
@@ -1339,12 +1351,12 @@ $( async () => {
                         };
                     });
 
-                    var printDateConvert = convertToDate(groupDateRefValues[2][3]);
+                    var printDateConvert = convertToDate(groupDateRefValues[2][7]);
                     var dd = new Date(printDateConvert);
                     //converts the date into a simplifed format for dropdown: mm/dd/yy
                     printDateConvert = [('' + (dd.getMonth() + 1)).slice(-2), ('' + dd.getDate()).slice(-2), (dd.getFullYear() % 100)].join('/');
                     $(printDateInput).val(printDateConvert);
-                    $(groupInput).val(groupDateRefValues[2][6]);
+                    $(groupInput).val(groupDateRefValues[2][8]);
 
                 };
 
@@ -1373,9 +1385,9 @@ $( async () => {
                     try {
 
                         if (product == "New Mover" || product == "Plastic New Mover" || product == "Birthday Postcard") {
-                            var printDateMatch = newMoverGroupData[theGroup].newMoverDate;
+                            var printDateMatch = newMoverGroupData[theGroup].currentNewMoverPrint;
                         } else {
-                            var printDateMatch = groupRefData[theGroup].printDate;
+                            var printDateMatch = groupRefData[theGroup].currentPrintDate;
                         }
                         var formattedPrintDateMatch = convertToDate(printDateMatch);
                         var leNewDate = new Date(formattedPrintDateMatch);
@@ -1410,7 +1422,7 @@ $( async () => {
 
                     try {
 
-                        var printDateMatch = newMoverGroupData[theGroup].newMoverDate;
+                        var printDateMatch = newMoverGroupData[theGroup].currentNewMoverPrint;
     
                         var formattedPrintDateMatch = convertToDate(printDateMatch);
                         var leNewDate = new Date(formattedPrintDateMatch);
@@ -1445,7 +1457,7 @@ $( async () => {
 
                     try {
 
-                        var printDateMatch = groupRefData[theGroup].printDate;
+                        var printDateMatch = groupRefData[theGroup].currentPrintDate;
 
                         var formattedPrintDateMatch = convertToDate(printDateMatch);
                         var leNewDate = new Date(formattedPrintDateMatch);
@@ -1482,9 +1494,9 @@ $( async () => {
 
                     try {
                         if (product == "New Mover" || product == "Plastic New Mover" || product == "Birthday Postcard") {
-                            var groupMatch = newMoverData[thePrintDate].newMoverGroup;
+                            var groupMatch = newMoverData[thePrintDate].currentNewMoverGroup;
                         } else {
-                            var groupMatch = printDateRefData[thePrintDate].group;
+                            var groupMatch = printDateRefData[thePrintDate].currentGroup;
                         };
                         $("#group").val(groupMatch);
                     } catch (e) {
@@ -1514,7 +1526,7 @@ $( async () => {
 
                     try {
                         
-                        var groupMatch = newMoverData[thePrintDate].newMoverGroup;
+                        var groupMatch = newMoverData[thePrintDate].currentNewMoverGroup;
                     
                         $("#nm-group").val(groupMatch);
                     } catch (e) {
@@ -1544,7 +1556,7 @@ $( async () => {
 
                     try {
                  
-                        var groupMatch = printDateRefData[thePrintDate].group;
+                        var groupMatch = printDateRefData[thePrintDate].currentGroup;
 
                         $("#normal-group").val(groupMatch);
                     } catch (e) {
@@ -2175,13 +2187,13 @@ $( async () => {
 
 
                             if (printDateVal == undefined || printDateVal == "") {
-                                printDateVal = groupDateRefValues[2][3];
+                                printDateVal = groupDateRefValues[2][7];
                                 printDateVal = convertToDate(printDateVal);
                                 printDateVal = formatDate(printDateVal);
 
                                 writeLogo[0][tableRowInfo.printDate.columnIndex] = printDateVal;
 
-                                groupVal = groupDateRefValues[2][6];
+                                groupVal = groupDateRefValues[2][8];
                                 writeLogo[0][tableRowInfo.group.columnIndex] = groupVal;
 
                             };
@@ -2447,9 +2459,9 @@ $( async () => {
                                 if (rowInfoSorted.product.value == "New Mover" || rowInfoSorted.product.value == "Plastic New Mover" 
                                 || rowInfoSorted.product.value == "Birthday Postcard" 
                                 || (rowInfoSorted.product.value == "Logo Recreation" && isNMGroup == true)) {
-                                    var matchPrintDate = newMoverGroupData[groupUppercase].newMoverDate;
+                                    var matchPrintDate = newMoverGroupData[groupUppercase].currentNewMoverPrint;
                                 } else {
-                                    var matchPrintDate = groupRefData[groupUppercase].printDate;
+                                    var matchPrintDate = groupRefData[groupUppercase].currentPrintDate;
                                 };
 
                                 if (matchPrintDate == undefined) {
@@ -2982,7 +2994,7 @@ $( async () => {
                                     ].join('/');
     
                                     try {
-                                        var matchGroup = newMoverData[formattedDate].newMoverGroup;
+                                        var matchGroup = newMoverData[formattedDate].currentNewMoverGroup;
                                     }
                                     catch (e) {
                                         if (matchGroup == undefined) {
@@ -3003,7 +3015,7 @@ $( async () => {
                                     //variation if group letter is changed
 
                                     var groupUppercase = rowInfo.group.value.toUpperCase();
-                                    var matchPrintDate = newMoverGroupData[groupUppercase].newMoverDate;
+                                    var matchPrintDate = newMoverGroupData[groupUppercase].currentNewMoverPrint;
                                     if (matchPrintDate == undefined) {
                                         matchPrintDate = "N/A";
                                     };
@@ -3025,7 +3037,7 @@ $( async () => {
                                     ].join('/');
 
                                     try {
-                                        var matchGroup = printDateRefData[formattedDate].group;
+                                        var matchGroup = printDateRefData[formattedDate].currentGroup;
                                     }
                                     catch (e) {
                                         if (matchGroup == undefined) {
@@ -3041,7 +3053,7 @@ $( async () => {
                                 } else if (changedColumnIndex == rowInfo.group.columnIndex) { //update the print date if the group letter is changed
 
                                     var groupUppercase = rowInfo.group.value.toUpperCase();
-                                    var matchPrintDate = groupRefData[groupUppercase].printDate;
+                                    var matchPrintDate = groupRefData[groupUppercase].currentPrintDate;
                                     if (matchPrintDate == undefined) {
                                         matchPrintDate = "N/A";
                                     };
@@ -5662,15 +5674,33 @@ $( async () => {
 
                     var logoRecreationStatus = ["Logo Status TBD", "Logo Needs Recreating", "Logo Needs Uploading", "No Logo Recreation Needed"];
 
-                    var lastWeeksPrintDate = printDateRefData[Object.keys(printDateRefData)[1]].printDate;
+                    var daGroup = rowInfoSorted.group.value;
+                    var isNMGroupToo = daGroup.includes("NM");
+
+                    const specialProducts = [
+                        "New Mover",
+                        "Plastic New Mover",
+                        "Birthday Postcard",
+                        "Logo Recreation",
+                    ];
+
+                    if (specialProducts.includes(rowInfoSorted.product.value)
+                    || (rowInfoSorted.product.value == "Logo Recreation" && isNMGroupToo == true)) {
+                        var lastWeeksPrintDate = newMoverData[Object.keys(newMoverData)[0]].currentNewMoverPrint;
+                        var thisWeeksPrintDate = newMoverData[Object.keys(newMoverData)[1]].currentNewMoverPrint;
+                        var nextWeeksPrintDate = newMoverData[Object.keys(newMoverData)[2]].currentNewMoverPrint;
+                    } else {
+                        var lastWeeksPrintDate = printDateRefData[Object.keys(printDateRefData)[1]].currentPrintDate;
+                        var thisWeeksPrintDate = printDateRefData[Object.keys(printDateRefData)[2]].currentPrintDate;
+                        var nextWeeksPrintDate = printDateRefData[Object.keys(printDateRefData)[3]].currentPrintDate;
+                    };
+
                     lastWeeksPrintDate = new Date(lastWeeksPrintDate);
                     lastWeeksPrintDate = Number(JSDateToExcelDate(lastWeeksPrintDate));
 
-                    var thisWeeksPrintDate = printDateRefData[Object.keys(printDateRefData)[2]].printDate;
                     thisWeeksPrintDate = new Date(thisWeeksPrintDate);
                     thisWeeksPrintDate = Number(JSDateToExcelDate(thisWeeksPrintDate));
 
-                    var nextWeeksPrintDate = printDateRefData[Object.keys(printDateRefData)[3]].printDate;
                     nextWeeksPrintDate = new Date(nextWeeksPrintDate);
                     nextWeeksPrintDate = Number(JSDateToExcelDate(nextWeeksPrintDate));
 
@@ -6592,7 +6622,8 @@ async function writeAndRedo(newPrintDate, newGroup) {
         var savedLeTable = previousInfo.leTable;
         var savedChangedTable = previousInfo.changedTable;
         var savedChangedWorksheet = previousInfo.changedWorksheet;
-        var savedAddress = previousInfo.address;
+        // var savedAddress = previousInfo.address;
+        var savedAddress = `H${Number(rowIndexPostSort) + 2}`;
 
         var newChangedTable = context.workbook.tables.getItem(savedChangedTable).load("name");
         var newBodyRange = newChangedTable.getDataBodyRange().load("values");
