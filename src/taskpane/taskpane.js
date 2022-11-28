@@ -1903,7 +1903,7 @@ $( async () => {
 
                     //#region AUTO-FILL STATUS -------------------------------------------------------------------------------------------------------
 
-                        var leStatus = statusAutofill(tableName);
+                        var leStatus = statusAutofill(tableName, tableRowInfo.product.value, tableRowInfo.status.value);
 
                         write[0][tableRowInfo.status.columnIndex] = leStatus;
 
@@ -3971,7 +3971,8 @@ $( async () => {
 
                                                 //#region SETS STATUS AUTOFILL -----------------------------------------------------------------------
 
-                                                    var newStatus = statusAutofill(destTableName); //updates the status to default autofill value
+                                                    var newStatus = statusAutofill(destTableName, rowInfo.product.value, rowInfo.status.value); 
+                                                    //updates the status to default autofill value
                                                     rowValues[0][rowInfo.status.columnIndex] = newStatus;
 
                                                 //#endregion -----------------------------------------------------------------------------------------
@@ -4632,14 +4633,24 @@ $( async () => {
              * @param {String} tableName The name of the table
              * @returns String
              */    
-             function statusAutofill(tableName) {
+             function statusAutofill(tableName, product, status) {
                 //if the table the row was inserted into is "UnassignedProjects", set status column to "Awaiting Artist"
                 if (tableName == "UnassignedProjects") {
-                    var status = "Awaiting Artist";
+                    if (product == "Logo Recreation" && (status == "Logo Status TBD" 
+                    || status == "Logo Needs Recreating" || status == "Logo Needs Uploading")) {
+                        var status = status;
+                    } else {
+                        var status = "Awaiting Artist";
+                    };
                 };
                 //if the table the row was inserted into is not "UnassaignedProjects"...
                 if (tableName !== "UnassignedProjects") {
+                    if (product == "Logo Recreation" && (status == "Logo Status TBD" 
+                    || status == "Logo Needs Recreating" || status == "Logo Needs Uploading")) {
+                        var status = status;
+                    } else {
                     var status = "Not Working";
+                    };
                 };
                 return status;
             };
@@ -5680,29 +5691,56 @@ $( async () => {
                     const specialProducts = [
                         "New Mover",
                         "Plastic New Mover",
-                        "Birthday Postcard",
-                        "Logo Recreation",
+                        "Birthday Postcard"
+                        // "Logo Recreation",
                     ];
 
                     if (specialProducts.includes(rowInfoSorted.product.value)
                     || (rowInfoSorted.product.value == "Logo Recreation" && isNMGroupToo == true)) {
-                        var lastWeeksPrintDate = newMoverData[Object.keys(newMoverData)[0]].currentNewMoverPrint;
+                        // var lastWeeksPrintDate = newMoverData[Object.keys(newMoverData)[0]].currentNewMoverPrint;
+                        var lastWeeksPrintDate = printDateRefData[Object.keys(printDateRefData)[1]].currentPrintDate;
                         var thisWeeksPrintDate = newMoverData[Object.keys(newMoverData)[1]].currentNewMoverPrint;
-                        var nextWeeksPrintDate = newMoverData[Object.keys(newMoverData)[2]].currentNewMoverPrint;
+                        // var nextWeeksPrintDate = newMoverData[Object.keys(newMoverData)[2]].currentNewMoverPrint;
+                        var nextWeeksPrintDate = printDateRefData[Object.keys(printDateRefData)[3]].currentPrintDate;
+
+                        lastWeeksPrintDate = new Date(lastWeeksPrintDate);
+                        lastWeeksPrintDate = Number(JSDateToExcelDate(lastWeeksPrintDate));
+
+                        nextWeeksPrintDate = new Date(nextWeeksPrintDate);
+                        nextWeeksPrintDate = Number(JSDateToExcelDate(nextWeeksPrintDate));
+
+                        var amNewMover = true;
+
                     } else {
+
                         var lastWeeksPrintDate = printDateRefData[Object.keys(printDateRefData)[1]].currentPrintDate;
                         var thisWeeksPrintDate = printDateRefData[Object.keys(printDateRefData)[2]].currentPrintDate;
                         var nextWeeksPrintDate = printDateRefData[Object.keys(printDateRefData)[3]].currentPrintDate;
+
+                        lastWeeksPrintDate = new Date(lastWeeksPrintDate);
+                        lastWeeksPrintDate = Number(JSDateToExcelDate(lastWeeksPrintDate));
+    
+                        thisWeeksPrintDate = new Date(thisWeeksPrintDate);
+                        thisWeeksPrintDate = Number(JSDateToExcelDate(thisWeeksPrintDate));
+    
+                        nextWeeksPrintDate = new Date(nextWeeksPrintDate);
+                        nextWeeksPrintDate = Number(JSDateToExcelDate(nextWeeksPrintDate));
+
+                        var amNewMover = false;
                     };
 
-                    lastWeeksPrintDate = new Date(lastWeeksPrintDate);
-                    lastWeeksPrintDate = Number(JSDateToExcelDate(lastWeeksPrintDate));
+                    //The printDateRefData already has code in it that converts the returned pritn date to a string, which is why for my conditional formatting calucaltions I have to convert these back into serial numbers. The New Mover print dates are not strings, so no extra calculations are required for these.
 
-                    thisWeeksPrintDate = new Date(thisWeeksPrintDate);
-                    thisWeeksPrintDate = Number(JSDateToExcelDate(thisWeeksPrintDate));
+                    // lastWeeksPrintDate = convertToDate(lastWeeksPrintDate);
+                    // lastWeeksPrintDate = Number(JSDateToExcelDate(lastWeeksPrintDate));
 
-                    nextWeeksPrintDate = new Date(nextWeeksPrintDate);
-                    nextWeeksPrintDate = Number(JSDateToExcelDate(nextWeeksPrintDate));
+                    // thisWeeksPrintDate = convertToDate(thisWeeksPrintDate);
+                    // thisWeeksPrintDate = Number(JSDateToExcelDate(thisWeeksPrintDate));
+
+                    // lastWeeksPrintDate = convertToDate(nextWeeksPrintDate);
+                    // lastWeeksPrintDate = Number(JSDateToExcelDate(nextWeeksPrintDate));
+
+             
 
                
 
@@ -5805,7 +5843,8 @@ $( async () => {
 
                         //#region IN NEXT WEEK'S PRINT GROUP -----------------------------------------------------------------------------------------
 
-                            else if (printDate > thisWeeksPrintDate && printDate <= nextWeeksPrintDate) { //next week's print group
+                            else if (printDate > thisWeeksPrintDate && printDate <= nextWeeksPrintDate) { 
+                            //next week's print group
 
                                 logoRecreationStatus.forEach(
                                     leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
@@ -5845,20 +5884,20 @@ $( async () => {
                                 && rowInfoSorted.subject.value == "Test for Artist Data Validation") {
                                     return;
                                 };
-    
+
                                 rowRangeSorted.format.fill.clear();
                                 rowRangeSorted.format.font.color = "black";
                                 rowRangeSorted.format.font.bold = false;
                                 printDateAddress.format.horizontalAlignment = "center";
                                 groupAddress.format.horizontalAlignment = "center";
-    
+
                                 // if (rowInfoSorted.tags.value !== "") {
                                 //     rowRangeSorted.format.font.color = "#ED7D31";
                                 //     rowRangeSorted.format.font.bold = true;
                                 // };
-    
+
                                 // console.log("Color formatting was removed from row");
-    
+
                                 logoRecreationStatus.forEach(
                                     leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus)
                                 );
@@ -5866,6 +5905,7 @@ $( async () => {
                             };
 
                         //#endregion -----------------------------------------------------------------------------------------------------------------
+                        
 
                         /*If past print group, print date and group columns are highlighted in black with white bold text. This is applied further
                         down, since I wanted this format to overwrite the "Working" status highlight if that was also applied to a line.*/
