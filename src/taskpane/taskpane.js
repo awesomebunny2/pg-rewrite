@@ -1937,6 +1937,8 @@ $( async () => {
 
                             write[0][tableRowInfo.designManager.columnIndex] = theDesignManager;
 
+                        } else {
+                            var theDesignManager = designManagersVal;
                         };
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
@@ -2242,6 +2244,7 @@ $( async () => {
                             //this edit will need to be made also to the table changed event so that when the group is changed for these specific 
                             //requests, the art turn around time will also auto-updated accordingly.
 
+                            
                             //#region SORT THE TABLE, AGAIN ------------------------------------------------------------------------------------------
 
                                 newRangeOfTable[newTableRowIndex] = writeLogo[0]; //writes content to the excel table
@@ -4140,7 +4143,7 @@ $( async () => {
 
                                                     //#region WRTIE NEW VALUES TO THE UPDATED TABLES -------------------------------------------------
 
-                                                        newBodyValues = leTableSort;
+                                                        bodyPositivity.values = leTableSort;
 
                                                         destinationStation.values = destTableSort;
 
@@ -5695,23 +5698,23 @@ $( async () => {
                         // "Logo Recreation",
                     ];
 
-                    if (specialProducts.includes(rowInfoSorted.product.value)
-                    || (rowInfoSorted.product.value == "Logo Recreation" && isNMGroupToo == true)) {
-                        // var lastWeeksPrintDate = newMoverData[Object.keys(newMoverData)[0]].currentNewMoverPrint;
-                        var lastWeeksPrintDate = printDateRefData[Object.keys(printDateRefData)[1]].currentPrintDate;
-                        var thisWeeksPrintDate = newMoverData[Object.keys(newMoverData)[1]].currentNewMoverPrint;
-                        // var nextWeeksPrintDate = newMoverData[Object.keys(newMoverData)[2]].currentNewMoverPrint;
-                        var nextWeeksPrintDate = printDateRefData[Object.keys(printDateRefData)[3]].currentPrintDate;
+                    // if (specialProducts.includes(rowInfoSorted.product.value)
+                    // || (rowInfoSorted.product.value == "Logo Recreation" && isNMGroupToo == true)) {
+                    //     // var lastWeeksPrintDate = newMoverData[Object.keys(newMoverData)[0]].currentNewMoverPrint;
+                    //     var lastWeeksPrintDate = printDateRefData[Object.keys(printDateRefData)[1]].currentPrintDate;
+                    //     var thisWeeksPrintDate = newMoverData[Object.keys(newMoverData)[1]].currentNewMoverPrint;
+                    //     // var nextWeeksPrintDate = newMoverData[Object.keys(newMoverData)[2]].currentNewMoverPrint;
+                    //     var nextWeeksPrintDate = printDateRefData[Object.keys(printDateRefData)[3]].currentPrintDate;
 
-                        lastWeeksPrintDate = new Date(lastWeeksPrintDate);
-                        lastWeeksPrintDate = Number(JSDateToExcelDate(lastWeeksPrintDate));
+                    //     lastWeeksPrintDate = new Date(lastWeeksPrintDate);
+                    //     lastWeeksPrintDate = Number(JSDateToExcelDate(lastWeeksPrintDate));
 
-                        nextWeeksPrintDate = new Date(nextWeeksPrintDate);
-                        nextWeeksPrintDate = Number(JSDateToExcelDate(nextWeeksPrintDate));
+                    //     nextWeeksPrintDate = new Date(nextWeeksPrintDate);
+                    //     nextWeeksPrintDate = Number(JSDateToExcelDate(nextWeeksPrintDate));
 
-                        var amNewMover = true;
+                    //     var amNewMover = true;
 
-                    } else {
+                    // } else {
 
                         var lastWeeksPrintDate = printDateRefData[Object.keys(printDateRefData)[1]].currentPrintDate;
                         var thisWeeksPrintDate = printDateRefData[Object.keys(printDateRefData)[2]].currentPrintDate;
@@ -5727,7 +5730,7 @@ $( async () => {
                         nextWeeksPrintDate = Number(JSDateToExcelDate(nextWeeksPrintDate));
 
                         var amNewMover = false;
-                    };
+                    // };
 
                     //The printDateRefData already has code in it that converts the returned pritn date to a string, which is why for my conditional formatting calucaltions I have to convert these back into serial numbers. The New Mover print dates are not strings, so no extra calculations are required for these.
 
