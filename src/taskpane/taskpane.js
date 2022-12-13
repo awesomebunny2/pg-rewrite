@@ -1789,6 +1789,8 @@ $( async () => {
                         var sheetTable = sheet.tables.getItemAt(0).load("name"); //this is fine since the user will only ever be adding new projects 
                         //to the unassigned table or the artist tables, which are all the first tables in their documents
                         sheetTable.rows.add(null);
+                        var sheetTableToo = sheet.tables.getItemAt(1).load("name"); //this is fine since the user will only ever be adding new projects 
+
 
                         var sheetTableRows = sheetTable.rows.load("items");
                         var sheetTableRange = sheetTable.getDataBodyRange().load("values");
@@ -1865,6 +1867,7 @@ $( async () => {
                         var tableRowItems = sheetTableRows.items
 
                         var tableName = sheetTable.name;
+                        var tableNameToo = sheetTableToo.name;
 
                         var leSheetName = sheet.name;
 
