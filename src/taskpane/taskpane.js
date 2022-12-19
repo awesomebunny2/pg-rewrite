@@ -1,5 +1,5 @@
 //validation sheet password: fissh
-var fish = "FISH";
+var fish = "FISH"; 
 
 $( async () => {
 
@@ -4905,6 +4905,10 @@ $( async () => {
                 if (lePickUpTime == null) {
                     leTable[rowIndex][rowInfo.proofToClient.columnIndex] = "NO PRODUCT / PROJECT TYPE";
                     return null;
+                };
+
+                if (rowInfo.status.value == "Ready To Upload" && rowInfo.proofToClient.value !== "") {
+                    return;
                 };
 
                 //if the request's status is a form of "Editing"...
