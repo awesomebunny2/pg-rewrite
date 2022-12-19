@@ -2927,6 +2927,8 @@ $( async () => {
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
 
+                    
+
                     //#region ROW DELETED ------------------------------------------------------------------------------------------------------------
 
                         if (changeType == "RowDeleted") {
@@ -2983,6 +2985,37 @@ $( async () => {
                     //#region PRINT DATE / GROUP LETTER AUTO UPDATE ----------------------------------------------------------------------------------
 
                         if ((changedColumnIndex == rowInfo.printDate.columnIndex) || (changedColumnIndex == rowInfo.group.columnIndex)) {
+
+                            //#region HYPERLINKS -------------------------------------------------------------------------------------------------------------
+
+                                console.log("howdcy");
+                                var notesColumn = rowInfo.notes.columnIndex;
+                                var clearedCount = 0;
+                                for (var x = 0; x < leTable.length; x++) {
+                                    var leCell = bodyRange.getCell(x, notesColumn);
+                                    var cellProperties = leCell.getCellProperties({
+                                        hyperlink: true
+                                    });
+
+                                    await context.sync();
+
+                                    var hyperlink = cellProperties.value[0][0];
+
+                                    console.log(hyperlink.hyperlink);
+
+                                    if (hyperlink.hyperlink) {
+                                        leCell.clear(Excel.ClearApplyTo.hyperlinks);
+                                        leCell.format.font.underline = false;
+                                        leCell.format.font.color = "black";
+                                        // leCell.getFormat().getFont().setUnderline(Excel.RangeUnderlineStyle.none);
+                                        // leCell.getFormat().getFont().setColor('Black');
+                                        clearedCount++;
+                                    };
+                                };
+
+                                console.log(`Done. Cleared hyperlinks from ${clearedCount} cells`);
+
+                            //#endregion ---------------------------------------------------------------------------------------------------------------------
 
                             if (changedColumnIndex == rowInfo.printDate.columnIndex 
                                 && (rowInfo.product.value == "New Mover" 
@@ -3284,6 +3317,37 @@ $( async () => {
                         // ) {
 
                             console.log("I will update the turn around times, priority numbers, and sort the sheet before turning events back on!");
+
+                            //#region HYPERLINKS -------------------------------------------------------------------------------------------------------------
+
+                                console.log("howdcy");
+                                var notesColumn = rowInfo.notes.columnIndex;
+                                var clearedCount = 0;
+                                for (var x = 0; x < leTable.length; x++) {
+                                    var leCell = bodyRange.getCell(x, notesColumn);
+                                    var cellProperties = leCell.getCellProperties({
+                                        hyperlink: true
+                                    });
+
+                                    await context.sync();
+
+                                    var hyperlink = cellProperties.value[0][0];
+
+                                    console.log(hyperlink.hyperlink);
+
+                                    if (hyperlink.hyperlink) {
+                                        leCell.clear(Excel.ClearApplyTo.hyperlinks);
+                                        leCell.format.font.underline = false;
+                                        leCell.format.font.color = "black";
+                                        // leCell.getFormat().getFont().setUnderline(Excel.RangeUnderlineStyle.none);
+                                        // leCell.getFormat().getFont().setColor('Black');
+                                        clearedCount++;
+                                    };
+                                };
+
+                                console.log(`Done. Cleared hyperlinks from ${clearedCount} cells`);
+
+                            //#endregion ---------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -6214,6 +6278,10 @@ $( async () => {
                                 // };
 
                                 // console.log("Row was colored yellow because it is overdue to be assigned");
+
+                                logoRecreationStatus.forEach(
+                                    leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus, "#FF2600") //#263484  #AC50FF
+                                );
                             };
 
                         //#endregion -----------------------------------------------------------------------------------------------------------------
@@ -6233,6 +6301,10 @@ $( async () => {
                                 // };
 
                                 // console.log("Row was colored red because it is overdue");
+
+                                logoRecreationStatus.forEach(
+                                    leStatus =>  logoInsertHighlighting(rowInfoSorted, rowRangeSorted, printDateAddress, groupAddress, leStatus, "#EEFF36") //#BEF0FF
+                                );
 
                             };
 
@@ -6325,13 +6397,18 @@ $( async () => {
              * @param {Range} groupAddress The cell address of the group
              * @param {String} input The qualifying status that will award the row an orange text highlight
              */
-            function logoInsertHighlighting (rowInfo, rowRange, printDateAddress, groupAddress, input) {
+            function logoInsertHighlighting (rowInfo, rowRange, printDateAddress, groupAddress, input, color) {
                 if (rowInfo.product.value == "Logo Recreation" && rowInfo.status.value == input) {
-                    rowRange.format.font.color = "#ED7D31"; //#9BC2E6
-                    rowRange.format.font.bold = true;
-                    // console.log("Logo Insert Row was highlighted!")
-                    // printDateAddress.format.font.color = "white";
-                    // groupAddress.format.font.color = "white";
+                    if (color !== undefined) {
+                        rowRange.format.font.color = color; //#9BC2E6
+                        rowRange.format.font.bold = true;
+                    } else {
+                        rowRange.format.font.color = "#ED7D31"; //#9BC2E6
+                        rowRange.format.font.bold = true;
+                        // console.log("Logo Insert Row was highlighted!")
+                        // printDateAddress.format.font.color = "white";
+                        // groupAddress.format.font.color = "white";
+                    };
                 };
             };
 
