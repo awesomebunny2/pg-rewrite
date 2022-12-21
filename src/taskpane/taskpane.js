@@ -1851,9 +1851,10 @@ $( async () => {
                             "", // 17 - Status
                             codeVal, // 18 - Code
                             "", // 19 - Artist
-                            notes, // 20 - Notes
-                            startOverrideVal, // 21 - Start Override
-                            workOverrideVal // 22 - Work Override
+                            "", // 20 - Links
+                            notes, // 21 - Notes
+                            startOverrideVal, // 22 - Start Override
+                            workOverrideVal // 23 - Work Override
                         ]];
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
@@ -2179,9 +2180,10 @@ $( async () => {
                                     "Logo Status TBD", // 17 - Status
                                     codeVal, // 18 - Code
                                     leArtist, // 19 - Artist
-                                    notes, // 20 - Notes
-                                    0, // 21 - Start Override
-                                    0 // 22 - Work Override
+                                    "", // 20 - Links
+                                    notes, // 21 - Notes
+                                    0, // 22 - Start Override
+                                    0 // 23 - Work Override
                                 ]];
 
                             //#endregion -------------------------------------------------------------------------------------------------------------
@@ -2990,29 +2992,66 @@ $( async () => {
 
                                 console.log("howdcy");
                                 var notesColumn = rowInfo.notes.columnIndex;
+                                var linksColumn = rowInfo.links.columnIndex;
                                 var clearedCount = 0;
+
                                 for (var x = 0; x < leTable.length; x++) {
                                     var leCell = bodyRange.getCell(x, notesColumn);
+                                    leCell.load("values");
+                                    leCell.load("formulas");
                                     var cellProperties = leCell.getCellProperties({
                                         hyperlink: true
                                     });
 
                                     await context.sync();
 
+                                    var leCellValue = leCell.values[0][0];
+
+                                    var formula = leCell.formulas[0][0];
+
                                     var hyperlink = cellProperties.value[0][0];
 
                                     console.log(hyperlink.hyperlink);
 
-                                    if (hyperlink.hyperlink) {
+                                    if (hyperlink.hyperlink || formula.startsWith("=HYPERLINK")) {
                                         leCell.clear(Excel.ClearApplyTo.hyperlinks);
-                                        leCell.format.font.underline = false;
-                                        leCell.format.font.color = "black";
-                                        // leCell.getFormat().getFont().setUnderline(Excel.RangeUnderlineStyle.none);
-                                        // leCell.getFormat().getFont().setColor('Black');
+                                        // leCell.format.font.underline = false;
+                                        // leCell.format.font.color = "black";
+                                        // // leCell.getFormat().getFont().setUnderline(Excel.RangeUnderlineStyle.none);
+                                        // // leCell.getFormat().getFont().setColor('Black');
                                         clearedCount++;
                                     };
                                 };
 
+                                for (var z = 0; z < leTable.length; z++) {
+                                    var leCell = bodyRange.getCell(z, linksColumn);
+                                    leCell.load("values");
+                                    leCell.load("formulas");
+                                    var cellProperties = leCell.getCellProperties({
+                                        hyperlink: true
+                                    });
+
+                                    await context.sync();
+
+                                    var leCellValue = leCell.values[0][0];
+
+                                    var formula = leCell.formulas[0][0];
+
+                                    var hyperlink = cellProperties.value[0][0];
+
+                                    console.log(hyperlink.hyperlink);
+
+                                    if (hyperlink.hyperlink || formula.startsWith("=HYPERLINK")) {
+                                        leCell.clear(Excel.ClearApplyTo.hyperlinks);
+                                        // leCell.format.font.underline = false;
+                                        // leCell.format.font.color = "black";
+                                        // // leCell.getFormat().getFont().setUnderline(Excel.RangeUnderlineStyle.none);
+                                        // // leCell.getFormat().getFont().setColor('Black');
+                                        clearedCount++;
+                                    };
+                                };
+
+                                // console.log("farts in the bed");
                                 console.log(`Done. Cleared hyperlinks from ${clearedCount} cells`);
 
                             //#endregion ---------------------------------------------------------------------------------------------------------------------
@@ -3196,11 +3235,24 @@ $( async () => {
         
                                     var newChangedTableRows = changedTable.rows;
                                     newChangedTableRows.load("items");
+
+                                    var newBodyRange = changedTable.getDataBodyRange().load("values");
+
         
                                     await context.sync();
+
+                                    var leTableSorted = newBodyRange.values
+
+                                    var hyperlinkedTable = applyHyperlinks(leTableSorted, groupPrintRowInfo, newBodyRange);
+
+                                    newBodyRange.values = hyperlinkedTable;
+
+                                    await context.sync()
+
+                                    var newBodyValues = changedTable.getDataBodyRange().load("values");
         
                                     var tableRows = newChangedTableRows.items; //loads all the changed table's rows
-        
+                
                                     for (var m = 0; m < tableRows.length; m++) {
         
                                         var rowRangeSorted = newChangedTableRows.getItemAt(m).getRange();
@@ -3226,44 +3278,44 @@ $( async () => {
         
 
 
-                                    // var thePrintDateUpdated = convertToDate(groupPrintRowInfo.printDate.value)
-                                    // var updatedPrintDate = new Date(thePrintDateUpdated);
-                                    // var updatedDatePrint = updatedPrintDate.getDate();
-                                    // var updatedMonthPrint = updatedPrintDate.getMonth();
-                                    // var updatedYearPrint = updatedPrintDate.getFullYear();
+                                    var thePrintDateUpdated = convertToDate(groupPrintRowInfo.printDate.value)
+                                    var updatedPrintDate = new Date(thePrintDateUpdated);
+                                    var updatedDatePrint = updatedPrintDate.getDate();
+                                    var updatedMonthPrint = updatedPrintDate.getMonth();
+                                    var updatedYearPrint = updatedPrintDate.getFullYear();
 
-                                    // var updatedPrintDateDOW = updatedPrintDate.getDay();
+                                    var updatedPrintDateDOW = updatedPrintDate.getDay();
 
-                                    // if (updatedPrintDateDOW == 0) {
-                                    //     updatedPrintDateDOW = "Sunday"
-                                    // } else if (updatedPrintDateDOW == 1) {
-                                    //     updatedPrintDateDOW = "Monday"
-                                    // } else if (updatedPrintDateDOW == 2) {
-                                    //     updatedPrintDateDOW = "Tuesday"
-                                    // } else if (updatedPrintDateDOW == 3) {
-                                    //     updatedPrintDateDOW = "Wednesday"
-                                    // } else if (updatedPrintDateDOW == 4) {
-                                    //     updatedPrintDateDOW = "Thursday"
-                                    // } else if (updatedPrintDateDOW == 5) {
-                                    //     updatedPrintDateDOW = "Friday"
-                                    // } else if (updatedPrintDateDOW == 6) {
-                                    //     updatedPrintDateDOW = "Saturday"
-                                    // };
+                                    if (updatedPrintDateDOW == 0) {
+                                        updatedPrintDateDOW = "Sunday"
+                                    } else if (updatedPrintDateDOW == 1) {
+                                        updatedPrintDateDOW = "Monday"
+                                    } else if (updatedPrintDateDOW == 2) {
+                                        updatedPrintDateDOW = "Tuesday"
+                                    } else if (updatedPrintDateDOW == 3) {
+                                        updatedPrintDateDOW = "Wednesday"
+                                    } else if (updatedPrintDateDOW == 4) {
+                                        updatedPrintDateDOW = "Thursday"
+                                    } else if (updatedPrintDateDOW == 5) {
+                                        updatedPrintDateDOW = "Friday"
+                                    } else if (updatedPrintDateDOW == 6) {
+                                        updatedPrintDateDOW = "Saturday"
+                                    };
 
-                                    // var updatedWeekdayVars = officeHoursData[updatedPrintDateDOW];
+                                    var updatedWeekdayVars = officeHoursData[updatedPrintDateDOW];
 
-                                    // var updatedGroupEndOfDay = convertToDate(updatedWeekdayVars.endTime);
+                                    var updatedGroupEndOfDay = convertToDate(updatedWeekdayVars.endTime);
 
-                                    // updatedGroupEndOfDay.setFullYear(updatedYearPrint);
-                                    // updatedGroupEndOfDay.setMonth(updatedMonthPrint);
-                                    // updatedGroupEndOfDay.setDate(updatedDatePrint);
+                                    updatedGroupEndOfDay.setFullYear(updatedYearPrint);
+                                    updatedGroupEndOfDay.setMonth(updatedMonthPrint);
+                                    updatedGroupEndOfDay.setDate(updatedDatePrint);
 
-                                    // console.log(updatedGroupEndOfDay);
+                                    console.log(updatedGroupEndOfDay);
 
-                                    // var updatedGroupDateExcel = Number(JSDateToExcelDate(updatedGroupEndOfDay));
+                                    var updatedGroupDateExcel = Number(JSDateToExcelDate(updatedGroupEndOfDay));
 
-                                    // leTable[changedRowTableIndex][rowInfo.proofToClient.columnIndex] = updatedGroupDateExcel;
-                                    //bodyRange.values = leTable;
+                                    leTable[changedRowTableIndex][rowInfo.proofToClient.columnIndex] = updatedGroupDateExcel;
+                                    bodyRange.values = leTable;
 
                                 };
 
@@ -3318,36 +3370,73 @@ $( async () => {
 
                             console.log("I will update the turn around times, priority numbers, and sort the sheet before turning events back on!");
 
-                            //#region HYPERLINKS -------------------------------------------------------------------------------------------------------------
+                            //#region HYPERLINKS -----------------------------------------------------------------------------------------------------
 
                                 console.log("howdcy");
                                 var notesColumn = rowInfo.notes.columnIndex;
+                                var linksColumn = rowInfo.links.columnIndex;
                                 var clearedCount = 0;
+                                
                                 for (var x = 0; x < leTable.length; x++) {
                                     var leCell = bodyRange.getCell(x, notesColumn);
+                                    leCell.load("values");
+                                    leCell.load("formulas");
                                     var cellProperties = leCell.getCellProperties({
                                         hyperlink: true
                                     });
 
                                     await context.sync();
 
+                                    var leCellValue = leCell.values[0][0];
+
+                                    var formula = leCell.formulas[0][0];
+
                                     var hyperlink = cellProperties.value[0][0];
 
                                     console.log(hyperlink.hyperlink);
 
-                                    if (hyperlink.hyperlink) {
+                                    if (hyperlink.hyperlink || formula.startsWith("=HYPERLINK")) {
                                         leCell.clear(Excel.ClearApplyTo.hyperlinks);
-                                        leCell.format.font.underline = false;
-                                        leCell.format.font.color = "black";
-                                        // leCell.getFormat().getFont().setUnderline(Excel.RangeUnderlineStyle.none);
-                                        // leCell.getFormat().getFont().setColor('Black');
+                                        // leCell.format.font.underline = false;
+                                        // leCell.format.font.color = "black";
+                                        // // leCell.getFormat().getFont().setUnderline(Excel.RangeUnderlineStyle.none);
+                                        // // leCell.getFormat().getFont().setColor('Black');
                                         clearedCount++;
                                     };
                                 };
 
+                                for (var z = 0; z < leTable.length; z++) {
+                                    var leCell = bodyRange.getCell(z, linksColumn);
+                                    leCell.load("values");
+                                    leCell.load("formulas");
+                                    var cellProperties = leCell.getCellProperties({
+                                        hyperlink: true
+                                    });
+
+                                    await context.sync();
+
+                                    var leCellValue = leCell.values[0][0];
+
+                                    var formula = leCell.formulas[0][0];
+
+                                    var hyperlink = cellProperties.value[0][0];
+
+                                    console.log(hyperlink.hyperlink);
+
+                                    if (hyperlink.hyperlink || formula.startsWith("=HYPERLINK")) {
+                                        leCell.clear(Excel.ClearApplyTo.hyperlinks);
+                                        // leCell.format.font.underline = false;
+                                        // leCell.format.font.color = "black";
+                                        // // leCell.getFormat().getFont().setUnderline(Excel.RangeUnderlineStyle.none);
+                                        // // leCell.getFormat().getFont().setColor('Black');
+                                        clearedCount++;
+                                    };
+                                };
+
+                                // console.log("farts in the bed");
                                 console.log(`Done. Cleared hyperlinks from ${clearedCount} cells`);
 
-                            //#endregion ---------------------------------------------------------------------------------------------------------------------
+                            //#endregion -------------------------------------------------------------------------------------------------------------
 
 
 
@@ -3490,12 +3579,25 @@ $( async () => {
 
                             //#endregion -------------------------------------------------------------------------------------------------------------
 
-                            //adjusts picked up / started by turn around time
-                            var lePickUpTime = getPickUpTime(rowInfo, leTable, changedRowTableIndex, changedTableName);
+                            //if status was changed to "Ready To Upload" and the turn around time columns are not empty,
+                            //use exisiting picked up and proof to client times for sorting
+                            if (changedColumnIndex == rowInfo.status.columnIndex && rowInfo.status.value == "Ready To Upload" 
+                            && rowInfo.pickedUpStartedBy.value !== "" && rowInfo.proofToClient.value !== "") {
 
-                            //adjusts proof to client turn around time
-                            var leProofToClientTime = getProofToClientTime(rowInfo, leTable, lePickUpTime, changedRowTableIndex);
+                                var lePickUpTime = rowInfo.pickedUpStartedBy.value;
+                                leTable[changedRowTableIndex][rowInfo.pickedUpStartedBy.columnIndex] = lePickUpTime;
 
+                                var leProofToClientTime = rowInfo.proofToClient.value;
+                                leTable[changedRowTableIndex][rowInfo.proofToClient.columnIndex] = leProofToClientTime;
+
+                            } else {
+                                //adjusts picked up / started by turn around time
+                                var lePickUpTime = getPickUpTime(rowInfo, leTable, changedRowTableIndex, changedTableName);
+
+                                //adjusts proof to client turn around time
+                                var leProofToClientTime = getProofToClientTime(rowInfo, leTable, lePickUpTime, changedRowTableIndex);
+                            };
+                      
                             var changedRowValues = leTable[changedRowTableIndex];
 
                             if (changedTable.id == unassignedTable.id) { //if changedTable is Unassigned Table...
@@ -4281,9 +4383,21 @@ $( async () => {
                                 )
                             ) {
 
-                                var newChangedTableRows = destinationTable.rows.load("items");
+                                var newBodyRange = destinationTable.getDataBodyRange().load("values");
 
-                                var newBodyValues = destinationTable.getDataBodyRange().load("values");
+                                await context.sync();
+                                
+                                var leTableSorted = newBodyRange.values;
+                                
+                                var hyperlinkedTable = applyHyperlinks(leTableSorted, rowInfo);
+
+                                newBodyRange.values = hyperlinkedTable;
+
+                                await context.sync();
+
+                                 var newBodyValues = changedTable.getDataBodyRange().load("values");
+
+                                var newChangedTableRows = destinationTable.rows.load("items");
 
                                 var destinationWorksheetId = destinationTable.worksheet.id;
 
@@ -4293,9 +4407,21 @@ $( async () => {
 
                             } else { //data is not moving to another table, so no need for destination variables
 
-                                var newChangedTableRows = changedTable.rows.load("items");
+                                var newBodyRange = changedTable.getDataBodyRange().load("values");
+
+                                await context.sync();
+
+                                var leTableSorted = newBodyRange.values;
+
+                                var hyperlinkedTable = applyHyperlinks(leTableSorted, rowInfo, newBodyRange);
+
+                                newBodyRange.values = hyperlinkedTable;
+
+                                await context.sync();
 
                                 var newBodyValues = changedTable.getDataBodyRange().load("values");
+
+                                var newChangedTableRows = changedTable.rows.load("items");
 
                                 var newChangedWorksheet = changedWorksheet;
 
@@ -4305,30 +4431,34 @@ $( async () => {
 
                             await context.sync();
 
-                            var leTableSorted = newBodyValues.values
+    
+                            for (var p = 0; p < leTableSorted.length; p++) {
 
-                            var tableRowsSorted = newChangedTableRows.items;
+                                var tableRowsSorted = newChangedTableRows.items;
 
-                            var newTableStart = newStartOfTable.columnIndex; //column index of the start of the table
+                                var newTableStart = newStartOfTable.columnIndex; //column index of the start of the table
 
-                            //applies conditional formatting to each row of the table
-                            for (var m = 0; m < leTableSorted.length; m++) {
+                                var rowRangeSorted = newChangedTableRows.getItemAt(p).getRange();
 
-                                var rowRangeSorted = newChangedTableRows.getItemAt(m).getRange();
+                                var rowValuesSorted = tableRowsSorted[p].values;
 
-                                var rowValuesSorted = tableRowsSorted[m].values;
+                                await context.sync();
 
-                                var rowInfoSorted = new Object();
+                                //applies conditional formatting to each row of the table
+                            
+                    
+                                    var rowInfoSorted = new Object();
 
-                                for (var name of head[0]) {
-                                    theGreatestFunctionEverWritten(head, name, rowValuesSorted, leTableSorted, rowInfoSorted, m);
+                                    for (var name of head[0]) {
+                                        theGreatestFunctionEverWritten(head, name, rowValuesSorted, leTableSorted, rowInfoSorted, p);
+                                    };
+
+                                    console.log("ConForm is about to trigger to recolor the whole sheet!");
+                                    conditionalFormatting(rowInfoSorted, newTableStart, newChangedWorksheet, p, 
+                                        completedTableChanged, rowRangeSorted, destTable);
                                 };
-
-                                console.log("ConForm is about to trigger to recolor the whole sheet!");
-                                conditionalFormatting(rowInfoSorted, newTableStart, newChangedWorksheet, m, 
-                                    completedTableChanged, rowRangeSorted, destTable);
                             };
-                        };
+                    
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
 
@@ -4833,6 +4963,8 @@ $( async () => {
                     codedHeader = "code";
                 } else if (name == "Artist") {
                     codedHeader = "artist";
+                } else if (name == "Links") {
+                    codedHeader = "links";
                 } else if (name == "Notes") {
                     codedHeader = "notes";
                 } else if (name == "Start Override") {
@@ -4971,9 +5103,9 @@ $( async () => {
                     return null;
                 };
 
-                if (rowInfo.status.value == "Ready To Upload" && rowInfo.proofToClient.value !== "") {
-                    return;
-                };
+                // if (rowInfo.status.value == "Ready To Upload" && rowInfo.proofToClient.value !== "") {
+                //     return;
+                // };
 
                 //if the request's status is a form of "Editing"...
                 if (
@@ -6737,6 +6869,92 @@ $( async () => {
 
 //#endregion -----------------------------------------------------------------------------------------------------------------------------------------
 
+
+
+function applyHyperlinks(leTableSorted, rowInfo, newBodyRange) {
+
+    for (var m = 0; m < leTableSorted.length; m++) {
+
+        var notesColumn = rowInfo.notes.columnIndex;
+        var linksColumn = rowInfo.links.columnIndex;
+
+        var notesCellValue = leTableSorted[m][notesColumn];
+        var notesCellRange = newBodyRange.getCell(m, notesColumn);
+
+        var linksCellValue = leTableSorted[m][linksColumn];
+        var linksCellRange = newBodyRange.getCell(m, linksColumn);
+
+
+        // var notesCellValue = notesCell.values[0][0];
+        // var linksCellValue = linksCell.values[0][0];
+
+
+        var typeOfNotesCell = typeof notesCellValue;
+        var typeOfLinksCell = typeof linksCellValue;
+
+
+        if (notesCellValue !== "" && typeOfNotesCell == "string") {
+
+            if (notesCellValue.startsWith("https://")) { //https://
+
+                console.log(`You passed the notes hyperlink check for row ${m}`);
+
+                // notesCell.formulas = [[`=HYPERLINK("${notesCellValue}")`]];
+
+                // notesCell.value = "farts";
+
+                // leTableSorted[m][notesColumn] = `=HYPERLINK("${notesCell}")`;
+
+                var notesHyperlink = {
+                    textToDisplay: notesCellValue,
+                    screenTip: "Open Mail Shark Order Line '" + notesCellValue + "'",
+                    address: notesCellValue
+                };
+
+                notesCellRange.hyperlink = notesHyperlink;
+
+            };
+        };
+
+        // for (let i = 0; i < productsRange.values.length; i++) {
+        //     let cellRange = productsRange.getCell(i, 0);
+        //     let cellText = productsRange.values[i][0];
+    
+        //     let hyperlink = {
+        //         textToDisplay: cellText,
+        //         screenTip: "Search Bing for '" + cellText + "'",
+        //         address: "https://www.bing.com?q=" + cellText
+        //     }
+        //     cellRange.hyperlink = hyperlink;
+        // }
+
+        if (linksCellValue !== "" && typeOfLinksCell == "string") {
+
+            if (linksCellValue.startsWith("https://")) { //https://
+
+                console.log(`You passed the links hyperlink check for row ${m}`);
+
+                // linksCell.formulas = [[`=HYPERLINK("${linksCellValue}")`]];
+
+                // linksCell.value = "sharts";
+
+                // leTableSorted[m][linksColumn] = `=HYPERLINK("${linksCell}")`;
+
+                var linksHyperlink = {
+                    textToDisplay: linksCellValue,
+                    screenTip: "Open Mail Shark Order Line '" + linksCellValue + "'",
+                    address: linksCellValue
+                };
+
+                linksCellRange.hyperlink = linksHyperlink;
+
+
+            };
+        };
+    };
+
+    return leTableSorted;
+};
 
 async function writeAndRedo(newPrintDate, newGroup) {
 
