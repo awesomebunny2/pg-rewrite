@@ -2671,6 +2671,13 @@ $( async () => {
                             var mattRange = mattTable.getDataBodyRange().load("values");
                             var mattHeader = mattTable.getHeaderRowRange().load("values");
 
+                            var joeTable = context.workbook.tables.getItem("JoeProjects").load("worksheet");
+                            var joeTableName = context.workbook.tables.getItem("JoeProjects").load("name");
+                            var joeTableRows = joeTable.rows;
+                            joeTableRows.load("items");
+                            var joeRange = joeTable.getDataBodyRange().load("values");
+                            var joeHeader = joeTable.getHeaderRowRange().load("values");
+
                             var michaelTable = context.workbook.tables.getItem("MichaelProjects").load("worksheet");
                             var michaelTableName = context.workbook.tables.getItem("MichaelProjects").load("name");
                             var michaelTableRows = michaelTable.rows;
@@ -2698,13 +2705,6 @@ $( async () => {
                             aliTableRows.load("items");
                             var aliRange = aliTable.getDataBodyRange().load("values");
                             var aliHeader = aliTable.getHeaderRowRange().load("values");
-
-                            var joshKTable = context.workbook.tables.getItem("JoshKProjects").load("worksheet");
-                            var joshKTableName = context.workbook.tables.getItem("JoshKProjects").load("name");
-                            var joshKTableRows = joshKTable.rows;
-                            joshKTableRows.load("items");
-                            var joshKRange = joshKTable.getDataBodyRange().load("values");
-                            var joshKHeader = joshKTable.getHeaderRowRange().load("values");
 
                             var lukeTable = context.workbook.tables.getItem("LukeProjects").load("worksheet");
                             var lukeTableName = context.workbook.tables.getItem("LukeProjects").load("name");
@@ -2776,6 +2776,27 @@ $( async () => {
                             var joeyRange = joeyTable.getDataBodyRange().load("values");
                             var joeyHeader = joeyTable.getHeaderRowRange().load("values");
 
+                            var rachelTable = context.workbook.tables.getItem("RachelProjects").load("worksheet");
+                            var rachelTableName = context.workbook.tables.getItem("RachelProjects").load("name");
+                            var rachelTableRows = rachelTable.rows;
+                            rachelTableRows.load("items");
+                            var rachelRange = rachelTable.getDataBodyRange().load("values");
+                            var rachelHeader = rachelTable.getHeaderRowRange().load("values");
+
+                            var alexTable = context.workbook.tables.getItem("AlexProjects").load("worksheet");
+                            var alexTableName = context.workbook.tables.getItem("AlexProjects").load("name");
+                            var alexTableRows = alexTable.rows;
+                            alexTableRows.load("items");
+                            var alexRange = alexTable.getDataBodyRange().load("values");
+                            var alexHeader = alexTable.getHeaderRowRange().load("values");
+
+                            var jamieTable = context.workbook.tables.getItem("JamieProjects").load("worksheet");
+                            var jamieTableName = context.workbook.tables.getItem("JamieProjects").load("name");
+                            var jamieTableRows = jamieTable.rows;
+                            jamieTableRows.load("items");
+                            var jamieRange = jamieTable.getDataBodyRange().load("values");
+                            var jamieHeader = jamieTable.getHeaderRowRange().load("values");
+
                             var jordanTable = context.workbook.tables.getItem("JordanProjects").load("worksheet");
                             var jordanTableName = context.workbook.tables.getItem("JordanProjects").load("name");
                             var jordanTableRows = jordanTable.rows;
@@ -2783,19 +2804,33 @@ $( async () => {
                             var jordanRange = jordanTable.getDataBodyRange().load("values");
                             var jordanHeader = jordanTable.getHeaderRowRange().load("values");
 
+                            var joshKTable = context.workbook.tables.getItem("JoshKProjects").load("worksheet");
+                            var joshKTableName = context.workbook.tables.getItem("JoshKProjects").load("name");
+                            var joshKTableRows = joshKTable.rows;
+                            joshKTableRows.load("items");
+                            var joshKRange = joshKTable.getDataBodyRange().load("values");
+                            var joshKHeader = joshKTable.getHeaderRowRange().load("values");
+
+                            var kassyTable = context.workbook.tables.getItem("KassyProjects").load("worksheet");
+                            var kassyTableName = context.workbook.tables.getItem("KassyProjects").load("name");
+                            var kassyTableRows = kassyTable.rows;
+                            kassyTableRows.load("items");
+                            var kassyRange = kassyTable.getDataBodyRange().load("values");
+                            var kassyHeader = kassyTable.getHeaderRowRange().load("values");
+
+                            var kevinTable = context.workbook.tables.getItem("KevinProjects").load("worksheet");
+                            var kevinTableName = context.workbook.tables.getItem("KevinProjects").load("name");
+                            var kevinTableRows = kevinTable.rows;
+                            kevinTableRows.load("items");
+                            var kevinRange = kevinTable.getDataBodyRange().load("values");
+                            var kevinHeader = kevinTable.getHeaderRowRange().load("values");
+
                             var toddTable = context.workbook.tables.getItem("ToddProjects").load("worksheet");
                             var toddTableName = context.workbook.tables.getItem("ToddProjects").load("name");
                             var toddTableRows = toddTable.rows;
                             toddTableRows.load("items");
                             var toddRange = toddTable.getDataBodyRange().load("values");
                             var toddHeader = toddTable.getHeaderRowRange().load("values");
-
-                            var kristenTable = context.workbook.tables.getItem("KristenProjects").load("worksheet");
-                            var kristenTableName = context.workbook.tables.getItem("KristenProjects").load("name");
-                            var kristenTableRows = kristenTable.rows;
-                            kristenTableRows.load("items");
-                            var kristenRange = kristenTable.getDataBodyRange().load("values");
-                            var kristenHeader = kristenTable.getHeaderRowRange().load("values");
 
                         //#endregion -----------------------------------------------------------------------------------------------------------------
 
@@ -3648,6 +3683,12 @@ $( async () => {
                                         destinationRows = mattTableRows.items;
                                         destinationTableRange = mattRange;
                                         destinationHeader = mattHeader;
+                                    } else if (rowInfo.artist.value == "Joe") {
+                                        destinationTable = joeTable;
+                                        destinationTableName = joeTableName.name;
+                                        destinationRows = joeTableRows.items;
+                                        destinationTableRange = joeRange;
+                                        destinationHeader = joeHeader;
                                     } else if (rowInfo.artist.value == "Michael") {
                                         destinationTable = michaelTable;
                                         destinationTableName = michaelTableName.name;
@@ -3672,12 +3713,6 @@ $( async () => {
                                         destinationRows = aliTableRows.items;
                                         destinationTableRange = aliRange;
                                         destinationHeader = aliHeader;
-                                    } else if (rowInfo.artist.value == "JoshK") {
-                                        destinationTable = joshKTable;
-                                        destinationTableName = joshKTableName.name;
-                                        destinationRows = joshKTableRows.items;
-                                        destinationTableRange = joshKRange;
-                                        destinationHeader = joshKHeader;
                                     } else if (rowInfo.artist.value == "Luke") {
                                         destinationTable = lukeTable;
                                         destinationTableName = lukeTableName.name;
@@ -3738,24 +3773,54 @@ $( async () => {
                                         destinationRows = joeyTableRows.items;
                                         destinationTableRange = joeyRange;
                                         destinationHeader = joeyHeader;
+                                    } else if (rowInfo.artist.value == "Rachel") {
+                                        destinationTable = rachelTable;
+                                        destinationTableName = rachelTableName.name;
+                                        destinationRows = rachelTableRows.items;
+                                        destinationTableRange = rachelRange;
+                                        destinationHeader = rachelHeader;
+                                    } else if (rowInfo.artist.value == "Alex") {
+                                        destinationTable = alexTable;
+                                        destinationTableName = alexTableName.name;
+                                        destinationRows = alexTableRows.items;
+                                        destinationTableRange = alexRange;
+                                        destinationHeader = alexHeader;
+                                    } else if (rowInfo.artist.value == "Jamie") {
+                                        destinationTable = jamieTable;
+                                        destinationTableName = jamieTableName.name;
+                                        destinationRows = jamieTableRows.items;
+                                        destinationTableRange = jamieRange;
+                                        destinationHeader = jamieHeader;
                                     } else if (rowInfo.artist.value == "Jordan") {
                                         destinationTable = jordanTable;
                                         destinationTableName = jordanTableName.name;
                                         destinationRows = jordanTableRows.items;
                                         destinationTableRange = jordanRange;
                                         destinationHeader = jordanHeader;
+                                    } else if (rowInfo.artist.value == "JoshK") {
+                                        destinationTable = joshKTable;
+                                        destinationTableName = joshKTableName.name;
+                                        destinationRows = joshKTableRows.items;
+                                        destinationTableRange = joshKRange;
+                                        destinationHeader = joshKHeader;
+                                    } else if (rowInfo.artist.value == "Kassy") {
+                                        destinationTable = kassyTable;
+                                        destinationTableName = kassyTableName.name;
+                                        destinationRows = kassyTableRows.items;
+                                        destinationTableRange = kassyRange;
+                                        destinationHeader = kassyHeader;
+                                    } else if (rowInfo.artist.value == "Kevin") {
+                                        destinationTable = kevinTable;
+                                        destinationTableName = kevinTableName.name;
+                                        destinationRows = kevinTableRows.items;
+                                        destinationTableRange = kevinRange;
+                                        destinationHeader = kevinHeader;
                                     } else if (rowInfo.artist.value == "Todd") {
                                         destinationTable = toddTable;
                                         destinationTableName = toddTableName.name;
                                         destinationRows = toddTableRows.items;
                                         destinationTableRange = toddRange;
                                         destinationHeader = toddHeader;
-                                    } else if (rowInfo.artist.value == "Kristen") {
-                                        destinationTable = kristenTable;
-                                        destinationTableName = kristenTableName.name;
-                                        destinationRows = kristenTableRows.items;
-                                        destinationTableRange = kristenRange;
-                                        destinationHeader = kristenHeader;
                                     } else {
                                         destinationTable = null;
                                         destinationTableName = null;
@@ -4046,11 +4111,11 @@ $( async () => {
                                                     var unassignedRange = unassignedTable.getDataBodyRange().load("values");
                                                     var peterRange = peterTable.getDataBodyRange().load("values");
                                                     var mattRange = mattTable.getDataBodyRange().load("values");
+                                                    var joeRange = joeTable.getDataBodyRange().load("values");
                                                     var michaelRange = michaelTable.getDataBodyRange().load("values");
                                                     var sarahRange = sarahTable.getDataBodyRange().load("values");
                                                     var dannyRange = dannyTable.getDataBodyRange().load("values");
                                                     var aliRange = aliTable.getDataBodyRange().load("values");
-                                                    var joshKRange = joshKTable.getDataBodyRange().load("values");
                                                     var lukeRange = lukeTable.getDataBodyRange().load("values");
                                                     var breBRange = breBTable.getDataBodyRange().load("values");
                                                     var ethanRange = ethanTable.getDataBodyRange().load("values");
@@ -4061,9 +4126,14 @@ $( async () => {
                                                     var ritaRange = ritaTable.getDataBodyRange().load("values");
                                                     var dawnRange = dawnTable.getDataBodyRange().load("values");
                                                     var joeyRange = joeyTable.getDataBodyRange().load("values");
+                                                    var rachelRange = rachelTable.getDataBodyRange().load("values");
+                                                    var alexRange = alexTable.getDataBodyRange().load("values");
+                                                    var jamieRange = jamieTable.getDataBodyRange().load("values");
                                                     var jordanRange = jordanTable.getDataBodyRange().load("values");
+                                                    var joshKRange = joshKTable.getDataBodyRange().load("values");
+                                                    var kassyRange = kassyTable.getDataBodyRange().load("values");
+                                                    var kevinRange = kevinTable.getDataBodyRange().load("values");
                                                     var toddRange = toddTable.getDataBodyRange().load("values");
-                                                    var kristenRange = kristenTable.getDataBodyRange().load("values");
 
                                                 //#endregion -----------------------------------------------------------------------------------------
 
@@ -4075,6 +4145,8 @@ $( async () => {
                                                         var destinationStation = peterRange;
                                                     } else if (rowInfo.artist.value == "Matt") {
                                                         var destinationStation = mattRange;
+                                                    } else if (rowInfo.artist.value == "Joe") {
+                                                        var destinationStation = joeRange;
                                                     } else if (rowInfo.artist.value == "Michael") {
                                                         var destinationStation = michaelRange;
                                                     } else if (rowInfo.artist.value == "Sarah") {
@@ -4083,8 +4155,6 @@ $( async () => {
                                                         var destinationStation = dannyRange;
                                                     } else if (rowInfo.artist.value == "Ali") {
                                                         var destinationStation = aliRange;
-                                                    } else if (rowInfo.artist.value == "JoshK") {
-                                                        var destinationStation = joshKRange;
                                                     } else if (rowInfo.artist.value == "Luke") {
                                                         var destinationStation = lukeRange;
                                                     } else if (rowInfo.artist.value == "Bre B.") {
@@ -4105,12 +4175,22 @@ $( async () => {
                                                         var destinationStation = dawnRange;
                                                     } else if (rowInfo.artist.value == "Joey") {
                                                         var destinationStation = joeyRange;
+                                                    } else if (rowInfo.artist.value == "Rachel") {
+                                                        var destinationStation = rachelRange;
+                                                    } else if (rowInfo.artist.value == "Alex") {
+                                                        var destinationStation = alexRange;
+                                                    } else if (rowInfo.artist.value == "Jamie") {
+                                                        var destinationStation = jamieRange;
                                                     } else if (rowInfo.artist.value == "Jordan") {
                                                         var destinationStation = jordanRange;
+                                                    } else if (rowInfo.artist.value == "JoshK") {
+                                                        var destinationStation = joshKRange;
+                                                    } else if (rowInfo.artist.value == "Kassy") {
+                                                        var destinationStation = kassyRange;
+                                                    } else if (rowInfo.artist.value == "Kevin") {
+                                                        var destinationStation = kevinRange;
                                                     } else if (rowInfo.artist.value == "Todd") {
                                                         var destinationStation = toddRange;
-                                                    } else if (rowInfo.artist.value == "Kristen") {
-                                                        var destinationStation = kristenRange;
                                                     } else {
                                                         var destinationStation = "null";
                                                     };
@@ -4219,11 +4299,11 @@ $( async () => {
                                                         var unassignedRange = unassignedTable.getDataBodyRange().load("values");
                                                         var peterRange = peterTable.getDataBodyRange().load("values");
                                                         var mattRange = mattTable.getDataBodyRange().load("values");
+                                                        var joeRange = joeTable.getDataBodyRange().load("values");
                                                         var michaelRange = michaelTable.getDataBodyRange().load("values");
                                                         var sarahRange = sarahTable.getDataBodyRange().load("values");
                                                         var dannyRange = dannyTable.getDataBodyRange().load("values");
                                                         var aliRange = aliTable.getDataBodyRange().load("values");
-                                                        var joshKRange = joshKTable.getDataBodyRange().load("values");
                                                         var lukeRange = lukeTable.getDataBodyRange().load("values");
                                                         var breBRange = breBTable.getDataBodyRange().load("values");
                                                         var ethanRange = ethanTable.getDataBodyRange().load("values");
@@ -4234,9 +4314,14 @@ $( async () => {
                                                         var ritaRange = ritaTable.getDataBodyRange().load("values");
                                                         var dawnRange = dawnTable.getDataBodyRange().load("values");
                                                         var joeyRange = joeyTable.getDataBodyRange().load("values");
+                                                        var rachelRange = rachelTable.getDataBodyRange().load("values");
+                                                        var alexRange = alexTable.getDataBodyRange().load("values");
+                                                        var jamieRange = jamieTable.getDataBodyRange().load("values");
                                                         var jordanRange = jordanTable.getDataBodyRange().load("values");
+                                                        var joshKRange = joshKTable.getDataBodyRange().load("values");
+                                                        var kassyRange = kassyTable.getDataBodyRange().load("values");
+                                                        var kevinRange = kevinTable.getDataBodyRange().load("values");
                                                         var toddRange = toddTable.getDataBodyRange().load("values");
-                                                        var kristenRange = kristenTable.getDataBodyRange().load("values");
 
                                                     //#endregion -------------------------------------------------------------------------------------
 
@@ -4248,6 +4333,8 @@ $( async () => {
                                                             var destinationStation = peterRange;
                                                         } else if (rowInfo.artist.value == "Matt") {
                                                             var destinationStation = mattRange;
+                                                        } else if (rowInfo.artist.value == "Joe") {
+                                                            var destinationStation = joeRange;
                                                         } else if (rowInfo.artist.value == "Michael") {
                                                             var destinationStation = michaelRange;
                                                         } else if (rowInfo.artist.value == "Sarah") {
@@ -4256,8 +4343,6 @@ $( async () => {
                                                             var destinationStation = dannyRange;
                                                         } else if (rowInfo.artist.value == "Ali") {
                                                             var destinationStation = aliRange;
-                                                        } else if (rowInfo.artist.value == "JoshK") {
-                                                            var destinationStation = joshKRange;
                                                         } else if (rowInfo.artist.value == "Luke") {
                                                             var destinationStation = lukeRange;
                                                         } else if (rowInfo.artist.value == "Bre B.") {
@@ -4278,12 +4363,22 @@ $( async () => {
                                                             var destinationStation = dawnRange;
                                                         } else if (rowInfo.artist.value == "Joey") {
                                                             var destinationStation = joeyRange;
+                                                        } else if (rowInfo.artist.value == "Rachel") {
+                                                            var destinationStation = rachelRange;
+                                                        } else if (rowInfo.artist.value == "Alex") {
+                                                            var destinationStation = alexRange;
+                                                        } else if (rowInfo.artist.value == "Jamie") {
+                                                            var destinationStation = jamieRange;
                                                         } else if (rowInfo.artist.value == "Jordan") {
                                                             var destinationStation = jordanRange;
+                                                        } else if (rowInfo.artist.value == "JoshK") {
+                                                            var destinationStation = joshKRange;
+                                                        } else if (rowInfo.artist.value == "Kassy") {
+                                                            var destinationStation = kassyRange;
+                                                        } else if (rowInfo.artist.value == "Kevin") {
+                                                            var destinationStation = kevinRange;
                                                         } else if (rowInfo.artist.value == "Todd") {
                                                             var destinationStation = toddRange;
-                                                        } else if (rowInfo.artist.value == "Kristen") {
-                                                            var destinationStation = kristenRange;
                                                         } else {
                                                             var destinationStation = "null";
                                                         };
@@ -4389,7 +4484,7 @@ $( async () => {
                                 
                                 var leTableSorted = newBodyRange.values;
                                 
-                                var hyperlinkedTable = applyHyperlinks(leTableSorted, rowInfo);
+                                var hyperlinkedTable = applyHyperlinks(leTableSorted, rowInfo, newBodyRange);
 
                                 newBodyRange.values = hyperlinkedTable;
 
