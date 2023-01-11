@@ -186,6 +186,8 @@ $( async () => {
             address: ""
         };
 
+        var isOnline = false;
+
         // var productGroupPrintTrigger;
 
     //#endregion -------------------------------------------------------------------------------------------------------------------------------------
@@ -209,6 +211,7 @@ $( async () => {
         } else if (info.platform === "OfficeOnline") {
             // THIS IS THE ONLINE
             console.log("You're currently using the online version of Excel!")
+            isOnline = true;
         };
 
         if (info.host === Office.HostType.Excel) {
@@ -216,6 +219,19 @@ $( async () => {
 
             Excel.run(async (context) => {
 
+                // var autoSave = context.workbook.load("autoSave");
+
+                // await context.sync();
+
+                // console.log(`Is autosave turned on? ${autoSave.autoSave}`)
+
+                
+                //I was trying to get autosave to always be turned on
+                //this code doesn't work, but I'm leaving it in case I ever decide to try and get it to work in the future
+                // if (autoSave.autoSave == false) {
+                //     context.workbook.set(autoSave = true);
+                //     console.log(`Autosave should now be turned on`)
+                // };
 
 
 
@@ -937,7 +953,7 @@ $( async () => {
 
                         };
 
-
+                        //this will remove any RE: or FWD: from the beginning on the subject
                         if (noBlanksArr[0].includes(":")) {
 
                             var str = noBlanksArr[0];
@@ -946,7 +962,26 @@ $( async () => {
 
                             noBlanksArr.splice(0, 1, str);
 
+                            noBlanksArr[0] = str.trim();
+
                         };
+
+
+                        //If a CSM was being a poop and edited the subject line to have another : in it; no fear, we'll run this code again
+                        if (noBlanksArr[0].includes(":")) {
+
+                            var str = noBlanksArr[0];
+
+                            str = str.substring(str.indexOf(":") + 1);
+
+                            noBlanksArr.splice(0, 1, str);
+
+                            noBlanksArr[0] = str.trim();
+
+                        };
+
+                        // var hasPrefix = noBlanksArr[0].includes("Re:") || noBlanksArr[0].includes("RE:") || noBlanksArr[0].includes("re:") || 
+                        // noBlanksArr[0].includes("Fwd:") || noBlanksArr[0].includes("FWD:") || noBlanksArr[0].includes("fwd:")
 
                         var hasRequest = noBlanksArr[0].includes("CREATIVE REQUEST") || noBlanksArr[0].includes("Creative Request") || 
                         noBlanksArr[0].includes("ARTIST REQUEST") || noBlanksArr[0].includes("Artist Request")  || 
@@ -1027,7 +1062,7 @@ $( async () => {
                         noBlanksArr[0].includes("URGENT! CREATIVE REQUEST") || noBlanksArr[0].includes("URGENT! CREATIVE REQUEST!") ||
                         noBlanksArr[0].includes("URGENT CREATIVE REQUEST!!") || noBlanksArr[0].includes("URGENT!! CREATIVE REQUEST") ||
                         noBlanksArr[0].includes("URGENT! CREATIVE REQUEST!!") || noBlanksArr[0].includes("URGENT!! CREATIVE REQUEST!") || 
-                        noBlanksArr[0].includes("URGENT!! CREATIVE REQUEST!!");
+                        noBlanksArr[0].includes("URGENT!! CREATIVE REQUEST!!") ||
 
 
 
@@ -1656,7 +1691,7 @@ $( async () => {
 
             $("#clear").on("click", function() {
 
-                $("#subject, #client, #location, #product, #code, #project-type, #csm, #print-date, #group, #design-managers, #queue, #tier, #tags, #start-override, #work-override, #notes").val(""); // Empty all inputs
+                $("#subject, #client, #location, #product, #code, #project-type, #csm, #print-date, #group, #design-managers, #queue, #tier, #tags, #start-override, #work-override, #notes, #links").val(""); // Empty all inputs
                 removeWarningClass("#subject", "#warning1");
                 removeWarningClass("#client", "#warning2");
                 removeWarningClass("#product", "#warning3");
@@ -1696,7 +1731,9 @@ $( async () => {
                 });
 
                 $(".gotcha").on("click", function() {
-                    showElement("#na-ah-ah", "hide");
+                    // showElement("#na-ah-ah", "hide");
+                    showElement("#auto-save-alert", "hide");
+                    console.log("it should be hid now");
                 });
 
                 $(".cs-text").on("click", function() {
@@ -1780,6 +1817,34 @@ $( async () => {
 
                 await Excel.run(async (context) => {
 
+                    //only performs auto save check if using desktop version of Excel
+                    if (isOnline == false) {
+
+                        var autoSave = context.workbook.load("autoSave");
+
+                        await context.sync();
+
+                        //if auto save is turned off, alerts the user and does not submit project, then exits
+                        if (autoSave.autoSave == false) {
+
+                            //alert user
+                            console.log("AutoSave is currently turned off. Please turn it on before making changes to the table.");
+
+                            //customize alert text for onTableChanged version of alert
+                            $("#alert-text").empty();
+                            $("#alert-text").append("Please turn on AutoSave before submitting a project to the spreadsheet. Project was not added to the table.");
+
+                            //show alert box
+                            showElement("#auto-save-alert", "show");
+
+                            context.runtime.enableEvents = true; //turn events back on
+
+                            return;
+                        };
+                    };
+
+                    
+
                     //#region LOAD VALUES ------------------------------------------------------------------------------------------------------------
 
                         var sheet = context.workbook.worksheets.getActiveWorksheet().load("name");
@@ -1824,6 +1889,7 @@ $( async () => {
                         var startOverrideVal = $("#start-override").val();
                         var workOverrideVal = $("#work-override").val();
                         var notes = $("#notes").val();
+                        var links = $("#links").val();
 
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
 
@@ -1851,7 +1917,7 @@ $( async () => {
                             "", // 17 - Status
                             codeVal, // 18 - Code
                             "", // 19 - Artist
-                            "", // 20 - Links
+                            links, // 20 - Links
                             notes, // 21 - Notes
                             startOverrideVal, // 22 - Start Override
                             workOverrideVal // 23 - Work Override
@@ -2078,15 +2144,28 @@ $( async () => {
 
                         await context.sync();
 
+                        var leNewBodyRange = newSheetTableRange.values;
+
+                        var hyperlinkedTable = applyHyperlinks(leNewBodyRange, tableRowInfo, newSheetTableRange);
+
+                        newSheetTableRange.values = hyperlinkedTable;
+
+                        await context.sync();
+
+                        var leNewSheetTableRows = sheetTable.rows.load("items");
+                        var leNewSheetTableRange = sheetTable.getDataBodyRange().load("values");
+
+                        await context.sync();
+
                         for (var m = 0; m < rangeOfTable.length; m++) {
 
-                            var newTableRowItems = newSheetTableRows.items;
+                            var newTableRowItems = leNewSheetTableRows.items;
 
-                            var newRangeOfTable = newSheetTableRange.values;
+                            var newRangeOfTable = leNewSheetTableRange.values;
 
                             var newRowValuesOfTable = newTableRowItems[m].values;
 
-                            var newRowRange = newSheetTableRows.getItemAt(m).getRange();
+                            var newRowRange = leNewSheetTableRows.getItemAt(m).getRange();
 
                             var newTableRowInfo = new Object();
 
@@ -2132,7 +2211,30 @@ $( async () => {
                             };
                         };
 
-                        // console.log("farts");
+                        if ($("#stop-logo-generation").prop("checked")) {
+                            shouldAutoLogo = false;
+                        };
+
+                        //     if (curBehavior !== "None") {
+                        //         $("#auto-open").prop("checked", true);
+                        //         //console.log("Checkbox is checked!");
+                        //     } else {
+                        //         $("#auto-open").prop("checked", false);
+                        //         //console.log("Checkbox is not checked...");
+                        //     };
+                    
+                        //  $('#auto-open').change(function() {
+                        //      if (this.checked == true) {
+                        //          console.log("Turning auto-open ON!")
+                        //          Office.addin.setStartupBehavior(Office.StartupBehavior.load);
+                        //          console.log("Auto-open is ON!")
+                        //      } else {
+                        //          console.log("Turning auto-open OFF!")
+                        //          Office.addin.setStartupBehavior(Office.StartupBehavior.none);
+                        //          console.log("Auto-open is OFF!")
+                        //      };
+
+                        console.log("farts");
 
                         if (shouldAutoLogo == true) {
 
@@ -2180,7 +2282,7 @@ $( async () => {
                                     "Logo Status TBD", // 17 - Status
                                     codeVal, // 18 - Code
                                     leArtist, // 19 - Artist
-                                    "", // 20 - Links
+                                    links, // 20 - Links
                                     notes, // 21 - Notes
                                     0, // 22 - Start Override
                                     0 // 23 - Work Override
@@ -2274,15 +2376,28 @@ $( async () => {
 
                                 await context.sync();
 
+                                var newReBodyRange = newReSheetTableRange.values;
+
+                                var reHyperlinkedTable = applyHyperlinks(newReBodyRange, newTableRowInfo, newReSheetTableRange);
+
+                                newReSheetTableRange.values = reHyperlinkedTable;
+
+                                await context.sync();
+
+                                var leNewReSheetTableRows = sheetTable.rows.load("items");
+                                var leNewReSheetTableRange = sheetTable.getDataBodyRange().load("values");
+
+                                await context.sync();
+
                                 for (var n = 0; n < newRangeOfTable.length; n++) {
 
-                                    var newReTableRowItems = newReSheetTableRows.items;
+                                    var newReTableRowItems = leNewReSheetTableRows.items;
 
-                                    var newReRangeOfTable = newReSheetTableRange.values;
+                                    var newReRangeOfTable = leNewReSheetTableRange.values;
 
                                     var newReRowValuesOfTable = newReTableRowItems[n].values;
 
-                                    var newReRowRange = newReSheetTableRows.getItemAt(n).getRange();
+                                    var newReRowRange = leNewReSheetTableRows.getItemAt(n).getRange();
 
                                     var newReTableRowInfo = new Object();
 
@@ -2300,7 +2415,10 @@ $( async () => {
                             //#endregion -------------------------------------------------------------------------------------------------------------
 
                         } else {
-                            console.log("Product does not need a logo recreation, so no extra line was generated for this project.")
+                            console.log("Product does not need a logo recreation, so no extra line was generated for this project.");
+                            $("#stop-logo-generation").prop("checked", false);
+                            console.log("Disable Logo Recreation Project Line Generation Checkbox is set to unchecked");
+
                         };
                         
                     //#endregion ---------------------------------------------------------------------------------------------------------------------
@@ -2583,6 +2701,8 @@ $( async () => {
         async function onTableChanged(eventArgs) {
             await Excel.run(async (context) => {
 
+                var autoSave = context.workbook.load("autoSave");
+
                 console.log(eventArgs);
 
                 //#region HANDLE REMOTE CHANGES ------------------------------------------------------------------------------------------------------
@@ -2614,6 +2734,51 @@ $( async () => {
                 //turns events off
                 context.runtime.enableEvents = false;
                 console.log("Events: OFF - Occured in onTableChanged!");
+
+                if (isOnline == true) {
+                    console.log("isOnline is true!!!");
+                };
+
+                //only performs auto save check if using desktop version of Excel
+                if (isOnline == false) {
+                    console.log("isOnline is false!!!!");
+                    //if auto save is turned off, alert the user and revert changes, then exit
+                    if (autoSave.autoSave == false) {
+
+                        //alert user
+                        console.log("AutoSave is currently turned off. Please turn it on before making changes to the table.");
+
+                        //customize alert text for onTableChanged version of alert
+                        $("#alert-text").empty();
+                        $("#alert-text").append("Please turn on AutoSave before making any updates to the spreadsheet. Change has been reverted back to previous value.");
+
+                        //show alert box
+                        showElement("#auto-save-alert", "show");
+
+                        //revert change back to previous value
+                        var theWorksheet = context.workbook.worksheets.getItem(eventArgs.worksheetId);
+                        var bodyRange = theWorksheet.getRange(eventArgs.address).load("values");
+                        
+                        await context.sync();
+
+                        var details = eventArgs.details;
+
+                        bodyRange.values = details.valueBefore;
+
+                        console.log(details.valueBefore);
+                        console.log(eventArgs.address);
+
+                        context.runtime.enableEvents = true; //turn events back on
+
+                        return;
+                    };
+                };
+
+                
+
+
+        
+
 
                 //#region LOAD VARIABLES FROM WORKBOOK -----------------------------------------------------------------------------------------------
 
@@ -5902,7 +6067,7 @@ $( async () => {
 
             };
 
-        //#endregion -------------------------------------------------------------------------------------------------------------------------------------
+        //#endregion ---------------------------------------------------------------------------------------------------------------------------------
 
         //#region CHECK IF TWO ARRAYS ARE EQUAL ------------------------------------------------------------------------------------------------------
 
@@ -6628,10 +6793,10 @@ $( async () => {
                 if (rowInfo.product.value == "Logo Recreation" && rowInfo.status.value == input) {
                     if (color !== undefined) {
                         rowRange.format.font.color = color; //#9BC2E6
-                        rowRange.format.font.bold = true;
+                        rowRange.format.font.bold = false;
                     } else {
                         rowRange.format.font.color = "#ED7D31"; //#9BC2E6
-                        rowRange.format.font.bold = true;
+                        rowRange.format.font.bold = false;
                         // console.log("Logo Insert Row was highlighted!")
                         // printDateAddress.format.font.color = "white";
                         // groupAddress.format.font.color = "white";

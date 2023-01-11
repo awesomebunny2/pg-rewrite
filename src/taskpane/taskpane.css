@@ -28,6 +28,10 @@ h2 {
     color: #67ACE6;
 }
 
+p {
+    margin: 0px;
+}
+
 #page-header {
     /* display:flex;
     flex-direction: row;
@@ -860,6 +864,16 @@ button[aria-label="Close"]:not(:disabled):active {
     z-index: 1000;
 }
 
+#auto-save-alert {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background-color: rgba(0,0,0,.7);
+    z-index: 1000;
+}
+
 #na-ah-ah {
     display: none;
     align-items: center;
@@ -890,6 +904,16 @@ button[aria-label="Close"]:not(:disabled):active {
     background-color: white;
 }
 
+#alert-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 20px;
+    width: 80%;
+    background-color: white;
+}
+
 #product-group-update-window {
     display: flex;
     flex-direction: column;
@@ -904,6 +928,10 @@ button[aria-label="Close"]:not(:disabled):active {
     margin: 5px;
 }
 
+#alert-header {
+    margin: 5px;
+}
+
 .yellow {
     background-color: #515151; /*#022A42  rgba(255, 159, 0, 0.95)*/
     color: white;
@@ -911,6 +939,18 @@ button[aria-label="Close"]:not(:disabled):active {
 }
 
 #na-ah-ah-text {
+    /* margin: 10px; */
+    /* background-color:rgba(37, 18, 18, 0.245); */
+    padding: 10px;
+    font-size: 11pt;
+    /* font-style: italic; */
+    text-align: center;
+    margin-top: 0px;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+#alert-text {
     /* margin: 10px; */
     /* background-color:rgba(37, 18, 18, 0.245); */
     padding: 10px;
@@ -996,6 +1036,16 @@ button[aria-label="Close"]:not(:disabled):active {
     margin-top: 5px;
 }
 
+#alert-buttons {
+    /* margin-top: 30px;
+    text-align: center;
+    width: 100%; */
+    text-align: center;
+    /* min-height: 50px; */
+    width: 85%;
+    margin-top: 5px;
+}
+
 .gotcha {
     /* min-height: 30px;
     min-width: 15%;
@@ -1065,9 +1115,14 @@ button[aria-label="Close"]:not(:disabled):active {
 }
 
 .checkbox-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
     font-size: 9pt;
     font-weight: 400;
     font-style: italic;
+    margin-left: 7px;
 }
 
 #color-cheat-sheet {

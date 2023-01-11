@@ -89,6 +89,20 @@
     </div>
   </div>
 
+ 
+  <div id="auto-save-alert">
+    <div id="alert-box">
+      <header>
+        <h2>
+          <span>AUTO SAVE ALERT!</span>
+        </h2>
+      </header>
+      <p id="alert-text"></p>
+      <div id="alert-buttons">
+        <button class="gotcha">OK</button>
+      </div>
+    </div>
+  </div>
 
 
 
@@ -517,6 +531,13 @@
           <p class="warning"></p>
         </div>
       </div>
+      <div class="main uno bottom">
+        <div class="input-group">
+          <input type="text" id="links" required class="input-area single" />
+          <label for="links" class="label unselectable">Links</label>
+          <p class="warning"></p>
+        </div>
+      </div>
       <div class="main dos">
         <div class="mini">
           <div class="buttons">
@@ -534,11 +555,15 @@
 
       <div id="checkbox-area">
 
-        <!-- <div id="checkbox">
-          <input type="checkbox" id="auto-open"/>
+        <div id="checkbox">
+          <input type="checkbox" id="stop-logo-generation"/>
+          <p class="checkbox-text">Disable auto-generated logo recreation</p>
         </div>
-  
-        <p class="checkbox-text">Auto-open add-in with this document</p> -->
+
+      </div>
+
+      <div id="checkbox-area">
+
 
         <div id="cheat-sheet-toggle">
           <button class="cs-text">Color Formatting Cheat Sheet</button>
@@ -550,7 +575,7 @@
 
     </div>
 
-    <p id="version">Version 1.1.1</p>
+    <p id="version">Version 1.2.0</p>
 
   </div>
 
