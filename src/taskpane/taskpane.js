@@ -2003,6 +2003,8 @@ $( async () => {
                                 theDesignManager = "Peter";
                             } else if (sheetTabColor == designManagersData.Luke.worksheetTabColor) {
                                 theDesignManager = "Luke";
+                            } else if (sheetTabColor == designManagersData.Other.worksheetTabColor) {
+                                theDesignManager = "Other";
                             };
 
                             write[0][tableRowInfo.designManager.columnIndex] = theDesignManager;
@@ -3902,7 +3904,7 @@ $( async () => {
                                         destinationRows = jessicaTableRows.items;
                                         destinationTableRange = jessicaRange;
                                         destinationHeader = jessicaHeader;
-                                    } else if (rowInfo.artist.value == "JoshC") {
+                                    } else if (rowInfo.artist.value == "Josh C.") {
                                         destinationTable = joshCTable;
                                         destinationTableName = joshCTableName.name;
                                         destinationRows = joshCTableRows.items;
@@ -3962,7 +3964,7 @@ $( async () => {
                                         destinationRows = jordanTableRows.items;
                                         destinationTableRange = jordanRange;
                                         destinationHeader = jordanHeader;
-                                    } else if (rowInfo.artist.value == "JoshK") {
+                                    } else if (rowInfo.artist.value == "Josh K.") {
                                         destinationTable = joshKTable;
                                         destinationTableName = joshKTableName.name;
                                         destinationRows = joshKTableRows.items;
@@ -4328,7 +4330,7 @@ $( async () => {
                                                         var destinationStation = ethanRange;
                                                     } else if (rowInfo.artist.value == "Jessica") {
                                                         var destinationStation = jessicaRange;
-                                                    } else if (rowInfo.artist.value == "JoshC") {
+                                                    } else if (rowInfo.artist.value == "Josh C.") {
                                                         var destinationStation = joshCRange;
                                                     } else if (rowInfo.artist.value == "Emily") {
                                                         var destinationStation = emilyRange;
@@ -4348,7 +4350,7 @@ $( async () => {
                                                         var destinationStation = jamieRange;
                                                     } else if (rowInfo.artist.value == "Jordan") {
                                                         var destinationStation = jordanRange;
-                                                    } else if (rowInfo.artist.value == "JoshK") {
+                                                    } else if (rowInfo.artist.value == "Josh K.") {
                                                         var destinationStation = joshKRange;
                                                     } else if (rowInfo.artist.value == "Kassy") {
                                                         var destinationStation = kassyRange;
@@ -4402,15 +4404,42 @@ $( async () => {
 
                                                 //#region MOVES DATA BETWEEN TABLE ARRAYS ------------------------------------------------------------
 
+                                                var isDestTableEmpty = false;
+
+                                                    if (destinationRows.length == 1) {
+                                                        isDestTableEmpty = true;
+                                                        for (var e = 0; e < destTable[0].length; e++) {
+                                                            if (destTable[0][e] !== "") {
+                                                                isDestTableEmpty = false;
+                                                                //return;
+                                                            };
+                                                        };
+                                                    };
+
                                                     //moves data from leTable array to destTable array, whihc will be written to workbook later
                                                     moveDataTwo(destTable, rowValues, leTable, changedRowTableIndex);
+
+                                                 
 
                                                     //#region PREVENT CODE FROM ERRORING BECAUSE TABLE LENGTH !== DESTTABLE ARRAY LENGTH -------------
 
                                                         //removes empty row from destTable array if the destination body range is 0
-                                                        if (destinationRows.length == 0) {
+                                                        if (destinationRows.length == 0
+                                                           || (destinationRows.length == 1 && isDestTableEmpty == true)
+                                                           ) {
                                                             destTable.shift();
                                                         };
+
+                                                  
+
+                                                    //#endregion -------------------------------------------------------------------------------------
+
+                                                    //#region PREVENT CODE FROM ERRORING BECAUSE TABLE LENGTH !== LETABLE ARRAY LENGTH -------------
+
+                                                        // removes empty row from Table array if the destination body range is 0
+                                                        // if (leTable.length == 0) {
+                                                        //     tableContent.shift();
+                                                        // };
 
                                                     //#endregion -------------------------------------------------------------------------------------
 
@@ -4455,7 +4484,10 @@ $( async () => {
 
                                                     myRow.delete();
 
-                                                    destinationTable.rows.add(null);
+                                                    if (isDestTableEmpty !== true) {
+                                                        destinationTable.rows.add(null);
+                                                    };
+
 
                                                     //#region RELOAD ARTIST TABLES BODY RANGE VALUES -------------------------------------------------
 
@@ -4516,7 +4548,7 @@ $( async () => {
                                                             var destinationStation = ethanRange;
                                                         } else if (rowInfo.artist.value == "Jessica") {
                                                             var destinationStation = jessicaRange;
-                                                        } else if (rowInfo.artist.value == "JoshC") {
+                                                        } else if (rowInfo.artist.value == "Josh C.") {
                                                             var destinationStation = joshCRange;
                                                         } else if (rowInfo.artist.value == "Emily") {
                                                             var destinationStation = emilyRange;
@@ -4536,7 +4568,7 @@ $( async () => {
                                                             var destinationStation = jamieRange;
                                                         } else if (rowInfo.artist.value == "Jordan") {
                                                             var destinationStation = jordanRange;
-                                                        } else if (rowInfo.artist.value == "JoshK") {
+                                                        } else if (rowInfo.artist.value == "Josh K.") {
                                                             var destinationStation = joshKRange;
                                                         } else if (rowInfo.artist.value == "Kassy") {
                                                             var destinationStation = kassyRange;
@@ -4567,6 +4599,10 @@ $( async () => {
                                                         if (leTable.length == 0) {
                                                             newBodyRange.shift();
                                                         };
+
+                                                        if (isDestTableEmpty == true) {
+                                                            newDestinationTableRange.shift();
+                                                        }
 
                                                     //#endregion -------------------------------------------------------------------------------------
 
@@ -5509,6 +5545,11 @@ $( async () => {
              * @returns Array
              */
             function leSorting(rowInfo, leTable, leColumnIndex, changedRowValues) {
+
+                if (leTable == "") {
+                    console.log("leTable is undefined, so sorting was prevented on this table");
+                    return;
+                };
 
                 //#region ASSIGNING VARIABLES --------------------------------------------------------------------------------------------------------
 

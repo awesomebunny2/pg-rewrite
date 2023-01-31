@@ -1,6 +1,6 @@
 {
   "name": "office-addin-taskpane-js",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/OfficeDev/Office-Addin-TaskPane-JS.git"
