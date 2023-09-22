@@ -1098,7 +1098,7 @@ $( async () => {
 
                         var plasticS = (noBlanksArr[noBlanksArr.length - 2]).trim();
 
-                        if (plasticS == "S" || plasticS == "Flat") {
+                        if (plasticS == "S" || plasticS == "Flat" || plasticS.includes("Group")) {
 
                             var plasticSIndex = noBlanksArr.indexOf(noBlanksArr[noBlanksArr.length - 2]);
 
