@@ -2908,6 +2908,13 @@ $( async () => {
                             var joshCRange = joshCTable.getDataBodyRange().load("values");
                             var joshCHeader = joshCTable.getHeaderRowRange().load("values");
 
+                            var meganTable = context.workbook.tables.getItem("MeganProjects").load("worksheet");
+                            var meganTableName = context.workbook.tables.getItem("MeganProjects").load("name");
+                            var meganTableRows = meganTable.rows;
+                            meganTableRows.load("items");
+                            var meganRange = meganTable.getDataBodyRange().load("values");
+                            var meganHeader = meganTable.getHeaderRowRange().load("values");
+
                             var emilyTable = context.workbook.tables.getItem("EmilyProjects").load("worksheet");
                             var emilyTableName = context.workbook.tables.getItem("EmilyProjects").load("name");
                             var emilyTableRows = emilyTable.rows;
@@ -2949,6 +2956,13 @@ $( async () => {
                             rachelTableRows.load("items");
                             var rachelRange = rachelTable.getDataBodyRange().load("values");
                             var rachelHeader = rachelTable.getHeaderRowRange().load("values");
+
+                            var emmaTable = context.workbook.tables.getItem("EmmaProjects").load("worksheet");
+                            var emmaTableName = context.workbook.tables.getItem("EmmaProjects").load("name");
+                            var emmaTableRows = emmaTable.rows;
+                            emmaTableRows.load("items");
+                            var emmaRange = emmaTable.getDataBodyRange().load("values");
+                            var emmaHeader = emmaTable.getHeaderRowRange().load("values");
 
                             var alexTable = context.workbook.tables.getItem("AlexProjects").load("worksheet");
                             var alexTableName = context.workbook.tables.getItem("AlexProjects").load("name");
@@ -3910,6 +3924,12 @@ $( async () => {
                                         destinationRows = joshCTableRows.items;
                                         destinationTableRange = joshCRange;
                                         destinationHeader = joshCHeader;
+                                    } else if (rowInfo.artist.value == "Megan") {
+                                        destinationTable = meganTable;
+                                        destinationTableName = meganTableName.name;
+                                        destinationRows = meganTableRows.items;
+                                        destinationTableRange = meganRange;
+                                        destinationHeader = meganHeader;
                                     } else if (rowInfo.artist.value == "Emily") {
                                         destinationTable = emilyTable;
                                         destinationTableName = emilyTableName.name;
@@ -3946,6 +3966,12 @@ $( async () => {
                                         destinationRows = rachelTableRows.items;
                                         destinationTableRange = rachelRange;
                                         destinationHeader = rachelHeader;
+                                    } else if (rowInfo.artist.value == "Emma") {
+                                        destinationTable = emmaTable;
+                                        destinationTableName = emmaTableName.name;
+                                        destinationRows = emmaTableRows.items;
+                                        destinationTableRange = emmaRange;
+                                        destinationHeader = emmaHeader;
                                     } else if (rowInfo.artist.value == "Alex") {
                                         destinationTable = alexTable;
                                         destinationTableName = alexTableName.name;
@@ -4288,12 +4314,14 @@ $( async () => {
                                                     var ethanRange = ethanTable.getDataBodyRange().load("values");
                                                     var jessicaRange = jessicaTable.getDataBodyRange().load("values");
                                                     var joshCRange = joshCTable.getDataBodyRange().load("values");
+                                                    var meganRange = meganTable.getDataBodyRange().load("values");
                                                     var emilyRange = emilyTable.getDataBodyRange().load("values");
                                                     var alainaRange = alainaTable.getDataBodyRange().load("values");
                                                     var ritaRange = ritaTable.getDataBodyRange().load("values");
                                                     var dawnRange = dawnTable.getDataBodyRange().load("values");
                                                     var joeyRange = joeyTable.getDataBodyRange().load("values");
                                                     var rachelRange = rachelTable.getDataBodyRange().load("values");
+                                                    var emmaRange = emmaTable.getDataBodyRange().load("values");
                                                     var alexRange = alexTable.getDataBodyRange().load("values");
                                                     var jamieRange = jamieTable.getDataBodyRange().load("values");
                                                     var jordanRange = jordanTable.getDataBodyRange().load("values");
@@ -4332,6 +4360,8 @@ $( async () => {
                                                         var destinationStation = jessicaRange;
                                                     } else if (rowInfo.artist.value == "Josh C.") {
                                                         var destinationStation = joshCRange;
+                                                    } else if (rowInfo.artist.value == "Megan") {
+                                                        var destinationStation = meganRange;
                                                     } else if (rowInfo.artist.value == "Emily") {
                                                         var destinationStation = emilyRange;
                                                     } else if (rowInfo.artist.value == "Alaina") {
@@ -4344,6 +4374,8 @@ $( async () => {
                                                         var destinationStation = joeyRange;
                                                     } else if (rowInfo.artist.value == "Rachel") {
                                                         var destinationStation = rachelRange;
+                                                    } else if (rowInfo.artist.value == "Emma") {
+                                                        var destinationStation = emmaRange;
                                                     } else if (rowInfo.artist.value == "Alex") {
                                                         var destinationStation = alexRange;
                                                     } else if (rowInfo.artist.value == "Jamie") {
@@ -4506,12 +4538,14 @@ $( async () => {
                                                         var ethanRange = ethanTable.getDataBodyRange().load("values");
                                                         var jessicaRange = jessicaTable.getDataBodyRange().load("values");
                                                         var joshCRange = joshCTable.getDataBodyRange().load("values");
+                                                        var meganRange = meganTable.getDataBodyRange().load("values");
                                                         var emilyRange = emilyTable.getDataBodyRange().load("values");
                                                         var alainaRange = alainaTable.getDataBodyRange().load("values");
                                                         var ritaRange = ritaTable.getDataBodyRange().load("values");
                                                         var dawnRange = dawnTable.getDataBodyRange().load("values");
                                                         var joeyRange = joeyTable.getDataBodyRange().load("values");
                                                         var rachelRange = rachelTable.getDataBodyRange().load("values");
+                                                        var emmaRange = emmaTable.getDataBodyRange().load("values");
                                                         var alexRange = alexTable.getDataBodyRange().load("values");
                                                         var jamieRange = jamieTable.getDataBodyRange().load("values");
                                                         var jordanRange = jordanTable.getDataBodyRange().load("values");
@@ -4550,6 +4584,8 @@ $( async () => {
                                                             var destinationStation = jessicaRange;
                                                         } else if (rowInfo.artist.value == "Josh C.") {
                                                             var destinationStation = joshCRange;
+                                                        } else if (rowInfo.artist.value == "Megan") {
+                                                            var destinationStation = meganRange;
                                                         } else if (rowInfo.artist.value == "Emily") {
                                                             var destinationStation = emilyRange;
                                                         } else if (rowInfo.artist.value == "Alaina") {
@@ -4562,6 +4598,8 @@ $( async () => {
                                                             var destinationStation = joeyRange;
                                                         } else if (rowInfo.artist.value == "Rachel") {
                                                             var destinationStation = rachelRange;
+                                                        } else if (rowInfo.artist.value == "Emma") {
+                                                            var destinationStation = emmaRange;
                                                         } else if (rowInfo.artist.value == "Alex") {
                                                             var destinationStation = alexRange;
                                                         } else if (rowInfo.artist.value == "Jamie") {
